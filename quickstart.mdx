@@ -1,80 +1,121 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "快速接入"
+description: "3 步完成 BetterToken 接入，领取 ¥7 体验额度。"
 ---
 
-## Get started in three steps
+<Steps>
+  <Step title="注册账号并领取体验额度">
+    访问 [BetterToken 注册页面](https://www.bettertoken.ai/register)，创建账号。
 
-Get your documentation site running locally and make your first customization.
+    注册成功后自动获得 **¥7 体验额度**，无需绑卡，按量计费，支持退款。
+  </Step>
+  <Step title="获取 API Key">
+    登录后进入控制台，创建并复制你的 API Key。
 
-### Step 1: Set up your local environment
+    <Warning>
+      请妥善保存 API Key。建议将其设置为环境变量，而不是直接写入代码或配置文件。
+    </Warning>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    推荐导出为环境变量：
 
-### Step 2: Deploy your changes
+    ```bash
+    export BETTERTOKEN_API_KEY="你的 API Key"
+    ```
+  </Step>
+  <Step title="测试 API 调用（可选）">
+    BetterToken 与 Anthropic SDK 兼容。通过以下方式快速验证接入是否正常：
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    <Tabs>
+      <Tab title="Python">
+        安装 Anthropic SDK：
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+        ```bash
+        pip install anthropic
+        ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+        调用 API：
 
-### Step 3: Go live
+        ```python
+        import anthropic
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+        client = anthropic.Anthropic(
+            base_url="https://www.bettertoken.com/v1",
+            api_key="你的 API Key",
+        )
 
-## Next steps
+        message = client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1024,
+            messages=[
+                {"role": "user", "content": "你好，介绍一下你自己。"}
+            ]
+        )
 
-Now that you have your docs running, explore these key features:
+        print(message.content[0].text)
+        ```
+      </Tab>
+      <Tab title="Node.js">
+        安装 Anthropic SDK：
 
-<CardGroup cols={2}>
+        ```bash
+        npm install @anthropic-ai/sdk
+        ```
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+        调用 API：
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+        ```javascript
+        import Anthropic from "@anthropic-ai/sdk";
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+        const client = new Anthropic({
+          baseURL: "https://www.bettertoken.com/v1",
+          apiKey: "你的 API Key",
+        });
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+        const message = await client.messages.create({
+          model: "claude-sonnet-4-5",
+          max_tokens: 1024,
+          messages: [{ role: "user", content: "你好，介绍一下你自己。" }],
+        });
 
-</CardGroup>
+        console.log(message.content[0].text);
+        ```
+      </Tab>
+      <Tab title="cURL">
+        ```bash
+        curl https://www.bettertoken.com/v1/messages \
+          -H "x-api-key: 你的 API Key" \
+          -H "anthropic-version: 2023-06-01" \
+          -H "content-type: application/json" \
+          -d '{
+            "model": "claude-sonnet-4-5",
+            "max_tokens": 1024,
+            "messages": [
+              {"role": "user", "content": "你好，介绍一下你自己。"}
+            ]
+          }'
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+</Steps>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## 接下来
+
+基础接入完成后，将 BetterToken 配置到你的 AI 编程工具中：
+
+<Columns cols={2}>
+  <Card
+    title="Claude Code"
+    icon="terminal"
+    href="/ai-tools/claude-code"
+  >
+    无需指定模型，BetterToken 自动路由。
+  </Card>
+  <Card
+    title="Codex CLI"
+    icon="code"
+    href="/ai-tools/codex"
+  >
+    无需指定模型，BetterToken 自动路由。
+  </Card>
+</Columns>

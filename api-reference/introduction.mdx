@@ -1,33 +1,95 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API 参考"
+description: "BetterToken API 地址、认证方式与兼容性说明。"
 ---
 
+## API 地址
+
+所有请求都发往以下地址：
+
+```
+https://www.bettertoken.com/v1
+```
+
+BetterToken 同时兼容 **Anthropic SDK** 和 **OpenAI SDK**，无需迁移代码，只需替换 `base_url` 和 API Key。
+
+---
+
+## 认证
+
+在请求头中传入你的 BetterToken API Key：
+
+<Tabs>
+  <Tab title="Anthropic SDK（Claude）">
+    ```python
+    import anthropic
+
+    client = anthropic.Anthropic(
+        base_url="https://www.bettertoken.com/v1",
+        api_key="YOUR_API_KEY",  # 即 ANTHROPIC_AUTH_TOKEN
+    )
+    ```
+  </Tab>
+  <Tab title="OpenAI SDK（GPT）">
+    ```python
+    from openai import OpenAI
+
+    client = OpenAI(
+        base_url="https://www.bettertoken.com/v1",
+        api_key="YOUR_API_KEY",
+    )
+    ```
+  </Tab>
+  <Tab title="cURL">
+    ```bash
+    # Anthropic 兼容接口
+    curl https://www.bettertoken.com/v1/messages \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{ ... }'
+
+    # OpenAI 兼容接口
+    curl https://www.bettertoken.com/v1/chat/completions \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{ ... }'
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## 支持的模型
+
+### Claude 系列（Anthropic 兼容）
+
+| 模型名称 | 说明 |
+|----------|------|
+| `claude-opus-4-5` | 最强能力，适合复杂推理任务 |
+| `claude-sonnet-4-5` | 均衡，推荐日常使用 |
+| `claude-haiku-4-5` | 速度最快，适合简单任务 |
+
+### GPT 系列（OpenAI 兼容）
+
+| 模型名称 | 说明 |
+|----------|------|
+| `gpt-4o` | OpenAI 旗舰模型 |
+| `gpt-4o-mini` | 轻量版，速度更快 |
+
 <Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
+  使用 **Claude Code** 或 **Codex CLI** 时，无需在配置中指定模型名称，BetterToken 会自动路由。仅在 Cursor 等需要手动选择模型的工具中才需要指定。
 </Note>
 
-## Welcome
+---
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## 环境变量速查
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+| 变量 | 值 | 用途 |
+|------|----|------|
+| `ANTHROPIC_BASE_URL` | `https://www.bettertoken.com/v1` | Claude Code 等 Anthropic 兼容工具 |
+| `ANTHROPIC_AUTH_TOKEN` | 你的 API Key | Claude Code 认证 |
+| `OPENAI_BASE_URL` | `https://www.bettertoken.com/v1` | OpenAI SDK 兼容工具 |
+| `OPENAI_API_KEY` | 你的 API Key | OpenAI SDK 认证 |
+| `API_TIMEOUT_MS` | `3000000` | 建议设置，防止长任务超时 |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code 专用，减少后台请求 |

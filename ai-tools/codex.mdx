@@ -1,0 +1,80 @@
+---
+title: "Codex CLI"
+description: "在 OpenAI Codex CLI 中使用 BetterToken，无需指定模型。"
+icon: "code"
+---
+
+在 Codex CLI 中接入 BetterToken，只需配置 `base_url` 和 API Key。**不需要指定 BetterToken 特有的模型名称**，Codex CLI 使用默认模型即可。
+
+## 前置条件
+
+- 已安装 Node.js
+- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+
+<Warning>
+  配置前请确保清除以下环境变量，避免它们覆盖配置文件中的设置：
+
+  ```bash
+  unset OPENAI_API_KEY
+  unset OPENAI_BASE_URL
+  ```
+</Warning>
+
+## 安装 Codex CLI
+
+```bash
+npm install -g @openai/codex
+```
+
+## 配置步骤
+
+<Steps>
+  <Step title="编辑 Codex 配置文件">
+    Codex 配置文件路径为 `~/.codex/config.toml`（不存在则新建）。
+
+    添加以下内容（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+
+    ```toml
+    [model_providers.bettertoken]
+    name = "BetterToken"
+    base_url = "https://www.bettertoken.com/v1"
+    env_key = "BETTERTOKEN_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 10
+    stream_idle_timeout_ms = 300000
+
+    [profiles.bt]
+    model = "codex-mini-latest"
+    model_provider = "bettertoken"
+    ```
+  </Step>
+
+  <Step title="设置环境变量">
+    在终端中设置 API Key：
+
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    如果希望每次启动终端都自动生效，将上述命令添加到 `~/.zshrc` 或 `~/.bashrc` 中。
+  </Step>
+
+  <Step title="启动 Codex CLI">
+    使用 BetterToken 配置文件启动：
+
+    ```bash
+    codex --profile bt
+    ```
+  </Step>
+</Steps>
+
+## 验证配置
+
+启动后，向 Codex 发送一条测试消息，确认收到正常回复即表示配置成功。
+
+如遇到连接问题，请检查：
+1. `base_url` 是否正确填写为 `https://www.bettertoken.com/v1`
+2. `BETTERTOKEN_API_KEY` 环境变量是否已设置
+3. 是否有旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量在干扰配置

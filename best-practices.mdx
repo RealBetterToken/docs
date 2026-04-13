@@ -1,0 +1,91 @@
+---
+title: "最佳实践"
+description: "让 BetterToken 发挥最大效用的使用技巧。"
+---
+
+## API Key 安全管理
+
+**使用环境变量，不要硬编码。** 将 API Key 写入代码或配置文件容易被意外提交到代码仓库。推荐的方式：
+
+```bash
+# 写入 ~/.zshrc 或 ~/.bashrc，每次启动终端自动生效
+export BETTERTOKEN_API_KEY="你的 API Key"
+```
+
+对于 Claude Code，使用 `settings.json` 中的 `env` 字段管理密钥，而不是直接暴露在 shell 配置中：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "你的 API Key"
+  }
+}
+```
+
+**定期轮换 API Key。** 若怀疑 Key 泄露，立即在控制台删除并重新生成。
+
+---
+
+## 超时配置
+
+AI 模型的响应时间有时较长，建议将工具的超时时间设置得宽松一些，避免因超时提前断开连接：
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` 毫秒 = 50 分钟，适合需要深度推理的长任务。
+
+---
+
+## 清除冲突的环境变量
+
+如果你同时使用过 Anthropic 官方 API 或其他中转服务，旧的环境变量可能会覆盖你的配置，导致请求发送到错误的地址。
+
+在配置 BetterToken 前，检查并清除以下变量：
+
+```bash
+# 检查是否存在
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# 清除
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code 专项建议
+
+**不要设置模型相关变量。** 接入 BetterToken 时，`ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等变量都**不需要设置**。Claude Code 内部有完整的模型管理逻辑，BetterToken 会自动路由。
+
+多余的模型变量不但没有帮助，还可能导致请求路由到错误的模型。
+
+**禁用非必要流量。** 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 可以减少 Claude Code 发出的后台请求，让你的 API 额度用在真正的编码任务上。
+
+---
+
+## 在多个工具中使用
+
+同一个 API Key 可以同时在 Claude Code、Codex CLI、Cursor 等多个工具中使用。额度共享，方便统一管理。
+
+如果你有多个项目需要隔离追踪用量，可以在控制台创建多个 API Key，分别用于不同的工具或项目。
+
+---
+
+## 遇到问题时的排查顺序
+
+1. **确认 API Key 正确** — 登录控制台，确认 Key 未被删除，粘贴时无多余空格
+2. **确认 base_url 正确** — 应为 `https://www.bettertoken.com/v1`（注意是 `bettertoken.com`）
+3. **检查环境变量冲突** — 运行 `echo $ANTHROPIC_AUTH_TOKEN` 确认没有旧变量覆盖
+4. **检查账户余额** — 余额不足时请求会被拒绝
+5. **联系客服** — 如以上步骤都没有解决问题，联系 BetterToken 客服

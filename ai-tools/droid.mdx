@@ -1,0 +1,104 @@
+---
+title: "Droid"
+description: "在 Droid 中使用 BetterToken，接入 Claude 系列模型。"
+icon: "robot"
+---
+
+Droid 是 Factory AI 的 CLI 编程助手。通过编辑配置文件，可以将 BetterToken 作为自定义 Anthropic 兼容提供商接入。
+
+## 前置条件
+
+- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+
+## 安装 Droid
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://app.factory.ai/cli | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    irm https://app.factory.ai/cli/windows | iex
+    ```
+  </Tab>
+</Tabs>
+
+## 配置步骤
+
+<Steps>
+  <Step title="清除冲突的环境变量">
+    <Warning>
+      必须清除 `ANTHROPIC_AUTH_TOKEN` 环境变量，否则它会覆盖配置文件中的 API Key 导致认证失败。
+    </Warning>
+
+    ```bash
+    unset ANTHROPIC_AUTH_TOKEN
+    unset ANTHROPIC_BASE_URL
+    ```
+  </Step>
+
+  <Step title="编辑 Droid 配置文件">
+    配置文件路径：`~/.factory/config.json`
+
+    <Warning>
+      注意是 `config.json`，不是 `settings.json`。
+    </Warning>
+
+    添加以下内容（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+
+    ```json
+    {
+      "custom_models": [
+        {
+          "model_display_name": "BetterToken Claude",
+          "model": "claude-sonnet-4-5",
+          "base_url": "https://www.bettertoken.com/v1",
+          "api_key": "YOUR_API_KEY",
+          "provider": "anthropic",
+          "max_tokens": 64000
+        }
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="进入项目目录并启动 Droid">
+    ```bash
+    cd /path/to/your/project
+    droid
+    ```
+  </Step>
+
+  <Step title="选择模型">
+    在 Droid 中输入 `/model`，选择 **BetterToken Claude** 开始使用。
+  </Step>
+</Steps>
+
+## 使用多个模型
+
+如果需要同时配置多个模型，在 `custom_models` 数组中添加多条记录即可：
+
+```json
+{
+  "custom_models": [
+    {
+      "model_display_name": "Claude Sonnet",
+      "model": "claude-sonnet-4-5",
+      "base_url": "https://www.bettertoken.com/v1",
+      "api_key": "YOUR_API_KEY",
+      "provider": "anthropic",
+      "max_tokens": 64000
+    },
+    {
+      "model_display_name": "Claude Opus",
+      "model": "claude-opus-4-5",
+      "base_url": "https://www.bettertoken.com/v1",
+      "api_key": "YOUR_API_KEY",
+      "provider": "anthropic",
+      "max_tokens": 32000
+    }
+  ]
+}
+```

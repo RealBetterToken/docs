@@ -1,39 +1,84 @@
 ---
-title: "Cursor setup"
-description: "Configure Cursor for your documentation workflow"
+title: "Cursor"
+description: "在 Cursor 中使用 BetterToken，接入 Claude 或 GPT 系列模型。"
 icon: "arrow-pointer"
 ---
 
-Set up Cursor to help you write and maintain your Mintlify documentation.
+在 Cursor 中接入 BetterToken 需要配置 API 地址，并手动添加你要使用的模型（Claude 系列或 GPT 系列）。
 
-## Prerequisites
+## 前置条件
 
-- Cursor editor installed
+- 已安装 Cursor（前往 [Cursor 官网](https://www.cursor.com) 下载）
+- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+- Cursor 高级会员（Pro 及以上）
 
-## Setup
+<Warning>
+  Cursor 自定义模型功能仅限高级会员使用。如果你使用的是免费版，配置时会出现如下错误：
+  
+  `The model does not work with your current plan or api key`
 
-<Steps>
-<Step title="Open your docs directory in Cursor">
-  Open the root of your documentation repository where `docs.json` is located.
-</Step>
-
-<Step title="Install the Mintlify skill">
-  In the integrated terminal, run:
+  配置前请确保清除以下环境变量：
 
   ```bash
-  npx skills add https://mintlify.com/docs
+  unset OPENAI_API_KEY
+  unset OPENAI_BASE_URL
   ```
+</Warning>
 
-  This gives Cursor Mintlify's component reference, writing standards,
-  and workflow guidance.
-</Step>
+## 配置步骤
 
-<Step title="Customize project instructions">
-  Edit `AGENTS.md` in your project root to add project-specific terminology,
-  style preferences, and content boundaries.
-</Step>
+<Steps>
+  <Step title="打开模型配置页面">
+    在 Cursor 中，点击左下角 **Settings（齿轮图标）**，进入设置界面，选择左侧 **Models** 标签。
+  </Step>
 
-<Step title="Start writing with Cursor">
-  Open a file and use Cursor's AI features to draft and edit documentation.
-</Step>
+  <Step title="配置 BetterToken API">
+    在 **API Keys** 部分：
+
+    1. 勾选 **Override OpenAI Base URL**
+    2. 在输入框中填入：`https://www.bettertoken.com/v1`
+    3. 在 **OpenAI API Key** 输入框中填入你的 BetterToken API Key
+    4. 点击右侧按钮，在弹出窗口中点击 **Enable OpenAI API Key** 完成验证
+  </Step>
+
+  <Step title="添加模型">
+    在 **Models** 部分：
+
+    1. 点击 **View All Models**，再点击 **Add Custom Model**
+    2. 输入你要使用的模型名称，例如：
+       - Claude 系列：`claude-sonnet-4-5`、`claude-opus-4-5`、`claude-haiku-4-5`
+       - GPT 系列：`gpt-4o`、`gpt-4o-mini`
+    3. 点击 **Add** 添加模型
+    4. 启用刚刚添加的模型
+
+    <Note>
+      与 Claude Code 和 Codex 不同，在 Cursor 中使用 BetterToken 时需要手动指定模型名称。
+    </Note>
+  </Step>
+
+  <Step title="选择模型并开始使用">
+    在 Cursor 聊天面板的模型下拉菜单中，选择你刚添加的模型，即可开始使用。
+  </Step>
 </Steps>
+
+## 支持的模型
+
+通过 BetterToken 在 Cursor 中可以使用以下模型：
+
+| 系列 | 模型名称 | 说明 |
+|------|----------|------|
+| Claude | `claude-sonnet-4-5` | 均衡，适合日常编程 |
+| Claude | `claude-opus-4-5` | 最强能力，适合复杂任务 |
+| Claude | `claude-haiku-4-5` | 速度最快，适合简单任务 |
+| GPT | `gpt-4o` | OpenAI 旗舰模型 |
+| GPT | `gpt-4o-mini` | 轻量版，速度更快 |
+
+## 常见问题
+
+**模型没有返回任何内容怎么办？**
+
+尝试将 Cursor 的 **Settings → Network** 更改为 **HTTP/1.0**，再重试。
+
+**配置后提示认证失败怎么办？**
+
+检查 API Key 是否正确，以及 `base_url` 是否设置为 `https://www.bettertoken.com/v1`（注意是 `bettertoken.com`，不是 `bettertoken.ai`）。

@@ -1,0 +1,70 @@
+---
+title: "Hermes Agent"
+description: "在 Hermes Agent 中使用 BetterToken，接入 Claude 系列模型。"
+icon: "user-astronaut"
+---
+
+Hermes Agent 是一个开源自主 AI 智能体，支持持久记忆和多平台接入。通过 BetterToken 可以使用 Claude 系列模型驱动 Hermes Agent。
+
+## 前置条件
+
+- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+- macOS、Linux 或 Windows WSL2 环境
+
+## 安装 Hermes Agent
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+验证安装：
+
+```bash
+hermes doctor
+```
+
+## 配置步骤
+
+<Steps>
+  <Step title="运行模型选择器">
+    ```bash
+    hermes model
+    ```
+  </Step>
+
+  <Step title="选择 Anthropic 提供商">
+    在 provider 列表中，选择 **Anthropic** 或 **Anthropic Compatible**。
+
+    <Note>
+      Hermes Agent 没有内置的 BetterToken 选项，选择通用 Anthropic 兼容提供商后配置自定义 base_url 即可。
+    </Note>
+  </Step>
+
+  <Step title="填写 BetterToken 配置">
+    按提示依次输入：
+
+    - **Base URL**：`https://www.bettertoken.com/v1`
+    - **API Key**：你的 BetterToken API Key
+    - **Model**：`claude-sonnet-4-5`
+  </Step>
+
+  <Step title="开始使用">
+    ```bash
+    hermes
+    ```
+
+    Hermes Agent 会使用 BetterToken 路由你的请求到 Claude 模型。
+  </Step>
+</Steps>
+
+## 关于 Hermes Agent 的持久记忆
+
+Hermes Agent 的记忆系统会跨会话保存你的编程模式、项目上下文和偏好。使用次数越多，它对你的工作风格了解越深，响应也会越精准。
+
+## 支持的模型
+
+| 模型名称 | 说明 |
+|----------|------|
+| `claude-sonnet-4-5` | 均衡，推荐日常使用 |
+| `claude-opus-4-5` | 最强能力，适合复杂 Agent 任务 |
+| `claude-haiku-4-5` | 速度最快，适合高频交互 |

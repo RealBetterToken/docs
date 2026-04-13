@@ -1,0 +1,88 @@
+---
+title: "OpenCode"
+description: "在 OpenCode 中使用 BetterToken，接入 Claude 系列模型。"
+icon: "brackets-curly"
+---
+
+在 OpenCode 中接入 BetterToken，可以通过编辑配置文件完成，兼容 Anthropic SDK 格式。
+
+## 前置条件
+
+- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+
+## 安装 OpenCode
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## 配置步骤
+
+<Steps>
+  <Step title="清除冲突的环境变量">
+    ```bash
+    unset ANTHROPIC_AUTH_TOKEN
+    unset ANTHROPIC_BASE_URL
+    ```
+  </Step>
+
+  <Step title="编辑 OpenCode 配置文件">
+    配置文件路径：`~/.config/opencode/opencode.json`
+
+    添加以下内容（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "provider": {
+        "bettertoken": {
+          "npm": "@ai-sdk/anthropic",
+          "options": {
+            "baseURL": "https://www.bettertoken.com/v1",
+            "apiKey": "YOUR_API_KEY"
+          },
+          "models": {
+            "claude-sonnet-4-5": {
+              "name": "claude-sonnet-4-5"
+            }
+          }
+        }
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="启动 OpenCode">
+    进入你的项目目录，启动 OpenCode：
+
+    ```bash
+    cd /path/to/your/project
+    opencode
+    ```
+  </Step>
+
+  <Step title="选择模型">
+    在 OpenCode 中输入 `/models`，选择 `claude-sonnet-4-5` 模型开始使用。
+  </Step>
+</Steps>
+
+## 支持的模型
+
+在配置文件的 `models` 字段中可以添加多个模型：
+
+```json
+"models": {
+  "claude-sonnet-4-5": { "name": "claude-sonnet-4-5" },
+  "claude-opus-4-5": { "name": "claude-opus-4-5" },
+  "claude-haiku-4-5": { "name": "claude-haiku-4-5" }
+}
+```

@@ -1,0 +1,104 @@
+---
+title: "常见问题"
+description: "关于 BetterToken 账号、计费、用量和接入的常见问题。"
+---
+
+## 账号与计费
+
+<AccordionGroup>
+  <Accordion title="BetterToken 是如何计费的？">
+    BetterToken 按实际消耗的 token 量计费，与 Anthropic / OpenAI 官方定价保持一致，不额外收取溢价。注册即获得 ¥7 体验额度，无需绑卡。
+
+    具体定价请参考[定价页面](https://www.bettertoken.ai/#)。
+  </Accordion>
+
+  <Accordion title="注册后可以退款吗？">
+    充值金额支持退款，体验额度不支持退款。如有退款需求，请联系客服处理。
+  </Accordion>
+
+  <Accordion title="是否可以同时在多个工具中使用同一个 API Key？">
+    可以。同一个 API Key 可以同时在 Claude Code、Codex、Cursor 等多个工具中使用，额度共享。
+  </Accordion>
+
+  <Accordion title="如何查看用量？">
+    登录控制台后，在账户管理页面可以查看当前用量和消费记录。
+  </Accordion>
+</AccordionGroup>
+
+## 接入与配置
+
+<AccordionGroup>
+  <Accordion title="BetterToken 的 base_url 是什么？">
+    BetterToken 的 API 地址为：
+
+    ```
+    https://www.bettertoken.com/v1
+    ```
+
+    与 Anthropic SDK 和 OpenAI SDK 均兼容，替换 `base_url` 即可接入。
+  </Accordion>
+
+  <Accordion title="接入 Claude Code 时需要指定模型吗？">
+    不需要。Claude Code 有自己的模型管理逻辑，接入 BetterToken 时只需配置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`，**不需要**设置 `ANTHROPIC_MODEL` 等模型相关变量。
+
+    BetterToken 会自动路由到合适的模型。
+  </Accordion>
+
+  <Accordion title="接入 Codex CLI 时需要指定模型吗？">
+    不需要。Codex CLI 接入 BetterToken 时，使用默认模型即可，无需在配置中指定 BetterToken 特有的模型名称。
+
+    详细配置参考[Codex CLI 接入文档](/ai-tools/codex)。
+  </Accordion>
+
+  <Accordion title="接入 Cursor 等其他工具时需要指定模型吗？">
+    需要。Cursor 等工具需要你手动添加模型并选择，可以选择 Claude 系列（如 `claude-sonnet-4-5`）或 GPT 系列（如 `gpt-4o`）。
+
+    详细配置参考 [Cursor 接入文档](/ai-tools/cursor)。
+  </Accordion>
+
+  <Accordion title="配置后提示认证失败怎么办？">
+    请检查以下几点：
+
+    1. API Key 是否正确，没有多余空格
+    2. `base_url` 是否设置为 `https://www.bettertoken.com/v1`（注意是 `bettertoken.com`，不是 `bettertoken.ai`）
+    3. 是否存在旧的 `ANTHROPIC_AUTH_TOKEN` 或 `OPENAI_API_KEY` 环境变量覆盖了配置
+
+    如仍有问题，请联系客服。
+  </Accordion>
+</AccordionGroup>
+
+## 可靠性与限流
+
+<AccordionGroup>
+  <Accordion title="BetterToken 是如何保证可靠性的？">
+    BetterToken 同时接入 12+ 家供应商，并通过以下机制保障稳定性：
+
+    - **多源供应**：某个供应商故障时自动切换，不影响你的请求
+    - **动态路由**：实时检测各链路状态，选择响应最快、成功率最高的路径
+    - **精选旗舰**：只接入 Claude 和 Codex，集中保障核心模型的可用性
+  </Accordion>
+
+  <Accordion title="遇到限流或超时怎么办？">
+    BetterToken 的多源路由机制会自动处理单一供应商的限流和超时。如果你遇到持续的限流问题：
+
+    1. 检查账户余额是否充足
+    2. 适当增大工具的超时时间（建议设置 `API_TIMEOUT_MS=3000000`）
+    3. 联系客服了解当前配额情况
+  </Accordion>
+
+  <Accordion title="BetterToken 是否适合生产环境？">
+    BetterToken 主要面向 AI 编程工具的个人开发者场景（Claude Code、Codex 等）。对于大批量的生产环境 API 调用，建议结合实际情况评估。
+  </Accordion>
+</AccordionGroup>
+
+## 隐私与安全
+
+<AccordionGroup>
+  <Accordion title="BetterToken 会存储我的请求内容吗？">
+    BetterToken 作为 API 中转层处理请求，不会持久化存储用户的对话内容。详细的隐私条款请参考[隐私政策](https://www.bettertoken.ai/privacy)。
+  </Accordion>
+
+  <Accordion title="API Key 泄露了怎么办？">
+    立即登录控制台，删除旧的 API Key 并重新生成一个。同时检查使用该 Key 的工具配置，替换为新 Key。
+  </Accordion>
+</AccordionGroup>

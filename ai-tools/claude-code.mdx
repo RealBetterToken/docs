@@ -1,43 +1,116 @@
 ---
-title: "Claude Code setup"
-description: "Configure Claude Code for your documentation workflow"
-icon: "asterisk"
+title: "Claude Code"
+description: "在 Claude Code 中使用 BetterToken，无需指定模型。"
+icon: "terminal"
 ---
 
-Set up Claude Code to help you write and maintain your Mintlify documentation.
+在 Claude Code 中接入 BetterToken 只需修改两个配置项：`ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。**不需要指定模型名称**，BetterToken 会自动路由。
 
-## Prerequisites
+## 前置条件
 
-- Active Claude subscription (Pro, Max, or API access)
+- 已安装 Claude Code（参考 [Claude Code 官方文档](https://docs.anthropic.com/en/docs/claude-code) 安装）
+- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
 
-## Setup
+<Warning>
+  配置前请确保清除以下环境变量，避免它们覆盖配置文件中的设置：
+
+  ```bash
+  unset ANTHROPIC_AUTH_TOKEN
+  unset ANTHROPIC_BASE_URL
+  ```
+</Warning>
+
+## 配置步骤
 
 <Steps>
-<Step title="Install Claude Code">
-  ```bash
-  npm install -g @anthropic-ai/claude-code
-  ```
-</Step>
+  <Step title="编辑 Claude Code 配置文件">
+    配置文件路径：
 
-<Step title="Install the Mintlify skill">
-  In your docs directory, run:
+    - macOS / Linux：`~/.claude/settings.json`
+    - Windows：`%USERPROFILE%\.claude\settings.json`
 
-  ```bash
-  npx skills add https://mintlify.com/docs
-  ```
+    将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
 
-  This gives Claude Code Mintlify's component reference, writing standards,
-  and workflow guidance.
-</Step>
+    ```json
+    {
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://www.bettertoken.com/v1",
+        "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+        "API_TIMEOUT_MS": "3000000",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+      }
+    }
+    ```
 
-<Step title="Customize project instructions">
-  Edit `AGENTS.md` in your project root to add project-specific terminology,
-  style preferences, and content boundaries.
-</Step>
+    <Note>
+      与其他 API 中转服务不同，接入 BetterToken 时**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL` 等模型变量。BetterToken 自动路由到合适的 Claude 模型。
+    </Note>
+  </Step>
 
-<Step title="Start writing with Claude Code">
-  ```bash
-  claude
-  ```
-</Step>
+  <Step title="完成 onboarding（首次使用）">
+    如果这是你第一次使用 Claude Code，还需要编辑 `~/.claude.json`，添加以下内容跳过 onboarding 流程：
+
+    ```json
+    {
+      "hasCompletedOnboarding": true
+    }
+    ```
+  </Step>
+
+  <Step title="启动 Claude Code">
+    进入你的工作目录，运行：
+
+    ```bash
+    claude
+    ```
+
+    首次启动时，选择 **Trust This Folder**，允许 Claude Code 访问该目录中的文件。
+  </Step>
 </Steps>
+
+## 在 VS Code 插件中使用
+
+如果你使用 Claude Code 的 VS Code 插件，配置方式如下：
+
+<Steps>
+  <Step title="安装插件">
+    在 VS Code 插件市场搜索并安装 **Claude Code**。
+  </Step>
+  <Step title="打开设置">
+    点击插件设置图标，进入配置界面。
+  </Step>
+  <Step title="配置环境变量">
+    点击 **Edit in settings.json**，将 `claudeCode.environmentVariables` 修改为：
+
+    ```json
+    {
+      "claudeCode.environmentVariables": [
+        {
+          "name": "ANTHROPIC_BASE_URL",
+          "value": "https://www.bettertoken.com/v1"
+        },
+        {
+          "name": "ANTHROPIC_AUTH_TOKEN",
+          "value": "YOUR_API_KEY"
+        },
+        {
+          "name": "API_TIMEOUT_MS",
+          "value": "3000000"
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+          "value": "1"
+        }
+      ]
+    }
+    ```
+  </Step>
+</Steps>
+
+## 验证配置
+
+启动 Claude Code 后，在终端中发送一条消息，确认收到正常回复即表示配置成功。
+
+如遇到认证错误，请检查：
+1. `ANTHROPIC_AUTH_TOKEN` 是否填写了正确的 BetterToken API Key
+2. 是否有旧的环境变量在覆盖配置文件（使用 `echo $ANTHROPIC_AUTH_TOKEN` 检查）
