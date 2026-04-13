@@ -1,0 +1,104 @@
+---
+title: "Droid"
+description: "Connect BetterToken to Droid — use Claude series models."
+icon: "robot"
+---
+
+Droid is Factory AI's CLI coding assistant. You can connect BetterToken as a custom Anthropic-compatible provider by editing the config file.
+
+## Prerequisites
+
+- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+
+## Install Droid
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://app.factory.ai/cli | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    irm https://app.factory.ai/cli/windows | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Setup
+
+<Steps>
+  <Step title="Clear conflicting environment variables">
+    <Warning>
+      You must unset `ANTHROPIC_AUTH_TOKEN` before proceeding. If it remains set, it overrides the API key in the config file and causes authentication failures.
+    </Warning>
+
+    ```bash
+    unset ANTHROPIC_AUTH_TOKEN
+    unset ANTHROPIC_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Edit the Droid config file">
+    Config file path: `~/.factory/config.json`
+
+    <Warning>
+      The file is `config.json`, not `settings.json`.
+    </Warning>
+
+    Add the following (replace `YOUR_API_KEY` with your BetterToken API Key):
+
+    ```json
+    {
+      "custom_models": [
+        {
+          "model_display_name": "BetterToken Claude",
+          "model": "claude-sonnet-4-5",
+          "base_url": "https://www.bettertoken.com/v1",
+          "api_key": "YOUR_API_KEY",
+          "provider": "anthropic",
+          "max_tokens": 64000
+        }
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="Navigate to your project and start Droid">
+    ```bash
+    cd /path/to/your/project
+    droid
+    ```
+  </Step>
+
+  <Step title="Select the model">
+    Type `/model` in Droid and select **BetterToken Claude**.
+  </Step>
+</Steps>
+
+## Using multiple models
+
+To configure multiple models, add additional entries to the `custom_models` array:
+
+```json
+{
+  "custom_models": [
+    {
+      "model_display_name": "Claude Sonnet",
+      "model": "claude-sonnet-4-5",
+      "base_url": "https://www.bettertoken.com/v1",
+      "api_key": "YOUR_API_KEY",
+      "provider": "anthropic",
+      "max_tokens": 64000
+    },
+    {
+      "model_display_name": "Claude Opus",
+      "model": "claude-opus-4-5",
+      "base_url": "https://www.bettertoken.com/v1",
+      "api_key": "YOUR_API_KEY",
+      "provider": "anthropic",
+      "max_tokens": 32000
+    }
+  ]
+}
+```

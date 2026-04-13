@@ -1,0 +1,85 @@
+---
+title: "OpenClaw"
+description: "Connect BetterToken to OpenClaw — use Claude series models."
+icon: "paw"
+---
+
+Connecting OpenClaw to BetterToken requires manually editing the config file to add BetterToken as a custom Anthropic-compatible provider.
+
+## Prerequisites
+
+- OpenClaw installed
+- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+
+## Install OpenClaw
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://openclaw.bot/install.sh | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr -useb https://openclaw.ai/install.ps1 | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Setup
+
+<Steps>
+  <Step title="Clear conflicting environment variables">
+    ```bash
+    unset ANTHROPIC_AUTH_TOKEN
+    unset ANTHROPIC_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Edit the OpenClaw config file">
+    Open `~/.openclaw/openclaw.json` and add BetterToken as a custom provider:
+
+    ```json
+    {
+      "model": {
+        "provider": "anthropic",
+        "baseURL": "https://www.bettertoken.com/v1",
+        "apiKey": "YOUR_API_KEY",
+        "model": "claude-sonnet-4-5"
+      }
+    }
+    ```
+
+    Replace `YOUR_API_KEY` with your BetterToken API Key.
+
+    <Note>
+      If the config file already has other entries, only update the `model` field — do not remove other settings.
+    </Note>
+  </Step>
+
+  <Step title="Restart the OpenClaw gateway">
+    ```bash
+    openclaw gateway start
+    ```
+  </Step>
+
+  <Step title="Verify">
+    Launch the OpenClaw TUI and send a message to confirm everything is working:
+
+    ```bash
+    openclaw tui
+    ```
+  </Step>
+</Steps>
+
+## Switch models
+
+BetterToken supports the full Claude model lineup. Edit the `model` field in the config to switch:
+
+| Model | Use case |
+|-------|----------|
+| `claude-sonnet-4-5` | Balanced — recommended |
+| `claude-opus-4-5` | Most capable — complex tasks |
+| `claude-haiku-4-5` | Fastest — lightweight tasks |
+
+After changing the model, re-run `openclaw gateway start` to apply.

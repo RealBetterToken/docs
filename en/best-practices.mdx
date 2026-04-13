@@ -1,0 +1,91 @@
+---
+title: "Best practices"
+description: "Tips for getting the most out of BetterToken."
+---
+
+## Keep your API Key secure
+
+**Use environment variables — never hardcode.** Writing your API Key directly into source code or config files risks accidental exposure in version control. Recommended approach:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export BETTERTOKEN_API_KEY="your-api-key-here"
+```
+
+For Claude Code, manage secrets through the `env` field in `settings.json` rather than exposing them in your shell config:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**Rotate your API Key periodically.** If you suspect exposure, delete the key immediately from the dashboard and generate a new one.
+
+---
+
+## Set a generous timeout
+
+AI model responses can take time, especially for complex reasoning tasks. Set the timeout high enough to avoid premature disconnects:
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50 minutes. This is appropriate for deep reasoning or long agentic tasks.
+
+---
+
+## Clear conflicting environment variables
+
+If you've previously used the official Anthropic or OpenAI APIs — or another relay service — stale environment variables may override your BetterToken config and silently send requests to the wrong endpoint.
+
+Before configuring BetterToken, check and clear these:
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code: don't set model variables
+
+When connecting to BetterToken, **do not set** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or any other model-specific variables. Claude Code manages model selection internally; BetterToken routes automatically.
+
+Extra model variables don't help — they can actually cause routing to the wrong model.
+
+**Disable non-essential traffic.** Setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduces background requests from Claude Code, reserving your API quota for actual coding tasks.
+
+---
+
+## Use one API Key across multiple tools
+
+The same API Key works simultaneously in Claude Code, Codex CLI, Cursor, and any other tool. Quota is shared, making it easy to manage centrally.
+
+If you need to track usage separately per project or team, create multiple API Keys in the dashboard and assign one to each tool or project.
+
+---
+
+## Troubleshooting checklist
+
+1. **Confirm the API Key is correct** — check the dashboard, paste carefully with no extra spaces
+2. **Confirm the base_url** — must be `https://www.bettertoken.com/v1` (note: `.com`, not `.ai`)
+3. **Check for conflicting env vars** — run `echo $ANTHROPIC_AUTH_TOKEN` to verify nothing is overriding
+4. **Check your balance** — requests are rejected when the balance is depleted
+5. **Contact support** — if the above steps don't resolve the issue

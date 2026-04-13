@@ -1,0 +1,95 @@
+---
+title: "API Reference"
+description: "BetterToken API endpoint, authentication, and compatibility."
+---
+
+## API endpoint
+
+All requests go to:
+
+```
+https://www.bettertoken.com/v1
+```
+
+BetterToken is compatible with both the **Anthropic SDK** and the **OpenAI SDK** — no code migration needed, just swap `base_url` and API Key.
+
+---
+
+## Authentication
+
+Pass your BetterToken API Key in the request:
+
+<Tabs>
+  <Tab title="Anthropic SDK (Claude)">
+    ```python
+    import anthropic
+
+    client = anthropic.Anthropic(
+        base_url="https://www.bettertoken.com/v1",
+        api_key="YOUR_API_KEY",
+    )
+    ```
+  </Tab>
+  <Tab title="OpenAI SDK (GPT)">
+    ```python
+    from openai import OpenAI
+
+    client = OpenAI(
+        base_url="https://www.bettertoken.com/v1",
+        api_key="YOUR_API_KEY",
+    )
+    ```
+  </Tab>
+  <Tab title="cURL">
+    ```bash
+    # Anthropic-compatible endpoint
+    curl https://www.bettertoken.com/v1/messages \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{ ... }'
+
+    # OpenAI-compatible endpoint
+    curl https://www.bettertoken.com/v1/chat/completions \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{ ... }'
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Supported models
+
+### Claude series (Anthropic-compatible)
+
+| Model | Description |
+|-------|-------------|
+| `claude-opus-4-5` | Most capable — best for complex reasoning |
+| `claude-sonnet-4-5` | Balanced — recommended for everyday use |
+| `claude-haiku-4-5` | Fastest — best for simple tasks |
+
+### GPT series (OpenAI-compatible)
+
+| Model | Description |
+|-------|-------------|
+| `gpt-4o` | OpenAI flagship model |
+| `gpt-4o-mini` | Lightweight, faster responses |
+
+<Note>
+  When using **Claude Code** or **Codex CLI**, you do not need to specify a model name in your config. BetterToken routes automatically. You only need to specify a model in tools like Cursor that require explicit model selection.
+</Note>
+
+---
+
+## Environment variable reference
+
+| Variable | Value | Usage |
+|----------|-------|-------|
+| `ANTHROPIC_BASE_URL` | `https://www.bettertoken.com/v1` | Anthropic-compatible tools (Claude Code, etc.) |
+| `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code authentication |
+| `OPENAI_BASE_URL` | `https://www.bettertoken.com/v1` | OpenAI SDK-compatible tools |
+| `OPENAI_API_KEY` | Your API Key | OpenAI SDK authentication |
+| `API_TIMEOUT_MS` | `3000000` | Recommended — prevents long-task timeouts |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only — reduces background requests |

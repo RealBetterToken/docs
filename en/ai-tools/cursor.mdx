@@ -1,0 +1,77 @@
+---
+title: "Cursor"
+description: "Connect BetterToken to Cursor — use Claude or GPT series models."
+icon: "arrow-pointer"
+---
+
+Connecting Cursor to BetterToken requires configuring the API endpoint and manually adding your preferred models.
+
+## Prerequisites
+
+- Cursor installed ([download at cursor.com](https://www.cursor.com))
+- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+- Cursor Pro or higher subscription
+
+<Warning>
+  Custom model configuration requires a Cursor Pro subscription. On the free plan you'll see:
+
+  `The model does not work with your current plan or api key`
+
+  Also clear any conflicting env vars before starting:
+
+  ```bash
+  unset OPENAI_API_KEY
+  unset OPENAI_BASE_URL
+  ```
+</Warning>
+
+## Setup
+
+<Steps>
+  <Step title="Open the model settings">
+    In Cursor, click **Settings** (gear icon, bottom left), then select the **Models** tab.
+  </Step>
+
+  <Step title="Configure the BetterToken API">
+    Under **API Keys**:
+
+    1. Check **Override OpenAI Base URL**
+    2. Enter: `https://www.bettertoken.com/v1`
+    3. Enter your BetterToken API Key in the **OpenAI API Key** field
+    4. Click the button on the right and select **Enable OpenAI API Key** to verify
+  </Step>
+
+  <Step title="Add models">
+    Under **Models**:
+
+    1. Click **View All Models** → **Add Custom Model**
+    2. Enter a model name, for example:
+       - Claude: `claude-sonnet-4-5`, `claude-opus-4-5`, `claude-haiku-4-5`
+       - GPT: `gpt-4o`, `gpt-4o-mini`
+    3. Click **Add**, then enable the model
+
+    <Note>
+      Unlike Claude Code and Codex, Cursor requires you to explicitly specify which model to use.
+    </Note>
+  </Step>
+
+  <Step title="Select a model and start">
+    In the Cursor chat panel, choose your added model from the dropdown to start coding.
+  </Step>
+</Steps>
+
+## Supported models
+
+| Series | Model | Description |
+|--------|-------|-------------|
+| Claude | `claude-sonnet-4-5` | Balanced — recommended for everyday coding |
+| Claude | `claude-opus-4-5` | Most capable — best for complex tasks |
+| Claude | `claude-haiku-4-5` | Fastest — best for simple completions |
+| GPT | `gpt-4o` | OpenAI flagship |
+| GPT | `gpt-4o-mini` | Lightweight, faster responses |
+
+## Troubleshooting
+
+**Model returns no content:** Try changing **Settings → Network** to **HTTP/1.0**.
+
+**Authentication error:** Check that the API Key is correct and `base_url` is `https://www.bettertoken.com/v1` (`.com`, not `.ai`).

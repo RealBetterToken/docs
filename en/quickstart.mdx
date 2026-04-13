@@ -1,0 +1,111 @@
+---
+title: "Quickstart"
+description: "3 steps to connect BetterToken and claim your ¥7 / $1 trial credit."
+---
+
+<Steps>
+  <Step title="Create an account and claim your trial credit">
+    Visit the [BetterToken registration page](https://www.bettertoken.ai/register) to create an account.
+
+    You'll automatically receive a **¥7 trial credit** on signup — no credit card required, pay-as-you-go, refundable.
+  </Step>
+  <Step title="Get your API Key">
+    Log in to the dashboard and create your API Key.
+
+    <Warning>
+      Keep your API Key safe. Store it as an environment variable rather than hardcoding it into your config files or source code.
+    </Warning>
+
+    Export it as an environment variable:
+
+    ```bash
+    export BETTERTOKEN_API_KEY="your-api-key-here"
+    ```
+  </Step>
+  <Step title="Test the API (optional)">
+    BetterToken is compatible with the Anthropic SDK. Use the following to verify your connection:
+
+    <Tabs>
+      <Tab title="Python">
+        ```bash
+        pip install anthropic
+        ```
+
+        ```python
+        import anthropic
+
+        client = anthropic.Anthropic(
+            base_url="https://www.bettertoken.com/v1",
+            api_key="your-api-key-here",
+        )
+
+        message = client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1024,
+            messages=[
+                {"role": "user", "content": "Hello, introduce yourself."}
+            ]
+        )
+
+        print(message.content[0].text)
+        ```
+      </Tab>
+      <Tab title="Node.js">
+        ```bash
+        npm install @anthropic-ai/sdk
+        ```
+
+        ```javascript
+        import Anthropic from "@anthropic-ai/sdk";
+
+        const client = new Anthropic({
+          baseURL: "https://www.bettertoken.com/v1",
+          apiKey: "your-api-key-here",
+        });
+
+        const message = await client.messages.create({
+          model: "claude-sonnet-4-5",
+          max_tokens: 1024,
+          messages: [{ role: "user", content: "Hello, introduce yourself." }],
+        });
+
+        console.log(message.content[0].text);
+        ```
+      </Tab>
+      <Tab title="cURL">
+        ```bash
+        curl https://www.bettertoken.com/v1/messages \
+          -H "x-api-key: your-api-key-here" \
+          -H "anthropic-version: 2023-06-01" \
+          -H "content-type: application/json" \
+          -d '{
+            "model": "claude-sonnet-4-5",
+            "max_tokens": 1024,
+            "messages": [
+              {"role": "user", "content": "Hello, introduce yourself."}
+            ]
+          }'
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+</Steps>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card
+    title="Connect Claude Code"
+    icon="terminal"
+    href="/en/ai-tools/claude-code"
+  >
+    No model name needed — BetterToken routes automatically.
+  </Card>
+  <Card
+    title="Connect Codex CLI"
+    icon="code"
+    href="/en/ai-tools/codex"
+  >
+    No model name needed — BetterToken routes automatically.
+  </Card>
+</Columns>

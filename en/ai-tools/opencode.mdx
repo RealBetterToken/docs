@@ -1,0 +1,86 @@
+---
+title: "OpenCode"
+description: "Connect BetterToken to OpenCode — use Claude series models."
+icon: "brackets-curly"
+---
+
+Connecting OpenCode to BetterToken is done by editing the config file. BetterToken is compatible with the Anthropic SDK format.
+
+## Prerequisites
+
+- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+
+## Install OpenCode
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## Setup
+
+<Steps>
+  <Step title="Clear conflicting environment variables">
+    ```bash
+    unset ANTHROPIC_AUTH_TOKEN
+    unset ANTHROPIC_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Edit the OpenCode config file">
+    Config file location: `~/.config/opencode/opencode.json`
+
+    Add the following (replace `YOUR_API_KEY`):
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "provider": {
+        "bettertoken": {
+          "npm": "@ai-sdk/anthropic",
+          "options": {
+            "baseURL": "https://www.bettertoken.com/v1",
+            "apiKey": "YOUR_API_KEY"
+          },
+          "models": {
+            "claude-sonnet-4-5": {
+              "name": "claude-sonnet-4-5"
+            }
+          }
+        }
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Start OpenCode">
+    ```bash
+    cd /path/to/your/project
+    opencode
+    ```
+  </Step>
+
+  <Step title="Select the model">
+    Type `/models` inside OpenCode and select `claude-sonnet-4-5`.
+  </Step>
+</Steps>
+
+## Add more models
+
+Add multiple models to the `models` field in the config:
+
+```json
+"models": {
+  "claude-sonnet-4-5": { "name": "claude-sonnet-4-5" },
+  "claude-opus-4-5":   { "name": "claude-opus-4-5" },
+  "claude-haiku-4-5":  { "name": "claude-haiku-4-5" }
+}
+```

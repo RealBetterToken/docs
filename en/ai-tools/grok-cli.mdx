@@ -1,0 +1,64 @@
+---
+title: "Grok CLI"
+description: "Connect BetterToken to Grok CLI — use Claude or GPT series models."
+icon: "g"
+---
+
+Grok CLI uses environment variables for API configuration. Connecting to BetterToken requires setting two variables and specifying a model at startup.
+
+<Warning>
+  Grok CLI is better suited for lightweight code completion tasks. For full agent workflows, Claude Code or Cursor is recommended.
+</Warning>
+
+## Prerequisites
+
+- Node.js installed
+- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+
+## Install Grok CLI
+
+```bash
+npm install -g @vibe-kit/grok-cli
+```
+
+## Setup
+
+<Steps>
+  <Step title="Clear conflicting environment variables">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Set BetterToken environment variables">
+    ```bash
+    export GROK_BASE_URL="https://www.bettertoken.com/v1"
+    export GROK_API_KEY="YOUR_API_KEY"
+    ```
+
+    To persist across sessions, add both lines to `~/.zshrc` or `~/.bashrc`.
+  </Step>
+
+  <Step title="Start Grok CLI with a model">
+    ```bash
+    grok --model claude-sonnet-4-5
+    ```
+  </Step>
+</Steps>
+
+## Supported models
+
+| Model | Description |
+|-------|-------------|
+| `claude-sonnet-4-5` | Balanced — recommended |
+| `claude-opus-4-5` | Most capable |
+| `claude-haiku-4-5` | Fastest |
+| `gpt-4o` | OpenAI flagship |
+| `gpt-4o-mini` | Lightweight, faster |
+
+Switch models with the `--model` flag:
+
+```bash
+grok --model gpt-4o
+```
