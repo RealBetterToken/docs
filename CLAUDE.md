@@ -93,7 +93,7 @@ docs/
 ### 模型指定规则（核心差异）
 
 - **Claude Code、Codex CLI**：接入 BetterToken 后**无需指定模型**，BetterToken 自动路由
-- **其他工具**（Cursor、Cline、Roo Code、Kilo Code、Zed 等）：**必须手动指定模型**，如 `claude-sonnet-4-5`、`gpt-4o`
+- **其他工具**（Cursor、Cline、Roo Code、Kilo Code、Zed 等）：**必须手动指定模型**，如 `claude-sonnet-4-6`、`gpt-5.4`
 
 ### 写作风格
 
