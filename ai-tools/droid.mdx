@@ -4,7 +4,7 @@ description: "在 Droid 中使用 BetterToken，接入 Claude 系列模型。"
 icon: "robot"
 ---
 
-Droid 是 Factory AI 的 CLI 编程助手。通过编辑配置文件，可以将 BetterToken 作为自定义 Anthropic 兼容提供商接入。
+Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 BetterToken 作为自定义 Anthropic 兼容提供商接入。
 
 ## 前置条件
 
@@ -39,25 +39,33 @@ Droid 是 Factory AI 的 CLI 编程助手。通过编辑配置文件，可以将
     ```
   </Step>
 
+  <Step title="设置 BetterToken API Key">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。需要长期生效时，将这行添加到 `~/.zshrc` 或 `~/.bashrc`。
+  </Step>
+
   <Step title="编辑 Droid 配置文件">
-    配置文件路径：`~/.factory/config.json`
+    配置文件路径：`~/.factory/settings.json`
 
-    <Warning>
-      注意是 `config.json`，不是 `settings.json`。
-    </Warning>
+    <Note>
+      `~/.factory/config.json` 的旧版 snake_case 写法仍可兼容，但 Factory 当前推荐使用 `settings.json`。当两个文件同时存在时，`settings.json` 优先级更高。
+    </Note>
 
-    添加以下内容（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+    添加以下内容：
 
     ```json
     {
-      "custom_models": [
+      "customModels": [
         {
-          "model_display_name": "BetterToken Claude",
+          "displayName": "BetterToken Claude",
           "model": "claude-sonnet-4-6",
-          "base_url": "https://www.bettertoken.com/v1",
-          "api_key": "YOUR_API_KEY",
+          "baseUrl": "https://www.bettertoken.com/v1",
+          "apiKey": "${BETTERTOKEN_API_KEY}",
           "provider": "anthropic",
-          "max_tokens": 64000
+          "maxOutputTokens": 64000
         }
       ]
     }
@@ -78,26 +86,26 @@ Droid 是 Factory AI 的 CLI 编程助手。通过编辑配置文件，可以将
 
 ## 使用多个模型
 
-如果需要同时配置多个模型，在 `custom_models` 数组中添加多条记录即可：
+如果需要同时配置多个模型，在 `customModels` 数组中添加多条记录即可：
 
 ```json
 {
-  "custom_models": [
+  "customModels": [
     {
-      "model_display_name": "Claude Sonnet",
+      "displayName": "Claude Sonnet",
       "model": "claude-sonnet-4-6",
-      "base_url": "https://www.bettertoken.com/v1",
-      "api_key": "YOUR_API_KEY",
+      "baseUrl": "https://www.bettertoken.com/v1",
+      "apiKey": "${BETTERTOKEN_API_KEY}",
       "provider": "anthropic",
-      "max_tokens": 64000
+      "maxOutputTokens": 64000
     },
     {
-      "model_display_name": "Claude Opus",
+      "displayName": "Claude Opus",
       "model": "claude-opus-4-6",
-      "base_url": "https://www.bettertoken.com/v1",
-      "api_key": "YOUR_API_KEY",
+      "baseUrl": "https://www.bettertoken.com/v1",
+      "apiKey": "${BETTERTOKEN_API_KEY}",
       "provider": "anthropic",
-      "max_tokens": 32000
+      "maxOutputTokens": 32000
     }
   ]
 }

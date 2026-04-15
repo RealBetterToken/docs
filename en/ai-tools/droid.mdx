@@ -4,7 +4,7 @@ description: "Connect BetterToken to Droid — use Claude series models."
 icon: "robot"
 ---
 
-Droid is Factory AI's CLI coding assistant. You can connect BetterToken as a custom Anthropic-compatible provider by editing the config file.
+Droid is Factory AI's CLI coding assistant. You can connect BetterToken as a custom Anthropic-compatible provider through BYOK configuration.
 
 ## Prerequisites
 
@@ -39,25 +39,33 @@ Droid is Factory AI's CLI coding assistant. You can connect BetterToken as a cus
     ```
   </Step>
 
+  <Step title="Set your BetterToken API Key">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    Replace `YOUR_API_KEY` with your BetterToken API Key. To persist it across sessions, add the line to `~/.zshrc` or `~/.bashrc`.
+  </Step>
+
   <Step title="Edit the Droid config file">
-    Config file path: `~/.factory/config.json`
+    Config file path: `~/.factory/settings.json`
 
-    <Warning>
-      The file is `config.json`, not `settings.json`.
-    </Warning>
+    <Note>
+      The legacy `~/.factory/config.json` snake_case format is still supported for compatibility, but Factory currently recommends `settings.json`. When both files exist, `settings.json` takes priority.
+    </Note>
 
-    Add the following (replace `YOUR_API_KEY` with your BetterToken API Key):
+    Add the following:
 
     ```json
     {
-      "custom_models": [
+      "customModels": [
         {
-          "model_display_name": "BetterToken Claude",
+          "displayName": "BetterToken Claude",
           "model": "claude-sonnet-4-6",
-          "base_url": "https://www.bettertoken.com/v1",
-          "api_key": "YOUR_API_KEY",
+          "baseUrl": "https://www.bettertoken.com/v1",
+          "apiKey": "${BETTERTOKEN_API_KEY}",
           "provider": "anthropic",
-          "max_tokens": 64000
+          "maxOutputTokens": 64000
         }
       ]
     }
@@ -78,26 +86,26 @@ Droid is Factory AI's CLI coding assistant. You can connect BetterToken as a cus
 
 ## Using multiple models
 
-To configure multiple models, add additional entries to the `custom_models` array:
+To configure multiple models, add additional entries to the `customModels` array:
 
 ```json
 {
-  "custom_models": [
+  "customModels": [
     {
-      "model_display_name": "Claude Sonnet",
+      "displayName": "Claude Sonnet",
       "model": "claude-sonnet-4-6",
-      "base_url": "https://www.bettertoken.com/v1",
-      "api_key": "YOUR_API_KEY",
+      "baseUrl": "https://www.bettertoken.com/v1",
+      "apiKey": "${BETTERTOKEN_API_KEY}",
       "provider": "anthropic",
-      "max_tokens": 64000
+      "maxOutputTokens": 64000
     },
     {
-      "model_display_name": "Claude Opus",
+      "displayName": "Claude Opus",
       "model": "claude-opus-4-6",
-      "base_url": "https://www.bettertoken.com/v1",
-      "api_key": "YOUR_API_KEY",
+      "baseUrl": "https://www.bettertoken.com/v1",
+      "apiKey": "${BETTERTOKEN_API_KEY}",
       "provider": "anthropic",
-      "max_tokens": 32000
+      "maxOutputTokens": 32000
     }
   ]
 }

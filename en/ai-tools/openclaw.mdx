@@ -4,7 +4,7 @@ description: "Connect BetterToken to OpenClaw — use Claude series models."
 icon: "paw"
 ---
 
-Connecting OpenClaw to BetterToken requires manually editing the config file to add BetterToken as a custom Anthropic-compatible provider.
+Connect OpenClaw to BetterToken with the official onboarding and model commands. OpenClaw's config structure changes quickly, so avoid copying older raw JSON config.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Connecting OpenClaw to BetterToken requires manually editing the config file to 
 <Tabs>
   <Tab title="macOS / Linux">
     ```bash
-    curl -fsSL https://openclaw.bot/install.sh | bash
+    curl -fsSL https://openclaw.ai/install.sh | bash
     ```
   </Tab>
   <Tab title="Windows">
@@ -36,45 +36,53 @@ Connecting OpenClaw to BetterToken requires manually editing the config file to 
     ```
   </Step>
 
-  <Step title="Edit the OpenClaw config file">
-    Open `~/.openclaw/openclaw.json` and add BetterToken as a custom provider:
-
-    ```json
-    {
-      "model": {
-        "provider": "anthropic",
-        "baseURL": "https://www.bettertoken.com/v1",
-        "apiKey": "YOUR_API_KEY",
-        "model": "claude-sonnet-4-6"
-      }
-    }
+  <Step title="Run onboarding">
+    ```bash
+    openclaw onboard --install-daemon
     ```
 
-    Replace `YOUR_API_KEY` with your BetterToken API Key.
+    Follow the wizard to finish Gateway and base model setup.
+  </Step>
+
+  <Step title="Add BetterToken credentials">
+    Run the model auth wizard:
+
+    ```bash
+    openclaw models auth add
+    ```
+
+    Choose **Anthropic**, **Anthropic Compatible**, or a custom API Key provider, then enter:
+
+    - **Base URL**: `https://www.bettertoken.com/v1`
+    - **API Key**: your BetterToken API Key
+    - **Model**: `claude-sonnet-4-6`
+  </Step>
+
+  <Step title="Set the default model">
+    ```bash
+    openclaw models set anthropic/claude-sonnet-4-6
+    ```
 
     <Note>
-      If the config file already has other entries, only update the `model` field — do not remove other settings.
+      If your OpenClaw version shows a provider id other than `anthropic`, run `openclaw models list` first, then use the listed `<provider>/claude-sonnet-4-6`.
     </Note>
   </Step>
 
-  <Step title="Restart the OpenClaw gateway">
-    ```bash
-    openclaw gateway start
-    ```
-  </Step>
-
   <Step title="Verify">
-    Launch the OpenClaw TUI and send a message to confirm everything is working:
+    Restart the Gateway and check model status:
 
     ```bash
-    openclaw tui
+    openclaw gateway restart
+    openclaw models status
     ```
+
+    To run a live probe, use `openclaw models status --probe-provider anthropic`. A probe may consume model credits.
   </Step>
 </Steps>
 
 ## Switch models
 
-BetterToken supports the full Claude model lineup. Edit the `model` field in the config to switch:
+BetterToken supports the full Claude model lineup. Use `openclaw models set <provider>/<model>` to switch:
 
 | Model | Use case |
 |-------|----------|
@@ -82,4 +90,4 @@ BetterToken supports the full Claude model lineup. Edit the `model` field in the
 | `claude-opus-4-6` | Most capable — complex tasks |
 | `claude-haiku-4-6` | Fastest — lightweight tasks |
 
-After changing the model, re-run `openclaw gateway start` to apply.
+After changing the model, run `openclaw gateway restart` to apply.

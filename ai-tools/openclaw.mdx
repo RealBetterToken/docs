@@ -4,7 +4,7 @@ description: "在 OpenClaw 中使用 BetterToken，接入 Claude 系列模型。
 icon: "paw"
 ---
 
-在 OpenClaw 中接入 BetterToken，需要手动编辑配置文件，将 BetterToken 作为自定义 Anthropic 兼容提供商使用。
+在 OpenClaw 中接入 BetterToken，建议使用官方 onboarding 和模型命令完成配置。OpenClaw 的配置结构迭代较快，不建议直接复制旧版 JSON 配置。
 
 ## 前置条件
 
@@ -16,7 +16,7 @@ icon: "paw"
 <Tabs>
   <Tab title="macOS / Linux">
     ```bash
-    curl -fsSL https://openclaw.bot/install.sh | bash
+    curl -fsSL https://openclaw.ai/install.sh | bash
     ```
   </Tab>
   <Tab title="Windows">
@@ -36,45 +36,53 @@ icon: "paw"
     ```
   </Step>
 
-  <Step title="编辑 OpenClaw 配置文件">
-    打开配置文件 `~/.openclaw/openclaw.json`，添加 BetterToken 作为自定义提供商：
-
-    ```json
-    {
-      "model": {
-        "provider": "anthropic",
-        "baseURL": "https://www.bettertoken.com/v1",
-        "apiKey": "YOUR_API_KEY",
-        "model": "claude-sonnet-4-6"
-      }
-    }
+  <Step title="运行 onboarding">
+    ```bash
+    openclaw onboard --install-daemon
     ```
 
-    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。
+    按向导完成 Gateway 和基础模型配置。
+  </Step>
+
+  <Step title="添加 BetterToken 凭证">
+    运行模型认证向导：
+
+    ```bash
+    openclaw models auth add
+    ```
+
+    在向导中选择 **Anthropic**、**Anthropic Compatible** 或自定义 API Key 提供商，并填写：
+
+    - **Base URL**：`https://www.bettertoken.com/v1`
+    - **API Key**：你的 BetterToken API Key
+    - **Model**：`claude-sonnet-4-6`
+  </Step>
+
+  <Step title="设置默认模型">
+    ```bash
+    openclaw models set anthropic/claude-sonnet-4-6
+    ```
 
     <Note>
-      如果配置文件中已有其他内容，仅修改 `model` 字段，不要删除其他配置。
+      如果你的 OpenClaw 版本显示的 provider id 不是 `anthropic`，先运行 `openclaw models list`，再使用列表中的 `<provider>/claude-sonnet-4-6`。
     </Note>
   </Step>
 
-  <Step title="重启 OpenClaw 网关">
-    ```bash
-    openclaw gateway start
-    ```
-  </Step>
-
   <Step title="验证配置">
-    运行 OpenClaw 终端界面，发送一条消息确认正常响应：
+    重启 Gateway 并检查模型状态：
 
     ```bash
-    openclaw tui
+    openclaw gateway restart
+    openclaw models status
     ```
+
+    需要发起真实探测时，可运行 `openclaw models status --probe-provider anthropic`。探测可能消耗模型额度。
   </Step>
 </Steps>
 
 ## 可选：切换模型
 
-BetterToken 支持 Claude 全系列模型，修改配置文件中的 `model` 字段即可切换：
+BetterToken 支持 Claude 全系列模型。使用 `openclaw models set <provider>/<model>` 切换模型：
 
 | 模型名称 | 适用场景 |
 |----------|----------|
@@ -82,4 +90,4 @@ BetterToken 支持 Claude 全系列模型，修改配置文件中的 `model` 字
 | `claude-opus-4-6` | 最强能力，适合复杂任务 |
 | `claude-haiku-4-6` | 速度最快，适合简单任务 |
 
-切换模型后需重新运行 `openclaw gateway start` 使配置生效。
+切换模型后运行 `openclaw gateway restart` 使配置生效。
