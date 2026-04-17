@@ -4,7 +4,7 @@ description: "在 OpenClaw 中使用 BetterToken，选择 Codex provider 与 Ope
 icon: "paw"
 ---
 
-在 OpenClaw 中接入 BetterToken 时，请选择 **Codex provider**，不要继续使用 Anthropic provider。API 端点固定为 `https://www.bettertoken.ai/v1/`，协议固定为 `OpenAI Responses`。
+在 OpenClaw 中接入 BetterToken 时，请选择 **Codex provider**，不要继续使用 Anthropic provider。API 端点固定为 `https://www.bettertoken.ai/v1`，协议固定为 `OpenAI Responses`。
 
 <Warning>
   OpenClaw 缺少 Codex 对应 `User-Agent` 时，可能报 `403 block` 或 `403 Forbidden`。
@@ -59,10 +59,10 @@ icon: "paw"
   <Step title="选择 Codex provider 并填写参数">
     在向导中选择 **Codex**。然后填写：
 
-    - **API 端点**：`https://www.bettertoken.ai/v1/`
+    - **API 端点**：`https://www.bettertoken.ai/v1`
     - **API 协议**：`OpenAI Responses`
     - **令牌分组**：选择 `Codex_*` 的分组
-    - **模型**：从模型广场复制当前可用的 Codex 分组模型 ID
+    - **模型**：从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID
   </Step>
 
   <Step title="添加必需 headers">
@@ -83,7 +83,7 @@ icon: "paw"
 
     ```bash
     openclaw models list
-    openclaw models set <provider>/<从模型广场复制的 Codex 模型 ID>
+    openclaw models set <provider>/<从 https://www.bettertoken.ai/pricing 复制的 Codex 模型 ID>
     openclaw gateway restart
     openclaw models status
     ```
@@ -93,5 +93,5 @@ icon: "paw"
 ## 使用说明
 
 - OpenClaw 当前应使用 **Codex provider**，不要再使用 `anthropic/<Claude模型>` 这类旧写法
-- 模型名称请直接从模型广场复制 **Codex 分组**模型 ID
+- 模型名称请直接从[模型广场](https://www.bettertoken.ai/pricing)复制 **Codex 分组**模型 ID
 - 缺少对应 UA 时，即使 API Key 正确，也可能报 `403 block` 或 `403 Forbidden`

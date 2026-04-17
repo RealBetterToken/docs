@@ -10,7 +10,7 @@ BetterToken now uses two different endpoints by protocol:
 | Scenario | Base URL | Protocol |
 |----------|----------|----------|
 | Claude Code / `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / external tools | `https://www.bettertoken.ai/v1/` | OpenAI-style / OpenAI Responses |
+| Codex / `OPENAI_BASE_URL` / external tools | `https://www.bettertoken.ai/v1` | OpenAI-style / OpenAI Responses |
 
 <Warning>
   Do not keep using one shared endpoint for every protocol.
@@ -46,12 +46,12 @@ Pass your BetterToken API Key with the request:
     from openai import OpenAI
 
     client = OpenAI(
-        base_url="https://www.bettertoken.ai/v1/",
+        base_url="https://www.bettertoken.ai/v1",
         api_key="YOUR_API_KEY",
     )
 
     response = client.responses.create(
-        model="Codex group model ID copied from the model plaza",
+        model="Codex group model ID copied from https://www.bettertoken.ai/pricing",
         input="Hello",
     )
     ```
@@ -65,7 +65,7 @@ Pass your BetterToken API Key with the request:
 ## Model selection rules
 
 - **Claude Code**: do not set model variables manually; only configure `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
-- **Codex CLI**: use a model ID copied from the **Codex group** in the model plaza
+- **Codex CLI**: use a model ID copied from the **Codex group** in the [model plaza](https://www.bettertoken.ai/pricing)
 - **External tools**: also use **Codex group** model IDs instead of fixed Claude model names
 
 <Note>
@@ -78,7 +78,7 @@ Pass your BetterToken API Key with the request:
 |----------|-------|-------|
 | `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Claude Code |
 | `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code auth |
-| `OPENAI_BASE_URL` | `https://www.bettertoken.ai/v1/` | Codex and other OpenAI-style tools |
+| `OPENAI_BASE_URL` | `https://www.bettertoken.ai/v1` | Codex and other OpenAI-style tools |
 | `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
 | `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |
