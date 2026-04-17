@@ -66,9 +66,9 @@ unset OPENAI_BASE_URL
 
 ## Claude Code 专项建议
 
-**不要设置模型相关变量。** 接入 BetterToken 时，`ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等变量都**不需要设置**。Claude Code 内部有完整的模型管理逻辑，BetterToken 会自动路由。
+**先看 API Key 分组。** 如果你使用 `Claude_*` 分组，`ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等模型变量都**不需要设置**。如果你使用 `Codex_*` 分组，则需要通过 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` 做模型映射。
 
-多余的模型变量不但没有帮助，还可能导致请求路由到错误的模型。
+不要把两种分组的配置混用，否则容易把请求路由到错误的模型。
 
 **禁用非必要流量。** 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 可以减少 Claude Code 发出的后台请求，让你的 API 额度用在真正的编码任务上。
 

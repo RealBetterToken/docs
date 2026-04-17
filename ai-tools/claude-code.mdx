@@ -23,27 +23,76 @@ icon: "terminal"
 ## 配置步骤
 
 <Steps>
+  <Step title="确认 API Key 分组">
+    先确认你当前使用的是哪一类 BetterToken API Key：
+
+    - `Claude_*` 分组：只需要填写 `ANTHROPIC_BASE_URL` 与 `ANTHROPIC_AUTH_TOKEN`
+    - `Codex_*` 分组：除了基础认证外，还需要配置 Claude Code 的模型映射
+
+    两种分组都继续使用 Anthropic 协议，`ANTHROPIC_BASE_URL` 都填写 `https://www.bettertoken.ai`，不要添加 `/v1`。
+  </Step>
+
   <Step title="编辑 Claude Code 配置文件">
     配置文件路径：
 
     - macOS / Linux：`~/.claude/settings.json`
     - Windows：`%USERPROFILE%\.claude\settings.json`
 
-    将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+    如果你使用 `Claude_*` 分组，将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
 
     ```json
     {
       "env": {
         "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
         "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
         "API_TIMEOUT_MS": "3000000"
       }
     }
     ```
 
     <Note>
-      接入 BetterToken 时**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL` 等模型变量。Claude Code 会自行管理模型选择。
+      `Claude_*` 分组下**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等模型变量。Claude Code 会自行管理模型选择。
     </Note>
+  </Step>
+
+  <Step title="如使用 Codex_* 分组，补充模型映射">
+    如果你的 API Key 属于 `Codex_*` 分组，请改为以下配置：
+
+    ```json
+    {
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+        "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
+        "API_TIMEOUT_MS": "3000000"
+      },
+      "model": "opus"
+    }
+    ```
+
+    字段说明：
+
+    | 字段 | 说明 |
+    | --- | --- |
+    | `ANTHROPIC_AUTH_TOKEN` | 你的 BetterToken API Key |
+    | `ANTHROPIC_BASE_URL` | BetterToken 的 Claude Code `Base URL` |
+    | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | 设为 `1`，减少非必要后台请求 |
+    | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku 级别任务使用的模型 |
+    | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet 级别任务使用的模型 |
+    | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus 级别任务使用的模型 |
+    | `model` | Claude Code 默认使用的模型级别；设为 `opus` 时会调用 `ANTHROPIC_DEFAULT_OPUS_MODEL` |
+
+    <Note>
+      示例里的 `gpt-5.4` 是一个 `Codex 分组`模型 ID 示例。实际使用时，请以 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 中当前可用的 `Codex 分组`模型 ID 为准。三个级别可以填写同一个模型，也可以分别映射不同模型。
+    </Note>
+  </Step>
+
+  <Step title="重启 Claude Code">
+    修改配置文件后，先完全退出 Claude Code，再重新启动，使新配置生效。
   </Step>
 
   <Step title="完成首次启动">
@@ -73,7 +122,7 @@ icon: "terminal"
     点击插件设置图标，进入配置界面。
   </Step>
   <Step title="配置环境变量">
-    点击 **Edit in settings.json**，将 `claudeCode.environmentVariables` 修改为：
+    如果你使用 `Claude_*` 分组，点击 **Edit in settings.json**，将 `claudeCode.environmentVariables` 修改为：
 
     ```json
     {
@@ -87,12 +136,63 @@ icon: "terminal"
           "value": "YOUR_API_KEY"
         },
         {
+          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+          "value": "1"
+        },
+        {
           "name": "API_TIMEOUT_MS",
           "value": "3000000"
         }
       ]
     }
     ```
+  </Step>
+
+  <Step title="如使用 Codex_* 分组，补充模型映射">
+    如果你的 API Key 属于 `Codex_*` 分组，请改为：
+
+    ```json
+    {
+      "claudeCode.environmentVariables": [
+        {
+          "name": "ANTHROPIC_BASE_URL",
+          "value": "https://www.bettertoken.ai"
+        },
+        {
+          "name": "ANTHROPIC_AUTH_TOKEN",
+          "value": "YOUR_API_KEY"
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+          "value": "1"
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+          "value": "gpt-5.4"
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
+          "value": "gpt-5.4"
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
+          "value": "gpt-5.4"
+        },
+        {
+          "name": "API_TIMEOUT_MS",
+          "value": "3000000"
+        }
+      ]
+    }
+    ```
+
+    <Note>
+      示例里的 `gpt-5.4` 仅作为 `Codex 分组`模型 ID 示例。请从 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 复制当前可用的 `Codex 分组`模型 ID。插件内默认按 Opus 级别使用时，会优先命中 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
+    </Note>
+  </Step>
+
+  <Step title="重启 VS Code 插件">
+    修改 `settings.json` 后，请重启 VS Code 或重新加载 Claude Code 插件，使配置生效。
   </Step>
 </Steps>
 
@@ -103,4 +203,5 @@ icon: "terminal"
 如遇到认证错误，请检查：
 1. `ANTHROPIC_AUTH_TOKEN` 是否填写了正确的 BetterToken API Key
 2. `ANTHROPIC_BASE_URL` 是否填写为 `https://www.bettertoken.ai`
-3. 是否有旧的环境变量在覆盖配置文件
+3. `Claude_*` 分组是否避免填写模型变量，`Codex_*` 分组是否已配置 `ANTHROPIC_DEFAULT_*_MODEL`
+4. 是否有旧的环境变量在覆盖配置文件

@@ -64,11 +64,11 @@ unset OPENAI_BASE_URL
 
 ---
 
-## Claude Code: don't set model variables
+## Claude Code: check the API Key group first
 
-When connecting to BetterToken, **do not set** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or any other model-specific variables. Claude Code manages model selection internally; BetterToken routes automatically.
+With a `Claude_*` key, **do not set** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model-specific variables. With a `Codex_*` key, add model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`.
 
-Extra model variables don't help — they can actually cause routing to the wrong model.
+Do not mix the two setups, or requests may be routed to the wrong model.
 
 **Disable non-essential traffic.** Setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduces background requests from Claude Code, reserving your API quota for actual coding tasks.
 
