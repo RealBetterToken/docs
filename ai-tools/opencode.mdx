@@ -4,7 +4,7 @@ description: "在 OpenCode 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "brackets-curly"
 ---
 
-在 OpenCode 中接入 BetterToken，可以通过编辑配置文件完成。当前应使用 OpenAI 兼容 provider，并填入 Codex 分组模型 ID。
+在 OpenCode 中接入 BetterToken，建议先用 `/connect` 添加凭证，再在配置文件中声明 BetterToken 这个 OpenAI-compatible provider，并填入 Codex 分组模型 ID。
 
 ## 前置条件
 
@@ -35,8 +35,23 @@ icon: "brackets-curly"
     ```
   </Step>
 
+  <Step title="先用 /connect 添加 BetterToken 凭证">
+    启动 OpenCode 后运行：
+
+    ```bash
+    /connect
+    ```
+
+    在向导里选择 **Other**，然后：
+
+    - **provider id** 填 `bettertoken`
+    - 粘贴你的 BetterToken API Key
+
+    OpenCode 会将凭证保存到 `~/.local/share/opencode/auth.json`。
+  </Step>
+
   <Step title="编辑 OpenCode 配置文件">
-    配置文件路径：`~/.config/opencode/opencode.json`
+    你可以使用全局配置 `~/.config/opencode/opencode.json`，也可以在项目根目录创建 `opencode.json`。项目级配置优先级更高。
 
     ```json
     {
@@ -44,10 +59,10 @@ icon: "brackets-curly"
       "model": "bettertoken/YOUR_CODEX_MODEL_ID",
       "provider": {
         "bettertoken": {
-          "npm": "@ai-sdk/openai",
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "BetterToken",
           "options": {
-            "baseURL": "https://www.bettertoken.ai/v1",
-            "apiKey": "YOUR_API_KEY"
+            "baseURL": "https://www.bettertoken.ai/v1"
           },
           "models": {
             "YOUR_CODEX_MODEL_ID": {
@@ -62,11 +77,57 @@ icon: "brackets-curly"
     将 `YOUR_CODEX_MODEL_ID` 替换为从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组模型 ID**。
   </Step>
 
-  <Step title="如支持自定义 headers，补齐必填项">
+  <Step title="如需在配置文件里直接写 API Key，可使用备用写法">
     ```json
     {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+      "$schema": "https://opencode.ai/config.json",
+      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+      "provider": {
+        "bettertoken": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "BetterToken",
+          "options": {
+            "baseURL": "https://www.bettertoken.ai/v1",
+            "apiKey": "YOUR_API_KEY"
+          },
+          "models": {
+            "YOUR_CODEX_MODEL_ID": {
+              "name": "YOUR_CODEX_MODEL_ID"
+            }
+          }
+        }
+      }
+    }
+    ```
+
+    这是备用方式。更推荐使用上一节的 `/connect`。
+  </Step>
+
+  <Step title="如支持自定义 headers，补齐必填项">
+    如果你当前的 OpenCode 版本支持自定义 headers，请将它们放在 `provider.bettertoken.options.headers` 下：
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+      "provider": {
+        "bettertoken": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "BetterToken",
+          "options": {
+            "baseURL": "https://www.bettertoken.ai/v1",
+            "headers": {
+              "Authorization": "Bearer sk-xxx",
+              "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+            }
+          },
+          "models": {
+            "YOUR_CODEX_MODEL_ID": {
+              "name": "YOUR_CODEX_MODEL_ID"
+            }
+          }
+        }
+      }
     }
     ```
   </Step>
@@ -86,4 +147,6 @@ icon: "brackets-curly"
 ## 注意事项
 
 - 默认模型请填写 **Codex 分组模型 ID**，不要再写 Claude 系列固定模型名
+- BetterToken 这类 OpenAI-compatible provider 当前应优先使用 `@ai-sdk/openai-compatible`
+- 如果你使用 `/connect`，一般不需要再把 API Key 明文写进配置文件
 - 若当前版本没有自定义 headers 入口，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`

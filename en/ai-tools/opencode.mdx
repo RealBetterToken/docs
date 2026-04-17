@@ -4,7 +4,7 @@ description: "Connect BetterToken to OpenCode with Codex group model IDs."
 icon: "brackets-curly"
 ---
 
-You can connect BetterToken to OpenCode by editing the config file. The current setup should use an OpenAI-compatible provider and a model ID from the Codex group.
+You can connect BetterToken to OpenCode by first adding credentials with `/connect`, then declaring BetterToken as an OpenAI-compatible provider in the config file and selecting a model ID from the Codex group.
 
 ## Prerequisites
 
@@ -35,8 +35,23 @@ You can connect BetterToken to OpenCode by editing the config file. The current 
     ```
   </Step>
 
+  <Step title="Add the BetterToken credential with /connect first">
+    Start OpenCode and run:
+
+    ```bash
+    /connect
+    ```
+
+    In the wizard, choose **Other** and then:
+
+    - set the **provider id** to `bettertoken`
+    - paste your BetterToken API Key
+
+    OpenCode stores the credential in `~/.local/share/opencode/auth.json`.
+  </Step>
+
   <Step title="Edit the OpenCode config file">
-    Config file path: `~/.config/opencode/opencode.json`
+    You can use the global config at `~/.config/opencode/opencode.json` or create `opencode.json` in your project root. The project config has higher precedence.
 
     ```json
     {
@@ -44,10 +59,10 @@ You can connect BetterToken to OpenCode by editing the config file. The current 
       "model": "bettertoken/YOUR_CODEX_MODEL_ID",
       "provider": {
         "bettertoken": {
-          "npm": "@ai-sdk/openai",
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "BetterToken",
           "options": {
-            "baseURL": "https://www.bettertoken.ai/v1",
-            "apiKey": "YOUR_API_KEY"
+            "baseURL": "https://www.bettertoken.ai/v1"
           },
           "models": {
             "YOUR_CODEX_MODEL_ID": {
@@ -62,11 +77,57 @@ You can connect BetterToken to OpenCode by editing the config file. The current 
     Replace `YOUR_CODEX_MODEL_ID` with a current **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing).
   </Step>
 
-  <Step title="Add the required headers if supported">
+  <Step title="If you want to inline the API key, use this fallback format">
     ```json
     {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+      "$schema": "https://opencode.ai/config.json",
+      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+      "provider": {
+        "bettertoken": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "BetterToken",
+          "options": {
+            "baseURL": "https://www.bettertoken.ai/v1",
+            "apiKey": "YOUR_API_KEY"
+          },
+          "models": {
+            "YOUR_CODEX_MODEL_ID": {
+              "name": "YOUR_CODEX_MODEL_ID"
+            }
+          }
+        }
+      }
+    }
+    ```
+
+    This is a fallback. The `/connect` flow above is the preferred setup.
+  </Step>
+
+  <Step title="Add the required headers if supported">
+    If your current OpenCode version supports custom headers, place them under `provider.bettertoken.options.headers`:
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+      "provider": {
+        "bettertoken": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "BetterToken",
+          "options": {
+            "baseURL": "https://www.bettertoken.ai/v1",
+            "headers": {
+              "Authorization": "Bearer sk-xxx",
+              "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+            }
+          },
+          "models": {
+            "YOUR_CODEX_MODEL_ID": {
+              "name": "YOUR_CODEX_MODEL_ID"
+            }
+          }
+        }
+      }
     }
     ```
   </Step>
@@ -86,4 +147,6 @@ You can connect BetterToken to OpenCode by editing the config file. The current 
 ## Notes
 
 - Use a **Codex group** model ID as the default model instead of fixed Claude model names
+- BetterToken should currently use `@ai-sdk/openai-compatible` as the OpenAI-compatible provider adapter
+- If you use `/connect`, you usually do not need to store the API key directly in the config file
 - If your OpenCode version does not expose custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`
