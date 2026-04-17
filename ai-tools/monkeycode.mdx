@@ -1,10 +1,10 @@
 ---
 title: "MonkeyCode"
-description: "在 MonkeyCode 中使用 BetterToken，接入 Claude 系列模型。"
+description: "在 MonkeyCode 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "monkey"
 ---
 
-MonkeyCode 是企业级 AI 开发平台，覆盖需求→设计→开发→Review 全流程。通过 BetterToken 可以为 MonkeyCode 提供稳定的 Claude 模型接入。
+MonkeyCode 是企业级 AI 开发平台。通过 BetterToken 接入时，请统一使用 Codex 分组和 OpenAI 类协议。
 
 ## 前置条件
 
@@ -18,40 +18,38 @@ MonkeyCode 是企业级 AI 开发平台，覆盖需求→设计→开发→Revie
     访问 [MonkeyCode 官网](https://monkeycode.ai) 登录账号。
   </Step>
 
-  <Step title="进入任务页面">
-    登录后，点击**开始使用**按钮，进入 MonkeyCode 智能开发平台任务页面。
-  </Step>
-
   <Step title="打开系统配置">
-    点击页面右下角的**配置**按钮，进入系统配置页面。
+    进入任务页面后，点击右下角的 **配置**。
   </Step>
 
   <Step title="绑定 AI 大模型">
-    在 **AI 大模型**模块中，点击**绑定**按钮。
+    在 **AI 大模型** 模块中点击 **绑定**。
   </Step>
 
   <Step title="填写 BetterToken 配置">
-    按以下信息填写：
 
     | 配置项 | 值 |
     |--------|-----|
-    | 模型 API 地址 | `https://www.BetterToken.ai/v1` |
+    | 模型 API 地址 | `https://www.bettertoken.ai/v1/` |
     | API Key | 你的 BetterToken API Key |
-    | 接口格式类型 | `anthropic` |
-    | 模型名称 | `claude-sonnet-4-6` |
-
-    填写完成后，点击**保存**按钮使配置生效。
+    | 接口格式类型 | `OpenAI` 或 `OpenAI Compatible`（以当前界面为准） |
+    | 模型名称 | 从模型广场复制的 **Codex 分组模型 ID** |
   </Step>
 
-  <Step title="开始使用">
-    返回 MonkeyCode 主界面，输入 Prompt 后点击**执行**，即可调用 BetterToken 路由的 Claude 模型。
+  <Step title="如支持自定义 headers，补齐必填项">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
+  </Step>
+
+  <Step title="保存并开始使用">
+    点击 **保存**，返回主界面后选择刚配置的模型开始使用。
   </Step>
 </Steps>
 
-## 支持的模型
-
-| 模型名称 | 说明 |
-|----------|------|
-| `claude-sonnet-4-6` | 均衡，推荐日常使用 |
-| `claude-opus-4-6` | 最强能力，适合复杂 Agent 任务 |
-| `claude-haiku-4-6` | 速度最快，适合高频调用 |
+<Note>
+  若当前版本无法设置 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`。
+</Note>

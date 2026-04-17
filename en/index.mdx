@@ -1,18 +1,28 @@
 ---
 title: "BetterToken Docs"
-description: "Stable AI API relay for Claude and Codex — reliable access for AI coding tools."
+description: "Stable API relay for Claude Code, Codex, and external AI tools."
 ---
 
 ## What is BetterToken?
 
-BetterToken is an AI API relay service for developers. By aggregating 12+ suppliers, BetterToken sits between you and Anthropic/OpenAI, providing a highly available routing layer so that your Claude Code, Codex, and other AI coding tools stay stable even during peak hours.
+BetterToken is an API relay built for AI coding tools. The docs now distinguish between two access modes:
+
+- **Claude Code / `ANTHROPIC_BASE_URL`**: use `https://www.bettertoken.ai`
+- **Codex / `OPENAI_BASE_URL` / external tools**: use `https://www.bettertoken.ai/v1/`
 
 **Key benefits:**
 
-- **Multi-source supply**: 12+ suppliers connected simultaneously — a single provider's outage won't affect you
-- **Dynamic routing**: Finds the optimal path in real time, automatically bypassing timeouts and rate limits
-- **Flagship focus**: Only Claude and Codex — no sprawl, maximum reliability
-- **Drop-in compatible**: Fully compatible with OpenAI SDK and Anthropic SDK — just change one line of config
+- **Multi-source supply**: multiple suppliers connected simultaneously
+- **Dynamic routing**: Automatically bypasses slow or unstable upstreams
+- **Flagship focus**: Reliability work is concentrated on Claude Code and the Codex ecosystem
+- **Two clear tracks**: Configure the endpoint by protocol instead of reusing one `base_url` everywhere
+
+## Two access modes
+
+| Scenario | Base URL | Notes |
+|----------|----------|-------|
+| Claude Code | `https://www.bettertoken.ai` | Anthropic protocol, no `/v1` suffix |
+| Codex CLI / external tools | `https://www.bettertoken.ai/v1/` | OpenAI-style protocol; external tools use the Codex group |
 
 ## Get started
 
@@ -22,14 +32,14 @@ BetterToken is an AI API relay service for developers. By aggregating 12+ suppli
     icon="rocket"
     href="/en/quickstart"
   >
-    3 steps to get running in under 5 minutes.
+    Start by picking the Claude Code track or the Codex / external tool track.
   </Card>
   <Card
     title="FAQ"
     icon="circle-question"
     href="/en/faq"
   >
-    Common questions about billing, limits, and setup.
+    Review the rules for Base URL, model groups, 403 errors, and auth.
   </Card>
 </Columns>
 
@@ -41,20 +51,27 @@ BetterToken is an AI API relay service for developers. By aggregating 12+ suppli
     icon="terminal"
     href="/en/ai-tools/claude-code"
   >
-    No model name needed — BetterToken routes automatically.
+    Set `ANTHROPIC_BASE_URL=https://www.bettertoken.ai`.
   </Card>
   <Card
     title="Codex CLI"
     icon="code"
     href="/en/ai-tools/codex"
   >
-    Connect OpenAI Codex CLI — no model name needed.
+    Use `https://www.bettertoken.ai/v1/` with OpenAI Responses.
   </Card>
   <Card
     title="Cursor"
     icon="pen-to-square"
     href="/en/ai-tools/cursor"
   >
-    Use Claude or GPT series models in Cursor.
+    External tools use the Codex group with OpenAI-compatible settings.
+  </Card>
+  <Card
+    title="OpenClaw"
+    icon="paw"
+    href="/en/ai-tools/openclaw"
+  >
+    Choose the Codex provider and add Authorization plus User-Agent.
   </Card>
 </Columns>

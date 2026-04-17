@@ -1,10 +1,10 @@
 ---
 title: "Hermes Agent"
-description: "在 Hermes Agent 中使用 BetterToken，接入 Claude 系列模型。"
+description: "在 Hermes Agent 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "user-astronaut"
 ---
 
-Hermes Agent 是一个开源自主 AI 智能体，支持持久记忆和多平台接入。通过 BetterToken 可以使用 Claude 系列模型驱动 Hermes Agent。
+Hermes Agent 支持通过自定义模型提供商接入 BetterToken。当前外部工具应统一走 Codex 分组与 OpenAI 类协议。
 
 ## 前置条件
 
@@ -17,12 +17,6 @@ Hermes Agent 是一个开源自主 AI 智能体，支持持久记忆和多平台
 curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
 ```
 
-验证安装：
-
-```bash
-hermes doctor
-```
-
 ## 配置步骤
 
 <Steps>
@@ -32,39 +26,34 @@ hermes doctor
     ```
   </Step>
 
-  <Step title="选择 Anthropic 提供商">
-    在 provider 列表中，选择 **Anthropic** 或 **Anthropic Compatible**。
-
-    <Note>
-      Hermes Agent 没有内置的 BetterToken 选项，选择通用 Anthropic 兼容提供商后配置自定义 base_url 即可。
-    </Note>
+  <Step title="选择 OpenAI 或 OpenAI Compatible provider">
+    在 provider 列表中，选择 **OpenAI** 或 **OpenAI Compatible**。
   </Step>
 
   <Step title="填写 BetterToken 配置">
     按提示依次输入：
 
-    - **Base URL**：`https://www.BetterToken.ai/v1`
+    - **Base URL**：`https://www.bettertoken.ai/v1/`
     - **API Key**：你的 BetterToken API Key
-    - **Model**：`claude-sonnet-4-6`
+    - **Model**：从模型广场复制的 **Codex 分组模型 ID**
   </Step>
 
-  <Step title="开始使用">
+  <Step title="如支持自定义 headers，补齐必填项">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
+  </Step>
+
+  <Step title="启动 Hermes Agent">
     ```bash
     hermes
     ```
-
-    Hermes Agent 会使用 BetterToken 路由你的请求到 Claude 模型。
   </Step>
 </Steps>
 
-## 关于 Hermes Agent 的持久记忆
-
-Hermes Agent 的记忆系统会跨会话保存你的编程模式、项目上下文和偏好。使用次数越多，它对你的工作风格了解越深，响应也会越精准。
-
-## 支持的模型
-
-| 模型名称 | 说明 |
-|----------|------|
-| `claude-sonnet-4-6` | 均衡，推荐日常使用 |
-| `claude-opus-4-6` | 最强能力，适合复杂 Agent 任务 |
-| `claude-haiku-4-6` | 速度最快，适合高频交互 |
+<Note>
+  如果当前版本没有 headers 入口，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`。
+</Note>

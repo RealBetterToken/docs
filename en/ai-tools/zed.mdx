@@ -1,61 +1,55 @@
 ---
 title: "Zed"
-description: "Connect BetterToken to Zed — use Claude or GPT series models."
+description: "Connect BetterToken to Zed with Codex group model IDs."
 icon: "z"
 ---
 
-Zed is a high-performance code editor that supports custom LLM providers. Through BetterToken, you can use Claude or GPT series models in Zed's AI panel.
+Zed supports custom LLM providers. When using BetterToken, choose the OpenAI route and paste a model ID from the Codex group.
 
 ## Prerequisites
 
-- Zed installed (see [Zed documentation](https://zed.dev/docs))
+- Zed installed (see [Zed docs](https://zed.dev/docs))
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
 
 ## Setup
 
 <Steps>
   <Step title="Open the AI panel">
-    Click the ✨ icon in the bottom-right corner of Zed to open the agent panel.
+    Click the ✨ icon in the bottom-right corner of Zed.
   </Step>
 
-  <Step title="Go to settings">
-    Click the three-dot menu (⋯) in the top-right corner of the panel and select **Settings**.
+  <Step title="Open settings">
+    Open the menu in the panel and choose **Settings**.
   </Step>
 
-  <Step title="Add an LLM provider">
-    Find the **LLM Provider** section, click **+ Add Provider**, and select **OpenAI** from the dropdown.
+  <Step title="Add a provider">
+    In **LLM Provider**, click **+ Add Provider** and choose **OpenAI**.
   </Step>
 
   <Step title="Fill in the BetterToken config">
-    Enter the following values:
 
     | Field | Value |
     |-------|-------|
-    | Provider Name | `BetterToken` (or any name you prefer) |
-    | API URL | `https://www.BetterToken.ai/v1` |
+    | Provider Name | `BetterToken` |
+    | API URL | `https://www.bettertoken.ai/v1/` |
     | API Key | your BetterToken API Key |
-    | Model Name | `claude-sonnet-4-6` (or another supported model) |
+    | Model Name | a **Codex group** model ID copied from the model plaza |
+  </Step>
+
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
   <Step title="Save the provider">
-    Click **Save Provider**. The provider now appears in the LLM Provider list.
-
-    Click **BetterToken**, re-enter your API Key, and press **Enter** to confirm.
-  </Step>
-
-  <Step title="Select a model and start">
-    Return to the agent panel, click **Select a Model** in the bottom-right, and choose the model you just configured.
+    Click **Save Provider**, then select the model you configured.
   </Step>
 </Steps>
 
-## Supported models
-
-| Model | Description |
-|-------|-------------|
-| `claude-sonnet-4-6` | Balanced — recommended |
-| `claude-opus-4-6` | Most capable — complex tasks |
-| `claude-haiku-4-6` | Fastest — simple completions |
-| `gpt-5.4` | OpenAI flagship |
-| `gpt-5.4-mini` | Lightweight, faster |
-
-To add more models, repeat the **Add an LLM provider** step with a different model name each time.
+<Note>
+  If your Zed version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+</Note>

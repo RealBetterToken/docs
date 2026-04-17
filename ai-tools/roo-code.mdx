@@ -1,10 +1,10 @@
 ---
 title: "Roo Code"
-description: "在 Roo Code 中使用 BetterToken，接入 Claude 或 GPT 系列模型。"
+description: "在 Roo Code 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "r"
 ---
 
-Roo Code 是 VS Code 的 AI 编程助手插件。接入 BetterToken 只需在设置界面选择 OpenAI Compatible 提供商并填写配置。
+Roo Code 是 VS Code 的 AI 编程助手插件。接入 BetterToken 时，请选择 OpenAI Compatible 提供商，并使用 Codex 分组模型 ID。
 
 ## 前置条件
 
@@ -20,43 +20,38 @@ Roo Code 是 VS Code 的 AI 编程助手插件。接入 BetterToken 只需在设
 <Steps>
   <Step title="清除冲突的环境变量">
     ```bash
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
     ```
   </Step>
 
   <Step title="打开 Roo Code 设置">
-    点击 Roo Code 侧边栏中的 **Settings** 按钮，进入参数配置界面。
+    点击 Roo Code 侧边栏中的 **Settings**。
   </Step>
 
   <Step title="配置 API 提供商">
     按以下方式填写：
 
-    - **API Provider** → 选择 `OpenAI Compatible`
-    - **Base URL** → 填入 `https://www.BetterToken.ai/v1`
-    - **API Key** → 填入你的 BetterToken API Key
-    - **Model** → 填入 `claude-sonnet-4-6`（或其他支持模型）
-
-    <Note>
-      Roo Code 的 OpenAI Compatible 提供商需要接口支持 OpenAI 风格的 tool calling。若模型可以聊天但工具调用失败，请先确认当前模型和接口支持 tool calling。
-    </Note>
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `https://www.bettertoken.ai/v1/`
+    - **API Key** → 你的 BetterToken API Key
+    - **Model** → 从模型广场复制的 **Codex 分组模型 ID**
   </Step>
 
-  <Step title="保存配置">
-    依次点击右上角的 **Save** 和 **Done** 按钮保存配置。
+  <Step title="如支持自定义 headers，补齐必填项">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
-  <Step title="开始使用">
-    在 VS Code 中打开 Roo Code 面板，选择已配置的模型开始使用。
+  <Step title="保存并开始使用">
+    点击 **Save** 和 **Done**，然后选择刚配置的 Codex 分组模型。
   </Step>
 </Steps>
 
-## 支持的模型
-
-| 模型名称 | 说明 |
-|----------|------|
-| `claude-sonnet-4-6` | 均衡，推荐日常编程 |
-| `claude-opus-4-6` | 最强能力，适合复杂任务 |
-| `claude-haiku-4-6` | 速度最快，适合简单补全 |
-| `gpt-5.4` | OpenAI 旗舰模型 |
-| `gpt-5.4-mini` | 轻量版，响应更快 |
+<Note>
+  Roo Code 的 OpenAI Compatible 提供商需要接口支持 OpenAI 风格 tool calling。若当前版本无法设置 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`。
+</Note>

@@ -72,20 +72,30 @@ Extra model variables don't help — they can actually cause routing to the wron
 
 **Disable non-essential traffic.** Setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduces background requests from Claude Code, reserving your API quota for actual coding tasks.
 
+**Do not add `/v1` to Claude Code.** `ANTHROPIC_BASE_URL` should be `https://www.bettertoken.ai`.
+
 ---
 
 ## Use one API Key across multiple tools
 
-The same API Key works simultaneously in Claude Code, Codex CLI, Cursor, and any other tool. Quota is shared, making it easy to manage centrally.
+The same API Key works in Claude Code, Codex CLI, and external tools. Quota is shared, which makes central management simpler.
+
+But the endpoint must match the protocol:
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `https://www.bettertoken.ai`
+- Codex / `OPENAI_BASE_URL` / external tools: `https://www.bettertoken.ai/v1/`
 
 If you need to track usage separately per project or team, create multiple API Keys in the dashboard and assign one to each tool or project.
+
+For external tools, copy the model ID from the **Codex group** in the model plaza.
 
 ---
 
 ## Troubleshooting checklist
 
 1. **Confirm the API Key is correct** — check the dashboard, paste carefully with no extra spaces
-2. **Confirm the base_url** — must be `https://www.BetterToken.ai/v1` (note: `.com`, not `.ai`)
-3. **Check for conflicting env vars** — run `echo $ANTHROPIC_AUTH_TOKEN` to verify nothing is overriding
-4. **Check your balance** — requests are rejected when the balance is depleted
-5. **Contact support** — if the above steps don't resolve the issue
+2. **Confirm the endpoint for the protocol** — Claude Code uses `https://www.bettertoken.ai`; Codex / external tools use `https://www.bettertoken.ai/v1/`
+3. **Check for conflicting env vars** — run `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL`, and related commands
+4. **Check the UA for external tools** — if the tool supports custom headers, a missing required `User-Agent` may trigger `403 block` or `403 Forbidden`
+5. **Check your balance** — requests are rejected when the balance is depleted
+6. **Contact support** — if the above steps don't resolve the issue

@@ -1,10 +1,10 @@
 ---
 title: "Zed"
-description: "在 Zed 编辑器中使用 BetterToken，接入 Claude 或 GPT 系列模型。"
+description: "在 Zed 编辑器中使用 BetterToken，接入 Codex 分组模型。"
 icon: "z"
 ---
 
-Zed 是高性能代码编辑器，支持添加自定义 LLM Provider。通过 BetterToken 可以在 Zed 的 AI 面板中使用 Claude 或 GPT 系列模型。
+Zed 支持添加自定义 LLM Provider。通过 BetterToken 接入时，请使用 OpenAI 方案，并粘贴 Codex 分组模型 ID。
 
 ## 前置条件
 
@@ -15,47 +15,41 @@ Zed 是高性能代码编辑器，支持添加自定义 LLM Provider。通过 Be
 
 <Steps>
   <Step title="打开 AI 面板">
-    点击 Zed 右下角的 ✨ 图标，进入智能体面板。
+    点击 Zed 右下角的 ✨ 图标。
   </Step>
 
   <Step title="进入配置页面">
-    点击面板右上角的三点菜单（⋯），选择 **Settings** 进入配置。
+    点击右上角菜单，选择 **Settings**。
   </Step>
 
-  <Step title="添加 LLM Provider">
-    找到 **LLM Provider** 模块，点击 **+ Add Provider**，在下拉菜单中选择 **OpenAI**。
+  <Step title="添加 Provider">
+    在 **LLM Provider** 中点击 **+ Add Provider**，并选择 **OpenAI**。
   </Step>
 
   <Step title="填写 BetterToken 配置">
-    在添加面板中按以下信息填写：
 
     | 配置项 | 值 |
     |--------|-----|
-    | Provider Name | `BetterToken`（可自定义） |
-    | API URL | `https://www.BetterToken.ai/v1` |
+    | Provider Name | `BetterToken` |
+    | API URL | `https://www.bettertoken.ai/v1/` |
     | API Key | 你的 BetterToken API Key |
-    | Model Name | `claude-sonnet-4-6`（或其他支持模型） |
+    | Model Name | 从模型广场复制的 **Codex 分组模型 ID** |
+  </Step>
+
+  <Step title="如支持自定义 headers，补齐必填项">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
   <Step title="保存配置">
-    点击 **Save Provider** 保存。保存后 LLM Provider 列表中会出现 **BetterToken**。
-
-    点击 **BetterToken**，再次输入你的 API Key 并按 **Enter** 确认。
-  </Step>
-
-  <Step title="选择模型开始使用">
-    返回智能体面板，点击右下角 **Select a Model**，选择刚配置的模型即可开始使用。
+    点击 **Save Provider** 保存，然后在模型列表中选择刚配置的模型。
   </Step>
 </Steps>
 
-## 支持的模型
-
-| 模型名称 | 说明 |
-|----------|------|
-| `claude-sonnet-4-6` | 均衡，推荐日常编程 |
-| `claude-opus-4-6` | 最强能力，适合复杂任务 |
-| `claude-haiku-4-6` | 速度最快，适合简单补全 |
-| `gpt-5.4` | OpenAI 旗舰模型 |
-| `gpt-5.4-mini` | 轻量版，响应更快 |
-
-如需添加多个模型，重复**添加 LLM Provider** 步骤，每次填写不同的 Model Name 即可。
+<Note>
+  若当前版本无法设置自定义 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`。
+</Note>

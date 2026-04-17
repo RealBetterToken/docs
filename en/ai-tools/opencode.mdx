@@ -1,10 +1,10 @@
 ---
 title: "OpenCode"
-description: "Connect BetterToken to OpenCode — use Claude series models."
+description: "Connect BetterToken to OpenCode with Codex group model IDs."
 icon: "brackets-curly"
 ---
 
-Connecting OpenCode to BetterToken is done by editing the config file. BetterToken is compatible with the Anthropic SDK format.
+You can connect BetterToken to OpenCode by editing the config file. The current setup should use an OpenAI-compatible provider and a model ID from the Codex group.
 
 ## Prerequisites
 
@@ -30,34 +30,43 @@ Connecting OpenCode to BetterToken is done by editing the config file. BetterTok
 <Steps>
   <Step title="Clear conflicting environment variables">
     ```bash
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
     ```
   </Step>
 
   <Step title="Edit the OpenCode config file">
-    Config file location: `~/.config/opencode/opencode.json`
-
-    Add the following (replace `YOUR_API_KEY`):
+    Config file path: `~/.config/opencode/opencode.json`
 
     ```json
     {
       "$schema": "https://opencode.ai/config.json",
-      "model": "bettertoken/claude-sonnet-4-6",
+      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
       "provider": {
         "bettertoken": {
-          "npm": "@ai-sdk/anthropic",
+          "npm": "@ai-sdk/openai",
           "options": {
-            "baseURL": "https://www.BetterToken.ai/v1",
+            "baseURL": "https://www.bettertoken.ai/v1/",
             "apiKey": "YOUR_API_KEY"
           },
           "models": {
-            "claude-sonnet-4-6": {
-              "name": "claude-sonnet-4-6"
+            "YOUR_CODEX_MODEL_ID": {
+              "name": "YOUR_CODEX_MODEL_ID"
             }
           }
         }
       }
+    }
+    ```
+
+    Replace `YOUR_CODEX_MODEL_ID` with a current **Codex group** model ID copied from the model plaza.
+  </Step>
+
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
     }
     ```
   </Step>
@@ -68,22 +77,9 @@ Connecting OpenCode to BetterToken is done by editing the config file. BetterTok
     opencode
     ```
   </Step>
-
-  <Step title="Confirm the model">
-    The `model` field sets `bettertoken/claude-sonnet-4-6` as the default model. To switch models later, type `/models` inside OpenCode.
-  </Step>
 </Steps>
 
-## Add more models
+## Notes
 
-Add multiple models to the `models` field in the config:
-
-```json
-"models": {
-  "claude-sonnet-4-6": { "name": "claude-sonnet-4-6" },
-  "claude-opus-4-6":   { "name": "claude-opus-4-6" },
-  "claude-haiku-4-6":  { "name": "claude-haiku-4-6" }
-}
-```
-
-After adding a model, set the top-level `model` field to `bettertoken/<model-name>` to make it the default.
+- Use a **Codex group** model ID as the default model instead of fixed Claude model names
+- If your OpenCode version does not expose custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`

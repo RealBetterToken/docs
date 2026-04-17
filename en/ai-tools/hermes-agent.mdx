@@ -1,10 +1,10 @@
 ---
 title: "Hermes Agent"
-description: "Connect BetterToken to Hermes Agent — use Claude series models."
+description: "Connect BetterToken to Hermes Agent with Codex group model IDs."
 icon: "user-astronaut"
 ---
 
-Hermes Agent is an open-source autonomous AI agent with persistent memory and multi-platform support. Connect BetterToken to power it with Claude models.
+Hermes Agent supports custom model providers. External tools should now use the Codex group with an OpenAI-style protocol.
 
 ## Prerequisites
 
@@ -17,12 +17,6 @@ Hermes Agent is an open-source autonomous AI agent with persistent memory and mu
 curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
 ```
 
-Verify installation:
-
-```bash
-hermes doctor
-```
-
 ## Setup
 
 <Steps>
@@ -32,20 +26,25 @@ hermes doctor
     ```
   </Step>
 
-  <Step title="Select the Anthropic provider">
-    From the provider list, choose **Anthropic** or **Anthropic Compatible**.
-
-    <Note>
-      Hermes Agent has no built-in BetterToken option. Select the generic Anthropic-compatible provider and configure a custom base URL.
-    </Note>
+  <Step title="Choose the OpenAI or OpenAI Compatible provider">
+    Select **OpenAI** or **OpenAI Compatible** from the provider list.
   </Step>
 
-  <Step title="Enter BetterToken config">
-    When prompted:
+  <Step title="Fill in the BetterToken config">
+    Enter:
 
-    - **Base URL**: `https://www.BetterToken.ai/v1`
+    - **Base URL**: `https://www.bettertoken.ai/v1/`
     - **API Key**: your BetterToken API Key
-    - **Model**: `claude-sonnet-4-6`
+    - **Model**: a **Codex group** model ID copied from the model plaza
+  </Step>
+
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
   <Step title="Start Hermes Agent">
@@ -55,14 +54,6 @@ hermes doctor
   </Step>
 </Steps>
 
-## About persistent memory
-
-Hermes Agent's memory system saves your coding patterns, project context, and preferences across sessions. The more you use it, the better it understands your workflow.
-
-## Supported models
-
-| Model | Description |
-|-------|-------------|
-| `claude-sonnet-4-6` | Balanced — recommended |
-| `claude-opus-4-6` | Most capable — complex agent tasks |
-| `claude-haiku-4-6` | Fastest — high-frequency interactions |
+<Note>
+  If your Hermes Agent version does not expose custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+</Note>

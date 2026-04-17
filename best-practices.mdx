@@ -44,7 +44,7 @@ AI 模型的响应时间有时较长，建议将工具的超时时间设置得�
 
 ## 清除冲突的环境变量
 
-如果你同时使用过 Anthropic 官方 API 或其他中转服务，旧的环境变量可能会覆盖你的配置，导致请求发送到错误的地址。
+如果你同时使用过 Anthropic 官方 API、OpenAI 官方 API 或其他中转服务，旧的环境变量可能会覆盖你的配置，导致请求发送到错误的地址。
 
 在配置 BetterToken 前，检查并清除以下变量：
 
@@ -72,20 +72,30 @@ unset OPENAI_BASE_URL
 
 **禁用非必要流量。** 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 可以减少 Claude Code 发出的后台请求，让你的 API 额度用在真正的编码任务上。
 
+**Claude Code 的地址不要带 `/v1`。** `ANTHROPIC_BASE_URL` 应填写为 `https://www.bettertoken.ai`。
+
 ---
 
 ## 在多个工具中使用
 
-同一个 API Key 可以同时在 Claude Code、Codex CLI、Cursor 等多个工具中使用。额度共享，方便统一管理。
+同一个 API Key 可以同时在 Claude Code、Codex CLI 和其他外部工具中使用。额度共享，方便统一管理。
+
+但 `base_url` 必须按协议分别配置：
+
+- Claude Code / `ANTHROPIC_BASE_URL`：`https://www.bettertoken.ai`
+- Codex / `OPENAI_BASE_URL` / 其他外部工具：`https://www.bettertoken.ai/v1/`
 
 如果你有多个项目需要隔离追踪用量，可以在控制台创建多个 API Key，分别用于不同的工具或项目。
+
+对于外部工具，模型统一从模型广场复制 **Codex 分组**的模型 ID。
 
 ---
 
 ## 遇到问题时的排查顺序
 
 1. **确认 API Key 正确** — 登录控制台，确认 Key 未被删除，粘贴时无多余空格
-2. **确认 base_url 正确** — 应为 `https://www.BetterToken.ai/v1`（注意是 `BetterToken.ai`）
-3. **检查环境变量冲突** — 运行 `echo $ANTHROPIC_AUTH_TOKEN` 确认没有旧变量覆盖
-4. **检查账户余额** — 余额不足时请求会被拒绝
-5. **联系客服** — 如以上步骤都没有解决问题，联系 BetterToken 客服
+2. **确认协议对应的地址** — Claude Code 用 `https://www.bettertoken.ai`；Codex / 外部工具用 `https://www.bettertoken.ai/v1/`
+3. **检查环境变量冲突** — 运行 `echo $ANTHROPIC_AUTH_TOKEN`、`echo $OPENAI_BASE_URL` 等确认没有旧变量覆盖
+4. **检查外部工具的 UA** — 若工具支持自定义 headers，缺少对应 `User-Agent` 可能触发 `403 block` 或 `403 Forbidden`
+5. **检查账户余额** — 余额不足时请求会被拒绝
+6. **联系客服** — 如以上步骤都没有解决问题，联系 BetterToken 客服

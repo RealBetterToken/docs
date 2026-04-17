@@ -1,13 +1,13 @@
 ---
 title: "Grok CLI"
-description: "在 Grok CLI 中使用 BetterToken，接入 Claude 或 GPT 系列模型。"
+description: "在 Grok CLI 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "g"
 ---
 
-Grok CLI 通过环境变量配置 API 地址和 Key，接入 BetterToken 只需设置两个变量并指定模型即可。
+Grok CLI 通过环境变量配置 API 地址和 Key。接入 BetterToken 时，请使用 `/v1/` 地址，并指定 Codex 分组模型 ID。
 
 <Warning>
-  Grok CLI 更适合用于代码补全等轻量场景。如需完整 Agent 工作流，推荐使用 Claude Code 或 Cursor。
+  Grok CLI 更适合轻量场景。如需完整 Agent 工作流，优先使用 Claude Code、Codex CLI 或 OpenClaw。
 </Warning>
 
 ## 前置条件
@@ -33,34 +33,20 @@ npm install -g @vibe-kit/grok-cli
 
   <Step title="设置 BetterToken 环境变量">
     ```bash
-    export GROK_BASE_URL="https://www.BetterToken.ai/v1"
+    export GROK_BASE_URL="https://www.bettertoken.ai/v1/"
     export GROK_API_KEY="YOUR_API_KEY"
     ```
-
-    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。
-
-    如果希望每次启动终端都自动生效，将上述两行添加到 `~/.zshrc` 或 `~/.bashrc` 中。
   </Step>
 
   <Step title="启动 Grok CLI 并指定模型">
     ```bash
-    grok --model claude-sonnet-4-6
+    grok --model YOUR_CODEX_MODEL_ID
     ```
+
+    将 `YOUR_CODEX_MODEL_ID` 替换为从模型广场复制的 **Codex 分组模型 ID**。
   </Step>
 </Steps>
 
-## 支持的模型
-
-| 模型名称 | 说明 |
-|----------|------|
-| `claude-sonnet-4-6` | 均衡，推荐日常使用 |
-| `claude-opus-4-6` | 最强能力，适合复杂任务 |
-| `claude-haiku-4-6` | 速度最快，适合简单任务 |
-| `gpt-5.4` | OpenAI 旗舰模型 |
-| `gpt-5.4-mini` | 轻量版，响应更快 |
-
-通过 `--model` 参数切换模型：
-
-```bash
-grok --model gpt-5.4
-```
+<Note>
+  若当前版本不支持补充自定义 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`。
+</Note>

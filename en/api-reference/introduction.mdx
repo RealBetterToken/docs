@@ -1,95 +1,84 @@
 ---
 title: "API Reference"
-description: "BetterToken API endpoint, authentication, and compatibility."
+description: "BetterToken endpoints, authentication, and protocol-specific setup."
 ---
 
-## API endpoint
+## Endpoints
 
-All requests go to:
+BetterToken now uses two different endpoints by protocol:
 
-```
-https://www.BetterToken.ai/v1
-```
+| Scenario | Base URL | Protocol |
+|----------|----------|----------|
+| Claude Code / `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Anthropic |
+| Codex / `OPENAI_BASE_URL` / external tools | `https://www.bettertoken.ai/v1/` | OpenAI-style / OpenAI Responses |
 
-BetterToken is compatible with both the **Anthropic SDK** and the **OpenAI SDK** — no code migration needed, just swap `base_url` and API Key.
+<Warning>
+  Do not keep using one shared endpoint for every protocol.
+</Warning>
 
----
+## Authentication and examples
 
-## Authentication
-
-Pass your BetterToken API Key in the request:
+Pass your BetterToken API Key with the request:
 
 <Tabs>
-  <Tab title="Anthropic SDK (Claude)">
+  <Tab title="Claude Code / Anthropic">
     ```python
     import anthropic
 
     client = anthropic.Anthropic(
-        base_url="https://www.BetterToken.ai/v1",
+        base_url="https://www.bettertoken.ai",
         api_key="YOUR_API_KEY",
     )
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": "Hello"}],
+    )
+    ```
+
+    ```bash
+    curl https://www.bettertoken.ai/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
     ```
   </Tab>
-  <Tab title="OpenAI SDK (GPT)">
+  <Tab title="Codex / OpenAI Responses">
     ```python
     from openai import OpenAI
 
     client = OpenAI(
-        base_url="https://www.BetterToken.ai/v1",
+        base_url="https://www.bettertoken.ai/v1/",
         api_key="YOUR_API_KEY",
     )
-    ```
-  </Tab>
-  <Tab title="cURL">
-    ```bash
-    # Anthropic-compatible endpoint
-    curl https://www.BetterToken.ai/v1/messages \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: 2023-06-01" \
-      -H "content-type: application/json" \
-      -d '{ ... }'
 
-    # OpenAI-compatible endpoint
-    curl https://www.BetterToken.ai/v1/chat/completions \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{ ... }'
+    response = client.responses.create(
+        model="Codex group model ID copied from the model plaza",
+        input="Hello",
+    )
+    ```
+
+    ```bash
+    curl https://www.bettertoken.ai/v1/chat/completions       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
     ```
   </Tab>
 </Tabs>
 
----
+## Model selection rules
 
-## Supported models
-
-### Claude series (Anthropic-compatible)
-
-| Model | Description |
-|-------|-------------|
-| `claude-opus-4-6` | Most capable — best for complex reasoning |
-| `claude-sonnet-4-6` | Balanced — recommended for everyday use |
-| `claude-haiku-4-6` | Fastest — best for simple tasks |
-
-### GPT series (OpenAI-compatible)
-
-| Model | Description |
-|-------|-------------|
-| `gpt-5.4` | OpenAI flagship model |
-| `gpt-5.4-mini` | Lightweight, faster responses |
+- **Claude Code**: do not set model variables manually; only configure `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
+- **Codex CLI**: use a model ID copied from the **Codex group** in the model plaza
+- **External tools**: also use **Codex group** model IDs instead of fixed Claude model names
 
 <Note>
-  When using **Claude Code** or **Codex CLI**, you do not need to specify a model name in your config. BetterToken routes automatically. You only need to specify a model in tools like Cursor that require explicit model selection.
+  If an external tool supports custom headers, add the required `Authorization` and Codex `User-Agent`. Missing the expected UA may result in `403 block` or `403 Forbidden`.
 </Note>
-
----
 
 ## Environment variable reference
 
 | Variable | Value | Usage |
 |----------|-------|-------|
-| `ANTHROPIC_BASE_URL` | `https://www.BetterToken.ai/v1` | Anthropic-compatible tools (Claude Code, etc.) |
-| `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code authentication |
-| `OPENAI_BASE_URL` | `https://www.BetterToken.ai/v1` | OpenAI SDK-compatible tools |
-| `OPENAI_API_KEY` | Your API Key | OpenAI SDK authentication |
-| `API_TIMEOUT_MS` | `3000000` | Recommended — prevents long-task timeouts |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only — reduces background requests |
+| `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Claude Code |
+| `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code auth |
+| `OPENAI_BASE_URL` | `https://www.bettertoken.ai/v1/` | Codex and other OpenAI-style tools |
+| `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
+| `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |

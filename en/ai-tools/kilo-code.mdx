@@ -1,54 +1,49 @@
 ---
 title: "Kilo Code"
-description: "Connect BetterToken to Kilo Code — use Claude or GPT series models."
+description: "Connect BetterToken to Kilo Code with Codex group model IDs."
 icon: "puzzle-piece"
 ---
 
-Kilo Code is a VS Code extension. Connecting to BetterToken requires selecting the OpenAI Compatible provider in the settings UI.
+Kilo Code is a VS Code extension. To connect BetterToken, choose the OpenAI Compatible provider and use a model ID from the Codex group.
 
 ## Prerequisites
 
 - VS Code installed
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
 
-## Install Kilo Code
-
-Open VS Code, search for **Kilo Code** in the Extensions marketplace, and click Install. Restart VS Code after installation.
-
 ## Setup
 
 <Steps>
   <Step title="Clear conflicting environment variables">
     ```bash
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
     ```
   </Step>
 
   <Step title="Open Kilo Code settings">
-    Click the **Settings** button in the Kilo Code sidebar.
+    Open the Kilo Code settings UI.
   </Step>
 
   <Step title="Configure the API provider">
-    Fill in the following:
+    Fill in:
 
     - **API Provider** → `OpenAI Compatible`
-    - **Base URL** → `https://www.BetterToken.ai/v1`
+    - **Base URL** → `https://www.bettertoken.ai/v1/`
     - **API Key** → your BetterToken API Key
-    - **Model** → `claude-sonnet-4-6` (or another supported model)
+    - **Model** → a **Codex group** model ID copied from the model plaza
   </Step>
 
-  <Step title="Save">
-    Click **Save** then **Done** to apply the configuration.
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 </Steps>
 
-## Supported models
-
-| Model | Description |
-|-------|-------------|
-| `claude-sonnet-4-6` | Balanced — recommended |
-| `claude-opus-4-6` | Most capable — complex tasks |
-| `claude-haiku-4-6` | Fastest — simple completions |
-| `gpt-5.4` | OpenAI flagship |
-| `gpt-5.4-mini` | Lightweight, faster |
+<Note>
+  If your Kilo Code version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+</Note>

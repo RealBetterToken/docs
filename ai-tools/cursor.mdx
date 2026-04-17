@@ -1,84 +1,59 @@
 ---
 title: "Cursor"
-description: "在 Cursor 中使用 BetterToken，接入 Claude 或 GPT 系列模型。"
+description: "在 Cursor 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "arrow-pointer"
 ---
 
-在 Cursor 中接入 BetterToken 需要配置 API 地址，并手动添加你要使用的模型（Claude 系列或 GPT 系列）。
+在 Cursor 中接入 BetterToken 时，使用 OpenAI Base URL。外部工具统一走 Codex 分组，请从模型广场复制当前可用的模型 ID。
+
+<Warning>
+  Cursor 的自定义 API Key、自定义模型和自定义 headers 能力受客户端版本与套餐限制。如果当前界面不支持这些选项，请以 Cursor 当前版本实际能力为准。
+</Warning>
 
 ## 前置条件
 
 - 已安装 Cursor（前往 [Cursor 官网](https://www.cursor.com) 下载）
 - 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
-- Cursor 客户端中可使用自定义 API Key 和自定义模型（不同版本和套餐显示可能不同）
-
-<Warning>
-  Cursor 的自定义 API Key 和自定义模型能力受客户端版本和套餐限制。如果看到如下错误，请按 Cursor 当前客户端提示升级套餐或调整模型配置：
-  
-  `The model does not work with your current plan or api key`
-
-  配置前请确保清除以下环境变量：
-
-  ```bash
-  unset OPENAI_API_KEY
-  unset OPENAI_BASE_URL
-  ```
-</Warning>
 
 ## 配置步骤
 
 <Steps>
   <Step title="打开模型配置页面">
-    在 Cursor 中，点击左下角 **Settings（齿轮图标）**，进入设置界面，选择左侧 **Models** 标签。
+    在 Cursor 中，点击左下角 **Settings**，进入设置界面后选择 **Models**。
   </Step>
 
   <Step title="配置 BetterToken API">
     在 **API Keys** 部分：
 
     1. 勾选 **Override OpenAI Base URL**
-    2. 在输入框中填入：`https://www.BetterToken.ai/v1`
-    3. 在 **OpenAI API Key** 输入框中填入你的 BetterToken API Key
-    4. 点击右侧按钮，在弹出窗口中点击 **Enable OpenAI API Key** 完成验证
+    2. 填入 `https://www.bettertoken.ai/v1/`
+    3. 在 **OpenAI API Key** 中填入你的 BetterToken API Key
+    4. 按界面提示完成验证
   </Step>
 
   <Step title="添加模型">
-    在 **Models** 部分：
+    在 **Models** 部分，点击 **View All Models**，再点击 **Add Custom Model**。
 
-    1. 点击 **View All Models**，再点击 **Add Custom Model**
-    2. 输入你要使用的模型名称，例如：
-       - Claude 系列：`claude-sonnet-4-6`、`claude-opus-4-6`、`claude-haiku-4-6`
-       - GPT 系列：`gpt-5.4`、`gpt-5.4-mini`
-    3. 点击 **Add** 添加模型
-    4. 启用刚刚添加的模型
+    模型名称请直接粘贴从模型广场复制的 **Codex 分组模型 ID**。
+  </Step>
 
-    <Note>
-      与 Claude Code 和 Codex 不同，在 Cursor 中使用 BetterToken 时需要手动指定模型名称。
-    </Note>
+  <Step title="如支持自定义 headers，补齐必填项">
+    如果当前版本提供自定义 headers 入口，请添加：
+
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
   <Step title="选择模型并开始使用">
-    在 Cursor 聊天面板的模型下拉菜单中，选择你刚添加的模型，即可开始使用。
+    在 Cursor 聊天面板中选择刚添加的 Codex 分组模型即可开始使用。
   </Step>
 </Steps>
 
-## 支持的模型
+## 注意事项
 
-通过 BetterToken 在 Cursor 中可以使用以下模型：
-
-| 系列 | 模型名称 | 说明 |
-|------|----------|------|
-| Claude | `claude-sonnet-4-6` | 均衡，适合日常编程 |
-| Claude | `claude-opus-4-6` | 最强能力，适合复杂任务 |
-| Claude | `claude-haiku-4-6` | 速度最快，适合简单任务 |
-| GPT | `gpt-5.4` | OpenAI 旗舰模型 |
-| GPT | `gpt-5.4-mini` | 轻量版，速度更快 |
-
-## 常见问题
-
-**模型没有返回任何内容怎么办？**
-
-尝试将 Cursor 的 **Settings → Network** 更改为 **HTTP/1.0**，再重试。
-
-**配置后提示认证失败怎么办？**
-
-检查 API Key 是否正确，以及 `base_url` 是否设置为 `https://www.BetterToken.ai/v1`（注意是 `BetterToken.ai`，不是 `bettertoken.ai`）。
+- 不要继续填写固定 Claude 模型名
+- 如果当前版本不能设置自定义 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`

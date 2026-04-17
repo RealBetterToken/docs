@@ -1,10 +1,10 @@
 ---
 title: "Cline"
-description: "Connect BetterToken to Cline — use Claude or GPT series models."
+description: "Connect BetterToken to Cline with Codex group model IDs."
 icon: "c"
 ---
 
-Cline is a VS Code AI coding extension. Connecting to BetterToken requires selecting the OpenAI Compatible provider in the settings UI.
+Cline is a VS Code AI coding extension. To connect BetterToken, choose the OpenAI Compatible provider and use a model ID from the Codex group.
 
 ## Prerequisites
 
@@ -13,50 +13,45 @@ Cline is a VS Code AI coding extension. Connecting to BetterToken requires selec
 
 ## Install Cline
 
-Search for **Cline** in the VS Code Extensions marketplace and click Install. After installation, the Cline icon appears in the activity bar.
-
-<Note>
-  Use **Cline v3.47.0 or later**. Restart VS Code and the extension after installation.
-</Note>
+Open VS Code, search for **Cline** in the extensions marketplace, and install it.
 
 ## Setup
 
 <Steps>
   <Step title="Clear conflicting environment variables">
     ```bash
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
     ```
   </Step>
 
-  <Step title="Open Cline configuration">
+  <Step title="Open the Cline config UI">
     Click **Use your own API key** in the Cline sidebar.
   </Step>
 
   <Step title="Configure the API provider">
-    Fill in the following:
+    Fill in:
 
     - **API Provider** → `OpenAI Compatible`
-    - **Base URL** → `https://www.BetterToken.ai/v1`
+    - **Base URL** → `https://www.bettertoken.ai/v1/`
     - **API Key** → your BetterToken API Key
-    - **Model** → `claude-sonnet-4-6` (or another supported model)
+    - **Model** → a **Codex group** model ID copied from the model plaza
   </Step>
 
-  <Step title="Save">
-    Click **Done** to apply.
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
-  <Step title="Enable Auto-approve (recommended)">
-    In Cline's **Auto-approve** settings, check **Edit** to allow Cline to edit files automatically for a smoother experience.
+  <Step title="Save the config">
+    Click **Done**.
   </Step>
 </Steps>
 
-## Supported models
-
-| Model | Description |
-|-------|-------------|
-| `claude-sonnet-4-6` | Balanced — recommended |
-| `claude-opus-4-6` | Most capable — complex refactors |
-| `claude-haiku-4-6` | Fastest — quick completions |
-| `gpt-5.4` | OpenAI flagship |
-| `gpt-5.4-mini` | Lightweight, faster |
+<Note>
+  If your Cline version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+</Note>

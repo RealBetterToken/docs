@@ -1,10 +1,10 @@
 ---
 title: "Codex CLI"
-description: "Connect BetterToken to OpenAI Codex CLI without using BetterToken-specific model names."
+description: "Connect BetterToken to Codex CLI with /v1/ and OpenAI Responses."
 icon: "code"
 ---
 
-Connecting Codex CLI to BetterToken requires configuring a custom model provider and API Key. Use a model name supported by Codex, such as `gpt-5.4`; **no BetterToken-specific model name is needed**.
+Connecting Codex CLI to BetterToken requires a custom model provider and API Key. The `base_url` must be `https://www.bettertoken.ai/v1/`, and the protocol is `OpenAI Responses`.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Connecting Codex CLI to BetterToken requires configuring a custom model provider
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
 
 <Warning>
-  Clear any conflicting environment variables before configuring:
+  Clear these environment variables before setup so they do not override your config:
 
   ```bash
   unset OPENAI_API_KEY
@@ -29,15 +29,19 @@ npm install -g @openai/codex
 ## Setup
 
 <Steps>
-  <Step title="Edit the Codex config file">
-    Config file location: `~/.codex/config.toml` (create if it doesn't exist)
+  <Step title="Copy a model ID from the model plaza">
+    Open the BetterToken model plaza and copy a currently available model ID from the **Codex group**. Replace every `YOUR_CODEX_MODEL_ID` below with that value.
+  </Step>
 
-    Add the following (replace `YOUR_API_KEY` with your BetterToken API Key):
+  <Step title="Edit the Codex config file">
+    The Codex config file is `~/.codex/config.toml`.
+
+    Replace `YOUR_API_KEY` with your BetterToken API Key:
 
     ```toml
     [model_providers.bettertoken]
     name = "BetterToken"
-    base_url = "https://www.BetterToken.ai/v1"
+    base_url = "https://www.bettertoken.ai/v1/"
     env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
@@ -46,7 +50,7 @@ npm install -g @openai/codex
     stream_idle_timeout_ms = 300000
 
     [profiles.bt]
-    model = "gpt-5.4"
+    model = "YOUR_CODEX_MODEL_ID"
     model_provider = "bettertoken"
     ```
   </Step>
@@ -55,8 +59,6 @@ npm install -g @openai/codex
     ```bash
     export BETTERTOKEN_API_KEY="YOUR_API_KEY"
     ```
-
-    To persist this across sessions, add the line to `~/.zshrc` or `~/.bashrc`.
   </Step>
 
   <Step title="Start Codex CLI">
@@ -66,8 +68,13 @@ npm install -g @openai/codex
   </Step>
 </Steps>
 
-## Verify
+## Verify the setup
 
-Send a test message after startup. A normal response confirms the connection is working.
+After startup, send a test message. A normal reply means the connection is working.
 
-If you encounter issues, check that `base_url` is set to `https://www.BetterToken.ai/v1` and that `BETTERTOKEN_API_KEY` is exported.
+If something fails, check:
+1. `base_url` is `https://www.bettertoken.ai/v1/`
+2. `wire_api` is still `responses`
+3. `model` is a model ID copied from the **Codex group**
+4. `BETTERTOKEN_API_KEY` is set
+5. No old `OPENAI_API_KEY` or `OPENAI_BASE_URL` variables are interfering

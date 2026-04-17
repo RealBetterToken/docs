@@ -1,84 +1,39 @@
 ---
 title: "Quickstart"
-description: "3 steps to connect BetterToken and claim your ¥7 / $1 trial credit."
+description: "3 steps to choose the right BetterToken access mode and verify the connection."
 ---
 
 <Steps>
   <Step title="Create an account and claim your trial credit">
     Visit the [BetterToken registration page](https://www.bettertoken.ai/register) to create an account.
 
-    You'll automatically receive a **¥7 trial credit** on signup — no credit card required, pay-as-you-go, refundable.
+    You'll automatically receive a **¥7 trial credit** on signup.
   </Step>
   <Step title="Get your API Key">
     Log in to the dashboard and create your API Key.
 
     <Warning>
-      Keep your API Key safe. Store it as an environment variable rather than hardcoding it into your config files or source code.
+      Keep your API Key safe. Store it as an environment variable instead of hardcoding it into source code or config files.
     </Warning>
 
-    Export it as an environment variable:
+    Start with:
 
     ```bash
     export BETTERTOKEN_API_KEY="your-api-key-here"
     ```
   </Step>
-  <Step title="Test the API (optional)">
-    BetterToken is compatible with the Anthropic SDK. Use the following to verify your connection:
+  <Step title="Verify by access mode (optional)">
+    BetterToken now has two distinct access modes. Do not reuse the same `base_url` across every tool.
 
     <Tabs>
-      <Tab title="Python">
+      <Tab title="Claude Code / Anthropic">
+        For Claude Code and integrations that use `ANTHROPIC_BASE_URL`:
+
         ```bash
-        pip install anthropic
-        ```
+        export ANTHROPIC_BASE_URL="https://www.bettertoken.ai"
+        export ANTHROPIC_AUTH_TOKEN="$BETTERTOKEN_API_KEY"
 
-        ```python
-        import anthropic
-
-        client = anthropic.Anthropic(
-            base_url="https://www.BetterToken.ai/v1",
-            api_key="your-api-key-here",
-        )
-
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1024,
-            messages=[
-                {"role": "user", "content": "Hello, introduce yourself."}
-            ]
-        )
-
-        print(message.content[0].text)
-        ```
-      </Tab>
-      <Tab title="Node.js">
-        ```bash
-        npm install @anthropic-ai/sdk
-        ```
-
-        ```javascript
-        import Anthropic from "@anthropic-ai/sdk";
-
-        const client = new Anthropic({
-          baseURL: "https://www.BetterToken.ai/v1",
-          apiKey: "your-api-key-here",
-        });
-
-        const message = await client.messages.create({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1024,
-          messages: [{ role: "user", content: "Hello, introduce yourself." }],
-        });
-
-        console.log(message.content[0].text);
-        ```
-      </Tab>
-      <Tab title="cURL">
-        ```bash
-        curl https://www.BetterToken.ai/v1/messages \
-          -H "x-api-key: your-api-key-here" \
-          -H "anthropic-version: 2023-06-01" \
-          -H "content-type: application/json" \
-          -d '{
+        curl https://www.bettertoken.ai/messages           -H "x-api-key: $BETTERTOKEN_API_KEY"           -H "anthropic-version: 2023-06-01"           -H "content-type: application/json"           -d '{
             "model": "claude-sonnet-4-6",
             "max_tokens": 1024,
             "messages": [
@@ -87,11 +42,31 @@ description: "3 steps to connect BetterToken and claim your ¥7 / $1 trial credi
           }'
         ```
       </Tab>
+      <Tab title="Codex / OpenAI-style">
+        For Codex CLI and external tools. The `base_url` must include `/v1/`:
+
+        ```bash
+        export OPENAI_BASE_URL="https://www.bettertoken.ai/v1/"
+
+        curl https://www.bettertoken.ai/v1/chat/completions           -H "Authorization: Bearer $BETTERTOKEN_API_KEY"           -H "content-type: application/json"           -d '{
+            "model": "Codex group model ID copied from the model plaza",
+            "messages": [
+              {"role": "user", "content": "Hello, introduce yourself."}
+            ]
+          }'
+        ```
+
+        <Note>
+          External tools now use the Codex group. Do not keep hardcoded Claude model examples in these tools.
+        </Note>
+      </Tab>
     </Tabs>
   </Step>
 </Steps>
 
 ## Next steps
+
+Continue with the guide that matches your tool:
 
 <Columns cols={2}>
   <Card
@@ -99,13 +74,13 @@ description: "3 steps to connect BetterToken and claim your ¥7 / $1 trial credi
     icon="terminal"
     href="/en/ai-tools/claude-code"
   >
-    No model name needed — BetterToken routes automatically.
+    Use `ANTHROPIC_BASE_URL=https://www.bettertoken.ai`.
   </Card>
   <Card
     title="Connect Codex CLI"
     icon="code"
     href="/en/ai-tools/codex"
   >
-    No model name needed — BetterToken routes automatically.
+    Use `https://www.bettertoken.ai/v1/` with OpenAI Responses.
   </Card>
 </Columns>

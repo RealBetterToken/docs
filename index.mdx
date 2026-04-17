@@ -1,18 +1,28 @@
 ---
 title: "BetterToken 文档"
-description: "面向 AI 编程工具的稳定 API 中转服务，支持 Claude、Codex 等主流模型。"
+description: "面向 Claude Code、Codex 与外部 AI 工具的稳定 API 中转服务。"
 ---
 
 ## 什么是 BetterToken？
 
-BetterToken 是一个面向开发者的 AI API 中转服务。通过聚合 12+ 家供应商，BetterToken 在你和 Anthropic / OpenAI 之间提供一层高可用路由，让你的 Claude Code、Codex 等 AI 编程工具在高峰期也能稳定运行。
+BetterToken 是一个面向 AI 编程工具的 API 中转服务。当前文档按两种接入方式说明：
+
+- **Claude Code / `ANTHROPIC_BASE_URL`**：使用 `https://www.bettertoken.ai`
+- **Codex / `OPENAI_BASE_URL` / 其他外部工具**：使用 `https://www.bettertoken.ai/v1/`
 
 **核心优势：**
 
-- **多源供应**：同时接入 12+ 家供应商，单点故障不影响使用
+- **多源供应**：同时接入多家供应商，单点故障不影响使用
 - **动态路由**：实时选择最优链路，自动规避超时和限流
-- **专注旗舰**：只接入 Claude 和 Codex，不铺摊子
-- **简单接入**：与 OpenAI SDK / Anthropic SDK 完全兼容，改一行配置即可
+- **专注旗舰**：围绕 Claude Code 与 Codex 生态维护接入稳定性
+- **双通道接入**：按协议分别配置地址，避免把同一个 `base_url` 混用到所有工具
+
+## 两种接入方式
+
+| 场景 | Base URL | 说明 |
+|------|----------|------|
+| Claude Code | `https://www.bettertoken.ai` | 使用 Anthropic 协议，不带 `/v1` |
+| Codex CLI / 外部工具 | `https://www.bettertoken.ai/v1/` | 使用 OpenAI 类协议；外部工具统一走 Codex 分组 |
 
 ## 快速开始
 
@@ -22,14 +32,14 @@ BetterToken 是一个面向开发者的 AI API 中转服务。通过聚合 12+ �
     icon="rocket"
     href="/quickstart"
   >
-    3 步完成接入，5 分钟内跑起来。
+    先确认自己属于 Claude Code 还是 Codex / 外部工具方案。
   </Card>
   <Card
     title="常见问题"
     icon="circle-question"
     href="/faq"
   >
-    账号、计费、限额相关的常见问题。
+    查看 Base URL、模型分组、403 和认证问题的说明。
   </Card>
 </Columns>
 
@@ -41,27 +51,27 @@ BetterToken 是一个面向开发者的 AI API 中转服务。通过聚合 12+ �
     icon="terminal"
     href="/ai-tools/claude-code"
   >
-    无需指定模型，改一行配置即可接入。
+    配置 `ANTHROPIC_BASE_URL=https://www.bettertoken.ai`。
   </Card>
   <Card
     title="Codex CLI"
     icon="code"
     href="/ai-tools/codex"
   >
-    接入 OpenAI Codex CLI，无需指定模型。
+    使用 `https://www.bettertoken.ai/v1/` 和 OpenAI Responses。
   </Card>
   <Card
     title="Cursor"
     icon="pen-to-square"
     href="/ai-tools/cursor"
   >
-    在 Cursor 中使用 Claude 或 GPT 系列模型。
+    外部工具统一走 Codex 分组与 OpenAI 兼容配置。
   </Card>
   <Card
     title="OpenClaw"
     icon="paw"
     href="/ai-tools/openclaw"
   >
-    无需指定模型，改一行配置即可接入。
+    选择 Codex provider，并补齐 Authorization 与 User-Agent。
   </Card>
 </Columns>

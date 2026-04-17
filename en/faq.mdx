@@ -1,94 +1,119 @@
 ---
 title: "FAQ"
-description: "Common questions about BetterToken accounts, billing, limits, and setup."
+description: "Common questions about BetterToken accounts, billing, usage, and setup."
 ---
 
-## Account & billing
+## Account and billing
 
 <AccordionGroup>
-  <Accordion title="How does BetterToken charge?">
-    BetterToken charges based on actual token usage, in line with Anthropic/OpenAI official pricing — no markup. New accounts receive a ¥7 trial credit on signup, no credit card required.
+  <Accordion title="How does BetterToken charge usage?">
+    BetterToken charges by actual token usage and follows Anthropic / OpenAI pricing without adding an extra markup. Every new account gets a ¥7 trial credit.
 
     See the [pricing page](https://www.bettertoken.ai/#) for details.
   </Accordion>
 
-  <Accordion title="Can I get a refund on my top-up?">
-    Top-up balances are refundable. Trial credits are non-refundable. Contact support for refund requests.
+  <Accordion title="Can I get a refund after signup?">
+    Paid top-ups are refundable. Trial credit is not refundable. Contact support if you need a refund.
   </Accordion>
 
-  <Accordion title="Can I use the same API Key across multiple tools?">
-    Yes. One API Key works across Claude Code, Codex, Cursor, and any other tool simultaneously. Usage quota is shared.
+  <Accordion title="Can I use the same API Key in multiple tools?">
+    Yes. The same API Key can be used in Claude Code, Codex, Cursor, and other tools at the same time. Usage is shared.
   </Accordion>
 
-  <Accordion title="How do I check my usage?">
-    Log in to the dashboard and navigate to the account management page to view usage and billing history.
+  <Accordion title="Where can I check my usage?">
+    Log in to the dashboard to view current usage and billing records.
   </Accordion>
 </AccordionGroup>
 
-## Setup & configuration
+## Setup and configuration
 
 <AccordionGroup>
   <Accordion title="What is BetterToken's base_url?">
-    ```
-    https://www.BetterToken.ai/v1
-    ```
+    BetterToken now uses two different endpoints by protocol:
 
-    Compatible with both the Anthropic SDK and OpenAI SDK — just swap `base_url`.
+    | Scenario | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` |
+    | Codex / `OPENAI_BASE_URL` / external tools | `https://www.bettertoken.ai/v1/` |
+
+    Do not reuse one address across every tool.
   </Accordion>
 
   <Accordion title="Do I need to specify a model when using Claude Code?">
-    No. Claude Code manages its own model selection internally. When connecting to BetterToken, only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **Do not** set `ANTHROPIC_MODEL` or similar model variables — BetterToken routes automatically.
+    No. Claude Code manages model selection internally. When connecting to BetterToken, only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **Do not** set `ANTHROPIC_MODEL` or similar model variables.
   </Accordion>
 
   <Accordion title="Do I need to specify a model when using Codex CLI?">
-    No. Codex CLI uses a default model. No BetterToken-specific model name is needed.
+    Yes. Fill in a model ID copied from the **Codex group** in the model plaza.
 
     See the [Codex CLI setup guide](/en/ai-tools/codex) for details.
   </Accordion>
 
-  <Accordion title="Do I need to specify a model for Cursor and other tools?">
-    Yes. Tools like Cursor require you to manually add and select a model. You can choose from the Claude series (e.g., `claude-sonnet-4-6`) or GPT series (e.g., `gpt-5.4`).
+  <Accordion title="Do I need to specify a model when using other tools like Cursor?">
+    Yes. External tools such as Cursor, Cline, Zed, and OpenClaw now use the **Codex group**. Copy the current model ID from the model plaza.
+
+    Do not keep using hardcoded Claude model names in these tools.
 
     See the [Cursor setup guide](/en/ai-tools/cursor) for details.
   </Accordion>
 
-  <Accordion title="Authentication is failing — what should I check?">
-    1. Confirm your API Key is correct with no extra whitespace
-    2. Confirm `base_url` is set to `https://www.BetterToken.ai/v1` (note: `BetterToken.ai`, not `bettertoken.ai`)
-    3. Check for stale environment variables overriding your config (run `echo $ANTHROPIC_AUTH_TOKEN`)
+  <Accordion title="Do OpenClaw and other external tools need extra headers?">
+    When the tool supports custom headers, add:
 
-    If the issue persists, contact support.
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
+
+    Missing the required UA may lead to `403 block` or `403 Forbidden`.
+  </Accordion>
+
+  <Accordion title="What should I do if authentication fails after setup?">
+    Check the following:
+
+    1. Make sure the API Key is correct and has no extra spaces
+    2. Confirm Claude Code uses `https://www.bettertoken.ai`, while Codex / external tools use `https://www.bettertoken.ai/v1/`
+    3. Check whether old `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY`, or `OPENAI_BASE_URL` variables are overriding the config
+    4. For external tools, confirm the required `User-Agent` is present if the tool supports custom headers
+
+    If the issue remains, contact support.
   </Accordion>
 </AccordionGroup>
 
-## Reliability & rate limits
+## Reliability and rate limits
 
 <AccordionGroup>
-  <Accordion title="How does BetterToken ensure reliability?">
-    BetterToken connects to 12+ suppliers simultaneously with three layers of protection:
+  <Accordion title="How does BetterToken stay reliable?">
+    BetterToken connects to multiple suppliers and uses the following mechanisms:
 
-    - **Multi-source supply**: Automatic failover when one supplier has issues
-    - **Dynamic routing**: Continuously monitors each path and selects the fastest, most reliable one
-    - **Flagship focus**: Only Claude and Codex — concentrated reliability on the models that matter
+    - **Multi-source supply**: one supplier outage does not take down your requests
+    - **Dynamic routing**: BetterToken picks the fastest and most stable path in real time
+    - **Flagship focus**: reliability work is concentrated on Claude Code and the Codex ecosystem
   </Accordion>
 
   <Accordion title="What should I do if I hit rate limits or timeouts?">
-    BetterToken's multi-source routing automatically handles single-supplier rate limits and timeouts. If you experience persistent issues:
+    BetterToken automatically handles individual supplier rate limits and timeouts. If issues continue:
 
-    1. Check your account balance
-    2. Increase the tool's timeout setting (`API_TIMEOUT_MS=3000000` recommended)
-    3. Contact support for quota information
+    1. Check that your balance is sufficient
+    2. Increase the timeout for your tool (`API_TIMEOUT_MS=3000000` is recommended)
+    3. Contact support to confirm the current quota status
+  </Accordion>
+
+  <Accordion title="Is BetterToken suitable for production?">
+    BetterToken is primarily built for individual developers using AI coding tools such as Claude Code and Codex. For large-scale production API workloads, evaluate it against your own requirements.
   </Accordion>
 </AccordionGroup>
 
-## Privacy & security
+## Privacy and security
 
 <AccordionGroup>
   <Accordion title="Does BetterToken store my request content?">
-    BetterToken processes requests as a relay layer and does not persistently store conversation content. See the [Privacy Policy](https://www.bettertoken.ai/privacy) for details.
+    BetterToken acts as a relay and does not persist conversation content. See the [Privacy Policy](https://www.bettertoken.ai/privacy) for details.
   </Accordion>
 
-  <Accordion title="What should I do if my API Key is compromised?">
-    Log in to the dashboard immediately, delete the compromised key, and generate a new one. Then update all tools that were using the old key.
+  <Accordion title="What should I do if my API Key leaks?">
+    Log in to the dashboard immediately, delete the old key, and generate a new one. Then update every tool that uses that key.
   </Accordion>
 </AccordionGroup>

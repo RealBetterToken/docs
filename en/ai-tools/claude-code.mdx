@@ -1,10 +1,10 @@
 ---
 title: "Claude Code"
-description: "Connect BetterToken to Claude Code without setting model variables."
+description: "Connect BetterToken to Claude Code with ANTHROPIC_BASE_URL and no /v1 suffix."
 icon: "terminal"
 ---
 
-Connecting BetterToken to Claude Code requires two core settings: `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **No model name is needed** — BetterToken routes automatically.
+Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **Do not** add `/v1` to the Claude Code Base URL.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Connecting BetterToken to Claude Code requires two core settings: `ANTHROPIC_BAS
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
 
 <Warning>
-  Before configuring, clear any existing Anthropic environment variables to prevent them from overriding your settings:
+  Clear these environment variables before setup so they do not override your config file:
 
   ```bash
   unset ANTHROPIC_AUTH_TOKEN
@@ -29,12 +29,12 @@ Connecting BetterToken to Claude Code requires two core settings: `ANTHROPIC_BAS
     - macOS / Linux: `~/.claude/settings.json`
     - Windows: `%USERPROFILE%\.claude\settings.json`
 
-    Add the following (replace `YOUR_API_KEY` with your BetterToken API Key). `API_TIMEOUT_MS` is optional and helps when requests through a proxy or slow network need more time:
+    Replace `YOUR_API_KEY` with your BetterToken API Key:
 
     ```json
     {
       "env": {
-        "ANTHROPIC_BASE_URL": "https://www.BetterToken.ai/v1",
+        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
         "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
         "API_TIMEOUT_MS": "3000000"
       }
@@ -42,50 +42,63 @@ Connecting BetterToken to Claude Code requires two core settings: `ANTHROPIC_BAS
     ```
 
     <Note>
-      Unlike other relay services, BetterToken does **not** require you to set `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, or any other model variables. BetterToken routes to the appropriate Claude model automatically.
+      You do not need `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, or other model variables. Claude Code manages model selection itself.
     </Note>
   </Step>
 
-  <Step title="Complete the first launch">
-    If this is your first time using Claude Code, run `claude` and follow the first-launch prompts.
+  <Step title="Complete first launch">
+    If this is your first time using Claude Code, run `claude` and follow the onboarding prompts.
   </Step>
 
   <Step title="Start Claude Code">
-    Navigate to your working directory and run:
+    Open your project directory and run:
 
     ```bash
     claude
     ```
-
-    On first launch, select **Trust This Folder** to allow Claude Code to access files in that directory.
   </Step>
 </Steps>
 
-## VS Code extension
+## Use the VS Code extension
 
 If you use the Claude Code VS Code extension:
 
 <Steps>
   <Step title="Install the extension">
-    Search for **Claude Code** in the VS Code extension marketplace and install it.
+    Search for **Claude Code** in the VS Code marketplace and install it.
   </Step>
-  <Step title="Configure environment variables">
+  <Step title="Open settings">
+    Open the extension settings UI.
+  </Step>
+  <Step title="Set environment variables">
     Click **Edit in settings.json** and update `claudeCode.environmentVariables`:
 
     ```json
     {
       "claudeCode.environmentVariables": [
-        { "name": "ANTHROPIC_BASE_URL", "value": "https://www.BetterToken.ai/v1" },
-        { "name": "ANTHROPIC_AUTH_TOKEN", "value": "YOUR_API_KEY" },
-        { "name": "API_TIMEOUT_MS", "value": "3000000" }
+        {
+          "name": "ANTHROPIC_BASE_URL",
+          "value": "https://www.bettertoken.ai"
+        },
+        {
+          "name": "ANTHROPIC_AUTH_TOKEN",
+          "value": "YOUR_API_KEY"
+        },
+        {
+          "name": "API_TIMEOUT_MS",
+          "value": "3000000"
+        }
       ]
     }
     ```
   </Step>
 </Steps>
 
-## Verify
+## Verify the setup
 
-Start Claude Code and send a message. A normal response confirms the connection is working.
+Start Claude Code and send a message. A normal reply means the connection is working.
 
-If you see an auth error, check that `ANTHROPIC_AUTH_TOKEN` is set to your BetterToken API Key and run `echo $ANTHROPIC_AUTH_TOKEN` to confirm no stale env var is overriding it.
+If authentication fails, check:
+1. `ANTHROPIC_AUTH_TOKEN` contains the correct BetterToken API Key
+2. `ANTHROPIC_BASE_URL` is `https://www.bettertoken.ai`
+3. No old environment variables are overriding your config

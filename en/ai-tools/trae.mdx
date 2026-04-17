@@ -1,53 +1,45 @@
 ---
 title: "TRAE"
-description: "Connect BetterToken to TRAE — use Claude or GPT series models."
+description: "Connect BetterToken to TRAE with Codex group model IDs."
 icon: "bolt"
 ---
 
-Connecting TRAE to BetterToken requires adding a custom model through the settings UI.
+When connecting BetterToken to TRAE, choose an OpenAI-style provider and use a model ID from the Codex group.
 
 ## Prerequisites
 
-- TRAE installed ([download at trae.ai](https://www.trae.ai))
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
 
 ## Setup
 
 <Steps>
-  <Step title="Open model settings">
-    Click the **Settings** icon in the top-right corner of the TRAE AI chat panel, then select the **Models** tab.
+  <Step title="Open model configuration">
+    Click **+ Add Model** and choose **Custom** or **OpenAI Compatible**.
   </Step>
 
-  <Step title="Add a custom model">
-    Click **+ Add Model** and select **Custom** or **OpenAI Compatible** as the provider.
-  </Step>
+  <Step title="Fill in the BetterToken config">
 
-  <Step title="Enter BetterToken config">
     | Field | Value |
     |-------|-------|
-    | API URL | `https://www.BetterToken.ai/v1` |
-    | API Key | Your BetterToken API Key |
-    | Model name | `claude-sonnet-4-6` (or another supported model) |
+    | API URL | `https://www.bettertoken.ai/v1/` |
+    | API Key | your BetterToken API Key |
+    | Model name | a **Codex group** model ID copied from the model plaza |
   </Step>
 
-  <Step title="Save and verify">
-    Click **Add Model**. TRAE will validate your API Key automatically:
-
-    - Success: the model appears in your model list
-    - Failure: check the API URL and API Key
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
   </Step>
 
-  <Step title="Select the model">
-    Choose the newly added model from the chat panel dropdown to start using it.
+  <Step title="Save and start using it">
+    Save the config, then choose the new Codex group model.
   </Step>
 </Steps>
 
-## Supported models
-
-| Series | Model | Description |
-|--------|-------|-------------|
-| Claude | `claude-sonnet-4-6` | Balanced — recommended |
-| Claude | `claude-opus-4-6` | Most capable |
-| Claude | `claude-haiku-4-6` | Fastest |
-| GPT | `gpt-5.4` | OpenAI flagship |
-| GPT | `gpt-5.4-mini` | Lightweight, faster |
+<Note>
+  Do not keep using fixed Claude model names. If your TRAE version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+</Note>

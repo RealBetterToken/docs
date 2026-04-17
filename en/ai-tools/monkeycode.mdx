@@ -1,10 +1,10 @@
 ---
 title: "MonkeyCode"
-description: "Connect BetterToken to MonkeyCode — use Claude series models."
+description: "Connect BetterToken to MonkeyCode with Codex group model IDs."
 icon: "monkey"
 ---
 
-MonkeyCode is an enterprise AI development platform covering the full lifecycle from requirements to design, development, and review. BetterToken provides stable Claude model access for MonkeyCode.
+MonkeyCode is an enterprise AI development platform. When connecting BetterToken, use the Codex group with an OpenAI-style protocol.
 
 ## Prerequisites
 
@@ -18,12 +18,8 @@ MonkeyCode is an enterprise AI development platform covering the full lifecycle 
     Visit [MonkeyCode](https://monkeycode.ai) and log in.
   </Step>
 
-  <Step title="Go to the task page">
-    After logging in, click **Get Started** to enter the MonkeyCode development platform.
-  </Step>
-
   <Step title="Open system settings">
-    Click the **Settings** button in the bottom-right corner of the page.
+    Enter the task page, then click **Settings** in the bottom-right corner.
   </Step>
 
   <Step title="Bind an AI model">
@@ -31,27 +27,29 @@ MonkeyCode is an enterprise AI development platform covering the full lifecycle 
   </Step>
 
   <Step title="Fill in the BetterToken config">
-    Enter the following values:
 
     | Field | Value |
     |-------|-------|
-    | Model API URL | `https://www.BetterToken.ai/v1` |
+    | Model API URL | `https://www.bettertoken.ai/v1/` |
     | API Key | your BetterToken API Key |
-    | API format | `anthropic` |
-    | Model name | `claude-sonnet-4-6` |
-
-    Click **Save** to apply the configuration.
+    | API format | `OpenAI` or `OpenAI Compatible` (follow the current UI label) |
+    | Model name | a **Codex group** model ID copied from the model plaza |
   </Step>
 
-  <Step title="Start using">
-    Return to the MonkeyCode main page, enter a prompt, and click **Run** to call Claude models through BetterToken.
+  <Step title="Add the required headers if supported">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
+  </Step>
+
+  <Step title="Save and start using it">
+    Click **Save**, then return to the main page and select the model you just configured.
   </Step>
 </Steps>
 
-## Supported models
-
-| Model | Description |
-|-------|-------------|
-| `claude-sonnet-4-6` | Balanced — recommended |
-| `claude-opus-4-6` | Most capable — complex agent tasks |
-| `claude-haiku-4-6` | Fastest — high-frequency interactions |
+<Note>
+  If your MonkeyCode version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+</Note>

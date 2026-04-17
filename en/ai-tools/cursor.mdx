@@ -1,77 +1,57 @@
 ---
 title: "Cursor"
-description: "Connect BetterToken to Cursor — use Claude or GPT series models."
+description: "Connect BetterToken to Cursor with Codex group model IDs."
 icon: "arrow-pointer"
 ---
 
-Connecting Cursor to BetterToken requires configuring the API endpoint and manually adding your preferred models.
+When connecting BetterToken to Cursor, use the OpenAI Base URL. External tools now use the Codex group, so copy the current model ID from the model plaza.
+
+<Warning>
+  Cursor's custom API key, custom model, and custom header capabilities depend on the current client version and plan. If an option is missing, follow what your Cursor version actually supports.
+</Warning>
 
 ## Prerequisites
 
-- Cursor installed ([download at cursor.com](https://www.cursor.com))
+- Cursor installed ([download Cursor](https://www.cursor.com))
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
-- A Cursor client version and plan that allow custom API keys and custom models
-
-<Warning>
-  Cursor's custom API key and custom model features depend on the current client version and plan. If you see this error, follow the current Cursor client prompt to upgrade your plan or adjust the model configuration:
-
-  `The model does not work with your current plan or api key`
-
-  Also clear any conflicting env vars before starting:
-
-  ```bash
-  unset OPENAI_API_KEY
-  unset OPENAI_BASE_URL
-  ```
-</Warning>
 
 ## Setup
 
 <Steps>
-  <Step title="Open the model settings">
-    In Cursor, click **Settings** (gear icon, bottom left), then select the **Models** tab.
+  <Step title="Open the model settings page">
+    In Cursor, open **Settings** and go to **Models**.
   </Step>
 
   <Step title="Configure the BetterToken API">
-    Under **API Keys**:
+    In **API Keys**:
 
-    1. Check **Override OpenAI Base URL**
-    2. Enter: `https://www.BetterToken.ai/v1`
-    3. Enter your BetterToken API Key in the **OpenAI API Key** field
-    4. Click the button on the right and select **Enable OpenAI API Key** to verify
+    1. Enable **Override OpenAI Base URL**
+    2. Enter `https://www.bettertoken.ai/v1/`
+    3. Paste your BetterToken API Key into **OpenAI API Key**
+    4. Complete the verification flow
   </Step>
 
-  <Step title="Add models">
-    Under **Models**:
+  <Step title="Add a model">
+    In **Models**, click **View All Models**, then **Add Custom Model**.
 
-    1. Click **View All Models** → **Add Custom Model**
-    2. Enter a model name, for example:
-       - Claude: `claude-sonnet-4-6`, `claude-opus-4-6`, `claude-haiku-4-6`
-       - GPT: `gpt-5.4`, `gpt-5.4-mini`
-    3. Click **Add**, then enable the model
-
-    <Note>
-      Unlike Claude Code and Codex, Cursor requires you to explicitly specify which model to use.
-    </Note>
+    Paste a current **Codex group** model ID copied from the model plaza.
   </Step>
 
-  <Step title="Select a model and start">
-    In the Cursor chat panel, choose your added model from the dropdown to start coding.
+  <Step title="Add the required headers if the UI supports it">
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
+    ```
+  </Step>
+
+  <Step title="Select the model and start using it">
+    Choose the model you just added in the Cursor chat panel.
   </Step>
 </Steps>
 
-## Supported models
+## Notes
 
-| Series | Model | Description |
-|--------|-------|-------------|
-| Claude | `claude-sonnet-4-6` | Balanced — recommended for everyday coding |
-| Claude | `claude-opus-4-6` | Most capable — best for complex tasks |
-| Claude | `claude-haiku-4-6` | Fastest — best for simple completions |
-| GPT | `gpt-5.4` | OpenAI flagship |
-| GPT | `gpt-5.4-mini` | Lightweight, faster responses |
-
-## Troubleshooting
-
-**Model returns no content:** Try changing **Settings → Network** to **HTTP/1.0**.
-
-**Authentication error:** Check that the API Key is correct and `base_url` is `https://www.BetterToken.ai/v1` (`.com`, not `.ai`).
+- Do not keep using hardcoded Claude model names
+- If your Cursor version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`

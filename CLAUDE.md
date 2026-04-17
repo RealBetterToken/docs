@@ -2,7 +2,7 @@
 
 ## 项目背景
 
-BetterToken 是一个 AI API 中转服务，聚合 12+ 家供应商，兼容 Anthropic SDK 和 OpenAI SDK。这是 BetterToken 的官方文档站，基于 Mintlify 构建，部署在 `docs.bettertoken.ai`。
+BetterToken 是一个 AI API 中转服务，聚合多家供应商，兼容 Anthropic SDK 和 OpenAI SDK。这是 BetterToken 的官方文档站，基于 Mintlify 构建，部署在 `docs.bettertoken.ai`。
 
 GitHub 仓库：`RealBetterToken/docs`，分支：`main`
 

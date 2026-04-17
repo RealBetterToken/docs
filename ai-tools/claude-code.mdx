@@ -1,10 +1,10 @@
 ---
 title: "Claude Code"
-description: "在 Claude Code 中使用 BetterToken，无需指定模型变量。"
+description: "在 Claude Code 中使用 BetterToken，使用不带 /v1 的 ANTHROPIC_BASE_URL。"
 icon: "terminal"
 ---
 
-在 Claude Code 中接入 BetterToken，核心配置项是 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。**不需要指定模型名称**，BetterToken 会自动路由。
+在 Claude Code 中接入 BetterToken，核心配置项是 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。**不要**给 Claude Code 的 Base URL 加 `/v1`。
 
 ## 前置条件
 
@@ -29,12 +29,12 @@ icon: "terminal"
     - macOS / Linux：`~/.claude/settings.json`
     - Windows：`%USERPROFILE%\.claude\settings.json`
 
-    将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）。`API_TIMEOUT_MS` 是可选项，用于代理或网络较慢时延长请求超时时间：
+    将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
 
     ```json
     {
       "env": {
-        "ANTHROPIC_BASE_URL": "https://www.BetterToken.ai/v1",
+        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
         "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
         "API_TIMEOUT_MS": "3000000"
       }
@@ -42,7 +42,7 @@ icon: "terminal"
     ```
 
     <Note>
-      与其他 API 中转服务不同，接入 BetterToken 时**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL` 等模型变量。BetterToken 自动路由到合适的 Claude 模型。
+      接入 BetterToken 时**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL` 等模型变量。Claude Code 会自行管理模型选择。
     </Note>
   </Step>
 
@@ -80,7 +80,7 @@ icon: "terminal"
       "claudeCode.environmentVariables": [
         {
           "name": "ANTHROPIC_BASE_URL",
-          "value": "https://www.BetterToken.ai/v1"
+          "value": "https://www.bettertoken.ai"
         },
         {
           "name": "ANTHROPIC_AUTH_TOKEN",
@@ -98,8 +98,9 @@ icon: "terminal"
 
 ## 验证配置
 
-启动 Claude Code 后，在终端中发送一条消息，确认收到正常回复即表示配置成功。
+启动 Claude Code 后，在终端中发送一条消息。收到正常回复即表示配置成功。
 
 如遇到认证错误，请检查：
 1. `ANTHROPIC_AUTH_TOKEN` 是否填写了正确的 BetterToken API Key
-2. 是否有旧的环境变量在覆盖配置文件（使用 `echo $ANTHROPIC_AUTH_TOKEN` 检查）
+2. `ANTHROPIC_BASE_URL` 是否填写为 `https://www.bettertoken.ai`
+3. 是否有旧的环境变量在覆盖配置文件

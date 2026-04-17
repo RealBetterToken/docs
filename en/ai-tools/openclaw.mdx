@@ -1,10 +1,14 @@
 ---
 title: "OpenClaw"
-description: "Connect BetterToken to OpenClaw — use Claude series models."
+description: "Connect BetterToken to OpenClaw with the Codex provider and OpenAI Responses."
 icon: "paw"
 ---
 
-Connect OpenClaw to BetterToken with the official onboarding and model commands. OpenClaw's config structure changes quickly, so avoid copying older raw JSON config.
+When connecting BetterToken to OpenClaw, choose the **Codex provider** instead of the Anthropic provider. The endpoint is `https://www.bettertoken.ai/v1/`, and the protocol is `OpenAI Responses`.
+
+<Warning>
+  If OpenClaw does not send the expected Codex `User-Agent`, you may see `403 block` or `403 Forbidden`.
+</Warning>
 
 ## Prerequisites
 
@@ -33,6 +37,8 @@ Connect OpenClaw to BetterToken with the official onboarding and model commands.
     ```bash
     unset ANTHROPIC_AUTH_TOKEN
     unset ANTHROPIC_BASE_URL
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
     ```
   </Step>
 
@@ -40,54 +46,50 @@ Connect OpenClaw to BetterToken with the official onboarding and model commands.
     ```bash
     openclaw onboard --install-daemon
     ```
-
-    Follow the wizard to finish Gateway and base model setup.
   </Step>
 
-  <Step title="Add BetterToken credentials">
-    Run the model auth wizard:
-
+  <Step title="Add the BetterToken credential">
     ```bash
     openclaw models auth add
     ```
-
-    Choose **Anthropic**, **Anthropic Compatible**, or a custom API Key provider, then enter:
-
-    - **Base URL**: `https://www.BetterToken.ai/v1`
-    - **API Key**: your BetterToken API Key
-    - **Model**: `claude-sonnet-4-6`
   </Step>
 
-  <Step title="Set the default model">
-    ```bash
-    openclaw models set anthropic/claude-sonnet-4-6
+  <Step title="Choose the Codex provider and fill in the fields">
+    In the wizard, choose **Codex** and enter:
+
+    - **API endpoint**: `https://www.bettertoken.ai/v1/`
+    - **API protocol**: `OpenAI Responses`
+    - **Token group**: choose a `Codex_*` group
+    - **Model**: a currently available model ID copied from the model plaza
+  </Step>
+
+  <Step title="Add the required headers">
+    If your OpenClaw version exposes a custom headers editor, enter:
+
+    ```json
+    {
+      "Authorization": "Bearer sk-xxx",
+      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+    }
     ```
 
-    <Note>
-      If your OpenClaw version shows a provider id other than `anthropic`, run `openclaw models list` first, then use the listed `<provider>/claude-sonnet-4-6`.
-    </Note>
+    Replace `sk-xxx` with your BetterToken API Key.
   </Step>
 
-  <Step title="Verify">
-    Restart the Gateway and check model status:
+  <Step title="Set the default model and verify">
+    Run `openclaw models list` to confirm the provider id, then set the default model and check the status:
 
     ```bash
+    openclaw models list
+    openclaw models set <provider>/<Codex model ID copied from the model plaza>
     openclaw gateway restart
     openclaw models status
     ```
-
-    To run a live probe, use `openclaw models status --probe-provider anthropic`. A probe may consume model credits.
   </Step>
 </Steps>
 
-## Switch models
+## Usage notes
 
-BetterToken supports the full Claude model lineup. Use `openclaw models set <provider>/<model>` to switch:
-
-| Model | Use case |
-|-------|----------|
-| `claude-sonnet-4-6` | Balanced — recommended |
-| `claude-opus-4-6` | Most capable — complex tasks |
-| `claude-haiku-4-6` | Fastest — lightweight tasks |
-
-After changing the model, run `openclaw gateway restart` to apply.
+- OpenClaw should now use the **Codex provider** instead of legacy `anthropic/<Claude-model>` style configuration
+- Copy the model name directly from the **Codex group** in the model plaza
+- Missing the required UA may trigger `403 block` or `403 Forbidden`

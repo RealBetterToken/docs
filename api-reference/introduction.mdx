@@ -1,95 +1,84 @@
 ---
 title: "API 参考"
-description: "BetterToken API 地址、认证方式与兼容性说明。"
+description: "BetterToken 的接入地址、认证方式与协议区分。"
 ---
 
-## API 地址
+## 接入地址
 
-所有请求都发往以下地址：
+BetterToken 现在按协议区分两个地址：
 
-```
-https://www.BetterToken.ai/v1
-```
+| 场景 | Base URL | 协议 |
+|------|----------|------|
+| Claude Code / `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Anthropic |
+| Codex / `OPENAI_BASE_URL` / 其他外部工具 | `https://www.bettertoken.ai/v1/` | OpenAI 类协议 / OpenAI Responses |
 
-BetterToken 同时兼容 **Anthropic SDK** 和 **OpenAI SDK**，无需迁移代码，只需替换 `base_url` 和 API Key。
+<Warning>
+  不要继续使用“一个地址适配所有协议”的旧写法。
+</Warning>
 
----
+## 认证与示例
 
-## 认证
-
-在请求头中传入你的 BetterToken API Key：
+在请求中传入你的 BetterToken API Key：
 
 <Tabs>
-  <Tab title="Anthropic SDK（Claude）">
+  <Tab title="Claude Code / Anthropic">
     ```python
     import anthropic
 
     client = anthropic.Anthropic(
-        base_url="https://www.BetterToken.ai/v1",
-        api_key="YOUR_API_KEY",  # 即 ANTHROPIC_AUTH_TOKEN
+        base_url="https://www.bettertoken.ai",
+        api_key="YOUR_API_KEY",
+    )
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": "你好"}],
     )
     ```
+
+    ```bash
+    curl https://www.bettertoken.ai/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    ```
   </Tab>
-  <Tab title="OpenAI SDK（GPT）">
+  <Tab title="Codex / OpenAI Responses">
     ```python
     from openai import OpenAI
 
     client = OpenAI(
-        base_url="https://www.BetterToken.ai/v1",
+        base_url="https://www.bettertoken.ai/v1/",
         api_key="YOUR_API_KEY",
     )
-    ```
-  </Tab>
-  <Tab title="cURL">
-    ```bash
-    # Anthropic 兼容接口
-    curl https://www.BetterToken.ai/v1/messages \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: 2023-06-01" \
-      -H "content-type: application/json" \
-      -d '{ ... }'
 
-    # OpenAI 兼容接口
-    curl https://www.BetterToken.ai/v1/chat/completions \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{ ... }'
+    response = client.responses.create(
+        model="从模型广场复制的 Codex 分组模型 ID",
+        input="你好",
+    )
+    ```
+
+    ```bash
+    curl https://www.bettertoken.ai/v1/chat/completions       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
     ```
   </Tab>
 </Tabs>
 
----
+## 模型选择规则
 
-## 支持的模型
-
-### Claude 系列（Anthropic 兼容）
-
-| 模型名称 | 说明 |
-|----------|------|
-| `claude-opus-4-6` | 最强能力，适合复杂推理任务 |
-| `claude-sonnet-4-6` | 均衡，推荐日常使用 |
-| `claude-haiku-4-6` | 速度最快，适合简单任务 |
-
-### GPT 系列（OpenAI 兼容）
-
-| 模型名称 | 说明 |
-|----------|------|
-| `gpt-5.4` | OpenAI 旗舰模型 |
-| `gpt-5.4-mini` | 轻量版，速度更快 |
+- **Claude Code**：不要手动设置模型变量，继续只配置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`
+- **Codex CLI**：在配置里填入从模型广场复制的 **Codex 分组**模型 ID
+- **其他外部工具**：同样统一使用 **Codex 分组**模型 ID，不再沿用 Claude 系列固定模型名
 
 <Note>
-  使用 **Claude Code** 或 **Codex CLI** 时，无需在配置中指定模型名称，BetterToken 会自动路由。仅在 Cursor 等需要手动选择模型的工具中才需要指定。
+  如果外部工具支持自定义 headers，请补齐 `Authorization` 与 Codex 对应的 `User-Agent`。缺少对应 UA 时，可能出现 `403 block` 或 `403 Forbidden`。
 </Note>
-
----
 
 ## 环境变量速查
 
 | 变量 | 值 | 用途 |
 |------|----|------|
-| `ANTHROPIC_BASE_URL` | `https://www.BetterToken.ai/v1` | Claude Code 等 Anthropic 兼容工具 |
+| `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Claude Code |
 | `ANTHROPIC_AUTH_TOKEN` | 你的 API Key | Claude Code 认证 |
-| `OPENAI_BASE_URL` | `https://www.BetterToken.ai/v1` | OpenAI SDK 兼容工具 |
-| `OPENAI_API_KEY` | 你的 API Key | OpenAI SDK 认证 |
+| `OPENAI_BASE_URL` | `https://www.bettertoken.ai/v1/` | Codex 与其他 OpenAI 类协议工具 |
+| `OPENAI_API_KEY` | 你的 API Key | OpenAI 类协议工具认证 |
 | `API_TIMEOUT_MS` | `3000000` | 建议设置，防止长任务超时 |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code 专用，减少后台请求 |
