@@ -1,6 +1,6 @@
 ---
 title: "Quickstart"
-description: "3 steps to choose the right BetterToken access mode and verify the connection."
+description: "Create a token in 3 steps, then continue with the right setup guide for your tool."
 ---
 
 <Steps>
@@ -9,8 +9,44 @@ description: "3 steps to choose the right BetterToken access mode and verify the
 
     You'll automatically receive a **¥7 trial credit** on signup.
   </Step>
-  <Step title="Get your API Key">
-    Log in to the dashboard and create your API Key.
+  <Step title="Open token management and add a token">
+    After signup, open the dashboard. In the left sidebar, click **Token management**. Then click **Add token**.
+
+    <Frame>
+      <img
+        src="/images/quickstart/create-api-key-1.png"
+        alt="BetterToken dashboard with Token management highlighted in the sidebar and Add token highlighted at the top."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    This opens a drawer where you name the group and create the token.
+
+    <Info>
+      Think of the group name as the intended use of this token. If you pick the right group first, the rest of the setup is much easier.
+    </Info>
+  </Step>
+  <Step title="Name the group by tool type">
+    In the drawer, name the group based on the tool you will connect.
+
+    <Warning>
+      Groups that start with `Claude` can only be used with Claude Code.
+    </Warning>
+
+    <Warning>
+      Groups that start with `Codex` can be used with Codex CLI and external tools such as Cursor, Cline, Zed, and Roo Code.
+    </Warning>
+
+    Use a simple naming pattern:
+
+    ```text
+    Claude-your-name
+    Codex-your-name
+    ```
+
+    For example: `Claude-main` or `Codex-team`.
+
+    After you create the token, copy the API Key.
 
     <Warning>
       Keep your API Key safe. Store it as an environment variable instead of hardcoding it into source code or config files.
@@ -22,45 +58,20 @@ description: "3 steps to choose the right BetterToken access mode and verify the
     export BETTERTOKEN_API_KEY="your-api-key-here"
     ```
   </Step>
-  <Step title="Verify by access mode (optional)">
-    BetterToken now has two distinct access modes. Do not reuse the same `base_url` across every tool.
+  <Step title="Continue with the guide for your tool">
+    At this point, you only need to remember one rule: choose the correct group first, then follow the matching tool guide.
 
-    <Tabs>
-      <Tab title="Claude Code / Anthropic">
-        For Claude Code and integrations that use `ANTHROPIC_BASE_URL`:
+    <Check>
+      If you are connecting Claude Code, use a group that starts with `Claude`, then continue with the [Claude Code guide](/en/ai-tools/claude-code).
+    </Check>
 
-        ```bash
-        export ANTHROPIC_BASE_URL="https://www.bettertoken.ai"
-        export ANTHROPIC_AUTH_TOKEN="$BETTERTOKEN_API_KEY"
+    <Check>
+      If you are connecting Codex CLI or any external tool, use a group that starts with `Codex`, then continue with the [Codex CLI guide](/en/ai-tools/codex).
+    </Check>
 
-        curl https://www.bettertoken.ai/messages           -H "x-api-key: $BETTERTOKEN_API_KEY"           -H "anthropic-version: 2023-06-01"           -H "content-type: application/json"           -d '{
-            "model": "claude-sonnet-4-6",
-            "max_tokens": 1024,
-            "messages": [
-              {"role": "user", "content": "Hello, introduce yourself."}
-            ]
-          }'
-        ```
-      </Tab>
-      <Tab title="Codex / OpenAI-style">
-        For Codex CLI and external tools. The `base_url` must be `https://www.bettertoken.ai/v1`:
-
-        ```bash
-        export OPENAI_BASE_URL="https://www.bettertoken.ai/v1"
-
-        curl https://www.bettertoken.ai/v1/chat/completions           -H "Authorization: Bearer $BETTERTOKEN_API_KEY"           -H "content-type: application/json"           -d '{
-            "model": "Codex group model ID copied from https://www.bettertoken.ai/pricing",
-            "messages": [
-              {"role": "user", "content": "Hello, introduce yourself."}
-            ]
-          }'
-        ```
-
-        <Note>
-          External tools now use the Codex group. Do not keep hardcoded Claude model examples in these tools.
-        </Note>
-      </Tab>
-    </Tabs>
+    <Note>
+      Different tools use different `Base URL` values, auth fields, and model-group settings. Follow the dedicated tool guide instead of copying one setup into every client.
+    </Note>
   </Step>
 </Steps>
 
@@ -74,13 +85,13 @@ Continue with the guide that matches your tool:
     icon="terminal"
     href="/en/ai-tools/claude-code"
   >
-    Use `ANTHROPIC_BASE_URL=https://www.bettertoken.ai`.
+    Use a group that starts with `Claude` and follow the full Claude Code setup guide.
   </Card>
   <Card
     title="Connect Codex CLI"
     icon="code"
     href="/en/ai-tools/codex"
   >
-    Use `https://www.bettertoken.ai/v1` with OpenAI Responses.
+    Use a group that starts with `Codex` and follow the full Codex CLI setup guide.
   </Card>
 </Columns>

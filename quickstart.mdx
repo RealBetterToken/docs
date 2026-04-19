@@ -1,6 +1,6 @@
 ---
 title: "快速接入"
-description: "3 步确认 BetterToken 的接入方式，并完成基础验证。"
+description: "新用户用 3 步完成令牌创建，并进入对应工具的接入文档。"
 ---
 
 <Steps>
@@ -9,8 +9,44 @@ description: "3 步确认 BetterToken 的接入方式，并完成基础验证。
 
     注册成功后自动获得 **¥7 体验额度**，无需绑卡，按量计费，支持退款。
   </Step>
-  <Step title="获取 API Key">
-    登录后进入控制台，创建并复制你的 API Key。
+  <Step title="进入令牌管理并添加令牌">
+    注册后进入控制台，在左侧点击 **令牌管理**，再点击 **添加令牌**。
+
+    <Frame>
+      <img
+        src="/images/quickstart/create-api-key-1.png"
+        alt="BetterToken 控制台中的令牌管理页面，左侧高亮令牌管理，顶部高亮添加令牌按钮。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    点击后会弹出一个抽屉，让你填写分组名称并创建令牌。
+
+    <Info>
+      你可以把分组名称理解成“这把令牌准备给谁用”。先分清用途，后面配置工具时会少踩很多坑。
+    </Info>
+  </Step>
+  <Step title="按工具类型给分组命名">
+    在弹出的抽屉里，优先按工具类型给分组命名。
+
+    <Warning>
+      `Claude` 开头的分组只能用于 Claude Code。
+    </Warning>
+
+    <Warning>
+      `Codex` 开头的分组可以用于 Codex CLI，也可以用于 Cursor、Cline、Zed、Roo Code 等外部工具。
+    </Warning>
+
+    推荐直接这样命名：
+
+    ```text
+    Claude-你的常用名称
+    Codex-你的常用名称
+    ```
+
+    例如：`Claude-main`、`Codex-team`。
+
+    创建完成后，复制生成的 API Key。
 
     <Warning>
       请妥善保存 API Key。建议将其设置为环境变量，而不是直接写入代码或配置文件。
@@ -22,51 +58,26 @@ description: "3 步确认 BetterToken 的接入方式，并完成基础验证。
     export BETTERTOKEN_API_KEY="你的 API Key"
     ```
   </Step>
-  <Step title="按接入方式验证（可选）">
-    BetterToken 现在分为两种接入方式。不要把同一个 `base_url` 同时用于所有工具。
+  <Step title="进入对应工具文档继续配置">
+    看到这里，你只需要记住一件事：先选对分组，再看对应工具的详细接入文档。
 
-    <Tabs>
-      <Tab title="Claude Code / Anthropic">
-        适用于 Claude Code 和使用 `ANTHROPIC_BASE_URL` 的接入：
+    <Check>
+      如果你准备接入 Claude Code，请使用 `Claude` 开头的分组，并继续阅读 [Claude Code 接入文档](/ai-tools/claude-code)。
+    </Check>
 
-        ```bash
-        export ANTHROPIC_BASE_URL="https://www.bettertoken.ai"
-        export ANTHROPIC_AUTH_TOKEN="$BETTERTOKEN_API_KEY"
+    <Check>
+      如果你准备接入 Codex CLI 或其他外部工具，请使用 `Codex` 开头的分组，并继续阅读 [Codex CLI 接入文档](/ai-tools/codex)。
+    </Check>
 
-        curl https://www.bettertoken.ai/messages           -H "x-api-key: $BETTERTOKEN_API_KEY"           -H "anthropic-version: 2023-06-01"           -H "content-type: application/json"           -d '{
-            "model": "claude-sonnet-4-6",
-            "max_tokens": 1024,
-            "messages": [
-              {"role": "user", "content": "你好，介绍一下你自己。"}
-            ]
-          }'
-        ```
-      </Tab>
-      <Tab title="Codex / OpenAI 类协议">
-        适用于 Codex CLI 和其他外部工具。`base_url` 必须填写为 `https://www.bettertoken.ai/v1`：
-
-        ```bash
-        export OPENAI_BASE_URL="https://www.bettertoken.ai/v1"
-
-        curl https://www.bettertoken.ai/v1/chat/completions           -H "Authorization: Bearer $BETTERTOKEN_API_KEY"           -H "content-type: application/json"           -d '{
-            "model": "从 https://www.bettertoken.ai/pricing 复制的 Codex 分组模型 ID",
-            "messages": [
-              {"role": "user", "content": "你好，介绍一下你自己。"}
-            ]
-          }'
-        ```
-
-        <Note>
-          外部工具统一走 Codex 分组。模型名称不要再填写 Claude 系列的固定示例，而是从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID。
-        </Note>
-      </Tab>
-    </Tabs>
+    <Note>
+      不同工具的 `Base URL`、认证字段和模型分组要求不一样。详细配置请以对应工具文档为准，不要把同一套配置直接复制到所有工具里。
+    </Note>
   </Step>
 </Steps>
 
 ## 接下来
 
-基础接入完成后，按你的工具类型继续配置：
+按你的工具类型继续：
 
 <Columns cols={2}>
   <Card
@@ -74,13 +85,13 @@ description: "3 步确认 BetterToken 的接入方式，并完成基础验证。
     icon="terminal"
     href="/ai-tools/claude-code"
   >
-    使用 `ANTHROPIC_BASE_URL=https://www.bettertoken.ai`。
+    使用 `Claude` 开头的分组，并查看 Claude Code 的完整配置步骤。
   </Card>
   <Card
     title="Codex CLI"
     icon="code"
     href="/ai-tools/codex"
   >
-    使用 `https://www.bettertoken.ai/v1` 和 OpenAI Responses。
+    使用 `Codex` 开头的分组，并查看 Codex CLI 的完整配置步骤。
   </Card>
 </Columns>
