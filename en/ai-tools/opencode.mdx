@@ -122,33 +122,10 @@ You can connect BetterToken to OpenCode by first adding credentials with `/conne
         This is a fallback. The `/connect` flow above is the preferred setup.
       </Step>
 
-      <Step title="Add the required headers if supported">
-        If your current OpenCode version supports custom headers, place them under `provider.bettertoken.options.headers`:
+      <Step title="Only use `options.headers` for provider-specific needs">
+        OpenCode's official docs support custom headers through `provider.<id>.options.headers`, but this is optional. You usually do not need an extra `User-Agent` when connecting BetterToken.
 
-        ```json
-        {
-          "$schema": "https://opencode.ai/config.json",
-          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
-          "provider": {
-            "bettertoken": {
-              "npm": "@ai-sdk/openai-compatible",
-              "name": "BetterToken",
-              "options": {
-                "baseURL": "https://www.bettertoken.ai/v1",
-                "headers": {
-                  "Authorization": "Bearer sk-xxx",
-                  "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-                }
-              },
-              "models": {
-                "YOUR_CODEX_MODEL_ID": {
-                  "name": "YOUR_CODEX_MODEL_ID"
-                }
-              }
-            }
-          }
-        }
-        ```
+        If you are also using Helicone, tenant routing, observability, or caching services, add the required headers based on those upstream services' official docs.
       </Step>
 
       <Step title="Restart OpenCode">
@@ -170,4 +147,4 @@ You can connect BetterToken to OpenCode by first adding credentials with `/conne
 - Use a **Codex group** model ID as the default model instead of fixed Claude model names
 - BetterToken should currently use `@ai-sdk/openai-compatible` as the OpenAI-compatible provider adapter
 - If you use `/connect`, you usually do not need to store the API key directly in the config file
-- If your OpenCode version does not expose custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`
+- OpenCode's official docs treat `options.headers` as optional extended configuration; BetterToken usually does not need extra headers

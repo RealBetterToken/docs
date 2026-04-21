@@ -7,7 +7,7 @@ icon: "arrow-pointer"
 在 Cursor 中接入 BetterToken 时，使用 OpenAI Base URL。外部工具统一走 Codex 分组，请从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的模型 ID。
 
 <Warning>
-  Cursor 的自定义 API Key、自定义模型和自定义 headers 能力受客户端版本与套餐限制。如果当前界面不支持这些选项，请以 Cursor 当前版本实际能力为准。
+  Cursor 的自定义 API Key、自定义模型与 Base URL 能力受客户端版本与套餐限制。如果当前界面不支持这些选项，请以 Cursor 当前版本实际能力为准。
 </Warning>
 
 ## 前置条件
@@ -37,15 +37,10 @@ icon: "arrow-pointer"
     模型名称请直接粘贴从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组模型 ID**。
   </Step>
 
-  <Step title="如支持自定义 headers，补齐必填项">
-    如果当前版本提供自定义 headers 入口，请添加：
+  <Step title="仅在官方文档明确要求时再配置额外 headers">
+    我们查到的 Cursor 官方 API Key 文档没有把额外 `User-Agent` 列为 BetterToken / OpenAI 兼容接入的必填项。接入 BetterToken 时通常不需要额外设置 headers。
 
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
   </Step>
 
   <Step title="重启 Cursor">
@@ -60,4 +55,4 @@ icon: "arrow-pointer"
 ## 注意事项
 
 - 不要继续填写固定 Claude 模型名
-- 如果当前版本不能设置自定义 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`
+- 如需额外 headers，请以 Cursor 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项

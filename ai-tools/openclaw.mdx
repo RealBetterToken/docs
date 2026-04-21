@@ -1,13 +1,13 @@
 ---
 title: "OpenClaw"
-description: "在 OpenClaw 中使用 BetterToken，选择 Codex provider 与 OpenAI Responses。"
+description: "在 OpenClaw 中接入 BetterToken，并验证当前 Agent 与当前会话是否真的在使用它。"
 icon: "paw"
 ---
 
-在 OpenClaw 中接入 BetterToken 时，请选择 **Codex provider**，不要继续使用 Anthropic provider。API 端点固定为 `https://www.bettertoken.ai/v1`，协议固定为 `OpenAI Responses`。
+在 OpenClaw 中，“已经配进去了”和“当前 Agent / 当前会话真的在用”是两件事。接入 BetterToken 的核心是把 Base URL 设为 `https://www.bettertoken.ai/v1`，并使用来自[模型广场](https://www.bettertoken.ai/pricing)的 **Codex 分组**模型 ID。provider 类型和 API 协议以当前 OpenClaw 版本及实际 provider 配置为准，不要把 `Codex provider + OpenAI Responses` 当作唯一写法。
 
 <Warning>
-  OpenClaw 缺少 Codex 对应 `User-Agent` 时，可能报 `403 block` 或 `403 Forbidden`。
+  OpenClaw 官方文档将 `models.providers.*.headers` 定位为可选的自定义鉴权 / 代理路由配置；同时明确说明隐藏的 OpenClaw `User-Agent` 只会附加到原生 OpenAI / OpenAI Codex 官方端点，不适用于 BetterToken 这类 OpenAI-compatible 代理。
 </Warning>
 
 ## 前置条件
@@ -30,11 +30,11 @@ icon: "paw"
   </Tab>
 </Tabs>
 
-## 配置步骤
+## 安装接入
 
 <Tabs>
   <Tab title="自动配置">
-    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
+    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。脚本执行完成后，请继续看下方“运行生效”，确认当前 Agent 和当前会话已经真的切到 BetterToken。
 
     <Tabs sync={false}>
       <Tab title="macOS / Linux">
@@ -69,32 +69,27 @@ icon: "paw"
         按向导完成 Gateway 和基础组件安装。
       </Step>
 
-      <Step title="添加 BetterToken 凭证">
+      <Step title="通过认证入口添加 BetterToken 凭证">
         ```bash
         openclaw models auth add
         ```
       </Step>
 
-      <Step title="选择 Codex provider 并填写参数">
-        在向导中选择 **Codex**。然后填写：
+      <Step title="添加或确认 BetterToken provider">
+        在向导或 provider 编辑器中填写或确认以下内容：
 
-        - **API 端点**：`https://www.bettertoken.ai/v1`
-        - **API 协议**：`OpenAI Responses`
-        - **令牌分组**：选择 `Codex_*` 的分组
+        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **Provider 类型**：`Codex provider` 或 `custom provider`
+        - **API 协议**：以当前 OpenClaw 版本和实际 provider 配置为准
         - **模型**：从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID
+
+        在部分稳定配置里，provider 会以 custom provider 形式保存，实际运行链路可能显示 `openai-completions`。只要 Base URL 和模型 ID 正确，这种显示差异通常不影响使用。
       </Step>
 
-      <Step title="添加必需 headers">
-        如果 OpenClaw 当前版本提供自定义 headers 输入框或 JSON 编辑器，请填写：
+      <Step title="仅在有自定义鉴权或代理路由需求时再配置 `headers`">
+        OpenClaw 官方文档支持在 `models.providers.*.headers` 中补充额外 headers，但这是可选项。接入 BetterToken 时通常不需要额外设置 `User-Agent`。
 
-        ```json
-        {
-          "Authorization": "Bearer sk-xxx",
-          "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-        }
-        ```
-
-        将 `sk-xxx` 替换为你的 BetterToken API Key。
+        只有在你同时接入了自定义网关、租户路由或其他需要额外 headers 的上游服务时，再按对应官方文档补充。
       </Step>
 
       <Step title="设置默认模型并验证">
@@ -107,14 +102,146 @@ icon: "paw"
         openclaw models status
         ```
 
-        修改配置后，请执行 `openclaw gateway restart`，再继续验证状态。
+        这一步只能确认配置已经写进去，还不代表当前 Discord 会话已经自动切到 BetterToken。
       </Step>
     </Steps>
   </Tab>
 </Tabs>
 
-## 使用说明
+### 多 Agent 与已有会话的注意事项
 
-- OpenClaw 当前应使用 **Codex provider**，不要再使用 `anthropic/<Claude模型>` 这类旧写法
-- 模型名称请直接从[模型广场](https://www.bettertoken.ai/pricing)复制 **Codex 分组**模型 ID
-- 缺少对应 UA 时，即使 API Key 正确，也可能报 `403 block` 或 `403 Forbidden`
+OpenClaw 中模型生效的优先级通常是：
+
+`session override` > `agents.list[*].model` > `agents.defaults.model.primary`
+
+这意味着：
+
+- 如果某个 agent 在 `agents.list` 里显式写了 `model`，它不会继承全局默认模型。
+- 如果你把 BetterToken 设为全局默认模型，但 `main` 仍写着旧模型，那么 Discord 私聊等默认走 `main` 的场景仍会继续使用旧模型。
+- 如果历史会话里残留了 `providerOverride`、`modelOverride` 或 `authProfileOverride`，即使你已经修改了默认模型，当前会话也可能继续使用旧渠道。
+
+已有 session 不会自动继承新默认模型。
+
+推荐做法：
+
+1. 想让 `main` 跟随全局默认时，不要给 `main` 单独写 `model`，或者把它改成 BetterToken。
+2. 修改配置后执行 `openclaw gateway restart`。
+3. 在 Discord 中执行 `/new` 新开会话。
+4. 再用 `/status` 和 `/model` 验证当前生效模型。
+
+### 最小配置示例
+
+provider id 以 `openclaw models list` 的实际输出为准。下面用 `bettertoken/gpt-5.4` 举例；如果你的 provider id 不同，请按实际值替换。
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "bettertoken/gpt-5.4",
+        "fallbacks": []
+      },
+      "models": {
+        "bettertoken/gpt-5.4": {
+          "alias": "bettertoken"
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main"
+      },
+      {
+        "id": "fitness-coach"
+      },
+      {
+        "id": "trade-recorder",
+        "model": {
+          "primary": "bettertoken/gpt-5.4",
+          "fallbacks": []
+        }
+      }
+    ]
+  }
+}
+```
+
+- `main` 没写 `model`，所以会继承全局 BetterToken。
+- `trade-recorder` 写了 `model`，所以它不会跟随全局默认变化。
+
+## 运行生效
+
+<Tip>
+  如果你在旧版 OpenClaw 上遇到 `/model` picker 不稳定、热刷新不及时或模型列表异常，先升级到最新版再排查。
+</Tip>
+
+<Steps>
+  <Step title="先做配置层验证">
+    运行以下命令，确认 BetterToken provider 和默认模型已经写入配置：
+
+    ```bash
+    openclaw models list
+    openclaw models status
+    ```
+  </Step>
+
+  <Step title="重载服务">
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+
+  <Step title="新开会话">
+    在 Discord 中执行 `/new`。
+
+    修改默认模型后，已有 session 不会自动继承新默认值。
+  </Step>
+
+  <Step title="验证当前会话实际模型">
+    在 Discord 中执行 `/status`，确认当前 Agent / 当前会话已经切到 BetterToken。
+  </Step>
+
+  <Step title="按需检查可选模型列表">
+    在 Discord 中执行 `/model`。
+
+    如果这里看不到 BetterToken，优先检查：
+
+    - 当前模型是否已加入 `agents.defaults.models`
+    - provider 下该模型的显示名是否正常，必要时是否已在 `agents.defaults.models` 中添加 `alias`
+    - 是否已经执行过 `openclaw gateway restart`
+    - 是否已经通过 `/new` 新开会话
+  </Step>
+</Steps>
+
+## 排障提示
+
+- 默认模型改了但实际仍是旧模型，优先检查 `agents.list.main.model`
+- `/model` 看不到 BetterToken，优先检查它是否在 `agents.defaults.models` 中
+- 改完配置后 Discord 里仍是旧结果，先执行 `openclaw gateway restart`，再执行 `/new`
+- 如果模型 picker 或热刷新仍不稳定，先升级到最新版 OpenClaw 再排查
+
+## 让 Codex CLI 帮你兜底配置
+
+如果你不想手动改配置，可以先在终端里设置 API Key 环境变量，然后启动 Codex CLI：
+
+```bash
+export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+codex
+```
+
+然后把下面这段 prompt 发给 Codex CLI：
+
+```text
+请帮我检查并修复本机 OpenClaw 的 BetterToken 配置。要求：
+1. 先读取当前 OpenClaw 配置，确认 provider id、默认模型，以及 agents.list 中哪些 agent 显式写了 model。
+2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `https://www.bettertoken.ai/v1` 的 provider。provider 类型和 API 协议以当前 OpenClaw 版本可用选项为准，不要强行固定成某一种。
+3. 优先复用 OpenClaw 已保存的认证信息。只有当当前版本或你的上游网关明确要求额外 headers 时，才单独配置；不要默认把 `User-Agent` 当作 BetterToken 必填项。
+4. 把默认模型切到 BetterToken，并检查 `main` 是否被显式 model 覆盖；如果我希望 `main` 跟随全局默认，就删除它的显式 model。
+5. 确保当前 BetterToken 模型出现在 `agents.defaults.models` 中，并补一个易识别的 `alias`。
+6. 备份原配置，使用最小 diff 修改，修改前先告诉我会改哪些字段。
+7. 修改后执行 `openclaw gateway restart`，最后提醒我在 Discord 里依次执行 `/new`、`/status`、`/model` 做验证。
+
+约束：
+- 如果需要 API Key，请从环境变量 `BETTERTOKEN_API_KEY` 读取，不要把密钥写进聊天或日志。
+- 如果当前配置里没有 BetterToken 模型，请先提示我从 BetterToken 模型广场提供一个 Codex 分组模型 ID。
+```

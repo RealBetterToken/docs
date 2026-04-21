@@ -122,33 +122,10 @@ icon: "brackets-curly"
         这是备用方式。更推荐使用上一节的 `/connect`。
       </Step>
 
-      <Step title="如支持自定义 headers，补齐必填项">
-        如果你当前的 OpenCode 版本支持自定义 headers，请将它们放在 `provider.bettertoken.options.headers` 下：
+      <Step title="仅在有 provider-specific 需求时再使用 `options.headers`">
+        OpenCode 官方文档支持通过 `provider.<id>.options.headers` 添加自定义 headers，但这是可选能力。接入 BetterToken 时通常不需要额外设置 `User-Agent`。
 
-        ```json
-        {
-          "$schema": "https://opencode.ai/config.json",
-          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
-          "provider": {
-            "bettertoken": {
-              "npm": "@ai-sdk/openai-compatible",
-              "name": "BetterToken",
-              "options": {
-                "baseURL": "https://www.bettertoken.ai/v1",
-                "headers": {
-                  "Authorization": "Bearer sk-xxx",
-                  "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-                }
-              },
-              "models": {
-                "YOUR_CODEX_MODEL_ID": {
-                  "name": "YOUR_CODEX_MODEL_ID"
-                }
-              }
-            }
-          }
-        }
-        ```
+        如果你还接了 Helicone、租户路由网关、审计或缓存服务，再按这些上游服务的官方文档补充所需 headers。
       </Step>
 
       <Step title="重启 OpenCode">
@@ -170,4 +147,4 @@ icon: "brackets-curly"
 - 默认模型请填写 **Codex 分组模型 ID**，不要再写 Claude 系列固定模型名
 - BetterToken 这类 OpenAI-compatible provider 当前应优先使用 `@ai-sdk/openai-compatible`
 - 如果你使用 `/connect`，一般不需要再把 API Key 明文写进配置文件
-- 若当前版本没有自定义 headers 入口，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`
+- OpenCode 官方文档将 `options.headers` 视为可选扩展配置；接入 BetterToken 时通常不需要额外 headers

@@ -34,13 +34,10 @@ Kilo Code 是 VS Code 插件。接入 BetterToken 时，请选择 OpenAI Compati
     - **Model** → 从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组模型 ID**
   </Step>
 
-  <Step title="如支持自定义 headers，补齐必填项">
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+  <Step title="仅在官方文档明确要求时再配置额外 headers">
+    我们查到的 Kilo Code 官方资料提到 OpenAI-compatible provider 支持可选自定义 headers，但没有把 `User-Agent` 列为 BetterToken 默认接入的必填项。
+
+    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
   </Step>
 
   <Step title="重启 Kilo Code">
@@ -49,5 +46,5 @@ Kilo Code 是 VS Code 插件。接入 BetterToken 时，请选择 OpenAI Compati
 </Steps>
 
 <Note>
-  若当前版本无法设置自定义 headers，缺少对应 UA 时可能出现 `403 block` 或 `403 Forbidden`。
+  如需额外 headers，请以 Kilo Code 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项。
 </Note>

@@ -62,16 +62,11 @@ description: "关于 BetterToken 账号、计费、用量和接入的常见问�
   </Accordion>
 
   <Accordion title="OpenClaw 和其他外部工具需要额外 headers 吗？">
-    需要时应补齐。外部工具如果支持自定义 headers，请添加：
+    通常不需要。
 
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+    根据我们核对到的官方文档，Cursor、Cline、Zed 等常见外部工具的默认接入说明都聚焦在 `Base URL`、API Key 和模型 ID。OpenCode 与 OpenClaw 虽然支持可选 `headers`，但官方文档的定位也是自定义 headers / custom auth needs，而不是 BetterToken 默认接入的必填项。
 
-    缺少对应 UA 时，可能出现 `403 block` 或 `403 Forbidden`。
+    只有当工具官方文档，或你额外接入的上游网关、租户路由、审计、缓存服务明确要求额外 headers 时，再按对应文档补充。
   </Accordion>
 
   <Accordion title="配置后提示认证失败怎么办？">
@@ -80,7 +75,7 @@ description: "关于 BetterToken 账号、计费、用量和接入的常见问�
     1. API Key 是否正确，没有多余空格
     2. Claude Code 是否使用 `https://www.bettertoken.ai`，Codex / 外部工具是否使用 `https://www.bettertoken.ai/v1`
     3. 是否存在旧的 `ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_BASE_URL`、`OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 覆盖了配置
-    4. 外部工具是否缺少必需的 `User-Agent`，从而触发 `403 block` 或 `403 Forbidden`
+    4. 外部工具是否存在额外的官方接入要求，例如特定版本限制、模型白名单，或上游网关明确要求的额外 headers
 
     如仍有问题，请联系客服。
   </Accordion>

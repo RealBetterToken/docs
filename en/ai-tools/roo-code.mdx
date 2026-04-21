@@ -38,13 +38,10 @@ Open VS Code, search for **Roo Code** in the extensions marketplace, and install
     - **Model** → a **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing)
   </Step>
 
-  <Step title="Add the required headers if supported">
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+  <Step title="Only configure extra headers when the official docs explicitly require them">
+    The official Roo Code material we checked focuses on OpenAI-compatible or custom API setup, but it does not treat an extra `User-Agent` as a required BetterToken step.
+
+    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
   </Step>
 
   <Step title="Save and start using it">
@@ -57,5 +54,5 @@ Open VS Code, search for **Roo Code** in the extensions marketplace, and install
 </Steps>
 
 <Note>
-  Roo Code's OpenAI Compatible provider still depends on OpenAI-style tool calling. If your version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+  Roo Code's OpenAI Compatible provider still depends on OpenAI-style tool calling. If you need extra headers, follow the current Roo Code docs or your upstream gateway requirements instead of assuming `User-Agent` is mandatory for BetterToken.
 </Note>

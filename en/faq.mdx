@@ -62,16 +62,11 @@ description: "Common questions about BetterToken accounts, billing, usage, and s
   </Accordion>
 
   <Accordion title="Do OpenClaw and other external tools need extra headers?">
-    When the tool supports custom headers, add:
+    Usually not.
 
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+    Based on the official docs we checked, common external tools like Cursor, Cline, and Zed focus on the `Base URL`, API key, and model ID. OpenCode and OpenClaw do support optional `headers`, but their official docs describe that as custom headers or custom auth needs, not as a required BetterToken setup step.
 
-    Missing the required UA may lead to `403 block` or `403 Forbidden`.
+    Only add extra headers when the tool's official docs, or your own upstream gateway, tenant routing, observability, or caching layer explicitly requires them.
   </Accordion>
 
   <Accordion title="What should I do if authentication fails after setup?">
@@ -80,7 +75,7 @@ description: "Common questions about BetterToken accounts, billing, usage, and s
     1. Make sure the API Key is correct and has no extra spaces
     2. Confirm Claude Code uses `https://www.bettertoken.ai`, while Codex / external tools use `https://www.bettertoken.ai/v1`
     3. Check whether old `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY`, or `OPENAI_BASE_URL` variables are overriding the config
-    4. For external tools, confirm the required `User-Agent` is present if the tool supports custom headers
+    4. For external tools, check whether there are additional official requirements such as version limits, model allowlists, or extra headers explicitly required by your upstream gateway
 
     If the issue remains, contact support.
   </Accordion>

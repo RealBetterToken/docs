@@ -62,13 +62,10 @@ Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterTok
     Replace `YOUR_CODEX_MODEL_ID` with a current **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing).
   </Step>
 
-  <Step title="Add the required headers if supported">
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+  <Step title="Only configure extra headers when the official docs explicitly require them">
+    We did not find an official Droid setup requirement that makes `User-Agent` mandatory for BetterToken. Start with the `Base URL`, API key, and model ID shown on this page.
+
+    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
   </Step>
 
   <Step title="Restart Droid">
@@ -84,5 +81,5 @@ Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterTok
 </Steps>
 
 <Note>
-  If your version labels the provider as `OpenAI Compatible` instead of `openai`, follow the current UI label. If it cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+  If your version labels the provider as `OpenAI Compatible` instead of `openai`, follow the current UI label. If you need extra headers, follow the current Droid docs or your upstream gateway requirements instead of assuming `User-Agent` is mandatory for BetterToken.
 </Note>

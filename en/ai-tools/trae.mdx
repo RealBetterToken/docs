@@ -26,13 +26,10 @@ When connecting BetterToken to TRAE, choose an OpenAI-style provider and use a m
     | Model name | a **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing) |
   </Step>
 
-  <Step title="Add the required headers if supported">
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+  <Step title="Only configure extra headers when the official docs explicitly require them">
+    We did not find an official TRAE setup requirement that makes `User-Agent` mandatory for BetterToken. Start with the `Base URL`, API key, and model ID shown on this page.
+
+    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
   </Step>
 
   <Step title="Save and start using it">
@@ -45,5 +42,5 @@ When connecting BetterToken to TRAE, choose an OpenAI-style provider and use a m
 </Steps>
 
 <Note>
-  Do not keep using fixed Claude model names. If your TRAE version cannot set custom headers, missing the required UA may trigger `403 block` or `403 Forbidden`.
+  Do not keep using fixed Claude model names. If you need extra headers, follow the current TRAE docs or your upstream gateway requirements instead of assuming `User-Agent` is mandatory for BetterToken.
 </Note>
