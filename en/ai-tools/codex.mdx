@@ -28,49 +28,70 @@ npm install -g @openai/codex
 
 ## Setup
 
-<Steps>
-  <Step title="Copy a model ID from the model plaza">
-    Open the BetterToken [model plaza](https://www.bettertoken.ai/pricing) and copy a currently available model ID from the **Codex group**. Replace every `YOUR_CODEX_MODEL_ID` below with that value.
-  </Step>
+<Tabs>
+  <Tab title="Automatic setup">
+    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
 
-  <Step title="Edit the Codex config file">
-    The Codex config file is `~/.codex/config.toml`.
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-codex-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-codex-provider.ps1 -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-    Replace `YOUR_API_KEY` with your BetterToken API Key:
+  <Tab title="Manual setup">
+    <Steps>
+      <Step title="Copy a model ID from the model plaza">
+        Open the BetterToken [model plaza](https://www.bettertoken.ai/pricing) and copy a currently available model ID from the **Codex group**. Replace every `YOUR_CODEX_MODEL_ID` below with that value.
+      </Step>
 
-    ```toml
-    [model_providers.bettertoken]
-    name = "BetterToken"
-    base_url = "https://www.bettertoken.ai/v1"
-    env_key = "BETTERTOKEN_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 10
-    stream_idle_timeout_ms = 300000
+      <Step title="Edit the Codex config file">
+        The Codex config file is `~/.codex/config.toml`.
 
-    [profiles.bt]
-    model = "YOUR_CODEX_MODEL_ID"
-    model_provider = "bettertoken"
-    ```
-  </Step>
+        Replace `YOUR_API_KEY` with your BetterToken API Key:
 
-  <Step title="Set the environment variable">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
-  </Step>
+        ```toml
+        [model_providers.bettertoken]
+        name = "BetterToken"
+        base_url = "https://www.bettertoken.ai/v1"
+        env_key = "BETTERTOKEN_API_KEY"
+        wire_api = "responses"
+        requires_openai_auth = false
+        request_max_retries = 4
+        stream_max_retries = 10
+        stream_idle_timeout_ms = 300000
 
-  <Step title="Restart Codex CLI in the terminal">
-    After changing the config file or environment variables, stop the current Codex CLI process and start it again in a new terminal session.
-  </Step>
+        [profiles.bt]
+        model = "YOUR_CODEX_MODEL_ID"
+        model_provider = "bettertoken"
+        ```
+      </Step>
 
-  <Step title="Start Codex CLI">
-    ```bash
-    codex --profile bt
-    ```
-  </Step>
-</Steps>
+      <Step title="Set the environment variable">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
+
+      <Step title="Restart Codex CLI in the terminal">
+        After changing the config file or environment variables, stop the current Codex CLI process and start it again in a new terminal session.
+      </Step>
+
+      <Step title="Start Codex CLI">
+        ```bash
+        codex --profile bt
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## Verify the setup
 

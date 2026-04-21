@@ -28,55 +28,76 @@ npm install -g @openai/codex
 
 ## 配置步骤
 
-<Steps>
-  <Step title="从模型广场复制模型 ID">
-    打开 BetterToken [模型广场](https://www.bettertoken.ai/pricing)，复制 **Codex 分组**下当前可用的模型 ID。下文示例中的 `YOUR_CODEX_MODEL_ID` 都应替换为这个值。
-  </Step>
+<Tabs>
+  <Tab title="自动配置">
+    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
 
-  <Step title="编辑 Codex 配置文件">
-    Codex 配置文件路径为 `~/.codex/config.toml`（不存在则新建）。
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-codex-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-codex-provider.ps1 -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-    添加以下内容（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+  <Tab title="手动配置">
+    <Steps>
+      <Step title="从模型广场复制模型 ID">
+        打开 BetterToken [模型广场](https://www.bettertoken.ai/pricing)，复制 **Codex 分组**下当前可用的模型 ID。下文示例中的 `YOUR_CODEX_MODEL_ID` 都应替换为这个值。
+      </Step>
 
-    ```toml
-    [model_providers.bettertoken]
-    name = "BetterToken"
-    base_url = "https://www.bettertoken.ai/v1"
-    env_key = "BETTERTOKEN_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 10
-    stream_idle_timeout_ms = 300000
+      <Step title="编辑 Codex 配置文件">
+        Codex 配置文件路径为 `~/.codex/config.toml`（不存在则新建）。
 
-    [profiles.bt]
-    model = "YOUR_CODEX_MODEL_ID"
-    model_provider = "bettertoken"
-    ```
-  </Step>
+        添加以下内容（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
 
-  <Step title="设置环境变量">
-    在终端中设置 API Key：
+        ```toml
+        [model_providers.bettertoken]
+        name = "BetterToken"
+        base_url = "https://www.bettertoken.ai/v1"
+        env_key = "BETTERTOKEN_API_KEY"
+        wire_api = "responses"
+        requires_openai_auth = false
+        request_max_retries = 4
+        stream_max_retries = 10
+        stream_idle_timeout_ms = 300000
 
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
+        [profiles.bt]
+        model = "YOUR_CODEX_MODEL_ID"
+        model_provider = "bettertoken"
+        ```
+      </Step>
 
-    如果希望每次启动终端都自动生效，将上述命令添加到 `~/.zshrc` 或 `~/.bashrc` 中。
-  </Step>
+      <Step title="设置环境变量">
+        在终端中设置 API Key：
 
-  <Step title="重启终端中的 Codex CLI">
-    修改配置文件或环境变量后，请结束当前 Codex CLI 进程，并在新终端会话中重新启动。
-  </Step>
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
 
-  <Step title="启动 Codex CLI">
-    使用 BetterToken 配置文件启动：
+        如果希望每次启动终端都自动生效，将上述命令添加到 `~/.zshrc` 或 `~/.bashrc` 中。
+      </Step>
 
-    ```bash
-    codex --profile bt
-    ```
-  </Step>
-</Steps>
+      <Step title="重启终端中的 Codex CLI">
+        修改配置文件或环境变量后，请结束当前 Codex CLI 进程，并在新终端会话中重新启动。
+      </Step>
+
+      <Step title="启动 Codex CLI">
+        使用 BetterToken 配置文件启动：
+
+        ```bash
+        codex --profile bt
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## 验证配置
 

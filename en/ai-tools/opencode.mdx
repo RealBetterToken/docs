@@ -27,122 +27,143 @@ You can connect BetterToken to OpenCode by first adding credentials with `/conne
 
 ## Setup
 
-<Steps>
-  <Step title="Clear conflicting environment variables">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+<Tabs>
+  <Tab title="Automatic setup">
+    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
 
-  <Step title="Add the BetterToken credential with /connect first">
-    Start OpenCode and run:
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-opencode-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-opencode-provider.ps1 -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-    ```bash
-    /connect
-    ```
+  <Tab title="Manual setup">
+    <Steps>
+      <Step title="Clear conflicting environment variables">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-    In the wizard, choose **Other** and then:
+      <Step title="Add the BetterToken credential with /connect first">
+        Start OpenCode and run:
 
-    - set the **provider id** to `bettertoken`
-    - paste your BetterToken API Key
+        ```bash
+        /connect
+        ```
 
-    OpenCode stores the credential in `~/.local/share/opencode/auth.json`.
-  </Step>
+        In the wizard, choose **Other** and then:
 
-  <Step title="Edit the OpenCode config file">
-    You can use the global config at `~/.config/opencode/opencode.json` or create `opencode.json` in your project root. The project config has higher precedence.
+        - set the **provider id** to `bettertoken`
+        - paste your BetterToken API Key
 
-    ```json
-    {
-      "$schema": "https://opencode.ai/config.json",
-      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
-      "provider": {
-        "bettertoken": {
-          "npm": "@ai-sdk/openai-compatible",
-          "name": "BetterToken",
-          "options": {
-            "baseURL": "https://www.bettertoken.ai/v1"
-          },
-          "models": {
-            "YOUR_CODEX_MODEL_ID": {
-              "name": "YOUR_CODEX_MODEL_ID"
+        OpenCode stores the credential in `~/.local/share/opencode/auth.json`.
+      </Step>
+
+      <Step title="Edit the OpenCode config file">
+        You can use the global config at `~/.config/opencode/opencode.json` or create `opencode.json` in your project root. The project config has higher precedence.
+
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+          "provider": {
+            "bettertoken": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "BetterToken",
+              "options": {
+                "baseURL": "https://www.bettertoken.ai/v1"
+              },
+              "models": {
+                "YOUR_CODEX_MODEL_ID": {
+                  "name": "YOUR_CODEX_MODEL_ID"
+                }
+              }
             }
           }
         }
-      }
-    }
-    ```
+        ```
 
-    Replace `YOUR_CODEX_MODEL_ID` with a current **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing).
-  </Step>
+        Replace `YOUR_CODEX_MODEL_ID` with a current **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing).
+      </Step>
 
-  <Step title="If you want to inline the API key, use this fallback format">
-    ```json
-    {
-      "$schema": "https://opencode.ai/config.json",
-      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
-      "provider": {
-        "bettertoken": {
-          "npm": "@ai-sdk/openai-compatible",
-          "name": "BetterToken",
-          "options": {
-            "baseURL": "https://www.bettertoken.ai/v1",
-            "apiKey": "YOUR_API_KEY"
-          },
-          "models": {
-            "YOUR_CODEX_MODEL_ID": {
-              "name": "YOUR_CODEX_MODEL_ID"
+      <Step title="If you want to inline the API key, use this fallback format">
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+          "provider": {
+            "bettertoken": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "BetterToken",
+              "options": {
+                "baseURL": "https://www.bettertoken.ai/v1",
+                "apiKey": "YOUR_API_KEY"
+              },
+              "models": {
+                "YOUR_CODEX_MODEL_ID": {
+                  "name": "YOUR_CODEX_MODEL_ID"
+                }
+              }
             }
           }
         }
-      }
-    }
-    ```
+        ```
 
-    This is a fallback. The `/connect` flow above is the preferred setup.
-  </Step>
+        This is a fallback. The `/connect` flow above is the preferred setup.
+      </Step>
 
-  <Step title="Add the required headers if supported">
-    If your current OpenCode version supports custom headers, place them under `provider.bettertoken.options.headers`:
+      <Step title="Add the required headers if supported">
+        If your current OpenCode version supports custom headers, place them under `provider.bettertoken.options.headers`:
 
-    ```json
-    {
-      "$schema": "https://opencode.ai/config.json",
-      "model": "bettertoken/YOUR_CODEX_MODEL_ID",
-      "provider": {
-        "bettertoken": {
-          "npm": "@ai-sdk/openai-compatible",
-          "name": "BetterToken",
-          "options": {
-            "baseURL": "https://www.bettertoken.ai/v1",
-            "headers": {
-              "Authorization": "Bearer sk-xxx",
-              "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-            }
-          },
-          "models": {
-            "YOUR_CODEX_MODEL_ID": {
-              "name": "YOUR_CODEX_MODEL_ID"
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+          "provider": {
+            "bettertoken": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "BetterToken",
+              "options": {
+                "baseURL": "https://www.bettertoken.ai/v1",
+                "headers": {
+                  "Authorization": "Bearer sk-xxx",
+                  "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+                }
+              },
+              "models": {
+                "YOUR_CODEX_MODEL_ID": {
+                  "name": "YOUR_CODEX_MODEL_ID"
+                }
+              }
             }
           }
         }
-      }
-    }
-    ```
-  </Step>
+        ```
+      </Step>
 
-  <Step title="Restart OpenCode">
-    After updating the config file, quit the current OpenCode session and start it again.
-  </Step>
+      <Step title="Restart OpenCode">
+        After updating the config file, quit the current OpenCode session and start it again.
+      </Step>
 
-  <Step title="Start OpenCode">
-    ```bash
-    cd /path/to/your/project
-    opencode
-    ```
-  </Step>
-</Steps>
+      <Step title="Start OpenCode">
+        ```bash
+        cd /path/to/your/project
+        opencode
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## Notes
 

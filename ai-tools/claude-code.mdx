@@ -22,93 +22,114 @@ icon: "terminal"
 
 ## 配置步骤
 
-<Steps>
-  <Step title="确认 API Key 分组">
-    先确认你当前使用的是哪一类 BetterToken API Key：
+<Tabs>
+  <Tab title="自动配置">
+    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
 
-    - `Claude_*` 分组：只需要填写 `ANTHROPIC_BASE_URL` 与 `ANTHROPIC_AUTH_TOKEN`
-    - `Codex_*` 分组：除了基础认证外，还需要配置 Claude Code 的模型映射
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-claudecode-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-    两种分组都继续使用 Anthropic 协议，`ANTHROPIC_BASE_URL` 都填写 `https://www.bettertoken.ai`，不要添加 `/v1`。
-  </Step>
+  <Tab title="手动配置">
+    <Steps>
+      <Step title="确认 API Key 分组">
+        先确认你当前使用的是哪一类 BetterToken API Key：
 
-  <Step title="编辑 Claude Code 配置文件">
-    配置文件路径：
+        - `Claude_*` 分组：只需要填写 `ANTHROPIC_BASE_URL` 与 `ANTHROPIC_AUTH_TOKEN`
+        - `Codex_*` 分组：除了基础认证外，还需要配置 Claude Code 的模型映射
 
-    - macOS / Linux：`~/.claude/settings.json`
-    - Windows：`%USERPROFILE%\.claude\settings.json`
+        两种分组都继续使用 Anthropic 协议，`ANTHROPIC_BASE_URL` 都填写 `https://www.bettertoken.ai`，不要添加 `/v1`。
+      </Step>
 
-    如果你使用 `Claude_*` 分组，将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
+      <Step title="编辑 Claude Code 配置文件">
+        配置文件路径：
 
-    ```json
-    {
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
-        "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "API_TIMEOUT_MS": "3000000"
-      }
-    }
-    ```
+        - macOS / Linux：`~/.claude/settings.json`
+        - Windows：`%USERPROFILE%\.claude\settings.json`
 
-    <Note>
-      `Claude_*` 分组下**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等模型变量。Claude Code 会自行管理模型选择。
-    </Note>
-  </Step>
+        如果你使用 `Claude_*` 分组，将以下内容写入配置文件（`YOUR_API_KEY` 替换为你的 BetterToken API Key）：
 
-  <Step title="如使用 Codex_* 分组，补充模型映射">
-    如果你的 API Key 属于 `Codex_*` 分组，请改为以下配置：
+        ```json
+        {
+          "env": {
+            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "API_TIMEOUT_MS": "3000000"
+          }
+        }
+        ```
 
-    ```json
-    {
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
-        "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
-        "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
-        "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
-        "API_TIMEOUT_MS": "3000000"
-      },
-      "model": "opus"
-    }
-    ```
+        <Note>
+          `Claude_*` 分组下**无需**设置 `ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等模型变量。Claude Code 会自行管理模型选择。
+        </Note>
+      </Step>
 
-    字段说明：
+      <Step title="如使用 Codex_* 分组，补充模型映射">
+        如果你的 API Key 属于 `Codex_*` 分组，请改为以下配置：
 
-    | 字段 | 说明 |
-    | --- | --- |
-    | `ANTHROPIC_AUTH_TOKEN` | 你的 BetterToken API Key |
-    | `ANTHROPIC_BASE_URL` | BetterToken 的 Claude Code `Base URL` |
-    | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | 设为 `1`，减少非必要后台请求 |
-    | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku 级别任务使用的模型 |
-    | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet 级别任务使用的模型 |
-    | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus 级别任务使用的模型 |
-    | `model` | Claude Code 默认使用的模型级别；设为 `opus` 时会调用 `ANTHROPIC_DEFAULT_OPUS_MODEL` |
+        ```json
+        {
+          "env": {
+            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
+            "API_TIMEOUT_MS": "3000000"
+          },
+          "model": "opus"
+        }
+        ```
 
-    <Note>
-      示例里的 `gpt-5.4` 是一个 `Codex 分组`模型 ID 示例。实际使用时，请以 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 中当前可用的 `Codex 分组`模型 ID 为准。三个级别可以填写同一个模型，也可以分别映射不同模型。
-    </Note>
-  </Step>
+        字段说明：
 
-  <Step title="重启 Claude Code">
-    修改配置文件后，先完全退出 Claude Code，再重新启动，使新配置生效。
-  </Step>
+        | 字段 | 说明 |
+        | --- | --- |
+        | `ANTHROPIC_AUTH_TOKEN` | 你的 BetterToken API Key |
+        | `ANTHROPIC_BASE_URL` | BetterToken 的 Claude Code `Base URL` |
+        | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | 设为 `1`，减少非必要后台请求 |
+        | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku 级别任务使用的模型 |
+        | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet 级别任务使用的模型 |
+        | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus 级别任务使用的模型 |
+        | `model` | Claude Code 默认使用的模型级别；设为 `opus` 时会调用 `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
-  <Step title="完成首次启动">
-    如果这是你第一次使用 Claude Code，直接运行 `claude` 并按界面提示完成首次启动流程。
-  </Step>
+        <Note>
+          示例里的 `gpt-5.4` 是一个 `Codex 分组`模型 ID 示例。实际使用时，请以 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 中当前可用的 `Codex 分组`模型 ID 为准。三个级别可以填写同一个模型，也可以分别映射不同模型。
+        </Note>
+      </Step>
 
-  <Step title="启动 Claude Code">
-    进入你的工作目录，运行：
+      <Step title="重启 Claude Code">
+        修改配置文件后，先完全退出 Claude Code，再重新启动，使新配置生效。
+      </Step>
 
-    ```bash
-    claude
-    ```
+      <Step title="完成首次启动">
+        如果这是你第一次使用 Claude Code，直接运行 `claude` 并按界面提示完成首次启动流程。
+      </Step>
 
-    首次启动时，选择 **Trust This Folder**，允许 Claude Code 访问该目录中的文件。
-  </Step>
-</Steps>
+      <Step title="启动 Claude Code">
+        进入你的工作目录，运行：
+
+        ```bash
+        claude
+        ```
+
+        首次启动时，选择 **Trust This Folder**，允许 Claude Code 访问该目录中的文件。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## 在 VS Code 插件中使用
 

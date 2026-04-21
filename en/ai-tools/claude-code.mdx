@@ -22,91 +22,112 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
 
 ## Setup
 
-<Steps>
-  <Step title="Check your API Key group">
-    First confirm which BetterToken API Key group you are using:
+<Tabs>
+  <Tab title="Automatic setup">
+    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
 
-    - `Claude_*`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
-    - `Codex_*`: set the auth fields and add Claude Code model mappings
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-claudecode-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-    Both groups still use the Anthropic protocol. In both cases, set `ANTHROPIC_BASE_URL` to `https://www.bettertoken.ai` without `/v1`.
-  </Step>
+  <Tab title="Manual setup">
+    <Steps>
+      <Step title="Check your API Key group">
+        First confirm which BetterToken API Key group you are using:
 
-  <Step title="Edit the Claude Code config file">
-    Config file location:
+        - `Claude_*`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
+        - `Codex_*`: set the auth fields and add Claude Code model mappings
 
-    - macOS / Linux: `~/.claude/settings.json`
-    - Windows: `%USERPROFILE%\.claude\settings.json`
+        Both groups still use the Anthropic protocol. In both cases, set `ANTHROPIC_BASE_URL` to `https://www.bettertoken.ai` without `/v1`.
+      </Step>
 
-    If you use a `Claude_*` key, replace `YOUR_API_KEY` with your BetterToken API Key:
+      <Step title="Edit the Claude Code config file">
+        Config file location:
 
-    ```json
-    {
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
-        "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "API_TIMEOUT_MS": "3000000"
-      }
-    }
-    ```
+        - macOS / Linux: `~/.claude/settings.json`
+        - Windows: `%USERPROFILE%\.claude\settings.json`
 
-    <Note>
-      With a `Claude_*` key, you do not need `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model variables. Claude Code manages model selection itself.
-    </Note>
-  </Step>
+        If you use a `Claude_*` key, replace `YOUR_API_KEY` with your BetterToken API Key:
 
-  <Step title="Add model mappings for Codex_* keys">
-    If your API Key belongs to the `Codex_*` group, use this config instead:
+        ```json
+        {
+          "env": {
+            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "API_TIMEOUT_MS": "3000000"
+          }
+        }
+        ```
 
-    ```json
-    {
-      "env": {
-        "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
-        "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
-        "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
-        "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
-        "API_TIMEOUT_MS": "3000000"
-      },
-      "model": "opus"
-    }
-    ```
+        <Note>
+          With a `Claude_*` key, you do not need `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model variables. Claude Code manages model selection itself.
+        </Note>
+      </Step>
 
-    Field reference:
+      <Step title="Add model mappings for Codex_* keys">
+        If your API Key belongs to the `Codex_*` group, use this config instead:
 
-    | Field | Description |
-    | --- | --- |
-    | `ANTHROPIC_AUTH_TOKEN` | Your BetterToken API Key |
-    | `ANTHROPIC_BASE_URL` | BetterToken `Base URL` for Claude Code |
-    | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to `1` to reduce background traffic |
-    | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Model used for Haiku-level tasks |
-    | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Model used for Sonnet-level tasks |
-    | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Model used for Opus-level tasks |
-    | `model` | Default Claude Code model tier; `opus` uses `ANTHROPIC_DEFAULT_OPUS_MODEL` |
+        ```json
+        {
+          "env": {
+            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
+            "API_TIMEOUT_MS": "3000000"
+          },
+          "model": "opus"
+        }
+        ```
 
-    <Note>
-      `gpt-5.4` is an example **Codex group** model ID. Use the current **Codex group** model IDs listed in the BetterToken [model plaza](https://www.bettertoken.ai/pricing). You can map all three tiers to the same model or choose different ones.
-    </Note>
-  </Step>
+        Field reference:
 
-  <Step title="Restart Claude Code">
-    After updating the config file, fully quit Claude Code and start it again so the new config is loaded.
-  </Step>
+        | Field | Description |
+        | --- | --- |
+        | `ANTHROPIC_AUTH_TOKEN` | Your BetterToken API Key |
+        | `ANTHROPIC_BASE_URL` | BetterToken `Base URL` for Claude Code |
+        | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to `1` to reduce background traffic |
+        | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Model used for Haiku-level tasks |
+        | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Model used for Sonnet-level tasks |
+        | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Model used for Opus-level tasks |
+        | `model` | Default Claude Code model tier; `opus` uses `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
-  <Step title="Complete first launch">
-    If this is your first time using Claude Code, run `claude` and follow the onboarding prompts.
-  </Step>
+        <Note>
+          `gpt-5.4` is an example **Codex group** model ID. Use the current **Codex group** model IDs listed in the BetterToken [model plaza](https://www.bettertoken.ai/pricing). You can map all three tiers to the same model or choose different ones.
+        </Note>
+      </Step>
 
-  <Step title="Start Claude Code">
-    Open your project directory and run:
+      <Step title="Restart Claude Code">
+        After updating the config file, fully quit Claude Code and start it again so the new config is loaded.
+      </Step>
 
-    ```bash
-    claude
-    ```
-  </Step>
-</Steps>
+      <Step title="Complete first launch">
+        If this is your first time using Claude Code, run `claude` and follow the onboarding prompts.
+      </Step>
+
+      <Step title="Start Claude Code">
+        Open your project directory and run:
+
+        ```bash
+        claude
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## Use the VS Code extension
 

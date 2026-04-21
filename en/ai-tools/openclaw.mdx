@@ -32,63 +32,84 @@ When connecting BetterToken to OpenClaw, choose the **Codex provider** instead o
 
 ## Setup
 
-<Steps>
-  <Step title="Clear conflicting environment variables">
-    ```bash
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+<Tabs>
+  <Tab title="Automatic setup">
+    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
 
-  <Step title="Run onboarding">
-    ```bash
-    openclaw onboard --install-daemon
-    ```
-  </Step>
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-openclaw-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-openclaw-provider.ps1 -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-  <Step title="Add the BetterToken credential">
-    ```bash
-    openclaw models auth add
-    ```
-  </Step>
+  <Tab title="Manual setup">
+    <Steps>
+      <Step title="Clear conflicting environment variables">
+        ```bash
+        unset ANTHROPIC_AUTH_TOKEN
+        unset ANTHROPIC_BASE_URL
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-  <Step title="Choose the Codex provider and fill in the fields">
-    In the wizard, choose **Codex** and enter:
+      <Step title="Run onboarding">
+        ```bash
+        openclaw onboard --install-daemon
+        ```
+      </Step>
 
-    - **API endpoint**: `https://www.bettertoken.ai/v1`
-    - **API protocol**: `OpenAI Responses`
-    - **Token group**: choose a `Codex_*` group
-    - **Model**: a currently available model ID copied from the [model plaza](https://www.bettertoken.ai/pricing)
-  </Step>
+      <Step title="Add the BetterToken credential">
+        ```bash
+        openclaw models auth add
+        ```
+      </Step>
 
-  <Step title="Add the required headers">
-    If your OpenClaw version exposes a custom headers editor, enter:
+      <Step title="Choose the Codex provider and fill in the fields">
+        In the wizard, choose **Codex** and enter:
 
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+        - **API endpoint**: `https://www.bettertoken.ai/v1`
+        - **API protocol**: `OpenAI Responses`
+        - **Token group**: choose a `Codex_*` group
+        - **Model**: a currently available model ID copied from the [model plaza](https://www.bettertoken.ai/pricing)
+      </Step>
 
-    Replace `sk-xxx` with your BetterToken API Key.
-  </Step>
+      <Step title="Add the required headers">
+        If your OpenClaw version exposes a custom headers editor, enter:
 
-  <Step title="Set the default model and verify">
-    Run `openclaw models list` to confirm the provider id, then set the default model and check the status:
+        ```json
+        {
+          "Authorization": "Bearer sk-xxx",
+          "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+        }
+        ```
 
-    ```bash
-    openclaw models list
-    openclaw models set <provider>/<Codex model ID copied from https://www.bettertoken.ai/pricing>
-    openclaw gateway restart
-    openclaw models status
-    ```
+        Replace `sk-xxx` with your BetterToken API Key.
+      </Step>
 
-    After changing the config, run `openclaw gateway restart` before checking the status.
-  </Step>
-</Steps>
+      <Step title="Set the default model and verify">
+        Run `openclaw models list` to confirm the provider id, then set the default model and check the status:
+
+        ```bash
+        openclaw models list
+        openclaw models set <provider>/<Codex model ID copied from https://www.bettertoken.ai/pricing>
+        openclaw gateway restart
+        openclaw models status
+        ```
+
+        After changing the config, run `openclaw gateway restart` before checking the status.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## Usage notes
 

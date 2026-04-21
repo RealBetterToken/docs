@@ -32,65 +32,86 @@ icon: "paw"
 
 ## 配置步骤
 
-<Steps>
-  <Step title="清除冲突的环境变量">
-    ```bash
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+<Tabs>
+  <Tab title="自动配置">
+    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
 
-  <Step title="运行 onboarding">
-    ```bash
-    openclaw onboard --install-daemon
-    ```
+    <Tabs sync={false}>
+      <Tab title="macOS / Linux">
+        ```bash
+        curl -fsSL https://www.bettertoken.ai/install-openclaw-provider.sh | bash
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```powershell
+        iwr https://www.bettertoken.ai/install-openclaw-provider.ps1 -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+        ```
+      </Tab>
+    </Tabs>
+  </Tab>
 
-    按向导完成 Gateway 和基础组件安装。
-  </Step>
+  <Tab title="手动配置">
+    <Steps>
+      <Step title="清除冲突的环境变量">
+        ```bash
+        unset ANTHROPIC_AUTH_TOKEN
+        unset ANTHROPIC_BASE_URL
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-  <Step title="添加 BetterToken 凭证">
-    ```bash
-    openclaw models auth add
-    ```
-  </Step>
+      <Step title="运行 onboarding">
+        ```bash
+        openclaw onboard --install-daemon
+        ```
 
-  <Step title="选择 Codex provider 并填写参数">
-    在向导中选择 **Codex**。然后填写：
+        按向导完成 Gateway 和基础组件安装。
+      </Step>
 
-    - **API 端点**：`https://www.bettertoken.ai/v1`
-    - **API 协议**：`OpenAI Responses`
-    - **令牌分组**：选择 `Codex_*` 的分组
-    - **模型**：从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID
-  </Step>
+      <Step title="添加 BetterToken 凭证">
+        ```bash
+        openclaw models auth add
+        ```
+      </Step>
 
-  <Step title="添加必需 headers">
-    如果 OpenClaw 当前版本提供自定义 headers 输入框或 JSON 编辑器，请填写：
+      <Step title="选择 Codex provider 并填写参数">
+        在向导中选择 **Codex**。然后填写：
 
-    ```json
-    {
-      "Authorization": "Bearer sk-xxx",
-      "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
-    }
-    ```
+        - **API 端点**：`https://www.bettertoken.ai/v1`
+        - **API 协议**：`OpenAI Responses`
+        - **令牌分组**：选择 `Codex_*` 的分组
+        - **模型**：从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID
+      </Step>
 
-    将 `sk-xxx` 替换为你的 BetterToken API Key。
-  </Step>
+      <Step title="添加必需 headers">
+        如果 OpenClaw 当前版本提供自定义 headers 输入框或 JSON 编辑器，请填写：
 
-  <Step title="设置默认模型并验证">
-    先运行 `openclaw models list`，确认当前 provider id，再设置默认模型并检查状态：
+        ```json
+        {
+          "Authorization": "Bearer sk-xxx",
+          "User-Agent": "codex_cli_rs/0.77.0 (Windows 10.0.26100; x86_64) WindowsTerminal"
+        }
+        ```
 
-    ```bash
-    openclaw models list
-    openclaw models set <provider>/<从 https://www.bettertoken.ai/pricing 复制的 Codex 模型 ID>
-    openclaw gateway restart
-    openclaw models status
-    ```
+        将 `sk-xxx` 替换为你的 BetterToken API Key。
+      </Step>
 
-    修改配置后，请执行 `openclaw gateway restart`，再继续验证状态。
-  </Step>
-</Steps>
+      <Step title="设置默认模型并验证">
+        先运行 `openclaw models list`，确认当前 provider id，再设置默认模型并检查状态：
+
+        ```bash
+        openclaw models list
+        openclaw models set <provider>/<从 https://www.bettertoken.ai/pricing 复制的 Codex 模型 ID>
+        openclaw gateway restart
+        openclaw models status
+        ```
+
+        修改配置后，请执行 `openclaw gateway restart`，再继续验证状态。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## 使用说明
 
