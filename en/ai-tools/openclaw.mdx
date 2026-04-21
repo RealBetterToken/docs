@@ -1,19 +1,11 @@
 ---
-title: "OpenClaw"
-description: "Connect BetterToken to OpenClaw and verify that the current agent and current session are actually using it."
+title: "OpenClaw BetterToken setup guide"
+sidebarTitle: "OpenClaw"
+description: "Connect BetterToken to OpenClaw, a multi-platform AI agent gateway."
 icon: "paw"
 ---
 
-In OpenClaw, “configured successfully” and “the current agent or current session is actually using it” are not the same thing. The core setup is to use the Base URL `https://www.bettertoken.ai/v1` and a model ID from the [model plaza](https://www.bettertoken.ai/pricing) in the **Codex group**. The provider type and API protocol depend on your current OpenClaw version and provider implementation, so do not treat `Codex provider + OpenAI Responses` as the only valid path.
-
-<Warning>
-  OpenClaw's official docs describe `models.providers.*.headers` as optional custom auth or proxy-routing configuration, and they explicitly note that OpenClaw's hidden `User-Agent` only applies to native OpenAI / OpenAI Codex traffic, not to OpenAI-compatible proxies such as BetterToken.
-</Warning>
-
-## Prerequisites
-
-- OpenClaw installed
-- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo, and more. This page shows you how to connect BetterToken to OpenClaw and do a basic verification.
 
 ## Install OpenClaw
 
@@ -34,7 +26,7 @@ In OpenClaw, “configured successfully” and “the current agent or current s
 
 <Tabs>
   <Tab title="Automatic setup">
-    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input. After the script finishes, continue to “Make it take effect” below so you can confirm the current agent and session are actually using BetterToken.
+    You can run the BetterToken automatic setup script directly. Have your BetterToken API Key ready before you start. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input. After the script finishes, continue to “Make it take effect” below.
 
     <Tabs sync={false}>
       <Tab title="macOS / Linux">
@@ -77,15 +69,36 @@ In OpenClaw, “configured successfully” and “the current agent or current s
         In the wizard or provider editor, fill in or confirm:
 
         - **Base URL**: `https://www.bettertoken.ai/v1`
-        - **Provider type**: `Codex provider` or `custom provider`
-        - **API protocol**: use whatever matches your current OpenClaw version and provider implementation
+        - **API**: `openai-responses`
+        - **API Key**: your BetterToken API Key
         - **Model**: a currently available model ID copied from the [model plaza](https://www.bettertoken.ai/pricing)
 
-        In some stable setups, the provider is stored as a custom provider and the runtime may show `openai-completions`. As long as the Base URL and model ID are correct, that difference in display usually does not break the setup.
+        A minimal provider config snippet looks like this:
+
+        ```json
+        {
+          "models": {
+            "mode": "merge",
+            "providers": {
+              "bettertoken": {
+                "baseUrl": "https://www.bettertoken.ai/v1",
+                "apiKey": "YOUR_BETTERTOKEN_API_KEY",
+                "api": "openai-responses",
+                "models": [
+                  {
+                    "id": "YOUR_CODEX_MODEL_ID",
+                    "name": "YOUR_CODEX_MODEL_ID"
+                  }
+                ]
+              }
+            }
+          }
+        }
+        ```
       </Step>
 
-      <Step title="Only configure `headers` when you need custom auth or proxy routing">
-        OpenClaw's official docs support extra headers in `models.providers.*.headers`, but this is optional. You usually do not need an extra `User-Agent` when connecting BetterToken.
+      <Step title="You usually do not need extra `headers`">
+        You usually do not need an extra `User-Agent` when connecting BetterToken.
 
         Only add headers when you are also using a custom gateway, tenant routing, or another upstream service that explicitly requires them.
       </Step>
@@ -100,7 +113,7 @@ In OpenClaw, “configured successfully” and “the current agent or current s
         openclaw models status
         ```
 
-        This only confirms that the config was written. It does not mean the current Discord session already switched to BetterToken.
+        After the config is written, continue to “Make it take effect” below to restart the gateway and verify the session.
       </Step>
     </Steps>
   </Tab>
@@ -117,8 +130,6 @@ This means:
 - If an agent explicitly defines `model` in `agents.list`, it does not inherit the global default model.
 - If you set BetterToken as the global default model but `main` still pins an older model, Discord DM flows that use `main` still keep using the older model.
 - If a previous session still has `providerOverride`, `modelOverride`, or `authProfileOverride`, the current session may keep using the old route even after you update the default model.
-
-Existing sessions do not automatically inherit a new default model.
 
 Recommended workflow:
 
@@ -193,8 +204,6 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
 
   <Step title="Start a new session">
     Run `/new` in Discord.
-
-    Changing the default model does not automatically update an existing session.
   </Step>
 
   <Step title="Verify the model used by the current session">
@@ -234,7 +243,7 @@ Then send this prompt to Codex CLI:
 ```text
 Please inspect and fix my local OpenClaw BetterToken setup. Requirements:
 1. Read the current OpenClaw config first and identify the provider id, the default model, and which agents in agents.list explicitly define model.
-2. If the BetterToken provider does not exist, add one that uses the Base URL `https://www.bettertoken.ai/v1`. Use whatever provider type and API protocol match the current OpenClaw version instead of forcing a single protocol choice.
+2. If the BetterToken provider does not exist, add one that uses the Base URL `https://www.bettertoken.ai/v1` and sets `api: "openai-responses"`.
 3. Reuse any credential already saved by OpenClaw. Only configure extra headers when the current version or your upstream gateway explicitly requires them; do not assume `User-Agent` is mandatory for BetterToken.
 4. Switch the default model to BetterToken and check whether `main` is still pinned to an older model. If I want `main` to follow the global default, remove the explicit model from `main`.
 5. Make sure the active BetterToken model is present in `agents.defaults.models` and add an easy-to-recognize `alias`.

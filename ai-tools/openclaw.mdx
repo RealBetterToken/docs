@@ -1,19 +1,11 @@
 ---
-title: "OpenClaw"
-description: "在 OpenClaw 中接入 BetterToken，并验证当前 Agent 与当前会话是否真的在使用它。"
+title: "OpenClaw 接入 BetterToken 指南"
+sidebarTitle: "OpenClaw"
+description: "在 OpenClaw 这个多平台 AI 智能体 Gateway 网关中接入 BetterToken。"
 icon: "paw"
 ---
 
-在 OpenClaw 中，“已经配进去了”和“当前 Agent / 当前会话真的在用”是两件事。接入 BetterToken 的核心是把 Base URL 设为 `https://www.bettertoken.ai/v1`，并使用来自[模型广场](https://www.bettertoken.ai/pricing)的 **Codex 分组**模型 ID。provider 类型和 API 协议以当前 OpenClaw 版本及实际 provider 配置为准，不要把 `Codex provider + OpenAI Responses` 当作唯一写法。
-
-<Warning>
-  OpenClaw 官方文档将 `models.providers.*.headers` 定位为可选的自定义鉴权 / 代理路由配置；同时明确说明隐藏的 OpenClaw `User-Agent` 只会附加到原生 OpenAI / OpenAI Codex 官方端点，不适用于 BetterToken 这类 OpenAI-compatible 代理。
-</Warning>
-
-## 前置条件
-
-- 已安装 OpenClaw
-- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsoft Teams、Signal、Slack、Telegram、WhatsApp、Zalo 等更多平台的任意操作系统 AI 智能体 Gateway 网关。这篇文档会带你把 BetterToken 接入 OpenClaw，并完成基础验证。
 
 ## 安装 OpenClaw
 
@@ -34,7 +26,7 @@ icon: "paw"
 
 <Tabs>
   <Tab title="自动配置">
-    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。脚本执行完成后，请继续看下方“运行生效”，确认当前 Agent 和当前会话已经真的切到 BetterToken。
+    你可以直接运行 BetterToken 提供的自动配置脚本。运行前请准备好 BetterToken API Key。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。脚本执行完成后，请继续看下方“运行生效”。
 
     <Tabs sync={false}>
       <Tab title="macOS / Linux">
@@ -79,17 +71,38 @@ icon: "paw"
         在向导或 provider 编辑器中填写或确认以下内容：
 
         - **Base URL**：`https://www.bettertoken.ai/v1`
-        - **Provider 类型**：`Codex provider` 或 `custom provider`
-        - **API 协议**：以当前 OpenClaw 版本和实际 provider 配置为准
+        - **API**：`openai-responses`
+        - **API Key**：你的 BetterToken API Key
         - **模型**：从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID
 
-        在部分稳定配置里，provider 会以 custom provider 形式保存，实际运行链路可能显示 `openai-completions`。只要 Base URL 和模型 ID 正确，这种显示差异通常不影响使用。
+        最小 provider 配置片段可以写成：
+
+        ```json
+        {
+          "models": {
+            "mode": "merge",
+            "providers": {
+              "bettertoken": {
+                "baseUrl": "https://www.bettertoken.ai/v1",
+                "apiKey": "YOUR_BETTERTOKEN_API_KEY",
+                "api": "openai-responses",
+                "models": [
+                  {
+                    "id": "YOUR_CODEX_MODEL_ID",
+                    "name": "YOUR_CODEX_MODEL_ID"
+                  }
+                ]
+              }
+            }
+          }
+        }
+        ```
       </Step>
 
-      <Step title="仅在有自定义鉴权或代理路由需求时再配置 `headers`">
-        OpenClaw 官方文档支持在 `models.providers.*.headers` 中补充额外 headers，但这是可选项。接入 BetterToken 时通常不需要额外设置 `User-Agent`。
+      <Step title="一般不需要额外配置 `headers`">
+        接入 BetterToken 时通常不需要额外设置 `User-Agent`。
 
-        只有在你同时接入了自定义网关、租户路由或其他需要额外 headers 的上游服务时，再按对应官方文档补充。
+        只有在你同时接入了自定义网关、租户路由或其他要求额外 headers 的上游服务时，再按对应文档补充。
       </Step>
 
       <Step title="设置默认模型并验证">
@@ -102,7 +115,7 @@ icon: "paw"
         openclaw models status
         ```
 
-        这一步只能确认配置已经写进去，还不代表当前 Discord 会话已经自动切到 BetterToken。
+        配置写入后，请继续看下方“运行生效”完成重启和会话验证。
       </Step>
     </Steps>
   </Tab>
@@ -119,8 +132,6 @@ OpenClaw 中模型生效的优先级通常是：
 - 如果某个 agent 在 `agents.list` 里显式写了 `model`，它不会继承全局默认模型。
 - 如果你把 BetterToken 设为全局默认模型，但 `main` 仍写着旧模型，那么 Discord 私聊等默认走 `main` 的场景仍会继续使用旧模型。
 - 如果历史会话里残留了 `providerOverride`、`modelOverride` 或 `authProfileOverride`，即使你已经修改了默认模型，当前会话也可能继续使用旧渠道。
-
-已有 session 不会自动继承新默认模型。
 
 推荐做法：
 
@@ -193,8 +204,6 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `better
 
   <Step title="新开会话">
     在 Discord 中执行 `/new`。
-
-    修改默认模型后，已有 session 不会自动继承新默认值。
   </Step>
 
   <Step title="验证当前会话实际模型">
@@ -234,7 +243,7 @@ codex
 ```text
 请帮我检查并修复本机 OpenClaw 的 BetterToken 配置。要求：
 1. 先读取当前 OpenClaw 配置，确认 provider id、默认模型，以及 agents.list 中哪些 agent 显式写了 model。
-2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `https://www.bettertoken.ai/v1` 的 provider。provider 类型和 API 协议以当前 OpenClaw 版本可用选项为准，不要强行固定成某一种。
+2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `https://www.bettertoken.ai/v1` 的 provider，并写入 `api: "openai-responses"`。
 3. 优先复用 OpenClaw 已保存的认证信息。只有当当前版本或你的上游网关明确要求额外 headers 时，才单独配置；不要默认把 `User-Agent` 当作 BetterToken 必填项。
 4. 把默认模型切到 BetterToken，并检查 `main` 是否被显式 model 覆盖；如果我希望 `main` 跟随全局默认，就删除它的显式 model。
 5. 确保当前 BetterToken 模型出现在 `agents.defaults.models` 中，并补一个易识别的 `alias`。

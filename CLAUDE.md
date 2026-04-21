@@ -103,6 +103,12 @@ docs/
 - 不使用营销语言（powerful、seamless、robust 等）
 - 代码块必须注明语言标签
 
+### 图片资源规则
+
+- `images/temp/` 只是临时截图存放区，不要作为最终文档引用路径
+- 正式截图按页面归档到 `images/<page-slug>/`，目录组织参考 `images/quickstart/`
+- 修改文档前如果用了临时截图，提交前必须把图片迁到对应专用目录，并同步更新 MDX 引用
+
 ### 自定义样式
 
 如需修改侧边栏、Logo 尺寸、语言切换器位置等，通过 `custom.css` 实现。Mintlify 会自动加载项目根目录下的 `.css` 文件。可用的 CSS 选择器参考官方文档（通过 MCP 搜索 `custom CSS identifiers selectors`）。

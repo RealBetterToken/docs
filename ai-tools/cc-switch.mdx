@@ -1,0 +1,295 @@
+---
+title: "CC Switch 接入 BetterToken 指南"
+sidebarTitle: "CC Switch"
+description: "在 CC Switch 中接入 BetterToken，统一管理 Claude Code、Codex CLI、OpenCode 和 OpenClaw。"
+icon: "sun"
+---
+
+CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Codex、Gemini CLI、OpenCode 和 OpenClaw 的供应商配置。这篇文档介绍如何在 CC Switch 中接入 BetterToken，并覆盖 Claude Code、Codex CLI、OpenCode、OpenClaw 这四条已确认的接入路径。
+
+<Note>
+  Gemini CLI 需要 Google / Vertex AI 协议。当前 BetterToken 文档还没有确认这条接入路径，所以本文不展开。
+</Note>
+
+## 安装 CC Switch
+
+<Tabs>
+  <Tab title="macOS">
+    推荐优先使用 Homebrew；也可以从 [GitHub Releases](https://github.com/farion1231/cc-switch/releases) 下载最新版 `.dmg` 或 `.zip`。
+
+    ```bash
+    brew tap farion1231/ccswitch
+    brew install --cask cc-switch
+    ```
+  </Tab>
+  <Tab title="Windows">
+    从 [GitHub Releases](https://github.com/farion1231/cc-switch/releases) 下载最新版 `CC-Switch-v{version}-Windows.msi` 或便携版 `.zip`，然后按安装向导完成安装。
+  </Tab>
+  <Tab title="Linux">
+    从 [GitHub Releases](https://github.com/farion1231/cc-switch/releases) 下载最新版 `.deb`、`.rpm` 或 `.AppImage`。
+  </Tab>
+</Tabs>
+
+## 开始前准备
+
+- BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+- Claude Code 使用 Anthropic 协议：`Base URL` 填 `https://www.bettertoken.ai`
+- Codex CLI、OpenCode、OpenClaw 使用 OpenAI-compatible 协议：`Base URL` 填 `https://www.bettertoken.ai/v1`
+- 给 Codex CLI、OpenCode、OpenClaw 准备一个当前可用的 **Codex 分组**模型 ID。你可以从 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
+
+<Info>
+  CC Switch 首次启动时会自动导入本机已有的配置。你可以保留官方 provider 作为回退，再新增 BetterToken。
+</Info>
+
+<Note>
+  BetterToken 同时提供 Anthropic 和 OpenAI-compatible 两种接入模式。为了避免把 `https://www.bettertoken.ai` 和 `https://www.bettertoken.ai/v1` 混在一起，建议在 CC Switch 里按应用分别创建 provider，而不是把 Claude Code 和 OpenAI-compatible 工具合并到一个统一供应商。
+</Note>
+
+## 添加 BetterToken provider
+
+<Tabs>
+  <Tab title="Claude Code">
+    <Steps>
+      <Step title="切到 Claude Code 并添加 provider">
+        打开 CC Switch，切到 **Claude Code**，点击 **Add Provider**。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-add-provider.png"
+            alt="CC Switch 的 Claude Code 页面，右上角加号按钮用于新增 provider。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="填写基础字段">
+        - **Provider Name**：`BetterToken`
+        - **Base URL**：`https://www.bettertoken.ai`
+        - **API Key**：你的 BetterToken API Key
+
+        下图中的标注对应：
+
+        1. **Provider Name**
+        2. **API Key**
+        3. **Base URL**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-basic-fields.png"
+            alt="CC Switch 的 provider 编辑页面，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="按 API Key 分组处理模型映射">
+        - 如果你使用 `Claude_*` 分组，通常不需要再调整高级选项或模型映射
+        - 如果你使用 `Codex_*` 分组，请额外完成下面这些设置：
+
+        1. 打开 **高级选项**
+        2. 在 **API 格式** 中选择 **OpenAI Responses API**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-api-format.png"
+            alt="CC Switch 的高级选项区域，API 格式被设置为 OpenAI Responses API。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        3. 在 **模型映射** 里点击 **获取模型列表**
+        4. 将 **主模型**、**推理模型（Thinking）**、**Haiku 默认模型**、**Sonnet 默认模型**、**Opus 默认模型** 都从下拉列表中显式选中
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-model-mapping.png"
+            alt="CC Switch 的模型映射区域，展示了获取模型列表以及主模型、Thinking、Haiku、Sonnet、Opus 的映射位置。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        这里使用的模型都应来自 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 当前可用的 **Codex 分组**模型 ID。
+      </Step>
+
+      <Step title="保存、切换，并按分组决定是否开启代理">
+        保存后，回到渠道列表页：
+
+        1. 将刚保存的 BetterToken provider 设为 **使用中**
+        2. 如果你使用 `Claude_*` 分组，不需要打开左上角的 **CC Switch 代理功能**
+        3. 如果你使用 `Codex_*` 分组，再打开左上角的 **CC Switch 代理功能**
+
+        下图示例对应需要开启代理的 `Codex_*` 分组场景。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-enable-proxy.png"
+            alt="保存后回到渠道列表页，将 BetterToken 设为使用中，并打开左上角的 CC Switch 代理开关。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Codex CLI">
+    <Steps>
+      <Step title="切到 Codex CLI 并添加 provider">
+        打开 CC Switch，切到 **Codex CLI**，点击 **Add Provider**。如果界面先让你选预设，优先选择 **OpenAI Compatible** 或 **Custom** 这一类自定义 OpenAI-compatible provider。
+
+        图中对应顺序如下：
+
+        1. 切到 **Codex CLI**
+        2. 点击右上角 **Add Provider**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-add-provider.png"
+            alt="CC Switch 的 Codex CLI 页面，顶部选中了 Codex CLI，右上角加号按钮用于新增 provider。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="填写基础字段">
+        - **Provider Name**：`BetterToken`
+        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **API Key**：你的 BetterToken API Key
+
+        如果你切到了自定义配置视图，确保底层配置使用 `wire_api = "responses"`。
+
+        图中标注对应：
+
+        1. **Provider Name**
+        2. **API Key**
+        3. **Base URL**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-basic-fields.png"
+            alt="CC Switch 的 Codex CLI provider 编辑页，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="选择默认模型">
+        先点击 **获取模型**。CC Switch 会使用你填写的 API Key 去请求 `/v1/models`，然后把可用模型按分组列出来。
+
+        如果没有返回模型列表，就手动填入一个当前可用的 **Codex 分组**模型 ID。
+
+        图中标注对应：
+
+        1. 点击 **获取模型列表**
+        2. 从下拉列表中选择要使用的模型
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-select-model.png"
+            alt="CC Switch 的 Codex CLI provider 编辑页，展示了获取模型列表按钮以及模型下拉选择框。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="保存并切换">
+        保存后将 BetterToken 设为当前 provider。CC Switch 会把对应配置写入 Codex 的认证和配置文件。
+
+        保存后回到列表页，确认 BetterToken 这一项显示为 **使用中**。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-activate-provider.png"
+            alt="CC Switch 的 Codex CLI provider 列表页，BetterToken 已被选中，并显示为使用中。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="可选：调整 Codex App 里的 provider 显示名">
+        如果你想让 Codex App 对话框右下角的 provider 标签更好区分，可以把配置项里的 `name` 改成你希望显示的名字，例如 `bettertoken`。
+
+        这个值会同步影响 Codex App 中展示的 provider 名称。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-provider-name.png"
+            alt="CC Switch 写入的 Codex 配置中，model_providers.custom 下的 name 字段被高亮，同时左侧 Codex App 对话框右下角的 provider 标签也被高亮。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="OpenCode">
+    <Steps>
+      <Step title="切到 OpenCode 并添加 provider">
+        打开 CC Switch，切到 **OpenCode**，点击 **Add Provider**。如果界面先让你选预设，优先选择 **OpenAI Compatible** 或 **Custom**。
+      </Step>
+
+      <Step title="填写基础字段">
+        - **Provider Name**：`BetterToken`
+        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **API Key**：你的 BetterToken API Key
+      </Step>
+
+      <Step title="选择默认模型">
+        优先点击 **获取模型**。如果需要手动填写，请直接使用 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 中当前可用的 **Codex 分组**模型 ID。
+      </Step>
+
+      <Step title="保存并切换">
+        保存后将 BetterToken 设为当前 provider。
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="OpenClaw">
+    <Steps>
+      <Step title="切到 OpenClaw 并添加 provider">
+        打开 CC Switch，切到 **OpenClaw**，点击 **Add Provider**。如果界面先让你选预设，优先选择 **OpenAI Compatible** 或 **Custom**。
+      </Step>
+
+      <Step title="填写基础字段">
+        - **Provider Name**：`BetterToken`
+        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **API Key**：你的 BetterToken API Key
+
+        如果你进入的是 OpenClaw 的自定义 provider 配置视图，确保 `api` 写成 `openai-responses`。
+      </Step>
+
+      <Step title="选择默认模型">
+        优先点击 **获取模型**。如果需要手动填写，请使用当前可用的 **Codex 分组**模型 ID。
+      </Step>
+
+      <Step title="保存并切换">
+        保存后将 BetterToken 设为当前 provider。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## 保存后如何生效
+
+所有配置保存并切换完成后，都建议先重启对应客户端或网关，再开始验证。
+
+- Claude Code：完全退出当前 Claude Code 会话，再重新启动。
+- Codex CLI：重启当前 Codex CLI 进程，或新开一个终端会话。
+- OpenCode：退出当前 OpenCode 会话并重新启动。
+- OpenClaw：执行 `openclaw gateway restart`，再在 Discord 中依次执行 `/new`、`/status`、`/model`。
+
+## 常见问题
+
+- Claude Code 的 `Base URL` 不要加 `/v1`
+- Claude Code 使用 `Codex_*` 分组时，要在 **高级选项** 里把 **API 格式** 切到 **OpenAI Responses API**
+- Claude Code 使用 `Claude_*` 分组时，不需要打开 **CC Switch 代理功能**
+- Codex CLI、OpenCode、OpenClaw 的 `Base URL` 要写 `https://www.bettertoken.ai/v1`
+- Codex CLI、OpenCode、OpenClaw 默认模型请使用 **Codex 分组**模型 ID，不要沿用 Claude 风格模型名
+- 如果 **获取模型** 失败，先检查 API Key 和 `Base URL`，再改为手动粘贴模型 ID
+- 如果切换后没有生效，先确认 BetterToken provider 已被设为当前 provider，再按上面的方式重启对应客户端或网关
+
+## 相关页面
+
+- Claude Code 细节配置：[Claude Code](/ai-tools/claude-code)
+- Codex CLI 细节配置：[Codex CLI](/ai-tools/codex)
+- OpenCode 细节配置：[OpenCode](/ai-tools/opencode)
+- OpenClaw 细节配置：[OpenClaw](/ai-tools/openclaw)
