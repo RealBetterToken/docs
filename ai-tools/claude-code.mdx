@@ -27,18 +27,28 @@ icon: "terminal"
   <Tab title="自动配置">
     你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
 
-    <Tabs sync={false}>
-      <Tab title="macOS / Linux">
+    按你的操作系统执行对应步骤。你只需要执行其中一项。
+
+    <Steps>
+      <Step title="如果你使用 macOS / Linux">
         ```bash
         curl -fsSL https://www.bettertoken.ai/install-claudecode-provider.sh | bash
         ```
-      </Tab>
-      <Tab title="Windows">
+      </Step>
+      <Step title="如果你使用 Windows">
         ```powershell
         iwr https://www.bettertoken.ai/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
         ```
-      </Tab>
-    </Tabs>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="通过 CC-Switch 配置">
+    这条接入路径由 [CC Switch 接入文档](/ai-tools/cc-switch#claude-code) 统一维护。
+
+    直接查看 [CC Switch 中的 Claude Code 配置步骤](/ai-tools/cc-switch#claude-code)。
+
+    通过 CC Switch 完成配置后，再回到本页继续参考启动、验证或生效说明。
   </Tab>
 
   <Tab title="手动配置">
@@ -78,6 +88,10 @@ icon: "terminal"
 
       <Step title="如使用 Codex_* 分组，补充模型映射">
         如果你的 API Key 属于 `Codex_*` 分组，请改为以下配置：
+
+        <Tip>
+          如果你使用 `Codex_*` 分组，优先建议通过 [CC Switch](/ai-tools/cc-switch#claude-code) 配置。它更适合处理 Claude Code 里的模型映射和代理开关。只有在你明确需要直接维护配置文件时，再使用下面的手动配置。
+        </Tip>
 
         ```json
         {
