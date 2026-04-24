@@ -1,0 +1,149 @@
+---
+title: "Why can't Codex use GPT-5.5 in API mode?"
+sidebarTitle: "Use GPT-5.5 in Codex API mode"
+description: "Temporarily enable GPT-5.5 in Codex CLI custom API mode with a local model catalog."
+---
+
+As of April 24, 2026, some Codex CLI versions may not let you select `gpt-5.5` directly when you use a custom API provider. This is a local model catalog limitation in Codex CLI. It does not mean the BetterToken `https://www.bettertoken.ai/v1` endpoint is unavailable.
+
+You can add a complete local `custom-models.json` file, then reference it from `~/.codex/config.toml`. If a later Codex CLI version supports `gpt-5.5` natively, prefer the built-in Codex CLI setup.
+
+<Warning>
+  `model_catalog_json` overrides the default Codex CLI model catalog. Do not keep only a shortened `gpt-5.5` entry, or other built-in models may disappear from the list and the default Codex agent behavior may be incomplete.
+</Warning>
+
+## Setup steps
+
+<Steps>
+  <Step title="Create the custom model config file">
+    The custom model config path is `~/.codex/custom-models.json`.
+
+    <Tabs>
+      <Tab title="Download JSON file">
+        Download the complete model catalog:
+
+        <a href="/custom-models-gpt-5.5.css" download="custom-models.json">Download custom-models.json</a>
+
+        Put the downloaded file in the Codex config directory and name it `custom-models.json`.
+
+        | System | Target path |
+        |--------|-------------|
+        | macOS / Linux | `~/.codex/custom-models.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+
+        <Note>
+          In local preview, static `.json` files may return 404. The download link uses a `.css` file to carry JSON content and saves it as `custom-models.json` with `download="custom-models.json"`. The file content is still complete JSON.
+        </Note>
+      </Tab>
+
+      <Tab title="Create JSON manually">
+        Add the complete model catalog to `~/.codex/custom-models.json`. Do not keep only one `gpt-5.5` entry.
+
+        You can copy the full content from the download file. When creating it manually, confirm that it includes at least this structure:
+
+        ```json
+        {
+          "models": [
+            {
+              "slug": "gpt-5.5",
+              "display_name": "gpt-5.5",
+              "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+              "base_instructions": "...",
+              "model_messages": {
+                "instructions_template": "...",
+                "instructions_variables": {
+                  "personality_default": "",
+                  "personality_friendly": "...",
+                  "personality_pragmatic": "..."
+                }
+              },
+              "supports_reasoning_summaries": true,
+              "support_verbosity": true,
+              "context_window": 272000
+            },
+            {
+              "slug": "gpt-5.4"
+            },
+            {
+              "slug": "gpt-5.4-mini"
+            },
+            {
+              "slug": "gpt-5.3-codex"
+            },
+            {
+              "slug": "codex-auto-review"
+            }
+          ]
+        }
+        ```
+
+        <Warning>
+          The code block above is only a structural example, not the complete file. Keep `base_instructions`, `model_messages`, reasoning, verbosity, tool, context window fields, and the default Codex CLI model entries.
+        </Warning>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Reference the JSON file in Codex config">
+    Open the Codex config file `~/.codex/config.toml`, then add or merge the following config.
+
+    macOS / Linux example:
+
+    ```toml
+    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
+
+    [model_providers.bettertoken]
+    name = "BetterToken"
+    base_url = "https://www.bettertoken.ai/v1"
+    env_key = "BETTERTOKEN_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 10
+    stream_idle_timeout_ms = 300000
+
+    [profiles.bt-gpt-5-5]
+    model = "gpt-5.5"
+    model_provider = "bettertoken"
+    model_reasoning_effort = "high"
+    ```
+
+    Windows example:
+
+    ```toml
+    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
+    ```
+
+    `model_catalog_json` must be a local absolute path. In TOML double-quoted strings on Windows, write `\` as `\\`.
+  </Step>
+
+  <Step title="Set your BetterToken API Key">
+    Set the environment variable in your terminal:
+
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    To make it available in every new terminal session, add the command to `~/.zshrc` or `~/.bashrc`.
+  </Step>
+
+  <Step title="Restart and select the profile">
+    After changing the config file or environment variable, stop the current Codex CLI process and start it in a new terminal session:
+
+    ```bash
+    codex --profile bt-gpt-5-5
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+If `gpt-5.5` still does not work, check these items in order:
+
+1. `model_catalog_json` uses a local absolute path
+2. `custom-models.json` is the complete model catalog, not a shortened file with only `gpt-5.5`
+3. `base_url` is `https://www.bettertoken.ai/v1`
+4. `wire_api` is `responses`
+5. `BETTERTOKEN_API_KEY` is available in the same terminal session that starts Codex CLI
+
+If your Codex CLI version already supports `gpt-5.5` natively, remove `model_catalog_json` and return to the regular [Codex CLI setup guide](/en/ai-tools/codex).
