@@ -1,0 +1,125 @@
+---
+title: "如何在 Claude 桌面端中使用BetterToken API"
+sidebarTitle: "Claude 桌面端使用 BetterToken API"
+description: "在 Claude 桌面端启用 developer mode，并配置 BetterToken API 作为第三方推理网关。"
+---
+
+Claude 桌面端支持通过 developer mode 配置第三方推理网关。你可以把 BetterToken 的 Anthropic 协议入口填入 Gateway 配置，让 Claude 桌面端通过 BetterToken API 发送请求。
+
+<Info>
+  Claude 桌面端使用 Anthropic 协议入口，Base URL 填写 `https://www.bettertoken.ai`。不要填写 Codex / OpenAI-compatible 协议使用的 `https://www.bettertoken.ai/v1`。
+</Info>
+
+## 配置步骤
+
+<Steps>
+  <Step title="下载 Claude 桌面端">
+    通过官方链接下载最新版 Claude 桌面端：
+
+    [下载 Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
+
+    安装完成后不要登录 Claude 账号，直接进入下一步启用 developer mode。
+  </Step>
+
+  <Step title="启用 developer mode">
+    打开 Claude 桌面端后，在 macOS 左上角菜单中选择 **Help** → **Troubleshooting** → **Enable Developer Mode**。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/enable-developer-mode-menu.png"
+        alt="在 Claude 桌面端 Help 菜单里选择 Enable Developer Mode。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    在确认窗口中点击 **Enable**，然后重启 Claude 桌面端。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/developer-mode-confirm.png"
+        alt="确认启用 Claude 桌面端 developer mode。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="打开第三方推理配置">
+    重启后，macOS 左上角菜单会出现 **Developer** 选项。
+
+    选择 **Developer** → **Configure Third-Party Inference...**。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/configure-third-party-inference.png"
+        alt="在 Developer 菜单中选择 Configure Third-Party Inference。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="填写 BetterToken API 信息">
+    在配置窗口中选择 **Gateway**，然后填写以下信息：
+
+    | 字段 | 填写内容 |
+    |------|----------|
+    | **Gateway base URL** | `https://www.bettertoken.ai` |
+    | **Gateway API key** | 在 BetterToken 控制台的 **令牌管理** 中复制 API Key |
+    | **Gateway auth scheme** | `bearer` |
+
+    填写完成后点击 **Apply locally**。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/gateway-credentials.png"
+        alt="在 Claude 桌面端配置 BetterToken Gateway 信息并点击 Apply locally。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="确认重启客户端">
+    Claude 写入本地配置后会提示重启。点击 **Relaunch now**，让新网关配置生效。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
+        alt="Claude 桌面端提示 Relaunch Claude，点击 Relaunch now 重启客户端。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="选择 Gateway 网关登录">
+    重启后等待约 3 秒，会出现登录方式选择界面。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
+        alt="Claude 桌面端显示 Continue with Gateway 登录选项。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    选择 **Continue with Gateway**。进入 Claude 后，左下角显示 **Cowork 3P | Gateway**，即可正常使用。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
+        alt="Claude 桌面端已通过 Gateway 进入并可以正常使用。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## 排查建议
+
+如果 Claude 桌面端没有出现 **Developer** 菜单，确认你已经点击 **Enable** 并完全重启应用。
+
+如果请求失败，优先检查：
+
+1. **Gateway base URL** 是否为 `https://www.bettertoken.ai`
+2. **Gateway API key** 是否来自 BetterToken 控制台的 **令牌管理**
+3. **Gateway auth scheme** 是否为 `bearer`
+4. 是否点击了 **Apply locally**
+5. 是否点击 **Relaunch now** 并在重启后选择 **Continue with Gateway**

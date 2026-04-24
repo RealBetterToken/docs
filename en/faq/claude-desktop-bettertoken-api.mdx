@@ -1,0 +1,125 @@
+---
+title: "How to use the BetterToken API in Claude Desktop"
+sidebarTitle: "Use BetterToken API in Claude Desktop"
+description: "Enable developer mode in Claude Desktop and configure the BetterToken API as a third-party inference gateway."
+---
+
+Claude Desktop can use a third-party inference gateway when developer mode is enabled. You can configure the BetterToken Anthropic-compatible endpoint as the Gateway target.
+
+<Info>
+  Claude Desktop uses the Anthropic-compatible endpoint. Set the Base URL to `https://www.bettertoken.ai`. Do not use the Codex / OpenAI-compatible endpoint `https://www.bettertoken.ai/v1`.
+</Info>
+
+## Setup steps
+
+<Steps>
+  <Step title="Download Claude Desktop">
+    Download the latest Claude Desktop app from the official link:
+
+    [Download Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
+
+    After installation, do not sign in to a Claude account. Continue to the next step and enable developer mode.
+  </Step>
+
+  <Step title="Enable developer mode">
+    Open Claude Desktop, then choose **Help** → **Troubleshooting** → **Enable Developer Mode** from the macOS menu bar.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/enable-developer-mode-menu.png"
+        alt="Select Enable Developer Mode from the Claude Desktop Help menu."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    In the confirmation window, click **Enable**, then restart Claude Desktop.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/developer-mode-confirm.png"
+        alt="Confirm developer mode in Claude Desktop."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Open third-party inference settings">
+    After restarting, the macOS menu bar shows a **Developer** menu.
+
+    Choose **Developer** → **Configure Third-Party Inference...**.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/configure-third-party-inference.png"
+        alt="Choose Configure Third-Party Inference from the Developer menu."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Enter BetterToken API settings">
+    In the settings window, select **Gateway**, then enter:
+
+    | Field | Value |
+    |-------|-------|
+    | **Gateway base URL** | `https://www.bettertoken.ai` |
+    | **Gateway API key** | Copy your API Key from **Token management** in the BetterToken console |
+    | **Gateway auth scheme** | `bearer` |
+
+    Click **Apply locally** after entering the settings.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/gateway-credentials.png"
+        alt="Configure BetterToken Gateway settings in Claude Desktop and click Apply locally."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Confirm the app relaunch">
+    After Claude writes the local configuration, it asks for a relaunch. Click **Relaunch now** so the new gateway configuration takes effect.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
+        alt="Claude Desktop asks to relaunch, with the Relaunch now button highlighted."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Sign in with Gateway">
+    After restarting, wait about 3 seconds for the sign-in choice to appear.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
+        alt="Claude Desktop shows the Continue with Gateway sign-in option."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    Choose **Continue with Gateway**. After Claude opens, **Cowork 3P | Gateway** appears in the lower-left corner and you can start using it.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
+        alt="Claude Desktop is ready after signing in with Gateway."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+If the **Developer** menu does not appear in Claude Desktop, confirm that you clicked **Enable** and fully restarted the app.
+
+If requests fail, check these items first:
+
+1. **Gateway base URL** is `https://www.bettertoken.ai`
+2. **Gateway API key** comes from **Token management** in the BetterToken console
+3. **Gateway auth scheme** is `bearer`
+4. You clicked **Apply locally**
+5. You clicked **Relaunch now** and selected **Continue with Gateway** after restart
