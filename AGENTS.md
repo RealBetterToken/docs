@@ -31,6 +31,13 @@
 - When documenting external-tool setup, tell readers which endpoint, auth field, and model group to use.
 - Keep Chinese and English pages aligned in meaning. Do not let one language drift from the other on protocol, endpoint, or model guidance.
 
+## User-facing documentation standard
+
+- Write help docs for ordinary users who read the published website. Do not mention local preview behavior, implementation workarounds, internal mistakes, or the process used to fix a docs issue.
+- If a technical workaround is necessary, present only the user-facing action and expected result. Do not expose internal file-serving details unless the user must act on them.
+- Before finishing any docs change, reread the edited page from a first-time user’s perspective. Check for contradictions, over-explaining, implementation leakage, and wording that sounds like it explains an internal mistake.
+- Prefer clear task guidance over defensive explanations. If a sentence does not help the user complete the setup or understand a real product limitation, remove it.
+
 ## Content boundaries
 
 - Do not document internal admin features, hidden dashboards, or unpublished flows.

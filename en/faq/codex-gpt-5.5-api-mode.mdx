@@ -6,23 +6,23 @@ description: "Temporarily enable GPT-5.5 in Codex CLI custom API mode with a loc
 
 As of April 24, 2026, some Codex CLI versions may not let you select `gpt-5.5` directly when you use a custom API provider. This is a local model catalog limitation in Codex CLI. It does not mean the BetterToken `https://www.bettertoken.ai/v1` endpoint is unavailable.
 
-You can add a complete local `custom-models.json` file, then reference it from `~/.codex/config.toml`. If a later Codex CLI version supports `gpt-5.5` natively, prefer the built-in Codex CLI setup.
+You can add a local `custom-models.json` file so Codex CLI can recognize `gpt-5.5`, then reference it from `~/.codex/config.toml`. If a later Codex CLI version supports `gpt-5.5` natively, prefer the built-in Codex CLI setup.
 
-<Warning>
-  `model_catalog_json` overrides the default Codex CLI model catalog. Do not keep only a shortened `gpt-5.5` entry, or other built-in models may disappear from the list and the default Codex agent behavior may be incomplete.
-</Warning>
+<Note>
+  Use the complete `custom-models.json` provided on this page. If you edit the file manually, keep the existing model entries and fields, and only change the model configuration you need.
+</Note>
 
 ## Setup steps
 
 <Steps>
-  <Step title="Create the custom model config file">
+  <Step title="Prepare the custom model config file">
     The custom model config path is `~/.codex/custom-models.json`.
 
     <Tabs>
       <Tab title="Download JSON file">
         Download the complete model catalog:
 
-        <a href="/custom-models-gpt-5.5.css" download="custom-models.json">Download custom-models.json</a>
+        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">Download custom-models.json</a>
 
         Put the downloaded file in the Codex config directory and name it `custom-models.json`.
 
@@ -31,55 +31,39 @@ You can add a complete local `custom-models.json` file, then reference it from `
         | macOS / Linux | `~/.codex/custom-models.json` |
         | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
 
-        <Note>
-          In local preview, static `.json` files may return 404. The download link uses a `.css` file to carry JSON content and saves it as `custom-models.json` with `download="custom-models.json"`. The file content is still complete JSON.
-        </Note>
+        The downloaded file is the complete model catalog. The next step references it from the Codex config.
       </Tab>
 
-      <Tab title="Create JSON manually">
-        Add the complete model catalog to `~/.codex/custom-models.json`. Do not keep only one `gpt-5.5` entry.
+      <Tab title="Edit JSON manually">
+        If you already have `~/.codex/custom-models.json`, edit the existing file. Do not keep only one `gpt-5.5` entry.
 
-        You can copy the full content from the download file. When creating it manually, confirm that it includes at least this structure:
+        When editing manually, confirm that the `models` array contains a `gpt-5.5` entry and keep the other model configs. If you are not familiar with JSON, use the download option.
+
+        The `gpt-5.5` entry should include key fields similar to this:
 
         ```json
         {
-          "models": [
-            {
-              "slug": "gpt-5.5",
-              "display_name": "gpt-5.5",
-              "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
-              "base_instructions": "...",
-              "model_messages": {
-                "instructions_template": "...",
-                "instructions_variables": {
-                  "personality_default": "",
-                  "personality_friendly": "...",
-                  "personality_pragmatic": "..."
-                }
-              },
-              "supports_reasoning_summaries": true,
-              "support_verbosity": true,
-              "context_window": 272000
-            },
-            {
-              "slug": "gpt-5.4"
-            },
-            {
-              "slug": "gpt-5.4-mini"
-            },
-            {
-              "slug": "gpt-5.3-codex"
-            },
-            {
-              "slug": "codex-auto-review"
+          "slug": "gpt-5.5",
+          "display_name": "gpt-5.5",
+          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+          "base_instructions": "...",
+          "model_messages": {
+            "instructions_template": "...",
+            "instructions_variables": {
+              "personality_default": "",
+              "personality_friendly": "...",
+              "personality_pragmatic": "..."
             }
-          ]
+          },
+          "supports_reasoning_summaries": true,
+          "support_verbosity": true,
+          "context_window": 272000
         }
         ```
 
-        <Warning>
-          The code block above is only a structural example, not the complete file. Keep `base_instructions`, `model_messages`, reasoning, verbosity, tool, context window fields, and the default Codex CLI model entries.
-        </Warning>
+        <Note>
+          The code block above only shows the key structure of a single model entry. Use the downloaded file or your existing complete model catalog as the source of truth.
+        </Note>
       </Tab>
     </Tabs>
   </Step>
@@ -141,7 +125,7 @@ You can add a complete local `custom-models.json` file, then reference it from `
 If `gpt-5.5` still does not work, check these items in order:
 
 1. `model_catalog_json` uses a local absolute path
-2. `custom-models.json` is the complete model catalog, not a shortened file with only `gpt-5.5`
+2. `custom-models.json` keeps the complete model catalog
 3. `base_url` is `https://www.bettertoken.ai/v1`
 4. `wire_api` is `responses`
 5. `BETTERTOKEN_API_KEY` is available in the same terminal session that starts Codex CLI
