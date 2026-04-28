@@ -113,6 +113,15 @@ docs/
 
 如需修改侧边栏、Logo 尺寸、语言切换器位置等，通过 `custom.css` 实现。Mintlify 会自动加载项目根目录下的 `.css` 文件。可用的 CSS 选择器参考官方文档（通过 MCP 搜索 `custom CSS identifiers selectors`）。
 
+### Google 收录与 sitemap 自动提交
+
+- 普通文档页不要使用 Google Indexing API。该 API 不适用于 BetterToken 文档站这类普通页面。
+- 不要用 Playwright、Selenium 或浏览器自动化去点击 Search Console 的 **Request indexing**。
+- 正规自动化路径是：发布文档后更新 `https://docs.bettertoken.ai/sitemap.xml`，并通过 Google Search Console Sitemaps API 重新提交 sitemap。
+- `https://docs.bettertoken.ai/robots.txt` 必须保留 `Sitemap: https://docs.bettertoken.ai/sitemap.xml`。
+- GitHub Actions 中使用 `GOOGLE_SERVICE_ACCOUNT_JSON` 保存 service account JSON。不要把密钥、token 或 JSON 内容写入仓库和日志。
+- 推荐 workflow 文件路径：`.github/workflows/submit-google-sitemap.yml`。可参考 `README.md` 的示例配置。
+
 ---
 
 ## 常见操作

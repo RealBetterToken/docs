@@ -46,6 +46,15 @@
 - Do not expose secrets, keys, tokens, or private operational details.
 - When behavior differs by protocol, document the difference explicitly instead of merging both flows into one generic setup.
 
+## Search indexing and sitemap automation
+
+- Do not use Google Indexing API for ordinary documentation pages. It is not the supported path for this docs site.
+- Do not automate browser clicks on Google Search Console **Request indexing**. Use sitemap submission instead.
+- Keep the production sitemap at `https://docs.bettertoken.ai/sitemap.xml`.
+- Keep `https://docs.bettertoken.ai/robots.txt` pointing to that sitemap.
+- For post-deploy automation, submit the sitemap through Google Search Console Sitemaps API after the production site is updated.
+- Store Google credentials only in CI secrets such as `GOOGLE_SERVICE_ACCOUNT_JSON`. Never commit service account JSON, refresh tokens, or access tokens.
+
 ## Editing guidance
 
 - Prefer updating an existing page over creating a new one when the topic already exists.

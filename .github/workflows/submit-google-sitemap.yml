@@ -1,0 +1,51 @@
+name: Submit Google sitemap
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.mdx"
+      - "docs.json"
+      - "images/**"
+      - "snippets/**"
+  schedule:
+    - cron: "15 2 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  submit-sitemap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Wait for production docs deployment
+        run: sleep 120
+
+      - name: Authenticate with Google
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/webmasters
+
+      - name: Submit sitemap to Google Search Console
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          SITE_URL: https://docs.bettertoken.ai/
+          SITEMAP_URL: https://docs.bettertoken.ai/sitemap.xml
+        run: |
+          set -euo pipefail
+
+          encoded_site_url="$(python3 -c 'import os, urllib.parse; print(urllib.parse.quote(os.environ["SITE_URL"], safe=""))')"
+          encoded_sitemap_url="$(python3 -c 'import os, urllib.parse; print(urllib.parse.quote(os.environ["SITEMAP_URL"], safe=""))')"
+
+          curl -sS --fail -X PUT \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            "https://www.googleapis.com/webmasters/v3/sites/${encoded_site_url}/sitemaps/${encoded_sitemap_url}"
