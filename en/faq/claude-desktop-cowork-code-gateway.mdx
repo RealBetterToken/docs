@@ -1,0 +1,72 @@
+---
+title: "What should I do if Claude Desktop Cowork or Code mode fails with a Gateway?"
+sidebarTitle: "Claude Desktop Cowork / Code errors"
+description: "Fix Claude Desktop Cowork failures and Code mode errors after connecting BetterToken as a Gateway."
+---
+
+After you configure the BetterToken Gateway in Claude Desktop, the following symptoms usually do not mean the API Key itself is invalid:
+
+- Cowork mode does not work
+- Code mode shows `Claude Code process exited with code 1`
+- The same API Key works in Claude Code CLI from a terminal
+
+These issues usually come from two separate causes: the desktop Gateway auth scheme does not match the Gateway, or the bundled Claude Code version in Claude Desktop has not finished updating.
+
+If you have not configured the Gateway yet, start with [Use BetterToken API in Claude Desktop](/en/faq/claude-desktop-bettertoken-api).
+
+## Fix Cowork mode first
+
+**Root cause**: **Gateway auth scheme** is set to `bearer`.
+
+The BetterToken Anthropic-compatible endpoint expects requests to use `x-api-key: YOUR_API_KEY`. If Claude Desktop uses `bearer`, it sends `Authorization: Bearer YOUR_API_KEY`, and Cowork mode may fail Gateway authentication.
+
+Claude Code CLI can still work because it sends the key with `x-api-key` by default.
+
+<Steps>
+  <Step title="Open third-party inference settings">
+    In the macOS menu bar, choose **Developer** → **Configure Third-Party Inference...**.
+  </Step>
+
+  <Step title="Change the auth scheme">
+    Change **Gateway auth scheme** from `bearer` to `x-api-key`.
+  </Step>
+
+  <Step title="Save the config">
+    Click **Apply locally** to save the local Gateway config.
+  </Step>
+</Steps>
+
+Cowork mode usually works again after this change.
+
+## Then fix Code mode exit errors
+
+If Cowork works but Code mode, the `</>` tab, still shows `Claude Code process exited with code 1`, check whether Claude Desktop is still using an older bundled Claude Code version.
+
+**Root cause**: Claude Desktop may be downloading a newer Claude Code version in the background. Before the download finishes, Code mode can fall back to an older installed Claude Code version. That older version may not be compatible with third-party Gateway usage in Code mode, so the process exits immediately.
+
+**How to fix it**:
+
+<Steps>
+  <Step title="Wait for the newer Claude Code version to finish downloading">
+    Keep Claude Desktop open for a while so the background Claude Code update can complete.
+  </Step>
+
+  <Step title="Fully quit Claude Desktop">
+    Use **Cmd+Q** to fully quit the app. Do not only close the window.
+  </Step>
+
+  <Step title="Reopen and start a new Code session">
+    Open Claude Desktop again, then go to Code mode and start a new session.
+  </Step>
+</Steps>
+
+<Note>
+  If logs show Claude Desktop falling back to an older Claude Code version, such as `2.1.111`, while a newer version, such as `2.1.119`, is not ready yet, wait for the newer version to finish downloading and then restart the app.
+</Note>
+
+## Quick reference
+
+| Symptom | Common root cause | Fix |
+|---------|-------------------|-----|
+| Cowork mode does not work | **Gateway auth scheme** is set to `bearer` | Change it to `x-api-key`, then click **Apply locally** |
+| Code mode shows `Claude Code process exited with code 1` | Claude Desktop falls back to an older Claude Code version | Wait for the newer version to finish downloading, fully quit with **Cmd+Q**, then reopen |
