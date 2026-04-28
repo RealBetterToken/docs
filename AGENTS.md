@@ -53,7 +53,7 @@
 - Keep the production sitemap at `https://docs.bettertoken.ai/sitemap.xml`.
 - Keep `https://docs.bettertoken.ai/robots.txt` pointing to that sitemap.
 - For post-deploy automation, submit the sitemap through Google Search Console Sitemaps API after the production site is updated.
-- Store Google credentials only in CI secrets such as `GOOGLE_SERVICE_ACCOUNT_JSON`. Never commit service account JSON, refresh tokens, or access tokens.
+- Store Google credentials only in CI secrets such as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`. Never commit client secrets, refresh tokens, or access tokens.
 
 ## Editing guidance
 

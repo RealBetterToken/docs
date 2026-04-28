@@ -64,10 +64,9 @@ Before enabling automation:
 
 1. Add and verify the URL-prefix property `https://docs.bettertoken.ai/` in Google Search Console.
 2. Enable the Google Search Console API in the Google Cloud project.
-3. Create a service account for CI.
-4. Add the service account email to the Search Console property with permission to submit sitemaps.
-5. Grant the service account `Service Account Token Creator` on itself so the workflow can generate an access token.
-6. Store the service account JSON in GitHub Actions secrets as `GOOGLE_SERVICE_ACCOUNT_JSON`.
+3. Create an OAuth client for CI.
+4. Authorize the OAuth client with a Google account that is a verified owner of `https://docs.bettertoken.ai/`.
+5. Store the OAuth credentials in GitHub Actions secrets as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`.
 
 Use this workflow as `.github/workflows/submit-google-sitemap.yml`:
 
@@ -101,28 +100,56 @@ jobs:
       - name: Wait for production docs deployment
         run: sleep 120
 
-      - name: Authenticate with Google
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/webmasters
-
       - name: Submit sitemap
         env:
-          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+          GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
           SITE_URL: https://docs.bettertoken.ai/
           SITEMAP_URL: https://docs.bettertoken.ai/sitemap.xml
         run: |
           set -euo pipefail
 
-          encoded_site_url="$(python3 -c 'import os, urllib.parse; print(urllib.parse.quote(os.environ["SITE_URL"], safe=""))')"
-          encoded_sitemap_url="$(python3 -c 'import os, urllib.parse; print(urllib.parse.quote(os.environ["SITEMAP_URL"], safe=""))')"
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
 
-          curl -sS --fail -X PUT \
-            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-            "https://www.googleapis.com/webmasters/v3/sites/${encoded_site_url}/sitemaps/${encoded_sitemap_url}"
+          token_payload = urllib.parse.urlencode(
+              {
+                  "client_id": os.environ["GOOGLE_OAUTH_CLIENT_ID"],
+                  "client_secret": os.environ["GOOGLE_OAUTH_CLIENT_SECRET"],
+                  "refresh_token": os.environ["GOOGLE_OAUTH_REFRESH_TOKEN"],
+                  "grant_type": "refresh_token",
+              }
+          ).encode()
+          token_request = urllib.request.Request(
+              "https://oauth2.googleapis.com/token",
+              data=token_payload,
+              method="POST",
+          )
+          with urllib.request.urlopen(token_request) as response:
+              token_response = json.loads(response.read())
+
+          access_token = token_response["access_token"]
+
+          encoded_site_url = urllib.parse.quote(os.environ["SITE_URL"], safe="")
+          encoded_sitemap_url = urllib.parse.quote(os.environ["SITEMAP_URL"], safe="")
+          endpoint = (
+              "https://www.googleapis.com/webmasters/v3/sites/"
+              f"{encoded_site_url}/sitemaps/{encoded_sitemap_url}"
+          )
+
+          request = urllib.request.Request(
+              endpoint,
+              method="PUT",
+              headers={"Authorization": f"Bearer {access_token}"},
+          )
+
+          with urllib.request.urlopen(request) as response:
+              response.read()
+          PY
 ```
 
 If the deployment platform exposes a reliable deploy-success trigger, run this workflow after that event instead of relying on the fixed wait.
