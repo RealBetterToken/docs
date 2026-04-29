@@ -1,0 +1,169 @@
+---
+title: "生成图像"
+description: "通过 BetterToken 的 OpenAI 兼容接口调用 GPT Image 2 生成图片。"
+---
+
+`POST /v1/images/generations`
+
+使用给定提示词生成图片。此接口使用 OpenAI 兼容协议，适合在外部工具或你自己的应用中调用 `gpt-image-2`。
+
+<Note>
+  使用 `https://www.bettertoken.ai/v1` 作为 `Base URL`，并通过 `Authorization: Bearer YOUR_API_KEY` 传入 BetterToken API Key。
+</Note>
+
+<Warning>
+  图片生成耗时较长，平均约 `100` 到 `200` 秒。请将客户端、网关或外部工具的请求超时设置到 `300` 秒以上，避免图片仍在生成时请求被提前断开。
+</Warning>
+
+## 请求地址
+
+```http
+POST https://www.bettertoken.ai/v1/images/generations
+```
+
+| Header | 值 |
+|--------|----|
+| `Authorization` | `Bearer YOUR_API_KEY` |
+| `Content-Type` | `application/json` |
+
+## 快速示例
+
+<Tabs>
+  <Tab title="cURL">
+    ```bash
+    curl https://www.bettertoken.ai/v1/images/generations \
+      -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "gpt-image-2",
+        "prompt": "为 BetterToken 生成一张清爽的产品发布海报，包含清晰中文标题",
+        "size": "1024x1024",
+        "quality": "high",
+        "n": 1
+      }'
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import base64
+    from openai import OpenAI
+
+    client = OpenAI(
+        base_url="https://www.bettertoken.ai/v1",
+        api_key="YOUR_API_KEY",
+    )
+
+    result = client.images.generate(
+        model="gpt-image-2",
+        prompt="为 BetterToken 生成一张清爽的产品发布海报，包含清晰中文标题",
+        size="1024x1024",
+        quality="high",
+        n=1,
+    )
+
+    image_bytes = base64.b64decode(result.data[0].b64_json)
+    with open("gpt-image-2.png", "wb") as file:
+        file.write(image_bytes)
+    ```
+  </Tab>
+</Tabs>
+
+如果你只想从命令行保存第一张图片，可以直接解码返回的 `b64_json`：
+
+```bash
+curl https://www.bettertoken.ai/v1/images/generations \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "一张适合文档站首页使用的 AI 工具产品图",
+    "size": "1024x1024"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
+```
+
+## 请求参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `model` | `string` | 是 | 图像生成模型。使用 `gpt-image-2`。 |
+| `prompt` | `string` | 是 | 你希望生成的图像描述。建议明确说明主体、风格、画幅、文字内容和禁止事项。 |
+| `n` | `integer` | 否 | 要生成的图片数量。可填 `1` 到 `10`。 |
+| `size` | `string` | 否 | 图片尺寸。常用值包括 `auto`、`1024x1024`、`1536x1024`、`1024x1536`、`2048x2048`、`2048x1152`、`3840x2160`、`2160x3840`。 |
+| `quality` | `string` | 否 | 渲染质量。可填 `auto`、`low`、`medium`、`high`。草稿图建议用 `low`，最终素材建议用 `medium` 或 `high`。 |
+| `output_format` | `string` | 否 | 输出格式。可填 `png`、`jpeg`、`webp`。默认通常为 `png`。 |
+| `output_compression` | `integer` | 否 | `jpeg` 或 `webp` 的压缩级别，范围为 `0` 到 `100`。 |
+| `background` | `string` | 否 | 背景选项。`gpt-image-2` 当前不支持 `transparent`，建议使用 `auto` 或 `opaque`。 |
+| `moderation` | `string` | 否 | 内容审核严格程度。可填 `auto` 或 `low`。 |
+| `stream` | `boolean` | 否 | 是否开启流式返回。默认 `false`。 |
+| `partial_images` | `integer` | 否 | 流式返回中的中间图数量，范围为 `0` 到 `3`。仅在 `stream: true` 时使用。 |
+| `user` | `string` | 否 | 代表终端用户的唯一标识，可用于滥用检测。 |
+
+<Warning>
+  `gpt-image-2` 的图片结果默认通过 `data[].b64_json` 返回。不要依赖 `url` 返回格式；OpenAI 的 GPT Image 模型通常不支持 `response_format: "url"`。
+</Warning>
+
+## 流式生成
+
+开启 `stream` 后，接口会通过 server-sent events 返回中间图和最终图。适合在产品里展示生成进度。
+
+```bash
+curl https://www.bettertoken.ai/v1/images/generations \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "一张移动端 App 首屏宣传图，画面包含真实手机界面和中文标题",
+    "size": "1024x1536",
+    "quality": "medium",
+    "stream": true,
+    "partial_images": 2
+  }' \
+  --no-buffer
+```
+
+流式事件通常包含：
+
+```text
+event: image_generation.partial_image
+data: {"type":"image_generation.partial_image","b64_json":"...","partial_image_index":0}
+
+event: image_generation.completed
+data: {"type":"image_generation.completed","b64_json":"...","usage":{"total_tokens":100}}
+```
+
+## 返回结构
+
+```json
+{
+  "created": 0,
+  "background": "opaque",
+  "data": [
+    {
+      "b64_json": "..."
+    }
+  ],
+  "output_format": "png",
+  "quality": "high",
+  "size": "1024x1024",
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0
+  }
+}
+```
+
+## 使用建议
+
+- 如果你需要单次文生图，优先使用 `/v1/images/generations`。
+- 如果你需要基于已有图片改图，请使用图像编辑接口，不要把编辑需求塞进纯文生图请求。
+- 对布局敏感的海报、商品图和含文字图片，建议在 `prompt` 中明确文字、位置、比例和不需要出现的元素。
+- 对速度敏感的预览场景，先用 `quality: "low"` 出草稿，再用 `medium` 或 `high` 生成最终图。
+- 图像生成平均需要 `100` 到 `200` 秒。请在应用里展示等待状态或进度反馈。
+- 2K 以上尺寸当前属于实验性输出。大尺寸、高质量和 `partial_images` 会增加成本与延迟。
+
+## 相关文档
+
+- [GPT Image 2 上线](/model-updates/gpt-image-2)
+- [OpenAI image generation guide](https://platform.openai.com/docs/guides/images/image-generation)
+- [OpenAI create image API reference](https://platform.openai.com/docs/api-reference/images/create)
