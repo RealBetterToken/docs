@@ -14,34 +14,41 @@ When connecting BetterToken to TRAE, choose an OpenAI-style provider and use a m
 ## Setup
 
 <Steps>
-  <Step title="Open model configuration">
-    Click **+ Add Model** and choose **Custom** or **OpenAI Compatible**.
+  <Step title="Open settings">
+    In **IDE** mode, click the **Settings** icon in the upper-right corner to open the settings center.
+
+    You can also open **SOLO** mode and click the **Settings** icon in the upper-right corner of the chat panel.
   </Step>
 
-  <Step title="Fill in the BetterToken config">
+  <Step title="Open the model panel">
+    In the left navigation, choose **Model** to open the **Model** panel.
+  </Step>
+
+  <Step title="Add a model">
+    Click **+ Add model**.
+
+    ![The TRAE model panel with the settings entry, model navigation item, and add model button highlighted.](/images/trae/add-model.png)
+  </Step>
+
+  <Step title="Fill in the model configuration">
+    When the **Add model** window appears, fill in the fields as follows:
 
     | Field | Value |
     |-------|-------|
-    | API URL | `https://www.bettertoken.ai/v1` |
-    | API Key | your BetterToken API Key |
-    | Model name | a **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing) |
-  </Step>
+    | Provider | `OpenAI` |
+    | Model | `Custom model` |
+    | Model ID | a **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing) |
+    | API key | your API Key copied from the BetterToken console |
+    | Custom request URL | `https://www.bettertoken.ai/v1/chat/completions` |
 
-  <Step title="Only configure extra headers when the official docs explicitly require them">
-    We did not find an official TRAE setup requirement that makes `User-Agent` mandatory for BetterToken. Start with the `Base URL`, API key, and model ID shown on this page.
-
-    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
+    ![The TRAE add model window with OpenAI selected, a custom model selected, and fields for model ID, API key, and custom request URL.](/images/trae/model-config.png)
   </Step>
 
   <Step title="Save and start using it">
-    Save the config, then choose the new Codex group model.
-  </Step>
-
-  <Step title="Restart TRAE">
-    After saving the config, close and reopen TRAE before choosing the new model.
+    Click **Confirm** to save the configuration, then choose the new Codex group model.
   </Step>
 </Steps>
 
 <Note>
-  Do not keep using fixed Claude model names. If you need extra headers, follow the current TRAE docs or your upstream gateway requirements instead of assuming `User-Agent` is mandatory for BetterToken.
+  BetterToken only supports TRAE through **Codex group** models. Do not use fixed Claude model names, and do not set the custom request URL to `https://www.bettertoken.ai/v1`.
 </Note>
