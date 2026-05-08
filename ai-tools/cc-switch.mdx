@@ -1,11 +1,11 @@
 ---
 title: "CC Switch 接入 BetterToken 指南"
 sidebarTitle: "CC Switch"
-description: "在 CC Switch 中接入 BetterToken，统一管理 Claude Code、Codex CLI、OpenCode 和 OpenClaw。"
+description: "在 CC Switch 中接入 BetterToken，统一管理 Claude Code、Codex、OpenCode 和 OpenClaw。"
 icon: "sun"
 ---
 
-CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Codex、Gemini CLI、OpenCode 和 OpenClaw 的供应商配置。这篇文档介绍如何在 CC Switch 中接入 BetterToken，并覆盖 Claude Code、Codex CLI、OpenCode、OpenClaw 这四条已确认的接入路径。
+CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Codex、Gemini CLI、OpenCode 和 OpenClaw 的供应商配置。这篇文档介绍如何在 CC Switch 中接入 BetterToken，并覆盖 Claude Code、Codex、OpenCode、OpenClaw 这四条已确认的接入路径。
 
 <Note>
   Gemini CLI 需要 Google / Vertex AI 协议。当前 BetterToken 文档还没有确认这条接入路径，所以本文不展开。
@@ -34,8 +34,8 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
 - BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
 - Claude Code 使用 Anthropic 协议：`Base URL` 填 `https://www.bettertoken.ai`
-- Codex CLI、OpenCode、OpenClaw 使用 OpenAI-compatible 协议：`Base URL` 填 `https://www.bettertoken.ai/v1`
-- 给 Codex CLI、OpenCode、OpenClaw 准备一个当前可用的 **Codex 分组**模型 ID。你可以从 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
+- Codex、OpenCode、OpenClaw 使用 OpenAI-compatible 协议：`Base URL` 填 `https://www.bettertoken.ai/v1`
+- 给 Codex、OpenCode、OpenClaw 准备一个当前可用的 **Codex 分组**模型 ID。你可以从 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
 
 <Info>
   CC Switch 首次启动时会自动导入本机已有的配置。你可以保留官方 provider 作为回退，再新增 BetterToken。
@@ -131,20 +131,20 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
     </Steps>
   </Tab>
 
-  <Tab title="Codex CLI" id="codex-cli">
+  <Tab title="Codex" id="codex-cli">
     <Steps>
-      <Step title="切到 Codex CLI 并添加 provider">
-        打开 CC Switch，切到 **Codex CLI**，点击 **Add Provider**。如果界面先让你选预设，优先选择 **OpenAI Compatible** 或 **Custom** 这一类自定义 OpenAI-compatible provider。
+      <Step title="切到 Codex 并添加 provider">
+        打开 CC Switch，切到 **Codex**，点击 **Add Provider**。如果界面先让你选预设，优先选择 **OpenAI Compatible** 或 **Custom** 这一类自定义 OpenAI-compatible provider。
 
         图中对应顺序如下：
 
-        1. 切到 **Codex CLI**
+        1. 切到 **Codex**
         2. 点击右上角 **Add Provider**
 
         <Frame>
           <img
             src="/images/cc-switch/codex-cli-add-provider.png"
-            alt="CC Switch 的 Codex CLI 页面，顶部选中了 Codex CLI，右上角加号按钮用于新增 provider。"
+            alt="CC Switch 的 Codex 页面，顶部选中了 Codex，右上角加号按钮用于新增 provider。"
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -166,7 +166,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         <Frame>
           <img
             src="/images/cc-switch/codex-cli-basic-fields.png"
-            alt="CC Switch 的 Codex CLI provider 编辑页，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+            alt="CC Switch 的 Codex provider 编辑页，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -185,7 +185,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         <Frame>
           <img
             src="/images/cc-switch/codex-cli-select-model.png"
-            alt="CC Switch 的 Codex CLI provider 编辑页，展示了获取模型列表按钮以及模型下拉选择框。"
+            alt="CC Switch 的 Codex provider 编辑页，展示了获取模型列表按钮以及模型下拉选择框。"
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -199,7 +199,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         <Frame>
           <img
             src="/images/cc-switch/codex-cli-activate-provider.png"
-            alt="CC Switch 的 Codex CLI provider 列表页，BetterToken 已被选中，并显示为使用中。"
+            alt="CC Switch 的 Codex provider 列表页，BetterToken 已被选中，并显示为使用中。"
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -273,7 +273,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 所有配置保存并切换完成后，都建议先重启对应客户端或网关，再开始验证。
 
 - Claude Code：完全退出当前 Claude Code 会话，再重新启动。
-- Codex CLI：重启当前 Codex CLI 进程，或新开一个终端会话。
+- Codex：重启当前 Codex 进程，或新开一个终端会话。
 - OpenCode：退出当前 OpenCode 会话并重新启动。
 - OpenClaw：执行 `openclaw gateway restart`，再在 Discord 中依次执行 `/new`、`/status`、`/model`。
 
@@ -282,14 +282,14 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 - Claude Code 的 `Base URL` 不要加 `/v1`
 - Claude Code 使用 `Codex_*` 分组时，要在 **高级选项** 里把 **API 格式** 切到 **OpenAI Responses API**
 - Claude Code 使用 `Claude_*` 分组时，不需要打开 **CC Switch 代理功能**
-- Codex CLI、OpenCode、OpenClaw 的 `Base URL` 要写 `https://www.bettertoken.ai/v1`
-- Codex CLI、OpenCode、OpenClaw 默认模型请使用 **Codex 分组**模型 ID，不要沿用 Claude 风格模型名
+- Codex、OpenCode、OpenClaw 的 `Base URL` 要写 `https://www.bettertoken.ai/v1`
+- Codex、OpenCode、OpenClaw 默认模型请使用 **Codex 分组**模型 ID，不要沿用 Claude 风格模型名
 - 如果 **获取模型** 失败，先检查 API Key 和 `Base URL`，再改为手动粘贴模型 ID
 - 如果切换后没有生效，先确认 BetterToken provider 已被设为当前 provider，再按上面的方式重启对应客户端或网关
 
 ## 相关页面
 
 - Claude Code 细节配置：[Claude Code](/ai-tools/claude-code)
-- Codex CLI 细节配置：[Codex CLI](/ai-tools/codex)
+- Codex 细节配置：[Codex](/ai-tools/codex)
 - OpenCode 细节配置：[OpenCode](/ai-tools/opencode)
 - OpenClaw 细节配置：[OpenClaw](/ai-tools/openclaw)
