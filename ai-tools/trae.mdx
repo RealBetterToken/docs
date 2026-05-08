@@ -14,34 +14,41 @@ icon: "bolt"
 ## 配置步骤
 
 <Steps>
-  <Step title="打开模型配置">
-    点击 **+ 添加模型**，在服务商选择中选择 **Custom** 或 **OpenAI Compatible**。
+  <Step title="进入设置中心">
+    在 **IDE** 模式界面中，点击界面右上角的 **设置** 图标，进入设置中心。
+
+    你也可以在 **SOLO** 模式界面中，点击对话面板右上角的 **设置** 图标，进入设置中心。
   </Step>
 
-  <Step title="填写 BetterToken 配置">
+  <Step title="打开模型面板">
+    在左侧导航栏中，选择 **模型**，进入 **模型** 面板。
+  </Step>
+
+  <Step title="添加模型">
+    点击 **+ 添加模型** 按钮。
+
+    ![TRAE 设置中心的模型面板，标出了设置入口、模型导航和添加模型按钮。](/images/trae/add-model.png)
+  </Step>
+
+  <Step title="填写模型配置">
+    界面上显示 **添加模型** 窗口后，按下面的方式填写：
 
     | 配置项 | 值 |
     |--------|-----|
-    | API 地址 | `https://www.bettertoken.ai/v1` |
-    | API Key | 你的 BetterToken API Key |
-    | 模型名称 | 从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组模型 ID** |
-  </Step>
+    | 服务商 | `OpenAI` |
+    | 模型 | `自定义模型` |
+    | 模型 ID | 从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组模型 ID** |
+    | API 密钥 | 从 BetterToken 控制台复制的 API Key |
+    | 自定义请求地址 | `https://www.bettertoken.ai/v1/chat/completions` |
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    当前我们没有查到 TRAE 官方接入说明要求 BetterToken 额外配置 `User-Agent`。默认先按页面中的 `Base URL`、API Key 和模型 ID 完成接入即可。
-
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+    ![TRAE 添加模型窗口，服务商选择 OpenAI，模型选择自定义模型，并填写模型 ID、API 密钥和自定义请求地址。](/images/trae/model-config.png)
   </Step>
 
   <Step title="保存并开始使用">
-    保存配置后，选择刚添加的 Codex 分组模型开始使用。
-  </Step>
-
-  <Step title="重启 TRAE">
-    修改配置后，请关闭并重新打开 TRAE，再选择刚添加的模型。
+    点击 **确认** 保存配置，然后选择刚添加的 Codex 分组模型开始使用。
   </Step>
 </Steps>
 
 <Note>
-  不要继续填写 Claude 系列固定模型名。如需额外 headers，请以 TRAE 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项。
+  TRAE 接入 BetterToken 时，只有 **Codex 分组**模型支持使用。请不要填写 Claude 系列固定模型名，也不要把自定义请求地址写成 `https://www.bettertoken.ai/v1`。
 </Note>
