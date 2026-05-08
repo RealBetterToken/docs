@@ -9,6 +9,12 @@
 - Run `mint dev` for local preview.
 - Run `mint broken-links` for the fastest content validation pass.
 
+## Workspace workflow preferences
+
+- This documentation workspace is normally edited directly in `/Users/liuyi/BetterToken/docs`.
+- Do not create a separate git worktree for routine documentation changes unless the user explicitly asks for one.
+- When committing documentation updates, work from the current checkout and current branch unless the user requests a different branch strategy.
+
 ## Terminology
 
 - Use `Claude Code` and `Codex CLI` as product names. Do not invent shortened names.
