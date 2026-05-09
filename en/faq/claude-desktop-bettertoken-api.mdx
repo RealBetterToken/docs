@@ -5,10 +5,10 @@ description: "Enable developer mode in Claude Desktop and configure the BetterTo
 icon: "terminal"
 ---
 
-Claude Desktop can use a third-party inference gateway when developer mode is enabled. You can configure the BetterToken Anthropic-compatible endpoint as the Gateway target.
+Claude Desktop can use a third-party inference gateway when developer mode is enabled. Choose the setup path based on your BetterToken API Key group: enter the Anthropic-compatible endpoint directly, or forward requests through a CC Switch local route.
 
 <Info>
-  Claude Desktop uses the Anthropic-compatible endpoint. Set the Base URL to `https://www.bettertoken.ai`. Do not use the Codex / OpenAI-compatible endpoint `https://www.bettertoken.ai/v1`.
+  If you use a **Claude group** API key, you can enter `https://www.bettertoken.ai` directly in Claude Desktop. If you use a **Codex group** API key, configure a local route through CC Switch first, then enter the local service address in Claude Desktop. Do not enter the Codex / OpenAI-compatible endpoint `https://www.bettertoken.ai/v1` directly in Claude Desktop Gateway.
 </Info>
 
 ## Setup steps
@@ -57,61 +57,234 @@ Claude Desktop can use a third-party inference gateway when developer mode is en
       />
     </Frame>
   </Step>
-
-  <Step title="Enter BetterToken API settings">
-    In the settings window, select **Gateway**, then enter:
-
-    | Field | Value |
-    |-------|-------|
-    | **Gateway base URL** | `https://www.bettertoken.ai` |
-    | **Gateway API key** | Copy your API Key from **Token management** in the BetterToken console |
-    | **Gateway auth scheme** | If the API Key belongs to a **Claude group**, select `x-api-key`; if it belongs to a **Codex group**, select `bearer` |
-
-    After you select the correct **Gateway auth scheme**, Claude Desktop automatically fetches the available models for that group. Click **Apply locally** after entering the settings.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/gateway-credentials.png"
-        alt="Configure BetterToken Gateway settings in Claude Desktop and click Apply locally."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Confirm the app relaunch">
-    After Claude writes the local configuration, it asks for a relaunch. Click **Relaunch now** so the new gateway configuration takes effect.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
-        alt="Claude Desktop asks to relaunch, with the Relaunch now button highlighted."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Sign in with Gateway">
-    After restarting, wait about 3 seconds for the sign-in choice to appear.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
-        alt="Claude Desktop shows the Continue with Gateway sign-in option."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    Choose **Continue with Gateway**. After Claude opens, **Cowork 3P | Gateway** appears in the lower-left corner and you can start using it.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
-        alt="Claude Desktop is ready after signing in with Gateway."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
 </Steps>
+
+After you finish the first 3 steps, choose the path that matches your BetterToken API Key group.
+
+<Tabs>
+  <Tab title="Claude group">
+    <Steps>
+      <Step title="Enter BetterToken API settings">
+        In the settings window, select **Gateway**, then enter:
+
+        | Field | Value |
+        |-------|-------|
+        | **Gateway base URL** | `https://www.bettertoken.ai` |
+        | **Gateway API key** | Copy your API Key from **Token management** in the BetterToken console |
+        | **Gateway auth scheme** | `x-api-key` |
+
+        After you select **Gateway auth scheme**, Claude Desktop automatically fetches the available models for the **Claude group**. Click **Apply locally** after entering the settings.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/gateway-credentials.png"
+            alt="Configure BetterToken Gateway settings in Claude Desktop and click Apply locally."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Confirm the app relaunch">
+        After Claude writes the local configuration, it asks for a relaunch. Click **Relaunch now** so the new gateway configuration takes effect.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
+            alt="Claude Desktop asks to relaunch, with the Relaunch now button highlighted."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Sign in with Gateway">
+        After restarting, wait about 3 seconds for the sign-in choice to appear.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
+            alt="Claude Desktop shows the Continue with Gateway sign-in option."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        Choose **Continue with Gateway**. After Claude opens, **Cowork 3P | Gateway** appears in the lower-left corner and you can start using it.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
+            alt="Claude Desktop is ready after signing in with Gateway."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Codex group">
+    <Steps>
+      <Step title="Open Claude Code in CC Switch and add a provider">
+        Open CC Switch, switch to **Claude Code**, and click **Add Provider**.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-add-provider.png"
+            alt="The Claude Code page in CC Switch, with the add button in the top-right corner used to create a new provider."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Fill in the basic fields">
+        - **Provider Name**: `BetterToken`
+        - **Base URL**: `https://www.bettertoken.ai`
+        - **API Key**: your BetterToken API Key
+
+        The screenshot labels map to:
+
+        1. **Provider Name**
+        2. **API Key**
+        3. **Base URL**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-basic-fields.png"
+            alt="The provider edit page in CC Switch, showing where to enter Provider Name, API Key, and Base URL."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Set the API format and model mappings">
+        Open **Advanced Options** and set **API Format** to **OpenAI Responses API**.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-api-format.png"
+            alt="The advanced options section in CC Switch, with API Format set to OpenAI Responses API."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        In **Model Mapping**, click **Fetch Model List**. Explicitly select dropdown values for **Primary Model**, **Thinking Model**, **Haiku Default Model**, **Sonnet Default Model**, and **Opus Default Model**.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-model-mapping.png"
+            alt="The model mapping section in CC Switch, showing Fetch Model List and the mappings for Primary, Thinking, Haiku, Sonnet, and Opus models."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        Use model IDs from the current **Codex group** models in the BetterToken [model plaza](https://www.bettertoken.ai/pricing).
+      </Step>
+
+      <Step title="Save, switch, and enable the proxy">
+        After saving, return to the provider list:
+
+        1. Set the BetterToken provider you just saved as **In use**
+        2. Enable the **CC Switch proxy** from the top-left corner
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-enable-proxy.png"
+            alt="After saving, return to the provider list, set BetterToken as active, and enable the CC Switch proxy toggle in the top-left corner."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Open CC Switch settings">
+        Return to the CC Switch home screen, then click **Settings** in the top-left corner.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/cc-switch-settings-entry.png"
+            alt="The CC Switch home screen with the Settings button highlighted in the top-left corner."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Confirm routing is enabled and copy the service address">
+        Open **Routing** settings. Confirm that the highlighted main routing switch and **Claude** route switch are both on. Then copy the **Service address** shown below.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/cc-switch-route-service.png"
+            alt="The CC Switch routing settings page, with the main route switch, Claude route switch, and service address copy button highlighted."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Enter the Gateway base URL in Claude Desktop">
+        Return to the Claude Desktop third-party inference settings window and select **Gateway**. Paste the CC Switch **Service address** into **Gateway base URL**, then enter your BetterToken API Key.
+
+        Set **Gateway auth scheme** to `bearer`.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/claude-gateway-local-route.png"
+            alt="The Claude Desktop Gateway settings page with the CC Switch local service address entered."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Add the model list and apply locally">
+        Add these models in **Model list**:
+
+        - `claude-opus`
+        - `claude-sonnet`
+        - `claude-haiku`
+
+        After filling in the list, click **Apply locally**.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/claude-model-list-codex-group.png"
+            alt="The Claude Desktop Model list with claude-opus, claude-haiku, and claude-sonnet added, and Apply locally available."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Confirm the app relaunch">
+        After Claude writes the local configuration, it asks for a relaunch. Click **Relaunch now** so the new gateway configuration takes effect.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
+            alt="Claude Desktop asks to relaunch, with the Relaunch now button highlighted."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Sign in with Gateway">
+        After restarting, wait about 3 seconds for the sign-in choice to appear.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
+            alt="Claude Desktop shows the Continue with Gateway sign-in option."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        Choose **Continue with Gateway**. After Claude opens, **Cowork 3P | Gateway** appears in the lower-left corner and you can start using it.
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
+            alt="Claude Desktop is ready after signing in with Gateway."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## Troubleshooting
 
@@ -119,8 +292,9 @@ If the **Developer** menu does not appear in Claude Desktop, confirm that you cl
 
 If requests fail, check these items first:
 
-1. **Gateway base URL** is `https://www.bettertoken.ai`
+1. **Gateway base URL** matches the setup path: use `https://www.bettertoken.ai` for a **Claude group**, or the local service address copied from CC Switch for a **Codex group**
 2. **Gateway API key** comes from **Token management** in the BetterToken console
 3. **Gateway auth scheme** matches the API Key group: use `x-api-key` for a **Claude group** and `bearer` for a **Codex group**
 4. You clicked **Apply locally**
-5. You clicked **Relaunch now** and selected **Continue with Gateway** after restart
+5. If you use a **Codex group**, the main routing switch and the **Claude** route are enabled in CC Switch **Routing** settings
+6. You clicked **Relaunch now** and selected **Continue with Gateway** after restart
