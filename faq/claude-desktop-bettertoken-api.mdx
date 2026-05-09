@@ -4,10 +4,10 @@ sidebarTitle: "Claude Desktop"
 description: "在 Claude 桌面端启用 developer mode，并配置 BetterToken API 作为第三方推理网关。"
 ---
 
-Claude 桌面端支持通过 developer mode 配置第三方推理网关。你可以把 BetterToken 的 Anthropic 协议入口填入 Gateway 配置，让 Claude 桌面端通过 BetterToken API 发送请求。
+Claude 桌面端支持通过 developer mode 配置第三方推理网关。你可以根据 BetterToken API Key 分组，选择直接填写 Anthropic 协议入口，或通过 CC Switch 本地路由转发请求。
 
 <Info>
-  Claude 桌面端使用 Anthropic 协议入口，Base URL 填写 `https://www.bettertoken.ai`。不要填写 Codex / OpenAI-compatible 协议使用的 `https://www.bettertoken.ai/v1`。
+  如果你使用 **Claude 分组** API Key，可以在 Claude 桌面端直接填写 `https://www.bettertoken.ai`。如果你使用 **Codex 分组** API Key，建议先通过 CC Switch 建立本地路由，再把本地服务地址填入 Claude 桌面端。不要把 Codex / OpenAI-compatible 协议使用的 `https://www.bettertoken.ai/v1` 直接填进 Claude 桌面端 Gateway。
 </Info>
 
 ## 配置步骤
@@ -56,61 +56,234 @@ Claude 桌面端支持通过 developer mode 配置第三方推理网关。你可
       />
     </Frame>
   </Step>
-
-  <Step title="填写 BetterToken API 信息">
-    在配置窗口中选择 **Gateway**，然后填写以下信息：
-
-    | 字段 | 填写内容 |
-    |------|----------|
-    | **Gateway base URL** | `https://www.bettertoken.ai` |
-    | **Gateway API key** | 在 BetterToken 控制台的 **令牌管理** 中复制 API Key |
-    | **Gateway auth scheme** | 如果 API Key 对应 **Claude 分组**，选择 `x-api-key`；如果对应 **Codex 分组**，选择 `bearer` |
-
-    选择正确的 **Gateway auth scheme** 后，Claude 桌面端会自动获取该分组下可用的模型。填写完成后点击 **Apply locally**。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/gateway-credentials.png"
-        alt="在 Claude 桌面端配置 BetterToken Gateway 信息并点击 Apply locally。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="确认重启客户端">
-    Claude 写入本地配置后会提示重启。点击 **Relaunch now**，让新网关配置生效。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
-        alt="Claude 桌面端提示 Relaunch Claude，点击 Relaunch now 重启客户端。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="选择 Gateway 网关登录">
-    重启后等待约 3 秒，会出现登录方式选择界面。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
-        alt="Claude 桌面端显示 Continue with Gateway 登录选项。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    选择 **Continue with Gateway**。进入 Claude 后，左下角显示 **Cowork 3P | Gateway**，即可正常使用。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
-        alt="Claude 桌面端已通过 Gateway 进入并可以正常使用。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
 </Steps>
+
+完成前 3 步后，根据你的 BetterToken API Key 分组选择继续配置方式。
+
+<Tabs>
+  <Tab title="Claude 分组">
+    <Steps>
+      <Step title="填写 BetterToken API 信息">
+        在配置窗口中选择 **Gateway**，然后填写以下信息：
+
+        | 字段 | 填写内容 |
+        |------|----------|
+        | **Gateway base URL** | `https://www.bettertoken.ai` |
+        | **Gateway API key** | 在 BetterToken 控制台的 **令牌管理** 中复制 API Key |
+        | **Gateway auth scheme** | `x-api-key` |
+
+        选择 **Gateway auth scheme** 后，Claude 桌面端会自动获取 **Claude 分组**下可用的模型。填写完成后点击 **Apply locally**。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/gateway-credentials.png"
+            alt="在 Claude 桌面端配置 BetterToken Gateway 信息并点击 Apply locally。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="确认重启客户端">
+        Claude 写入本地配置后会提示重启。点击 **Relaunch now**，让新网关配置生效。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
+            alt="Claude 桌面端提示 Relaunch Claude，点击 Relaunch now 重启客户端。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="选择 Gateway 网关登录">
+        重启后等待约 3 秒，会出现登录方式选择界面。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
+            alt="Claude 桌面端显示 Continue with Gateway 登录选项。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        选择 **Continue with Gateway**。进入 Claude 后，左下角显示 **Cowork 3P | Gateway**，即可正常使用。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
+            alt="Claude 桌面端已通过 Gateway 进入并可以正常使用。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Codex 分组">
+    <Steps>
+      <Step title="切到 Claude Code 并添加 provider">
+        打开 CC Switch，切到 **Claude Code**，点击 **Add Provider**。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-add-provider.png"
+            alt="CC Switch 的 Claude Code 页面，右上角加号按钮用于新增 provider。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="填写基础字段">
+        - **Provider Name**：`BetterToken`
+        - **Base URL**：`https://www.bettertoken.ai`
+        - **API Key**：你的 BetterToken API Key
+
+        下图中的标注对应：
+
+        1. **Provider Name**
+        2. **API Key**
+        3. **Base URL**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-basic-fields.png"
+            alt="CC Switch 的 provider 编辑页面，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="设置 API 格式和模型映射">
+        打开 **高级选项**，在 **API 格式** 中选择 **OpenAI Responses API**。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-api-format.png"
+            alt="CC Switch 的高级选项区域，API 格式被设置为 OpenAI Responses API。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        在 **模型映射** 里点击 **获取模型列表**，将 **主模型**、**推理模型（Thinking）**、**Haiku 默认模型**、**Sonnet 默认模型**、**Opus 默认模型** 都从下拉列表中显式选中。
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-model-mapping.png"
+            alt="CC Switch 的模型映射区域，展示了获取模型列表以及主模型、Thinking、Haiku、Sonnet、Opus 的映射位置。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        这里使用的模型都应来自 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 当前可用的 **Codex 分组**模型 ID。
+      </Step>
+
+      <Step title="保存、切换，并开启代理">
+        保存后，回到渠道列表页：
+
+        1. 将刚保存的 BetterToken provider 设为 **使用中**
+        2. 打开左上角的 **CC Switch 代理功能**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-enable-proxy.png"
+            alt="保存后回到渠道列表页，将 BetterToken 设为使用中，并打开左上角的 CC Switch 代理开关。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="进入 CC Switch 设置">
+        回到 CC Switch 主界面后，点击左上角的 **设置**。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/cc-switch-settings-entry.png"
+            alt="CC Switch 主界面中，左上角设置按钮被箭头标出。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="确认路由已打开并复制服务地址">
+        进入 **路由** 设置，确认图中标注的 **路由总开关** 和 **Claude** 路由开关都已打开。然后复制下方显示的 **服务地址**。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/cc-switch-route-service.png"
+            alt="CC Switch 路由设置页中，路由总开关、Claude 路由开关和服务地址复制按钮被标出。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="在 Claude 桌面端填入 Gateway base URL">
+        回到 Claude 桌面端的第三方推理配置窗口，选择 **Gateway**。把刚才复制的 CC Switch **服务地址** 填入 **Gateway base URL**，并填写你的 BetterToken API Key。
+
+        **Gateway auth scheme** 选择 `bearer`。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/claude-gateway-local-route.png"
+            alt="Claude 桌面端 Gateway 配置页中填入 CC Switch 本地服务地址。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="添加模型列表并应用到本机">
+        在 **Model list** 里增加以下模型：
+
+        - `claude-opus`
+        - `claude-sonnet`
+        - `claude-haiku`
+
+        填写完成后点击 **Apply locally**。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/claude-model-list-codex-group.png"
+            alt="Claude 桌面端 Model list 中添加 claude-opus、claude-haiku、claude-sonnet，并点击 Apply locally。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="确认重启客户端">
+        Claude 写入本地配置后会提示重启。点击 **Relaunch now**，让新网关配置生效。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
+            alt="Claude 桌面端提示 Relaunch Claude，点击 Relaunch now 重启客户端。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="选择 Gateway 网关登录">
+        重启后等待约 3 秒，会出现登录方式选择界面。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
+            alt="Claude 桌面端显示 Continue with Gateway 登录选项。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        选择 **Continue with Gateway**。进入 Claude 后，左下角显示 **Cowork 3P | Gateway**，即可正常使用。
+
+        <Frame>
+          <img
+            src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
+            alt="Claude 桌面端已通过 Gateway 进入并可以正常使用。"
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
 ## 排查建议
 
@@ -118,8 +291,9 @@ Claude 桌面端支持通过 developer mode 配置第三方推理网关。你可
 
 如果请求失败，优先检查：
 
-1. **Gateway base URL** 是否为 `https://www.bettertoken.ai`
+1. **Gateway base URL** 是否与分组路径一致：**Claude 分组**填写 `https://www.bettertoken.ai`；**Codex 分组**填写 CC Switch 复制出的本地服务地址
 2. **Gateway API key** 是否来自 BetterToken 控制台的 **令牌管理**
-3. **Gateway auth scheme** 是否与 API Key 分组匹配：**Claude 分组** 使用 `x-api-key`，**Codex 分组** 使用 `bearer`
+3. **Gateway auth scheme** 是否与 API Key 分组匹配：**Claude 分组**使用 `x-api-key`，**Codex 分组**使用 `bearer`
 4. 是否点击了 **Apply locally**
-5. 是否点击 **Relaunch now** 并在重启后选择 **Continue with Gateway**
+5. 如果使用 **Codex 分组**，是否已在 CC Switch **路由**设置中打开 **路由总开关** 和 **Claude** 路由开关
+6. 是否点击 **Relaunch now** 并在重启后选择 **Continue with Gateway**
