@@ -1,0 +1,137 @@
+---
+title: "Image to image (image editing)"
+description: "Generate or edit images from reference images with GPT Image2 through BetterToken's OpenAI-compatible API."
+openapi: "api-reference/openapi.json POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+The image-to-image endpoint uses a `multipart/form-data` request body. Upload one or more reference images and submit prompt and parameter fields as form fields.
+
+<Note>
+  Use `https://www.bettertoken.ai/v1` as the `Base URL`. Pass your BetterToken API Key through `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+<Tip>
+  You can fill in form fields and upload reference images in the Playground on the right side of the page, then send the request directly to `https://www.bettertoken.ai/v1/images/edits`.
+</Tip>
+
+<Warning>
+  Do not use a regular JSON body for image-to-image requests. Submit text fields and file fields with `multipart/form-data`.
+</Warning>
+
+## Recommended values
+
+Send these fields explicitly in every request:
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+Use `image` for a single reference image. Use repeated `image[]` fields for multiple reference images.
+
+## Single reference image
+
+```bash
+curl 'https://www.bettertoken.ai/v1/images/edits' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Use this reference image to create a more polished square product hero image while keeping the main style consistent.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## Multiple reference images
+
+```bash
+curl 'https://www.bettertoken.ai/v1/images/edits' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Combine these reference images into one consistent promotional poster.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Python example
+
+```python
+import requests
+
+url = "https://www.bettertoken.ai/v1/images/edits"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Use this reference image to create a more polished square product hero image while keeping the main style consistent.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## Recommended sizes
+
+| `size` | Ratio | Use case |
+| --- | --- | --- |
+| `auto` | Auto | Automatic size selection |
+| `1024x1024` | `1:1` | Square images, avatars, covers, assets |
+| `1536x1024` | `3:2` | Landscape posters, banners, scenes |
+| `1024x1536` | `2:3` | Portrait mobile covers and posters |
+| `2048x2048` | `1:1` | High-resolution square images |
+| `2048x1152` | `16:9` | High-resolution landscape images |
+| `3840x2160` | `16:9` | 4K landscape images |
+| `2160x3840` | `9:16` | 4K portrait images |
+
+`size` represents the expected aspect ratio and size tier. The actual returned pixels may be mapped or adjusted by the server. Use the decoded image dimensions instead of forcibly cropping the output to the requested value.
+
+## Save the image
+
+A successful response follows the OpenAI-compatible image response shape:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Read `data[0].b64_json` and save it as base64 image content. Always set `output_format: "png"` so you can save the decoded image as `.png`.
+
+## Response flow
+
+This endpoint is synchronous. After sending `POST /images/edits`, keep the current HTTP request open until the server responds. When generation succeeds, the image content is returned in `data[0].b64_json`.
+
+The endpoint does not return a `task_id`, and there is no separate status query or result download endpoint.
+
+## Related docs
+
+- [Text to image](/en/api-reference/images-generations)
+- [GPT Image 2 is live](/en/model-updates/gpt-image-2)
