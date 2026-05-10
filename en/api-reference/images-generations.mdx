@@ -1,169 +1,108 @@
 ---
-title: "Generate images"
-description: "Generate images with GPT Image 2 through BetterToken's OpenAI-compatible API."
+title: "Text to image (image generation)"
+description: "Generate images from text prompts with GPT Image2 through BetterToken's OpenAI-compatible API."
+openapi: "api-reference/openapi.json POST /v1/images/generations"
 ---
 
 `POST /v1/images/generations`
 
-Generate images from a text prompt. This endpoint uses the OpenAI-compatible protocol and is designed for external tools or your own application code that calls `gpt-image-2`.
+The text-to-image endpoint uses an `application/json` request body. Submit a prompt, keep the HTTP request open, and read the generated image from `data[0].b64_json` in the same response.
 
 <Note>
-  Use `https://www.bettertoken.ai/v1` as the `Base URL`, and pass your BetterToken API Key through `Authorization: Bearer YOUR_API_KEY`.
+  Use `https://www.bettertoken.ai/v1` as the `Base URL`. Pass your BetterToken API Key through `Authorization: Bearer YOUR_API_KEY`.
 </Note>
 
-<Warning>
-  Image generation takes longer than text generation and averages about `100` to `200` seconds. Set client, gateway, or external-tool request timeouts above `300` seconds so the request is not closed before the image is ready.
-</Warning>
-
-## Endpoint
-
-```http
-POST https://www.bettertoken.ai/v1/images/generations
-```
-
-| Header | Value |
-|--------|-------|
-| `Authorization` | `Bearer YOUR_API_KEY` |
-| `Content-Type` | `application/json` |
-
-## Quick example
-
-<Tabs>
-  <Tab title="cURL">
-    ```bash
-    curl https://www.bettertoken.ai/v1/images/generations \
-      -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "model": "gpt-image-2",
-        "prompt": "Create a clean product launch poster for BetterToken with a readable Chinese headline",
-        "size": "1024x1024",
-        "quality": "high",
-        "n": 1
-      }'
-    ```
-  </Tab>
-  <Tab title="Python">
-    ```python
-    import base64
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url="https://www.bettertoken.ai/v1",
-        api_key="YOUR_API_KEY",
-    )
-
-    result = client.images.generate(
-        model="gpt-image-2",
-        prompt="Create a clean product launch poster for BetterToken with a readable Chinese headline",
-        size="1024x1024",
-        quality="high",
-        n=1,
-    )
-
-    image_bytes = base64.b64decode(result.data[0].b64_json)
-    with open("gpt-image-2.png", "wb") as file:
-        file.write(image_bytes)
-    ```
-  </Tab>
-</Tabs>
-
-To save the first generated image from the command line, decode `b64_json`:
-
-```bash
-curl https://www.bettertoken.ai/v1/images/generations \
-  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-image-2",
-    "prompt": "A product image for the homepage of an AI developer tool",
-    "size": "1024x1024"
-  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
-```
-
-## Request body
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `model` | `string` | Yes | Image generation model. Use `gpt-image-2`. |
-| `prompt` | `string` | Yes | Description of the desired image. Include the subject, style, aspect ratio, text, and exclusions when relevant. |
-| `n` | `integer` | No | Number of images to generate. Use `1` to `10`. |
-| `size` | `string` | No | Image size. Common values include `auto`, `1024x1024`, `1536x1024`, `1024x1536`, `2048x2048`, `2048x1152`, `3840x2160`, and `2160x3840`. |
-| `quality` | `string` | No | Rendering quality. Use `auto`, `low`, `medium`, or `high`. Use `low` for drafts and `medium` or `high` for final assets. |
-| `output_format` | `string` | No | Output format. Use `png`, `jpeg`, or `webp`. The default is usually `png`. |
-| `output_compression` | `integer` | No | Compression level from `0` to `100` for `jpeg` or `webp` outputs. |
-| `background` | `string` | No | Background option. `gpt-image-2` currently does not support `transparent`; use `auto` or `opaque`. |
-| `moderation` | `string` | No | Content moderation strictness. Use `auto` or `low`. |
-| `stream` | `boolean` | No | Whether to stream image generation. Defaults to `false`. |
-| `partial_images` | `integer` | No | Number of partial images to return during streaming. Use `0` to `3`. Only applies when `stream: true`. |
-| `user` | `string` | No | Unique identifier for your end user, useful for abuse detection. |
+<Tip>
+  You can enter `Authorization` and the request body in the Playground on the right side of the page, then send the request directly to `https://www.bettertoken.ai/v1/images/generations`.
+</Tip>
 
 <Warning>
-  `gpt-image-2` image results are returned through `data[].b64_json` by default. Do not rely on URL output; OpenAI GPT Image models generally do not support `response_format: "url"`.
+  Do not put API keys in frontend browser code, Git repositories, tickets, screenshots, or logs. For server-side proxy calls, store API keys only in server environment variables or a secret manager.
 </Warning>
 
-## Streaming
+## Recommended values
 
-Set `stream` to return server-sent events with partial images and the final image. This is useful when your product should show generation progress.
-
-```bash
-curl https://www.bettertoken.ai/v1/images/generations \
-  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-image-2",
-    "prompt": "A mobile app hero image with a real phone UI and a Chinese headline",
-    "size": "1024x1536",
-    "quality": "medium",
-    "stream": true,
-    "partial_images": 2
-  }' \
-  --no-buffer
-```
-
-Streaming events usually include:
-
-```text
-event: image_generation.partial_image
-data: {"type":"image_generation.partial_image","b64_json":"...","partial_image_index":0}
-
-event: image_generation.completed
-data: {"type":"image_generation.completed","b64_json":"...","usage":{"total_tokens":100}}
-```
-
-## Response shape
+Send these fields explicitly in every request:
 
 ```json
 {
-  "created": 0,
-  "background": "opaque",
-  "data": [
-    {
-      "b64_json": "..."
-    }
-  ],
-  "output_format": "png",
-  "quality": "high",
-  "size": "1024x1024",
-  "usage": {
-    "input_tokens": 0,
-    "output_tokens": 0,
-    "total_tokens": 0
-  }
+  "model": "gpt-image-2",
+  "n": 1,
+  "response_format": "b64_json",
+  "output_format": "png"
 }
 ```
 
-## Usage guidance
+Generate multiple images by sending multiple independent requests. Do not rely on a single request with `n > 1`.
 
-- Use `/v1/images/generations` for one-shot text-to-image generation.
-- Use the image edit endpoint when you need to modify existing images.
-- For layout-sensitive posters, product images, and images with text, describe the text, placement, ratio, and unwanted elements in the prompt.
-- For latency-sensitive previews, start with `quality: "low"`, then regenerate final assets with `medium` or `high`.
-- Image generation averages about `100` to `200` seconds. Show a waiting state or progress feedback in your application.
-- Sizes above 2K are currently experimental. Larger sizes, higher quality, and `partial_images` increase cost and latency.
+## Recommended sizes
+
+| `size` | Ratio | Use case |
+| --- | --- | --- |
+| `auto` | Auto | Automatic size selection |
+| `1024x1024` | `1:1` | Square images, avatars, covers, assets |
+| `1536x1024` | `3:2` | Landscape posters, banners, scenes |
+| `1024x1536` | `2:3` | Portrait mobile covers and posters |
+| `2048x2048` | `1:1` | High-resolution square images |
+| `2048x1152` | `16:9` | High-resolution landscape images |
+| `3840x2160` | `16:9` | 4K landscape images |
+| `2160x3840` | `9:16` | 4K portrait images |
+
+`size` represents the expected aspect ratio and size tier. The actual returned pixels may be mapped or adjusted by the server. Use the decoded image dimensions instead of forcibly cropping the output to the requested value.
+
+## Save the image
+
+A successful response follows the OpenAI-compatible image response shape:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Read `data[0].b64_json` and save it as base64 image content. The response may include extra fields such as `revised_prompt`; allow these fields in your client.
+
+Always set `output_format: "png"`. Then save the decoded image as `.png` without inspecting file headers.
+
+```python
+import base64
+import json
+from pathlib import Path
+
+response = json.loads(Path("response.json").read_text(encoding="utf-8"))
+b64_json = response["data"][0]["b64_json"]
+
+if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
+    b64_json = b64_json.split(",", 1)[1]
+
+image_bytes = base64.b64decode(b64_json)
+Path("output.png").write_bytes(image_bytes)
+```
+
+<Warning>
+  Do not rely on `output_format: "jpeg"` or `output_format: "webp"` to directly receive JPEG or WebP files. The current endpoint may still return PNG image content. If your product needs JPEG or WebP, receive PNG first and convert it in your own code.
+</Warning>
+
+## Response flow
+
+This endpoint is synchronous. After sending `POST /images/generations`, keep the current HTTP request open until the server responds. When generation succeeds, the image content is returned in `data[0].b64_json`.
+
+The endpoint does not return a `task_id`, and there is no separate status query or result download endpoint.
+
+## Timeouts and retries
+
+- Set HTTP client timeouts to several minutes.
+- Retry transport errors, `408`, `409`, `425`, `429`, and `5xx`.
+- Do not retry `400`, `401`, missing parameters, or malformed requests automatically.
+- Use exponential backoff such as `3s`, `8s`, and `15s`.
+- If duplicate images are unacceptable, record your own request ID before retrying.
 
 ## Related docs
 
+- [Image to image](/en/api-reference/images-edits)
 - [GPT Image 2 is live](/en/model-updates/gpt-image-2)
-- [OpenAI image generation guide](https://platform.openai.com/docs/guides/images/image-generation)
-- [OpenAI create image API reference](https://platform.openai.com/docs/api-reference/images/create)
