@@ -66,6 +66,8 @@
 - Prefer updating an existing page over creating a new one when the topic already exists.
 - Before changing wording patterns, search both Chinese and English docs for the same concept and keep usage consistent.
 - For behavior changes in docs, update nearby examples, troubleshooting notes, and FAQ entries if needed.
+- Use linear, monochrome sidebar icons for custom product pages. Custom SVG icons should use `currentColor` strokes and avoid filled brand colors so they match the rest of the navigation.
+- Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-bettertoken-api.mdx`.
 - Store screenshots and other page-specific images under a dedicated folder in `images/<page-slug>/`. Follow the same pattern as `images/quickstart/`.
 - Use `images/temp/` only as a temporary holding area while collecting assets. Before finishing a docs change, move any referenced image into its final page-specific folder and update the MDX path.
 - If a change affects links or navigation wording, run `mint broken-links` after editing.
