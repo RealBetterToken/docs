@@ -1,0 +1,61 @@
+---
+title: "Yingdao AI Power BetterToken setup guide"
+sidebarTitle: "Yingdao AI Power"
+description: "Connect BetterToken to Yingdao AI Power with Codex group model IDs."
+icon: "/images/yingdao-ai-power/icon.svg"
+---
+
+Yingdao AI Power is a no-code product for building AI applications. It aggregates existing AI models and provides a simple toolset for creating AI apps.
+
+When connecting BetterToken to Yingdao AI Power, add an `OpenAI-API-compatible` model and use a model ID from the Codex group.
+
+## Prerequisites
+
+- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+- A **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing)
+
+## Setup
+
+<Steps>
+  <Step title="Open model management">
+    Go to **Enterprise management**, then open **Model management**. Find **OpenAI-API-compatible** and click **Add model**.
+
+    ![The Yingdao AI Power model management page with OpenAI-API-compatible and the add model entry highlighted.](/images/yingdao-ai-power/model-management.png)
+  </Step>
+
+  <Step title="Fill in the model configuration">
+    In the **Authorization management: OpenAI-API-compatible** window, fill in the fields as follows:
+
+    | Field | Value |
+    |-------|-------|
+    | Model type | `LLM` |
+    | Model name | a **Codex group** model ID copied from the [model plaza](https://www.bettertoken.ai/pricing) |
+    | Request URL | `https://www.bettertoken.ai/v1/chat/completions` |
+    | API key | Select only a key that corresponds to the `Codex*` group |
+    | Max output token limit | `128000` |
+    | Vision understanding | Select **Yes** |
+    | Function calling | Select **Yes** |
+
+    ![The Yingdao AI Power OpenAI-API-compatible authorization window with model name, request URL, API key, max output token limit, vision understanding, and function calling settings.](/images/yingdao-ai-power/model-config.png)
+  </Step>
+
+  <Step title="Enable vision understanding">
+    Set **Vision understanding** to **Yes** so the model can be selected in the **Workflow - multimodal large model** component.
+
+    ![The Yingdao AI Power workflow page where the multimodal large model component can select OpenAI-API-compatible and the added model.](/images/yingdao-ai-power/workflow-multimodal-model.png)
+  </Step>
+
+  <Step title="Enable function calling">
+    Set **Function calling** to **Yes** so the model can be selected in **Agent - Tools**.
+
+    ![The Yingdao AI Power agent tools page where model settings can select OpenAI-API-compatible and the added model.](/images/yingdao-ai-power/agent-tool-model.png)
+  </Step>
+
+  <Step title="Add more models">
+    If you need multiple models, repeat the steps above. Use the matching Codex group model ID for each model.
+  </Step>
+</Steps>
+
+<Note>
+  In Yingdao AI Power, the **Request URL** must be the full chat completions endpoint `https://www.bettertoken.ai/v1/chat/completions`. Do not use only `https://www.bettertoken.ai/v1`.
+</Note>
