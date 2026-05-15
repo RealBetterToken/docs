@@ -5,55 +5,102 @@ description: "在 Cursor 中使用 BetterToken，接入 Codex 分组模型。"
 icon: "arrow-pointer"
 ---
 
-在 Cursor 中接入 BetterToken 时，使用 OpenAI Base URL。外部工具统一走 Codex 分组，请从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的模型 ID。
+在 Cursor 中接入 BetterToken 时，使用 OpenAI-compatible 协议入口。外部工具统一走 Codex 分组，请从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的模型 ID。
 
 <Warning>
-  Cursor 的自定义 API Key、自定义模型与 Base URL 能力受客户端版本与套餐限制。如果当前界面不支持这些选项，请以 Cursor 当前版本实际能力为准。
+  Cursor 仅支持订阅高级会员及以上的用户配置自定义模型。如果你的账号或当前客户端版本没有显示自定义模型、API Key 或 Base URL 选项，请先确认 Cursor 账号套餐与客户端版本。
+</Warning>
+
+<Warning>
+  **已知问题：** **Override OpenAI Base URL** 是全局设置。开启后会影响 Cursor 中所有已配置的 API Key，包括 Cursor 自带模型使用的 Anthropic / GPT Key。Cursor 官方社区已确认这个问题：设置 Base URL 后，所有 API Key 和模型都会受影响（[社区帖](https://forum.cursor.com/t/cursor-models-fail-when-using-byok-openai-key-with-overridden-base-url-glm-4-7/147218)）。
+
+  如果开启 **Override OpenAI Base URL** 后 Cursor 自带的 Claude / GPT 模型停止工作，请在不使用 BetterToken 时关闭 **Override OpenAI Base URL**。Cursor 目前不支持按模型设置不同 Base URL，相关能力仍在功能请求中（[feature request](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219)）。
 </Warning>
 
 ## 前置条件
 
 - 已安装 Cursor（前往 [Cursor 官网](https://www.cursor.com) 下载）
 - 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+- API Key 属于 **Codex 分组**，并且你准备选择同一分组下的模型
 
 ## 配置步骤
 
 <Steps>
   <Step title="打开模型配置页面">
-    在 Cursor 中，点击左下角 **Settings**，进入设置界面后选择 **Models**。
+    在 Cursor 中，点击左下角 **Settings**，进入设置界面后选择 **Models**。向下找到 **API Keys** 区域。
+
+    <Frame>
+      <img
+        src="/images/cursor/settings-api-key.png"
+        alt="Cursor 设置页中，依次打开 Settings、Models、API Keys，并填写 OpenAI API Key 与 Override OpenAI Base URL。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
   </Step>
 
-  <Step title="配置 BetterToken API">
-    在 **API Keys** 部分：
+  <Step title="填写 Base URL 和 API Key">
+    在 **API Keys** 区域按下面顺序配置：
 
-    1. 勾选 **Override OpenAI Base URL**
-    2. 填入 `https://www.bettertoken.ai/v1`
-    3. 在 **OpenAI API Key** 中填入你的 BetterToken API Key
-    4. 按界面提示完成验证
+    1. 打开 **Override OpenAI Base URL**
+    2. 在 Base URL 输入框中填写 `https://www.bettertoken.ai/v1`
+    3. 在 **OpenAI API Key** 中填写你的 BetterToken API Key
+    4. 填完 URL 和 Key 后，再打开 **OpenAI API Key** 开关
+
+    先填写 Key，再打开开关。这样 Cursor 会弹出认证确认窗口。
   </Step>
 
-  <Step title="添加模型">
-    在 **Models** 部分，点击 **View All Models**，再点击 **Add Custom Model**。
+  <Step title="启用 OpenAI API Key">
+    在确认窗口中点击 **Enable OpenAI API Key**。
 
-    模型名称请直接粘贴从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组模型 ID**。
+    <Frame>
+      <img
+        src="/images/cursor/enable-openai-api-key.png"
+        alt="Cursor 弹出 Enable OpenAI API Key 确认窗口，需要点击 Enable OpenAI API Key。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    我们查到的 Cursor 官方 API Key 文档没有把额外 `User-Agent` 列为 BetterToken / OpenAI 兼容接入的必填项。接入 BetterToken 时通常不需要额外设置 headers。
+  <Step title="刷新模型列表并启用模型">
+    回到 **Models** 区域后，一定要先点击右侧的刷新按钮。等待模型列表刷新完成后，再选择模型。
 
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+    只能选择当前 BetterToken API Key 对应分组下的模型。使用 Codex 分组 API Key 时，请选择模型广场里 **Codex 分组**下的模型 ID，并打开对应模型右侧的开关。
+
+    <Frame>
+      <img
+        src="/images/cursor/models-refresh-select.png"
+        alt="Cursor Models 区域中，点击刷新按钮刷新模型列表，并打开可用模型右侧的开关。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
   </Step>
 
-  <Step title="重启 Cursor">
-    修改配置后，请完全退出并重新打开 Cursor，再选择刚添加的模型。
+  <Step title="回到对话界面并关闭 Auto">
+    配置完成后回到 Cursor 对话界面，点击输入框下方的模型选择器。如果 **Auto** 处于开启状态，请先关闭 **Auto**。
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-disable-auto.png"
+        alt="Cursor 对话界面中打开模型选择器，并关闭 Auto 模式。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
   </Step>
 
-  <Step title="选择模型并开始使用">
-    在 Cursor 聊天面板中选择刚添加的 Codex 分组模型即可开始使用。
+  <Step title="选择模型并开始对话">
+    在模型选择器中选择刚启用的 Codex 分组模型，然后开始对话。
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-select-model.png"
+        alt="Cursor 对话界面中选择 GPT-5.5 等已启用模型后开始对话。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
   </Step>
 </Steps>
 
 ## 注意事项
 
-- 不要继续填写固定 Claude 模型名
-- 如需额外 headers，请以 Cursor 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项
+- 不要把 Claude 分组模型 ID 填到 Codex / OpenAI-compatible 流程中
+- 不要继续填写固定 Claude 模型名；请使用[模型广场](https://www.bettertoken.ai/pricing)中当前可用的 Codex 分组模型 ID
