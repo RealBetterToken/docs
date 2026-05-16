@@ -13,11 +13,27 @@ Connecting Codex to BetterToken requires a custom model provider and API Key. Th
 - BetterToken API Key ([register here](https://www.bettertoken.ai/register))
 
 <Warning>
-  Clear these environment variables before setup so they do not override your config:
+  Clear OpenAI-related environment variables before setup so they do not override the settings in `config.toml` or `auth.json`.
+
+  Clear these variables:
+
+  - `OPENAI_API_KEY`
+  - `OPENAI_BASE_URL`
+
+  Run on macOS / Linux:
 
   ```bash
   unset OPENAI_API_KEY
   unset OPENAI_BASE_URL
+  ```
+
+  Run in Windows PowerShell:
+
+  ```powershell
+  Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
+  Remove-Item Env:OPENAI_BASE_URL -ErrorAction SilentlyContinue
+  [Environment]::SetEnvironmentVariable("OPENAI_API_KEY", $null, "User")
+  [Environment]::SetEnvironmentVariable("OPENAI_BASE_URL", $null, "User")
   ```
 </Warning>
 

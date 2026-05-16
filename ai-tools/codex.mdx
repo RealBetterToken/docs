@@ -13,11 +13,27 @@ icon: "code"
 - 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
 
 <Warning>
-  配置前请确保清除以下环境变量，避免它们覆盖配置文件中的设置：
+  配置前请先清除 OpenAI 相关环境变量，避免它们覆盖 `config.toml` 或 `auth.json` 中的设置。
+
+  需要清除的变量包括：
+
+  - `OPENAI_API_KEY`
+  - `OPENAI_BASE_URL`
+
+  macOS / Linux 执行：
 
   ```bash
   unset OPENAI_API_KEY
   unset OPENAI_BASE_URL
+  ```
+
+  Windows PowerShell 执行：
+
+  ```powershell
+  Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
+  Remove-Item Env:OPENAI_BASE_URL -ErrorAction SilentlyContinue
+  [Environment]::SetEnvironmentVariable("OPENAI_API_KEY", $null, "User")
+  [Environment]::SetEnvironmentVariable("OPENAI_BASE_URL", $null, "User")
   ```
 </Warning>
 
