@@ -239,28 +239,30 @@ Effective model priority в OpenClaw обычно такой:
 - Если Discord все еще показывает старый route после изменения config, выполните `openclaw gateway restart`, затем `/new`
 - Если model picker или hot reload все еще выглядят устаревшими, сначала обновите OpenClaw и протестируйте снова
 
-## Fallback: пусть Codex настроит это за вас
+## Запасной вариант: пусть Codex настроит это за вас
 
-Если вы не хотите редактировать config вручную, задайте API Key как environment variable и запустите Codex:
+Если вы не хотите редактировать конфигурацию вручную, задайте API Key как переменную окружения и запустите Codex:
 
 ```bash
 export BETTERTOKEN_API_KEY="YOUR_API_KEY"
 codex
 ```
 
-Затем отправьте Codex такой prompt:
+Затем отправьте Codex такой запрос:
 
 ```text
-Please inspect and fix my local OpenClaw BetterToken setup. Requirements:
-1. Read the current OpenClaw config first and identify the provider id, the default model, and which agents in agents.list explicitly define model.
-2. If the BetterToken provider does not exist, add one that uses the Base URL `{{openai-base-url}}` and sets `api: "openai-responses"`.
-3. Reuse any credential already saved by OpenClaw. Only configure extra headers when the current version or your upstream gateway explicitly requires them; do not assume `User-Agent` is mandatory for BetterToken.
-4. Switch the default model to BetterToken and check whether `main` is still pinned to an older model. If I want `main` to follow the global default, remove the explicit model from `main`.
-5. Make sure the active BetterToken model is present in `agents.defaults.models` and add an easy-to-recognize `alias`.
-6. Back up the original config, make the smallest possible diff, and tell me which fields you plan to change before editing.
-7. After editing, run `openclaw gateway restart` and remind me to validate with `/new`, `/status`, and `/model` in Discord.
+Проверь и исправь мою локальную настройку OpenClaw для BetterToken.
 
-Constraints:
-- If you need the API Key, read it from the `BETTERTOKEN_API_KEY` environment variable and do not print the secret in chat or logs.
-- If the current config does not include a BetterToken model yet, ask me for a Codex-group model ID from the BetterToken model plaza.
+Требования:
+1. Сначала прочитай текущую конфигурацию OpenClaw и определи provider id, модель по умолчанию и агентов в `agents.list`, у которых явно задано поле `model`.
+2. Если provider BetterToken отсутствует, добавь provider с Base URL `{{openai-base-url}}` и `api: "openai-responses"`.
+3. Используй уже сохраненные в OpenClaw credentials. Добавляй extra headers только если текущая версия OpenClaw или upstream gateway явно требует их; не считай `User-Agent` обязательным для BetterToken.
+4. Переключи модель по умолчанию на BetterToken и проверь, не закреплена ли у `main` старая модель. Если я хочу, чтобы `main` следовал global default, убери явное поле `model` у `main`.
+5. Убедись, что активная модель BetterToken есть в `agents.defaults.models`, и добавь для нее понятный `alias`.
+6. Сделай backup исходного config, подготовь минимальный diff и перед изменением скажи, какие поля собираешься менять.
+7. После изменения выполни `openclaw gateway restart` и напомни мне проверить результат через `/new`, `/status` и `/model` в Discord.
+
+Ограничения:
+- Если нужен API Key, читай его из переменной окружения `BETTERTOKEN_API_KEY` и не выводи секрет в чат или логи.
+- Если в текущей конфигурации еще нет модели BetterToken, попроси у меня model ID из Codex group в BetterToken model plaza.
 ```

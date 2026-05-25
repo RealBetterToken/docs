@@ -1,19 +1,19 @@
 ---
 title: "Image to image (редактирование изображений)"
-description: "Генерируйте или редактируйте изображения по reference images через GPT Image2 и OpenAI-совместимый API BetterToken."
+description: "Генерируйте или редактируйте изображения по референсным изображениям через GPT Image2 и OpenAI-совместимый API BetterToken."
 openapi: "POST /v1/images/edits"
 ---
 
 `POST /v1/images/edits`
 
-Endpoint image-to-image использует тело запроса `multipart/form-data`. Загрузите одно или несколько reference images и передайте prompt и параметры как поля формы.
+Endpoint image-to-image использует тело запроса `multipart/form-data`. Загрузите одно или несколько референсных изображений и передайте prompt и параметры как поля формы.
 
 <Note>
   Используйте `{{openai-base-url}}` как `Base URL`. API Key BetterToken передается через `Authorization: Bearer YOUR_API_KEY`.
 </Note>
 
 <Tip>
-  В Playground справа можно заполнить поля формы, загрузить reference images и отправить запрос напрямую на `{{images-edits-url}}`.
+  В Playground справа можно заполнить поля формы, загрузить референсные изображения и отправить запрос напрямую на `{{images-edits-url}}`.
 </Tip>
 
 <Warning>
@@ -31,15 +31,15 @@ response_format=b64_json
 output_format=png
 ```
 
-Для одного reference image используйте `image`. Для нескольких reference images используйте повторяющиеся поля `image[]`.
+Для одного референсного изображения используйте `image`. Для нескольких референсных изображений используйте повторяющиеся поля `image[]`.
 
-## Один reference image
+## Одно референсное изображение
 
 ```bash
 curl '{{images-edits-url}}' \
   -H 'Authorization: Bearer sk-***REDACTED***' \
   -F 'model=gpt-image-2' \
-  -F 'prompt=Use this reference image to create a more polished square product hero image while keeping the main style consistent.' \
+  -F 'prompt=Используй это референсное изображение, чтобы создать более аккуратное квадратное главное изображение продукта, сохранив основной стиль.' \
   -F 'n=1' \
   -F 'size=1024x1024' \
   -F 'response_format=b64_json' \
@@ -47,13 +47,13 @@ curl '{{images-edits-url}}' \
   -F 'image=@reference.png'
 ```
 
-## Несколько reference images
+## Несколько референсных изображений
 
 ```bash
 curl '{{images-edits-url}}' \
   -H 'Authorization: Bearer sk-***REDACTED***' \
   -F 'model=gpt-image-2' \
-  -F 'prompt=Combine these reference images into one consistent promotional poster.' \
+  -F 'prompt=Объедини эти референсные изображения в единый промо-постер с согласованным стилем.' \
   -F 'n=1' \
   -F 'size=1024x1024' \
   -F 'response_format=b64_json' \
@@ -75,7 +75,7 @@ headers = {
 
 data = {
     "model": "gpt-image-2",
-    "prompt": "Use this reference image to create a more polished square product hero image while keeping the main style consistent.",
+    "prompt": "Используй это референсное изображение, чтобы создать более аккуратное квадратное главное изображение продукта, сохранив основной стиль.",
     "n": "1",
     "size": "1024x1024",
     "response_format": "b64_json",
