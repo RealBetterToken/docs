@@ -71,3 +71,17 @@ jobs:
           git branch -M llmeasy-docs
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin llmeasy-docs
+
+      - name: Trigger Mintlify update
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}
+          MINTLIFY_PROJECT_ID: ${{ secrets.MINTLIFY_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MINTLIFY_API_KEY:-}" ] || [ -z "${MINTLIFY_PROJECT_ID:-}" ]; then
+            echo "Skipping Mintlify update because MINTLIFY_API_KEY or MINTLIFY_PROJECT_ID is not configured."
+            exit 0
+          fi
+
+          node scripts/trigger-mintlify-update.mjs

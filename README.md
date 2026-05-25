@@ -73,6 +73,8 @@ export MINTLIFY_PROJECT_ID="project_xxx"
 node scripts/trigger-mintlify-update.mjs
 ```
 
+To trigger Mintlify automatically from GitHub Actions after the `llmeasy-docs` branch is published, add both values as repository secrets named `MINTLIFY_API_KEY` and `MINTLIFY_PROJECT_ID`. If either secret is missing, the workflow still publishes the branch and skips the Mintlify API update.
+
 After adding `www.llmeasy.ru` in the Mintlify dashboard, add the two verification `TXT` records that Mintlify shows for that domain. Wait until both records are verified in the dashboard, then point the domain to Mintlify with the `CNAME` record shown by Mintlify. Do not switch the `CNAME` before the verification records pass, because TLS provisioning depends on those records.
 
 After the Mintlify dashboard and DNS records are configured, verify the public domain:
