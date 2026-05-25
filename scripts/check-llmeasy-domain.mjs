@@ -4,6 +4,7 @@ import dns from 'node:dns/promises';
 import https from 'node:https';
 
 const domain = 'www.llmeasy.ru';
+const diagnosticDomain = 'docs.llmeasy.ru';
 const requiredTxtNames = [
   `_cf-custom-hostname.${domain}`,
   `_acme-challenge.${domain}`,
@@ -37,6 +38,30 @@ async function checkCnameOrA() {
 
   console.log(`CNAME: ${cnameRecords.join(', ') || '(none)'}`);
   console.log(`A: ${aRecords.join(', ') || '(none)'}`);
+}
+
+async function logDomainRecords(hostname) {
+  const recordTypes = [
+    ['CNAME', () => dns.resolveCname(hostname)],
+    ['A', () => dns.resolve4(hostname)],
+    ['TXT', () => dns.resolveTxt(hostname).then((records) => records.map((record) => record.join('')))],
+  ];
+
+  console.log(`\nDiagnostics for ${hostname}:`);
+
+  for (const [recordType, resolveRecords] of recordTypes) {
+    try {
+      const records = await resolveRecords();
+      console.log(`${recordType}: ${records.join(', ') || '(none)'}`);
+    } catch (error) {
+      if (error.code === 'ENODATA' || error.code === 'ENOTFOUND') {
+        console.log(`${recordType}: (none)`);
+        continue;
+      }
+
+      console.log(`${recordType}: lookup failed: ${error.message}`);
+    }
+  }
 }
 
 async function checkTxtRecords() {
@@ -99,6 +124,7 @@ function checkHttps() {
 await checkCnameOrA();
 await checkTxtRecords();
 await checkHttps();
+await logDomainRecords(diagnosticDomain);
 
 if (failures.length > 0) {
   console.error('\nLLMEasy domain check failed:');
