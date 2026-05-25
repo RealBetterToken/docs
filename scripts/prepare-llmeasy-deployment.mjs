@@ -277,7 +277,12 @@ async function generateLlmsFull() {
     ].join('\n\n'));
   }
 
-  await writeFile(path.join(outputDir, 'llms-full.txt'), `${sections.join('\n\n---\n\n')}\n`);
+  const content = `${sections.join('\n\n---\n\n')}\n`;
+  const wellKnownDir = path.join(outputDir, '.well-known');
+
+  await mkdir(wellKnownDir, { recursive: true });
+  await writeFile(path.join(outputDir, 'llms-full.txt'), content);
+  await writeFile(path.join(wellKnownDir, 'llms-full.txt'), content);
 }
 
 async function renameRegionalPaths(dir) {

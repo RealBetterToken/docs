@@ -343,18 +343,21 @@ function checkGeneratedRegionalOutput() {
     }
   }
 
-  const llmsFullPath = path.join(generatedRoot, 'llms-full.txt');
-  if (!fs.existsSync(llmsFullPath)) {
-    errors.push('.mintlify-llmeasy/llms-full.txt: missing generated custom llms-full file');
-  } else {
+  for (const llmsFullRelativePath of ['llms-full.txt', '.well-known/llms-full.txt']) {
+    const llmsFullPath = path.join(generatedRoot, llmsFullRelativePath);
+    if (!fs.existsSync(llmsFullPath)) {
+      errors.push(`.mintlify-llmeasy/${llmsFullRelativePath}: missing generated custom llms-full file`);
+      continue;
+    }
+
     const llmsFullText = fs.readFileSync(llmsFullPath, 'utf8');
 
     if (!llmsFullText.startsWith('# LLMEasy')) {
-      errors.push('.mintlify-llmeasy/llms-full.txt: expected # LLMEasy heading');
+      errors.push(`.mintlify-llmeasy/${llmsFullRelativePath}: expected # LLMEasy heading`);
     }
 
     if (/BetterToken|bettertoken|BETTERTOKEN|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai|bettertoken\.mintlify\.app/.test(llmsFullText)) {
-      errors.push('.mintlify-llmeasy/llms-full.txt: contains BetterToken brand text, production domain, or starter cache URL');
+      errors.push(`.mintlify-llmeasy/${llmsFullRelativePath}: contains BetterToken brand text, production domain, or starter cache URL`);
     }
   }
 
