@@ -1,0 +1,61 @@
+name: Publish BetterToken docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".mintignore"
+      - "**/*.mdx"
+      - "api-reference/**"
+      - "custom.css"
+      - "docs.json"
+      - "favicon.svg"
+      - "images/**"
+      - "logo/**"
+      - "scripts/trigger-mintlify-update.mjs"
+      - "snippets/**"
+      - ".github/workflows/publish-bettertoken-docs.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-bettertoken-docs
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 24
+
+      - name: Install Mintlify CLI
+        run: npm install -g mint
+
+      - name: Validate BetterToken docs
+        run: |
+          mint broken-links
+          mint validate
+
+      - name: Trigger Mintlify update
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.BETTERTOKEN_MINTLIFY_API_KEY }}
+          MINTLIFY_PROJECT_ID: ${{ secrets.BETTERTOKEN_MINTLIFY_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MINTLIFY_API_KEY:-}" ] || [ -z "${MINTLIFY_PROJECT_ID:-}" ]; then
+            echo "Skipping Mintlify update because BETTERTOKEN_MINTLIFY_API_KEY or BETTERTOKEN_MINTLIFY_PROJECT_ID is not configured."
+            exit 0
+          fi
+
+          node scripts/trigger-mintlify-update.mjs

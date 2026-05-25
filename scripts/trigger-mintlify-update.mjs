@@ -13,7 +13,7 @@ function usage() {
 
 Environment:
   MINTLIFY_API_KEY     Admin API key from the Mintlify dashboard.
-  MINTLIFY_PROJECT_ID  LLMEasy Mintlify project ID from the API keys page.
+  MINTLIFY_PROJECT_ID  Mintlify project ID from the API keys page.
 `);
 }
 
