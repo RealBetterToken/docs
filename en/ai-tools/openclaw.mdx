@@ -33,12 +33,12 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
     <Steps>
       <Step title="If you use macOS / Linux">
         ```bash
-        curl -fsSL https://www.bettertoken.ai/install-openclaw-provider.sh | bash
+        curl -fsSL {{install-openclaw-provider-sh-url}} | bash
         ```
       </Step>
       <Step title="If you use Windows">
         ```powershell
-        iwr https://www.bettertoken.ai/install-openclaw-provider.ps1 -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+        iwr {{install-openclaw-provider-ps1-url}} -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
         ```
       </Step>
     </Steps>
@@ -78,10 +78,10 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
       <Step title="Add or confirm the BetterToken provider">
         In the wizard or provider editor, fill in or confirm:
 
-        - **Base URL**: `https://www.bettertoken.ai/v1`
+        - **Base URL**: `{{openai-base-url}}`
         - **API**: `openai-responses`
         - **API Key**: your BetterToken API Key
-        - **Model**: a currently available model ID copied from the [model plaza](https://www.bettertoken.ai/pricing)
+        - **Model**: a currently available model ID copied from the model plaza (`{{model-plaza-url}}`)
 
         A minimal provider config snippet looks like this:
 
@@ -91,7 +91,7 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
             "mode": "merge",
             "providers": {
               "bettertoken": {
-                "baseUrl": "https://www.bettertoken.ai/v1",
+                "baseUrl": "{{openai-base-url}}",
                 "apiKey": "YOUR_BETTERTOKEN_API_KEY",
                 "api": "openai-responses",
                 "models": [
@@ -118,7 +118,7 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
 
         ```bash
         openclaw models list
-        openclaw models set <provider>/<Codex model ID copied from https://www.bettertoken.ai/pricing>
+        openclaw models set <provider>/<Codex model ID copied from {{model-plaza-url}}>
         openclaw gateway restart
         openclaw models status
         ```
@@ -253,7 +253,7 @@ Then send this prompt to Codex:
 ```text
 Please inspect and fix my local OpenClaw BetterToken setup. Requirements:
 1. Read the current OpenClaw config first and identify the provider id, the default model, and which agents in agents.list explicitly define model.
-2. If the BetterToken provider does not exist, add one that uses the Base URL `https://www.bettertoken.ai/v1` and sets `api: "openai-responses"`.
+2. If the BetterToken provider does not exist, add one that uses the Base URL `{{openai-base-url}}` and sets `api: "openai-responses"`.
 3. Reuse any credential already saved by OpenClaw. Only configure extra headers when the current version or your upstream gateway explicitly requires them; do not assume `User-Agent` is mandatory for BetterToken.
 4. Switch the default model to BetterToken and check whether `main` is still pinned to an older model. If I want `main` to follow the global default, remove the explicit model from `main`.
 5. Make sure the active BetterToken model is present in `agents.defaults.models` and add an easy-to-recognize `alias`.

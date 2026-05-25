@@ -1,0 +1,424 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LLMEasy GPT Image2 API",
+    "description": "OpenAI-совместимые endpoints LLMEasy для генерации и редактирования изображений.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://www.llmeasy.ru"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/images/generations": {
+      "post": {
+        "summary": "Генерация изображения по тексту",
+        "description": "Создавайте изображения через GPT Image2 по текстовому prompt. Запрос использует application/json. В успешном ответе изображение находится в data[0].b64_json.",
+        "operationId": "createImageGeneration",
+        "tags": [
+          "GPT Image2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToImageRequest"
+              },
+              "example": {
+                "model": "gpt-image-2",
+                "prompt": "Футуристичный постер AI-продукта на светлом фоне, стеклянная фактура, чистая композиция, премиальный технологичный стиль",
+                "n": 1,
+                "size": "1024x1024",
+                "response_format": "b64_json",
+                "output_format": "png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ImageResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://www.llmeasy.ru/v1/images/generations' \\\n  -H 'Authorization: Bearer sk-***REDACTED***' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-image-2\",\n    \"prompt\": \"Футуристичный постер AI-продукта на светлом фоне, стеклянная фактура, чистая композиция, премиальный технологичный стиль\",\n    \"n\": 1,\n    \"size\": \"1024x1024\",\n    \"response_format\": \"b64_json\",\n    \"output_format\": \"png\"\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/images/edits": {
+      "post": {
+        "summary": "Редактирование изображения по reference images",
+        "description": "Создавайте новое изображение через GPT Image2 на основе одной или нескольких reference images. Запрос использует multipart/form-data. В успешном ответе изображение находится в data[0].b64_json.",
+        "operationId": "createImageEdit",
+        "tags": [
+          "GPT Image2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageToImageRequest"
+              },
+              "encoding": {
+                "image": {
+                  "contentType": "image/png, image/jpeg, image/webp"
+                },
+                "image[]": {
+                  "contentType": "image/png, image/jpeg, image/webp"
+                }
+              },
+              "example": {
+                "model": "gpt-image-2",
+                "prompt": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.",
+                "n": "1",
+                "size": "1024x1024",
+                "response_format": "b64_json",
+                "output_format": "png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ImageResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL single image",
+            "source": "curl 'https://www.llmeasy.ru/v1/images/edits' \\\n  -H 'Authorization: Bearer sk-***REDACTED***' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
+          },
+          {
+            "lang": "cURL",
+            "label": "cURL multiple images",
+            "source": "curl 'https://www.llmeasy.ru/v1/images/edits' \\\n  -H 'Authorization: Bearer sk-***REDACTED***' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Объедини эти reference images и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "LLMEasy API Key",
+        "description": "Используйте API Key LLMEasy как bearer token. Не публикуйте API keys во frontend-коде, скриншотах, логах, тикетах или Git-репозиториях."
+      }
+    },
+    "schemas": {
+      "TextToImageRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "Используйте фиксированное значение gpt-image-2.",
+            "enum": [
+              "gpt-image-2"
+            ],
+            "default": "gpt-image-2",
+            "example": "gpt-image-2"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Prompt для генерации изображения.",
+            "example": "Футуристичный постер AI-продукта на светлом фоне, стеклянная фактура, чистая композиция, премиальный технологичный стиль"
+          },
+          "n": {
+            "type": "integer",
+            "description": "Рекомендуется фиксировать значение 1. Для нескольких изображений отправляйте несколько отдельных запросов.",
+            "minimum": 1,
+            "maximum": 1,
+            "default": 1,
+            "example": 1
+          },
+          "size": {
+            "$ref": "#/components/schemas/ImageSize"
+          },
+          "response_format": {
+            "type": "string",
+            "description": "Рекомендуется фиксировать b64_json, чтобы стабильно сохранять изображение.",
+            "enum": [
+              "b64_json"
+            ],
+            "default": "b64_json",
+            "example": "b64_json"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Рекомендуется фиксировать png. Не рассчитывайте, что jpeg или webp всегда вернутся напрямую в выбранном формате.",
+            "enum": [
+              "png"
+            ],
+            "default": "png",
+            "example": "png"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageToImageRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "Используйте фиксированное значение gpt-image-2.",
+            "enum": [
+              "gpt-image-2"
+            ],
+            "default": "gpt-image-2",
+            "example": "gpt-image-2"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Инструкция для редактирования изображения или генерации по reference image.",
+            "example": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта."
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "Поле для одной reference image. При одной reference image используйте image."
+          },
+          "image[]": {
+            "type": "array",
+            "description": "Поле для нескольких reference images. При нескольких reference images повторяйте image[].",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "n": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "Рекомендуется фиксировать значение 1. Для нескольких изображений отправляйте несколько отдельных запросов.",
+            "default": "1",
+            "example": "1"
+          },
+          "size": {
+            "$ref": "#/components/schemas/ImageSize"
+          },
+          "response_format": {
+            "type": "string",
+            "description": "Рекомендуется фиксировать b64_json.",
+            "enum": [
+              "b64_json"
+            ],
+            "default": "b64_json",
+            "example": "b64_json"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Рекомендуется фиксировать png. Не рассчитывайте, что jpeg или webp всегда вернутся напрямую в выбранном формате.",
+            "enum": [
+              "png"
+            ],
+            "default": "png",
+            "example": "png"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageSize": {
+        "type": "string",
+        "description": "Размеры и соотношения сторон изображения. auto выбирает размер автоматически; 1024x1024 и 2048x2048 — 1:1; 1536x1024 — 3:2; 1024x1536 — 2:3; 1536x1152 — 4:3; 1152x1536 — 3:4; 2048x1152 и 3840x2160 — 16:9; 2160x3840 — 9:16. Фактический размер может быть сопоставлен или скорректирован сервером, поэтому клиенту следует ориентироваться на реальные размеры декодированного изображения.",
+        "enum": [
+          "auto",
+          "1024x1024",
+          "1536x1024",
+          "1024x1536",
+          "1536x1152",
+          "1152x1536",
+          "2048x2048",
+          "2048x1152",
+          "3840x2160",
+          "2160x3840"
+        ],
+        "default": "1024x1024",
+        "example": "1024x1024"
+      },
+      "ImageResponse": {
+        "type": "object",
+        "description": "OpenAI-совместимый ответ с изображением. Клиентам следует читать data[0].b64_json и учитывать возможные дополнительные поля, например revised_prompt.",
+        "properties": {
+          "created": {
+            "type": "integer",
+            "example": 1710000000
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "b64_json": {
+                  "type": "string",
+                  "description": "Содержимое изображения в кодировке Base64.",
+                  "example": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+                },
+                "revised_prompt": {
+                  "type": "string",
+                  "description": "Необязательный переписанный prompt."
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "invalid request"
+              },
+              "type": {
+                "type": "string",
+                "example": "invalid_request_error"
+              },
+              "code": {
+                "type": "string",
+                "example": "invalid_request"
+              }
+            },
+            "additionalProperties": true
+          },
+          "message": {
+            "type": "string",
+            "example": "insufficient quota"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "responses": {
+      "ImageResponse": {
+        "description": "Результат генерации изображения.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ImageResponse"
+            },
+            "example": {
+              "created": 1710000000,
+              "data": [
+                {
+                  "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Неверный формат запроса, отсутствующие параметры, ошибка разбора JSON или multipart, либо неверный формат размера.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "API Key отсутствует или недействителен.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "PaymentRequired": {
+        "description": "Недостаточно квоты или баланса.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Сработал rate limit, лимит параллельных запросов или upstream временно перегружен.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Ошибка gateway или upstream-сервиса.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}

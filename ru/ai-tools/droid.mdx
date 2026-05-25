@@ -1,0 +1,86 @@
+---
+title: "Настройка Droid с BetterToken"
+sidebarTitle: "Droid"
+description: "Подключите BetterToken к Droid с ID моделей Codex group."
+icon: "robot"
+---
+
+Droid — CLI coding assistant от Factory AI. Через BYOK можно подключить BetterToken как custom OpenAI-compatible provider.
+
+## Требования
+
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+
+## Установка Droid
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://app.factory.ai/cli | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    irm https://app.factory.ai/cli/windows | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Настройка
+
+<Steps>
+  <Step title="Очистите конфликтующие переменные окружения">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Задайте API Key BetterToken">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+  </Step>
+
+  <Step title="Отредактируйте конфиг Droid">
+    Путь к конфигу: `~/.factory/settings.json`
+
+    ```json
+    {
+      "customModels": [
+        {
+          "displayName": "BetterToken Codex",
+          "model": "YOUR_CODEX_MODEL_ID",
+          "baseUrl": "{{openai-base-url}}",
+          "apiKey": "${BETTERTOKEN_API_KEY}",
+          "provider": "openai",
+          "maxOutputTokens": 64000
+        }
+      ]
+    }
+    ```
+
+    Замените `YOUR_CODEX_MODEL_ID` на актуальный ID модели **Codex group** из model plaza (`{{model-plaza-url}}`).
+  </Step>
+
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Мы не нашли официального требования Droid, по которому `User-Agent` обязателен для BetterToken. Начните с `Base URL`, API key и model ID на этой странице.
+
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
+  </Step>
+
+  <Step title="Перезапустите Droid">
+    После обновления конфигурации или переменных окружения остановите текущий процесс Droid и запустите его снова.
+  </Step>
+
+  <Step title="Запустите Droid">
+    ```bash
+    cd /path/to/your/project
+    droid
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Если ваша версия называет provider `OpenAI Compatible` вместо `openai`, следуйте текущему названию в UI. Extra headers добавляйте только по документации Droid или требованиям вашего upstream gateway.
+</Note>

@@ -1,0 +1,133 @@
+---
+title: "Почему Codex не может использовать GPT-5.5 в API mode?"
+sidebarTitle: "GPT-5.5 в Codex API mode"
+description: "Временно включите GPT-5.5 в Codex custom API mode через локальный каталог моделей."
+---
+
+По состоянию на 24 апреля 2026 года некоторые версии Codex могут не позволять выбрать `gpt-5.5` напрямую при использовании custom API provider. Это ограничение локального model catalog в Codex. Оно не означает, что endpoint BetterToken `{{openai-base-url}}` недоступен.
+
+Можно добавить локальный файл `custom-models.json`, чтобы Codex распознавал `gpt-5.5`, а затем сослаться на него из `~/.codex/config.toml`. Если более новая версия Codex поддерживает `gpt-5.5` нативно, предпочитайте встроенную настройку Codex.
+
+<Note>
+  Используйте полный `custom-models.json`, предоставленный на этой странице. Если вы редактируете файл вручную, сохраните существующие model entries и fields, меняя только нужную model configuration.
+</Note>
+
+## Шаги настройки
+
+<Steps>
+  <Step title="Подготовьте custom model config file">
+    Путь custom model config: `~/.codex/custom-models.json`.
+
+    <Tabs>
+      <Tab title="Скачать JSON file">
+        Скачайте полный model catalog:
+
+        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">Download custom-models.json</a>
+
+        Поместите скачанный файл в директорию конфигурации Codex и назовите его `custom-models.json`.
+
+        | Система | Целевой путь |
+        |--------|--------------|
+        | macOS / Linux | `~/.codex/custom-models.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+
+        Скачанный файл — полный model catalog. На следующем шаге он подключается из Codex config.
+      </Tab>
+
+      <Tab title="Редактировать JSON вручную">
+        Если у вас уже есть `~/.codex/custom-models.json`, редактируйте существующий файл. Не оставляйте только одну запись `gpt-5.5`.
+
+        При ручном редактировании убедитесь, что массив `models` содержит запись `gpt-5.5`, и сохраните остальные model configs. Если вы не уверены в JSON, используйте вариант скачивания.
+
+        Запись `gpt-5.5` должна содержать ключевые поля примерно такой структуры:
+
+        ```json
+        {
+          "slug": "gpt-5.5",
+          "display_name": "gpt-5.5",
+          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+          "base_instructions": "...",
+          "model_messages": {
+            "instructions_template": "...",
+            "instructions_variables": {
+              "personality_default": "",
+              "personality_friendly": "...",
+              "personality_pragmatic": "..."
+            }
+          },
+          "supports_reasoning_summaries": true,
+          "support_verbosity": true,
+          "context_window": 272000
+        }
+        ```
+
+        <Note>
+          Code block выше показывает только ключевую структуру одной model entry. Используйте скачанный файл или существующий полный model catalog как source of truth.
+        </Note>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Сошлитесь на JSON file в Codex config">
+    Откройте Codex config file `~/.codex/config.toml`, затем добавьте или объедините следующую конфигурацию.
+
+    Пример для macOS / Linux:
+
+    ```toml
+    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
+
+    [model_providers.bettertoken]
+    name = "BetterToken"
+    base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 10
+    stream_idle_timeout_ms = 300000
+
+    [profiles.bt-gpt-5-5]
+    model = "gpt-5.5"
+    model_provider = "bettertoken"
+    model_reasoning_effort = "high"
+    ```
+
+    Пример для Windows:
+
+    ```toml
+    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
+    ```
+
+    `model_catalog_json` должен быть локальным абсолютным путем. В TOML double-quoted strings на Windows пишите `\` как `\\`.
+  </Step>
+
+  <Step title="Задайте API Key BetterToken">
+    Задайте переменную окружения в терминале:
+
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    Чтобы переменная была доступна в каждой новой terminal session, добавьте команду в `~/.zshrc` или `~/.bashrc`.
+  </Step>
+
+  <Step title="Перезапустите и выберите profile">
+    После изменения config file или environment variable остановите текущий процесс Codex и запустите его в новой terminal session:
+
+    ```bash
+    codex --profile bt-gpt-5-5
+    ```
+  </Step>
+</Steps>
+
+## Диагностика
+
+Если `gpt-5.5` все еще не работает, проверьте по порядку:
+
+1. `model_catalog_json` использует локальный абсолютный путь
+2. `custom-models.json` сохраняет полный model catalog
+3. `base_url` равен `{{openai-base-url}}`
+4. `wire_api` равен `responses`
+5. `BETTERTOKEN_API_KEY` доступен в той же terminal session, где запускается Codex
+
+Если ваша версия Codex уже поддерживает `gpt-5.5` нативно, удалите `model_catalog_json` и вернитесь к обычной [инструкции Codex](/ru/ai-tools/codex).

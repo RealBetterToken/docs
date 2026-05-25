@@ -72,7 +72,7 @@ unset OPENAI_BASE_URL
 
 **禁用非必要流量。** 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 可以减少 Claude Code 发出的后台请求，让你的 API 额度用在真正的编码任务上。
 
-**Claude Code 的地址不要带 `/v1`。** `ANTHROPIC_BASE_URL` 应填写为 `https://www.bettertoken.ai`。
+**Claude Code 的地址不要带 `/v1`。** `ANTHROPIC_BASE_URL` 应填写为 `{{anthropic-base-url}}`。
 
 ---
 
@@ -82,19 +82,19 @@ unset OPENAI_BASE_URL
 
 但 `base_url` 必须按协议分别配置：
 
-- Claude Code / `ANTHROPIC_BASE_URL`：`https://www.bettertoken.ai`
-- Codex / `OPENAI_BASE_URL` / 其他外部工具：`https://www.bettertoken.ai/v1`
+- Claude Code / `ANTHROPIC_BASE_URL`：`{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / 其他外部工具：`{{openai-base-url}}`
 
 如果你有多个项目需要隔离追踪用量，可以在控制台创建多个 API Key，分别用于不同的工具或项目。
 
-对于外部工具，模型统一从[模型广场](https://www.bettertoken.ai/pricing)复制 **Codex 分组**的模型 ID。
+对于外部工具，模型统一从模型广场 (`{{model-plaza-url}}`)复制 **Codex 分组**的模型 ID。
 
 ---
 
 ## 遇到问题时的排查顺序
 
 1. **确认 API Key 正确** — 登录控制台，确认 Key 未被删除，粘贴时无多余空格
-2. **确认协议对应的地址** — Claude Code 用 `https://www.bettertoken.ai`；Codex / 外部工具用 `https://www.bettertoken.ai/v1`
+2. **确认协议对应的地址** — Claude Code 用 `{{anthropic-base-url}}`；Codex / 外部工具用 `{{openai-base-url}}`
 3. **检查环境变量冲突** — 运行 `echo $ANTHROPIC_AUTH_TOKEN`、`echo $OPENAI_BASE_URL` 等确认没有旧变量覆盖
 4. **检查工具官方接入要求** — 对外部工具，优先核对 `Base URL`、API Key、模型 ID 和工具版本；只有当工具官方文档或你接入的上游网关明确要求额外 headers 时，再单独配置
 5. **检查账户余额** — 余额不足时请求会被拒绝

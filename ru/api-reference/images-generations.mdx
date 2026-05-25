@@ -1,0 +1,110 @@
+---
+title: "Текст в изображение (генерация изображений)"
+description: "Генерируйте изображения из текстовых prompt через GPT Image2 и OpenAI-совместимый API BetterToken."
+openapi: "POST /v1/images/generations"
+---
+
+`POST /v1/images/generations`
+
+Endpoint text-to-image использует тело запроса `application/json`. Передайте prompt, держите HTTP-запрос открытым и прочитайте готовое изображение из `data[0].b64_json` в том же ответе.
+
+<Note>
+  Используйте `{{openai-base-url}}` как `Base URL`. API Key BetterToken передается через `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+<Tip>
+  В Playground справа можно заполнить `Authorization` и тело запроса, а затем отправить запрос напрямую на `{{images-generations-url}}`.
+</Tip>
+
+<Warning>
+  Не помещайте API keys во frontend-код браузера, Git-репозитории, тикеты, скриншоты или логи. Для server-side proxy calls храните ключи только в переменных окружения сервера или secret manager.
+</Warning>
+
+## Рекомендуемые значения
+
+Передавайте эти поля явно в каждом запросе:
+
+```json
+{
+  "model": "gpt-image-2",
+  "n": 1,
+  "response_format": "b64_json",
+  "output_format": "png"
+}
+```
+
+Чтобы сгенерировать несколько изображений, отправляйте несколько независимых запросов. Не рассчитывайте на один запрос с `n > 1`.
+
+## Рекомендуемые размеры
+
+| `size` | Соотношение | Сценарий |
+| --- | --- | --- |
+| `auto` | Auto | Автоматический выбор размера |
+| `1024x1024` | `1:1` | Квадратные изображения, аватары, обложки, assets |
+| `1536x1024` | `3:2` | Landscape-постеры, баннеры, сцены |
+| `1024x1536` | `2:3` | Portrait-обложки для мобильных и постеры |
+| `1536x1152` | `4:3` | Стандартные landscape-изображения, product images, content graphics |
+| `1152x1536` | `3:4` | Стандартные portrait-изображения, mobile covers, vertical posters |
+| `2048x2048` | `1:1` | High-resolution квадратные изображения |
+| `2048x1152` | `16:9` | High-resolution landscape-изображения |
+| `3840x2160` | `16:9` | 4K landscape-изображения |
+| `2160x3840` | `9:16` | 4K portrait-изображения |
+
+`size` задает ожидаемое соотношение сторон и уровень размера. Фактические пиксели в ответе могут быть сопоставлены или скорректированы сервером. Используйте размеры декодированного изображения, а не принудительную обрезку до запрошенного значения.
+
+## Сохранение изображения
+
+Успешный ответ следует OpenAI-совместимой форме image response:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Прочитайте `data[0].b64_json` и сохраните его как base64 image content. Ответ может содержать дополнительные поля, например `revised_prompt`; клиент должен разрешать такие поля.
+
+Всегда задавайте `output_format: "png"`. Затем сохраняйте декодированное изображение как `.png` без проверки file headers.
+
+```python
+import base64
+import json
+from pathlib import Path
+
+response = json.loads(Path("response.json").read_text(encoding="utf-8"))
+b64_json = response["data"][0]["b64_json"]
+
+if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
+    b64_json = b64_json.split(",", 1)[1]
+
+image_bytes = base64.b64decode(b64_json)
+Path("output.png").write_bytes(image_bytes)
+```
+
+<Warning>
+  Не рассчитывайте, что `output_format: "jpeg"` или `output_format: "webp"` сразу вернет JPEG или WebP-файл. Текущий endpoint может по-прежнему вернуть PNG. Если продукту нужен JPEG или WebP, сначала получите PNG и конвертируйте его в своем коде.
+</Warning>
+
+## Поток ответа
+
+Endpoint синхронный. После отправки `POST /images/generations` держите текущий HTTP-запрос открытым до ответа сервера. При успешной генерации содержимое изображения возвращается в `data[0].b64_json`.
+
+Endpoint не возвращает `task_id`; отдельного status query или endpoint для скачивания результата нет.
+
+## Timeout и повторные попытки
+
+- Задавайте timeout HTTP-клиента в несколько минут.
+- Повторяйте transport errors, `408`, `409`, `425`, `429` и `5xx`.
+- Не повторяйте автоматически `400`, `401`, отсутствующие параметры и некорректные запросы.
+- Используйте exponential backoff, например `3s`, `8s`, `15s`.
+- Если дубли изображений недопустимы, записывайте собственный request ID перед retry.
+
+## Смежные документы
+
+- [Image to image](/ru/api-reference/images-edits)
+- [GPT Image 2 доступен](/ru/model-updates/gpt-image-2)

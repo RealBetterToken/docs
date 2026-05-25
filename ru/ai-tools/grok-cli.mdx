@@ -1,0 +1,57 @@
+---
+title: "Настройка Grok CLI с BetterToken"
+sidebarTitle: "Grok CLI"
+description: "Подключите BetterToken к Grok CLI с ID моделей Codex group."
+icon: "g"
+---
+
+Grok CLI использует переменные окружения для API-конфигурации. При подключении BetterToken используйте `{{openai-base-url}}` и ID модели из Codex group.
+
+<Warning>
+  Grok CLI лучше подходит для легкого использования. Для полноценных agent workflow предпочитайте Claude Code, Codex или OpenClaw.
+</Warning>
+
+## Требования
+
+- Установленный Node.js
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+
+## Установка Grok CLI
+
+```bash
+npm install -g @vibe-kit/grok-cli
+```
+
+## Настройка
+
+<Steps>
+  <Step title="Очистите конфликтующие переменные окружения">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Задайте переменные окружения BetterToken">
+    ```bash
+    export GROK_BASE_URL="{{openai-base-url}}"
+    export GROK_API_KEY="YOUR_API_KEY"
+    ```
+  </Step>
+
+  <Step title="Запустите Grok CLI с моделью">
+    ```bash
+    grok --model YOUR_CODEX_MODEL_ID
+    ```
+
+    Замените `YOUR_CODEX_MODEL_ID` на актуальный ID модели **Codex group** из model plaza (`{{model-plaza-url}}`).
+  </Step>
+
+  <Step title="Перезапустите Grok CLI">
+    После изменения переменных окружения закройте текущую сессию Grok CLI и запустите инструмент снова.
+  </Step>
+</Steps>
+
+<Note>
+  Мы не нашли официального требования Grok CLI, по которому `User-Agent` обязателен для BetterToken. Сначала проверьте переменные окружения, model ID и версию инструмента; headers добавляйте только если этого требует ваш upstream gateway.
+</Note>

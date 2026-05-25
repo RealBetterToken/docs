@@ -1,0 +1,59 @@
+---
+title: "Настройка Roo Code с BetterToken"
+sidebarTitle: "Roo Code"
+description: "Подключите BetterToken к Roo Code с ID моделей Codex group."
+icon: "r"
+---
+
+Roo Code — это AI-расширение для разработки в VS Code. Для подключения BetterToken выберите provider `OpenAI Compatible` и используйте ID модели из Codex group.
+
+## Требования
+
+- Установленный VS Code
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+
+## Установка Roo Code
+
+Откройте VS Code, найдите **Roo Code** в marketplace расширений и установите его.
+
+## Настройка
+
+<Steps>
+  <Step title="Очистите конфликтующие переменные окружения">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Откройте настройки Roo Code">
+    Откройте панель **Settings** в Roo Code.
+  </Step>
+
+  <Step title="Настройте API provider">
+    Заполните:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → ваш API Key BetterToken
+    - **Model** → ID модели **Codex group** из model plaza (`{{model-plaza-url}}`)
+  </Step>
+
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Материалы Roo Code, которые мы проверяли, описывают OpenAI-compatible или custom API setup, но не делают дополнительный `User-Agent` обязательным шагом для BetterToken.
+
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
+  </Step>
+
+  <Step title="Сохраните и начните использовать">
+    Нажмите **Save** и **Done**, затем выберите настроенную модель.
+  </Step>
+
+  <Step title="Перезапустите Roo Code">
+    После сохранения перезапустите VS Code или перезагрузите расширение Roo Code перед выбором модели.
+  </Step>
+</Steps>
+
+<Note>
+  OpenAI Compatible provider в Roo Code зависит от OpenAI-style tool calling. Если вам нужны extra headers, следуйте актуальной документации Roo Code или требованиям вашего upstream gateway.
+</Note>

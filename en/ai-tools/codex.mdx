@@ -5,12 +5,12 @@ description: "Connect BetterToken to Codex with /v1 and OpenAI Responses."
 icon: "code"
 ---
 
-Connecting Codex to BetterToken requires a custom model provider and API Key. The `base_url` must be `https://www.bettertoken.ai/v1`, and the protocol is `OpenAI Responses`.
+Connecting Codex to BetterToken requires a custom model provider and API Key. The `base_url` must be `{{openai-base-url}}`, and the protocol is `OpenAI Responses`.
 
 ## Prerequisites
 
 - Node.js installed
-- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+- BetterToken API Key (register here (`{{register-url}}`))
 
 <Warning>
   Clear OpenAI-related environment variables before setup so they do not override the settings in `config.toml` or `auth.json`.
@@ -54,12 +54,12 @@ npm install -g @openai/codex
     <Steps>
       <Step title="If you use macOS / Linux">
         ```bash
-        curl -fsSL https://www.bettertoken.ai/install-codex-provider.sh | bash
+        curl -fsSL {{install-codex-provider-sh-url}} | bash
         ```
       </Step>
       <Step title="If you use Windows">
         ```powershell
-        iwr https://www.bettertoken.ai/install-codex-provider.ps1 -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+        iwr {{install-codex-provider-ps1-url}} -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
         ```
       </Step>
     </Steps>
@@ -76,7 +76,7 @@ npm install -g @openai/codex
   <Tab title="Manual setup">
     <Steps>
       <Step title="Copy a model ID from the model plaza">
-        Open the BetterToken [model plaza](https://www.bettertoken.ai/pricing) and copy a currently available model ID from the **Codex group**. Replace every `YOUR_CODEX_MODEL_ID` below with that value.
+        Open the BetterToken model plaza (`{{model-plaza-url}}`) and copy a currently available model ID from the **Codex group**. Replace every `YOUR_CODEX_MODEL_ID` below with that value.
       </Step>
 
       <Step title="Confirm the config file locations">
@@ -105,7 +105,7 @@ npm install -g @openai/codex
 
         [model_providers.bettertoken]
         name = "BetterToken"
-        base_url = "https://www.bettertoken.ai/v1"
+        base_url = "{{openai-base-url}}"
         wire_api = "responses"
         requires_openai_auth = true
         model_context_window = 1000000
@@ -172,7 +172,7 @@ npm install -g @openai/codex
 After startup, send a test message. A normal reply means the connection is working.
 
 If something fails, check:
-1. `base_url` is `https://www.bettertoken.ai/v1`
+1. `base_url` is `{{openai-base-url}}`
 2. `wire_api` is still `responses`
 3. `model` is a model ID copied from the **Codex group**
 4. `OPENAI_API_KEY` in `~/.codex/auth.json` is your BetterToken API Key

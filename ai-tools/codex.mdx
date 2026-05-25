@@ -5,12 +5,12 @@ description: "在 OpenAI Codex 中使用 BetterToken，使用 /v1 与 OpenAI Res
 icon: "code"
 ---
 
-在 Codex 中接入 BetterToken，需要配置自定义模型提供商和 API Key。`base_url` 必须填写为 `https://www.bettertoken.ai/v1`，协议为 `OpenAI Responses`。
+在 Codex 中接入 BetterToken，需要配置自定义模型提供商和 API Key。`base_url` 必须填写为 `{{openai-base-url}}`，协议为 `OpenAI Responses`。
 
 ## 前置条件
 
 - 已安装 Node.js
-- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+- 已获取 BetterToken API Key（注册并获取 (`{{register-url}}`)）
 
 <Warning>
   配置前请先清除 OpenAI 相关环境变量，避免它们覆盖 `config.toml` 或 `auth.json` 中的设置。
@@ -54,12 +54,12 @@ npm install -g @openai/codex
     <Steps>
       <Step title="如果你使用 macOS / Linux">
         ```bash
-        curl -fsSL https://www.bettertoken.ai/install-codex-provider.sh | bash
+        curl -fsSL {{install-codex-provider-sh-url}} | bash
         ```
       </Step>
       <Step title="如果你使用 Windows">
         ```powershell
-        iwr https://www.bettertoken.ai/install-codex-provider.ps1 -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+        iwr {{install-codex-provider-ps1-url}} -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
         ```
       </Step>
     </Steps>
@@ -76,7 +76,7 @@ npm install -g @openai/codex
   <Tab title="手动配置">
     <Steps>
       <Step title="从模型广场复制模型 ID">
-        打开 BetterToken [模型广场](https://www.bettertoken.ai/pricing)，复制 **Codex 分组**下当前可用的模型 ID。下文示例中的 `YOUR_CODEX_MODEL_ID` 都应替换为这个值。
+        打开 BetterToken 模型广场 (`{{model-plaza-url}}`)，复制 **Codex 分组**下当前可用的模型 ID。下文示例中的 `YOUR_CODEX_MODEL_ID` 都应替换为这个值。
       </Step>
 
       <Step title="确认配置文件位置">
@@ -105,7 +105,7 @@ npm install -g @openai/codex
 
         [model_providers.bettertoken]
         name = "BetterToken"
-        base_url = "https://www.bettertoken.ai/v1"
+        base_url = "{{openai-base-url}}"
         wire_api = "responses"
         requires_openai_auth = true
         model_context_window = 1000000
@@ -172,8 +172,8 @@ npm install -g @openai/codex
 启动后，向 Codex 发送一条测试消息，确认收到正常回复即表示配置成功。
 
 如遇到连接问题，请检查：
-1. `base_url` 是否填写为 `https://www.bettertoken.ai/v1`
+1. `base_url` 是否填写为 `{{openai-base-url}}`
 2. `wire_api` 是否保持为 `responses`
-3. `model` 是否为从[模型广场](https://www.bettertoken.ai/pricing)复制的 **Codex 分组**模型 ID
+3. `model` 是否为从模型广场 (`{{model-plaza-url}}`)复制的 **Codex 分组**模型 ID
 4. `~/.codex/auth.json` 中的 `OPENAI_API_KEY` 是否为你的 BetterToken API Key
 5. 是否有旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量在干扰配置

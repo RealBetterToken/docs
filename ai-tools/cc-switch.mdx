@@ -31,17 +31,17 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
 ## 开始前准备
 
-- BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
-- Claude Code 使用 Anthropic 协议：`Base URL` 填 `https://www.bettertoken.ai`
-- Codex、OpenCode、OpenClaw 使用 OpenAI-compatible 协议：`Base URL` 填 `https://www.bettertoken.ai/v1`
-- 给 Codex、OpenCode、OpenClaw 准备一个当前可用的 **Codex 分组**模型 ID。你可以从 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
+- BetterToken API Key（注册并获取 (`{{register-url}}`)）
+- Claude Code 使用 Anthropic 协议：`Base URL` 填 `{{anthropic-base-url}}`
+- Codex、OpenCode、OpenClaw 使用 OpenAI-compatible 协议：`Base URL` 填 `{{openai-base-url}}`
+- 给 Codex、OpenCode、OpenClaw 准备一个当前可用的 **Codex 分组**模型 ID。你可以从 BetterToken 模型广场 (`{{model-plaza-url}}`) 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
 
 <Info>
   CC Switch 首次启动时会自动导入本机已有的配置。你可以保留官方 provider 作为回退，再新增 BetterToken。
 </Info>
 
 <Note>
-  BetterToken 同时提供 Anthropic 和 OpenAI-compatible 两种接入模式。为了避免把 `https://www.bettertoken.ai` 和 `https://www.bettertoken.ai/v1` 混在一起，建议在 CC Switch 里按应用分别创建 provider，而不是把 Claude Code 和 OpenAI-compatible 工具合并到一个统一供应商。
+  BetterToken 同时提供 Anthropic 和 OpenAI-compatible 两种接入模式。为了避免把 `{{anthropic-base-url}}` 和 `{{openai-base-url}}` 混在一起，建议在 CC Switch 里按应用分别创建 provider，而不是把 Claude Code 和 OpenAI-compatible 工具合并到一个统一供应商。
 </Note>
 
 ## 添加 BetterToken provider
@@ -63,7 +63,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
       <Step title="填写基础字段">
         - **Provider Name**：`BetterToken`
-        - **Base URL**：`https://www.bettertoken.ai`
+        - **Base URL**：`{{anthropic-base-url}}`
         - **API Key**：你的 BetterToken API Key
 
         下图中的标注对应：
@@ -107,7 +107,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
           />
         </Frame>
 
-        这里使用的模型都应来自 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 当前可用的 **Codex 分组**模型 ID。
+        这里使用的模型都应来自 BetterToken 模型广场 (`{{model-plaza-url}}`) 当前可用的 **Codex 分组**模型 ID。
       </Step>
 
       <Step title="保存、切换，并按分组决定是否开启代理">
@@ -151,7 +151,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
       <Step title="填写基础字段">
         - **Provider Name**：`BetterToken`
-        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **Base URL**：`{{openai-base-url}}`
         - **API Key**：你的 BetterToken API Key
 
         如果你切到了自定义配置视图，确保底层配置使用 `wire_api = "responses"`。
@@ -228,12 +228,12 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
       <Step title="填写基础字段">
         - **Provider Name**：`BetterToken`
-        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **Base URL**：`{{openai-base-url}}`
         - **API Key**：你的 BetterToken API Key
       </Step>
 
       <Step title="选择默认模型">
-        优先点击 **获取模型**。如果需要手动填写，请直接使用 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 中当前可用的 **Codex 分组**模型 ID。
+        优先点击 **获取模型**。如果需要手动填写，请直接使用 BetterToken 模型广场 (`{{model-plaza-url}}`) 中当前可用的 **Codex 分组**模型 ID。
       </Step>
 
       <Step title="保存并切换">
@@ -250,7 +250,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
       <Step title="填写基础字段">
         - **Provider Name**：`BetterToken`
-        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **Base URL**：`{{openai-base-url}}`
         - **API Key**：你的 BetterToken API Key
 
         如果你进入的是 OpenClaw 的自定义 provider 配置视图，确保 `api` 写成 `openai-responses`。
@@ -281,7 +281,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 - Claude Code 的 `Base URL` 不要加 `/v1`
 - Claude Code 使用 `Codex_*` 分组时，要在 **高级选项** 里把 **API 格式** 切到 **OpenAI Responses API**
 - Claude Code 使用 `Claude_*` 分组时，不需要打开 **CC Switch 代理功能**
-- Codex、OpenCode、OpenClaw 的 `Base URL` 要写 `https://www.bettertoken.ai/v1`
+- Codex、OpenCode、OpenClaw 的 `Base URL` 要写 `{{openai-base-url}}`
 - Codex、OpenCode、OpenClaw 默认模型请使用 **Codex 分组**模型 ID，不要沿用 Claude 风格模型名
 - 如果 **获取模型** 失败，先检查 API Key 和 `Base URL`，再改为手动粘贴模型 ID
 - 如果切换后没有生效，先确认 BetterToken provider 已被设为当前 provider，再按上面的方式重启对应客户端或网关

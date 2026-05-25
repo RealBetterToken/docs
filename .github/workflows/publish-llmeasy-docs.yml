@@ -1,0 +1,73 @@
+name: Publish LLMEasy docs branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".mintignore"
+      - "**/*.mdx"
+      - "api-reference/**"
+      - "custom.css"
+      - "docs.json"
+      - "docs.llmeasy.json"
+      - "favicon-llmeasy.svg"
+      - "images/**"
+      - "logo/**"
+      - "scripts/**"
+      - "snippets/**"
+      - ".github/workflows/publish-llmeasy-docs.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-llmeasy-docs
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Mintlify CLI
+        run: npm install -g mint
+
+      - name: Prepare LLMEasy docs
+        run: node scripts/prepare-llmeasy-deployment.mjs
+
+      - name: Audit LLMEasy docs
+        run: node scripts/audit-regional-docs.mjs
+
+      - name: Validate LLMEasy docs
+        working-directory: .mintlify-llmeasy
+        run: |
+          mint broken-links
+          mint validate
+
+      - name: Publish branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          cd .mintlify-llmeasy
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit \
+            -m "chore(docs): 发布 LLMEasy 文档" \
+            -m "生成俄区 Mintlify 部署产物，并同步 docs.llmeasy.json 到 docs.json。"
+          git branch -M llmeasy-docs
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin llmeasy-docs

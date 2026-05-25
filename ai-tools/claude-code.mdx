@@ -10,7 +10,7 @@ icon: "terminal"
 ## 前置条件
 
 - 已安装 Claude Code（参考 [Claude Code 官方文档](https://docs.anthropic.com/en/docs/claude-code) 安装）
-- 已获取 BetterToken API Key（[注册并获取](https://www.bettertoken.ai/register)）
+- 已获取 BetterToken API Key（注册并获取 (`{{register-url}}`)）
 
 <Warning>
   配置前请确保清除以下环境变量，避免它们覆盖配置文件中的设置：
@@ -32,12 +32,12 @@ icon: "terminal"
     <Steps>
       <Step title="如果你使用 macOS / Linux">
         ```bash
-        curl -fsSL https://www.bettertoken.ai/install-claudecode-provider.sh | bash
+        curl -fsSL {{anthropic-base-url}}/install-claudecode-provider.sh | bash
         ```
       </Step>
       <Step title="如果你使用 Windows">
         ```powershell
-        iwr https://www.bettertoken.ai/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+        iwr {{anthropic-base-url}}/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
         ```
       </Step>
     </Steps>
@@ -59,7 +59,7 @@ icon: "terminal"
         - `Claude_*` 分组：只需要填写 `ANTHROPIC_BASE_URL` 与 `ANTHROPIC_AUTH_TOKEN`
         - `Codex_*` 分组：除了基础认证外，还需要配置 Claude Code 的模型映射
 
-        两种分组都继续使用 Anthropic 协议，`ANTHROPIC_BASE_URL` 都填写 `https://www.bettertoken.ai`，不要添加 `/v1`。
+        两种分组都继续使用 Anthropic 协议，`ANTHROPIC_BASE_URL` 都填写 `{{anthropic-base-url}}`，不要添加 `/v1`。
       </Step>
 
       <Step title="编辑 Claude Code 配置文件">
@@ -73,7 +73,7 @@ icon: "terminal"
         ```json
         {
           "env": {
-            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
             "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
             "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
             "API_TIMEOUT_MS": "3000000"
@@ -96,7 +96,7 @@ icon: "terminal"
         ```json
         {
           "env": {
-            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
             "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
             "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
             "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
@@ -121,7 +121,7 @@ icon: "terminal"
         | `model` | Claude Code 默认使用的模型级别；设为 `opus` 时会调用 `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
         <Note>
-          示例里的 `gpt-5.4` 是一个 `Codex 分组`模型 ID 示例。实际使用时，请以 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 中当前可用的 `Codex 分组`模型 ID 为准。三个级别可以填写同一个模型，也可以分别映射不同模型。
+          示例里的 `gpt-5.4` 是一个 `Codex 分组`模型 ID 示例。实际使用时，请以 BetterToken 模型广场 (`{{model-plaza-url}}`) 中当前可用的 `Codex 分组`模型 ID 为准。三个级别可以填写同一个模型，也可以分别映射不同模型。
         </Note>
       </Step>
 
@@ -165,7 +165,7 @@ icon: "terminal"
       "claudeCode.environmentVariables": [
         {
           "name": "ANTHROPIC_BASE_URL",
-          "value": "https://www.bettertoken.ai"
+          "value": "{{anthropic-base-url}}"
         },
         {
           "name": "ANTHROPIC_AUTH_TOKEN",
@@ -192,7 +192,7 @@ icon: "terminal"
       "claudeCode.environmentVariables": [
         {
           "name": "ANTHROPIC_BASE_URL",
-          "value": "https://www.bettertoken.ai"
+          "value": "{{anthropic-base-url}}"
         },
         {
           "name": "ANTHROPIC_AUTH_TOKEN",
@@ -223,7 +223,7 @@ icon: "terminal"
     ```
 
     <Note>
-      示例里的 `gpt-5.4` 仅作为 `Codex 分组`模型 ID 示例。请从 BetterToken [模型广场](https://www.bettertoken.ai/pricing) 复制当前可用的 `Codex 分组`模型 ID。插件内默认按 Opus 级别使用时，会优先命中 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
+      示例里的 `gpt-5.4` 仅作为 `Codex 分组`模型 ID 示例。请从 BetterToken 模型广场 (`{{model-plaza-url}}`) 复制当前可用的 `Codex 分组`模型 ID。插件内默认按 Opus 级别使用时，会优先命中 `ANTHROPIC_DEFAULT_OPUS_MODEL`。
     </Note>
   </Step>
 
@@ -238,7 +238,7 @@ icon: "terminal"
 
 如遇到认证错误，请检查：
 1. `ANTHROPIC_AUTH_TOKEN` 是否填写了正确的 BetterToken API Key
-2. `ANTHROPIC_BASE_URL` 是否填写为 `https://www.bettertoken.ai`
+2. `ANTHROPIC_BASE_URL` 是否填写为 `{{anthropic-base-url}}`
 3. `Claude_*` 分组是否避免填写模型变量，`Codex_*` 分组是否已配置 `ANTHROPIC_DEFAULT_*_MODEL`
 4. 是否有旧的环境变量在覆盖配置文件
 
@@ -248,6 +248,6 @@ icon: "terminal"
   <Accordion title="报错 API Error: Unable to connect to API (ConnectionRefused) 怎么办？">
     这通常表示 Claude Code 没有连上 BetterToken API，一般是网络连接异常、代理异常或防火墙拦截，不是 API Key 或模型配置错误。
 
-    请先检查本机网络是否正常，再确认系统代理、公司网络、路由器或安全软件是否拦截了 `https://www.bettertoken.ai`。如果你设置了防火墙，请允许 Claude Code 访问该地址。
+    请先检查本机网络是否正常，再确认系统代理、公司网络、路由器或安全软件是否拦截了 `{{anthropic-base-url}}`。如果你设置了防火墙，请允许 Claude Code 访问该地址。
   </Accordion>
 </AccordionGroup>

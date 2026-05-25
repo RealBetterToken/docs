@@ -1,0 +1,59 @@
+---
+title: "Настройка Cline с BetterToken"
+sidebarTitle: "Cline"
+description: "Подключите BetterToken к Cline с ID моделей Codex group."
+icon: "c"
+---
+
+Cline — это AI-расширение для разработки в VS Code. Для подключения BetterToken выберите provider `OpenAI Compatible` и используйте ID модели из Codex group.
+
+## Требования
+
+- Установленный VS Code
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+
+## Установка Cline
+
+Откройте VS Code, найдите **Cline** в marketplace расширений и установите его.
+
+## Настройка
+
+<Steps>
+  <Step title="Очистите конфликтующие переменные окружения">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Откройте интерфейс настройки Cline">
+    Нажмите **Use your own API key** в боковой панели Cline.
+  </Step>
+
+  <Step title="Настройте API provider">
+    Заполните:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → ваш API Key BetterToken
+    - **Model** → ID модели **Codex group** из model plaza (`{{model-plaza-url}}`)
+  </Step>
+
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Официальная OpenAI-compatible настройка Cline фокусируется на `Base URL`, API key и model ID. Для BetterToken обычно не нужен дополнительный `User-Agent`.
+
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
+  </Step>
+
+  <Step title="Сохраните конфигурацию">
+    Нажмите **Done**.
+  </Step>
+
+  <Step title="Перезапустите Cline">
+    После сохранения перезапустите VS Code или перезагрузите расширение Cline, чтобы новые настройки вступили в силу.
+  </Step>
+</Steps>
+
+<Note>
+  Сначала проверьте `Base URL`, API key, model ID и версию инструмента. Не считайте `User-Agent` обязательной настройкой BetterToken.
+</Note>

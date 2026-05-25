@@ -9,8 +9,8 @@ BetterToken now uses two different endpoints by protocol:
 
 | Scenario | Base URL | Protocol |
 |----------|----------|----------|
-| Claude Code / `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / external tools | `https://www.bettertoken.ai/v1` | OpenAI-style / OpenAI Responses |
+| Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Anthropic |
+| Codex / `OPENAI_BASE_URL` / external tools | `{{openai-base-url}}` | OpenAI-style / OpenAI Responses |
 
 <Warning>
   Do not keep using one shared endpoint for every protocol.
@@ -26,7 +26,7 @@ Pass your BetterToken API Key with the request:
     import anthropic
 
     client = anthropic.Anthropic(
-        base_url="https://www.bettertoken.ai",
+        base_url="{{anthropic-base-url}}",
         api_key="YOUR_API_KEY",
     )
 
@@ -38,7 +38,7 @@ Pass your BetterToken API Key with the request:
     ```
 
     ```bash
-    curl https://www.bettertoken.ai/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    curl {{anthropic-base-url}}/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
     ```
   </Tab>
   <Tab title="Codex / OpenAI Responses">
@@ -46,18 +46,18 @@ Pass your BetterToken API Key with the request:
     from openai import OpenAI
 
     client = OpenAI(
-        base_url="https://www.bettertoken.ai/v1",
+        base_url="{{openai-base-url}}",
         api_key="YOUR_API_KEY",
     )
 
     response = client.responses.create(
-        model="Codex group model ID copied from https://www.bettertoken.ai/pricing",
+        model="Codex group model ID copied from {{model-plaza-url}}",
         input="Hello",
     )
     ```
 
     ```bash
-    curl https://www.bettertoken.ai/v1/chat/completions       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    curl {{chat-completions-url}}       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
     ```
   </Tab>
 </Tabs>
@@ -66,7 +66,7 @@ Pass your BetterToken API Key with the request:
 
 - **Claude Code + `Claude_*` keys**: do not set model variables manually; only configure `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
 - **Claude Code + `Codex_*` keys**: add model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`
-- **Codex**: use a model ID copied from the **Codex group** in the [model plaza](https://www.bettertoken.ai/pricing)
+- **Codex**: use a model ID copied from the **Codex group** in the model plaza (`{{model-plaza-url}}`)
 - **External tools**: also use **Codex group** model IDs instead of fixed Claude model names
 
 <Note>
@@ -77,9 +77,9 @@ Pass your BetterToken API Key with the request:
 
 | Variable | Value | Usage |
 |----------|-------|-------|
-| `ANTHROPIC_BASE_URL` | `https://www.bettertoken.ai` | Claude Code |
+| `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Claude Code |
 | `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code auth |
-| `OPENAI_BASE_URL` | `https://www.bettertoken.ai/v1` | Codex and other OpenAI-style tools |
+| `OPENAI_BASE_URL` | `{{openai-base-url}}` | Codex and other OpenAI-style tools |
 | `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
 | `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |

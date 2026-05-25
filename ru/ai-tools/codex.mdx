@@ -1,0 +1,180 @@
+---
+title: "Настройка Codex с BetterToken"
+sidebarTitle: "Codex"
+description: "Подключите BetterToken к Codex через /v1 и OpenAI Responses."
+icon: "code"
+---
+
+Для подключения Codex к BetterToken нужен custom model provider и API Key. `base_url` должен быть `{{openai-base-url}}`, протокол — `OpenAI Responses`.
+
+## Требования
+
+- Установленный Node.js
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+
+<Warning>
+  Перед настройкой очистите OpenAI-related переменные окружения, чтобы они не переопределили `config.toml` или `auth.json`.
+
+  Очистите:
+
+  - `OPENAI_API_KEY`
+  - `OPENAI_BASE_URL`
+
+  macOS / Linux:
+
+  ```bash
+  unset OPENAI_API_KEY
+  unset OPENAI_BASE_URL
+  ```
+
+  Windows PowerShell:
+
+  ```powershell
+  Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
+  Remove-Item Env:OPENAI_BASE_URL -ErrorAction SilentlyContinue
+  [Environment]::SetEnvironmentVariable("OPENAI_API_KEY", $null, "User")
+  [Environment]::SetEnvironmentVariable("OPENAI_BASE_URL", $null, "User")
+  ```
+</Warning>
+
+## Установка Codex
+
+```bash
+npm install -g @openai/codex
+```
+
+## Настройка
+
+<Tabs>
+  <Tab title="Автоматическая настройка">
+    Можно запустить автоматический скрипт BetterToken. Он записывает только provider-конфигурацию BetterToken и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
+
+    Выберите шаг для своей ОС. Нужен только один вариант.
+
+    <Steps>
+      <Step title="macOS / Linux">
+        ```bash
+        curl -fsSL {{install-codex-provider-sh-url}} | bash
+        ```
+      </Step>
+      <Step title="Windows">
+        ```powershell
+        iwr {{install-codex-provider-ps1-url}} -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Настройка через CC Switch">
+    Этот путь описан в [инструкции CC Switch](/ru/ai-tools/cc-switch#codex-cli).
+
+    Перейдите сразу к [вкладке Codex в инструкции CC Switch](/ru/ai-tools/cc-switch#codex-cli).
+
+    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить запуск и остальные примечания.
+  </Tab>
+
+  <Tab title="Ручная настройка">
+    <Steps>
+      <Step title="Скопируйте model ID из model plaza">
+        Откройте model plaza (`{{model-plaza-url}}`) BetterToken и скопируйте актуальный ID модели из **Codex group**. Ниже замените все `YOUR_CODEX_MODEL_ID` на это значение.
+      </Step>
+
+      <Step title="Проверьте расположение конфигов">
+        Для ручной настройки нужны файлы Codex `config.toml` и `auth.json`.
+
+        | Система | `config.toml` | `auth.json` |
+        | --- | --- | --- |
+        | macOS / Linux | `~/.codex/config.toml` | `~/.codex/auth.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` | `C:\Users\YOUR_USER\.codex\auth.json` |
+      </Step>
+
+      <Step title="Отредактируйте config.toml Codex">
+        Откройте `config.toml`. Создайте его, если файла нет.
+
+        <Warning>
+          Этот блок применим только при ручном редактировании `~/.codex/config.toml`. Если вы настраиваете Codex через CC Switch, точно следуйте [инструкции CC Switch](/ru/ai-tools/cc-switch#codex-cli) и не заменяйте конфигурацию, которой управляет CC Switch.
+        </Warning>
+
+        Добавьте:
+
+        ```toml
+        model_provider = "bettertoken"
+        model = "YOUR_CODEX_MODEL_ID"
+        model_reasoning_effort = "high"
+        disable_response_storage = true
+
+        [model_providers.bettertoken]
+        name = "BetterToken"
+        base_url = "{{openai-base-url}}"
+        wire_api = "responses"
+        requires_openai_auth = true
+        model_context_window = 1000000
+        model_auto_compact_token_limit = 900000
+        ```
+      </Step>
+
+      <Step title="Запишите auth.json Codex">
+        Откройте `auth.json`. Создайте его, если файла нет.
+
+        Запишите содержимое ниже, заменив `YOUR_API_KEY` на API Key BetterToken:
+
+        ```json
+        {
+          "OPENAI_API_KEY": "YOUR_API_KEY"
+        }
+        ```
+      </Step>
+
+      <Step title="Перезапустите Codex в терминале">
+        После изменения `config.toml` или `auth.json` остановите текущий процесс Codex и запустите его в новой terminal session.
+      </Step>
+
+      <Step title="Запустите Codex">
+        ```bash
+        codex
+        ```
+      </Step>
+    </Steps>
+
+    ### Справочник параметров
+
+    | Параметр | Описание |
+    | --- | --- |
+    | `model_provider` | ID provider по умолчанию. Должен совпадать с `bettertoken` в `[model_providers.bettertoken]` |
+    | `model` | ID модели, которую Codex использует после запуска. Берите модель из **Codex group** в model plaza |
+    | `model_reasoning_effort` | Усилие reasoning. Используйте `low`, `medium` или `high` по необходимости |
+    | `disable_response_storage` | Отключает сохранение response. Оставьте `true` |
+    | `name` | Отображаемое имя provider. Можно оставить `BetterToken` |
+    | `base_url` | Endpoint BetterToken для Codex / OpenAI-compatible protocol. Должен включать `/v1` |
+    | `wire_api` | Протокол API, который использует Codex. Оставьте `responses` |
+    | `requires_openai_auth` | Указывает Codex читать API Key из OpenAI auth file. Оставьте `true` |
+
+    ### Конфигурация 1M context
+
+    Если вы используете long-context модель из **Codex group**, оставьте эти две настройки:
+
+    ```toml
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    ```
+
+    | Параметр | Назначение |
+    | --- | --- |
+    | `model_context_window` | Задает доступное context window в `1,000,000` токенов |
+    | `model_auto_compact_token_limit` | Запускает compaction до жесткого лимита контекста и снижает риск исчерпания context |
+
+    Если конфигурацию пишет CC Switch, предпочитайте сгенерированный им файл. Редактируйте эти значения вручную только для manual setup или troubleshooting.
+  </Tab>
+</Tabs>
+
+## Проверка
+
+После запуска отправьте тестовое сообщение. Обычный ответ означает, что подключение работает.
+
+Если что-то не работает, проверьте:
+
+1. `base_url` равен `{{openai-base-url}}`
+2. `wire_api` остается `responses`
+3. `model` — это ID модели из **Codex group**
+4. `OPENAI_API_KEY` в `~/.codex/auth.json` — ваш API Key BetterToken
+5. Старые переменные `OPENAI_API_KEY` или `OPENAI_BASE_URL` не мешают настройке

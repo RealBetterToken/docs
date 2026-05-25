@@ -1,0 +1,118 @@
+---
+title: "Вопросы и ответы"
+description: "Частые вопросы об аккаунтах BetterToken, оплате, использовании и настройке."
+---
+
+## Аккаунт и оплата
+
+<AccordionGroup>
+  <Accordion title="Как BetterToken считает стоимость использования?">
+    BetterToken списывает баланс по фактическому расходу токенов и следует тарифам Anthropic / OpenAI без дополнительной наценки. Каждый новый аккаунт получает ¥5 пробного баланса.
+
+    Подробнее смотрите на странице тарифов (`{{pricing-url}}`).
+  </Accordion>
+
+  <Accordion title="Можно ли вернуть деньги после регистрации?">
+    Платные пополнения можно вернуть. Пробный баланс не возвращается. Если нужен возврат, обратитесь в поддержку.
+  </Accordion>
+
+  <Accordion title="Можно ли использовать один API Key в нескольких инструментах?">
+    Да. Один API Key можно одновременно использовать в Claude Code, Codex, Cursor и других инструментах. Расход будет общим.
+  </Accordion>
+
+  <Accordion title="Где посмотреть расход?">
+    Войдите в панель управления, чтобы увидеть текущий расход и историю списаний.
+  </Accordion>
+</AccordionGroup>
+
+## Настройка
+
+<AccordionGroup>
+  <Accordion title="Какой base_url у BetterToken?">
+    BetterToken использует два endpoint в зависимости от протокола:
+
+    | Сценарий | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` |
+    | Codex / `OPENAI_BASE_URL` / внешние инструменты | `{{openai-base-url}}` |
+
+    Не используйте один адрес во всех инструментах.
+  </Accordion>
+
+  <Accordion title="Нужно ли указывать модель для Claude Code?">
+    Это зависит от группы вашего API Key.
+
+    С ключом `Claude_*` задайте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. Переменные модели не нужны.
+
+    С ключом `Codex_*` добавьте сопоставления моделей через `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` и `ANTHROPIC_DEFAULT_OPUS_MODEL`. ID модели копируйте из текущей **Codex group** в model plaza (`{{model-plaza-url}}`).
+  </Accordion>
+
+  <Accordion title="Нужно ли указывать модель для Codex?">
+    Да. Укажите ID модели из **Codex group** в model plaza (`{{model-plaza-url}}`).
+
+    Подробнее смотрите в [инструкции для Codex](/ru/ai-tools/codex).
+  </Accordion>
+
+  <Accordion title="Нужно ли указывать модель в Cursor и других инструментах?">
+    Да. Внешние инструменты, например Cursor, Cline, Zed и OpenClaw, используют **Codex group**. Копируйте актуальный ID модели из model plaza (`{{model-plaza-url}}`).
+
+    Не используйте в этих инструментах жестко заданные имена Claude-моделей.
+
+    Подробнее смотрите в [инструкции для Cursor](/ru/ai-tools/cursor).
+  </Accordion>
+
+  <Accordion title="Нужны ли OpenClaw и другим внешним инструментам дополнительные headers?">
+    Обычно нет.
+
+    По официальным инструкциям, которые мы проверяли, Cursor, Cline, Zed и похожие инструменты в основном требуют `Base URL`, API Key и ID модели. OpenCode и OpenClaw поддерживают необязательные `headers`, но в их документации это описано как настройка для нестандартной авторизации, а не как обязательный шаг BetterToken.
+
+    Добавляйте дополнительные headers только если это явно требуется документацией инструмента или вашим upstream gateway, tenant routing, observability-слоем либо кеширующей прослойкой.
+  </Accordion>
+
+  <Accordion title="Что делать, если после настройки не проходит авторизация?">
+    Проверьте:
+
+    1. API Key введен правильно и без лишних пробелов
+    2. Claude Code использует `{{anthropic-base-url}}`, а Codex / внешние инструменты используют `{{openai-base-url}}`
+    3. Старые переменные `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY` или `OPENAI_BASE_URL` не переопределяют конфигурацию
+    4. Для внешних инструментов нет дополнительных требований: версии клиента, allowlist моделей или обязательных headers вашего upstream gateway
+
+    Если проблема остается, обратитесь в поддержку.
+  </Accordion>
+</AccordionGroup>
+
+## Надежность и лимиты
+
+<AccordionGroup>
+  <Accordion title="За счет чего BetterToken остается стабильным?">
+    BetterToken подключается к нескольким поставщикам и использует несколько механизмов:
+
+    - **Несколько источников**: сбой одного поставщика не останавливает все запросы
+    - **Динамическая маршрутизация**: BetterToken в реальном времени выбирает самый быстрый и стабильный путь
+    - **Фокус на ключевых сценариях**: надежность в первую очередь оптимизирована для Claude Code и экосистемы Codex
+  </Accordion>
+
+  <Accordion title="Что делать при rate limit или timeout?">
+    BetterToken автоматически обрабатывает лимиты и timeout отдельных поставщиков. Если проблемы продолжаются:
+
+    1. Проверьте, что на балансе достаточно средств
+    2. Увеличьте timeout в инструменте, рекомендуется `API_TIMEOUT_MS=3000000`
+    3. Обратитесь в поддержку, чтобы уточнить текущий статус квот
+  </Accordion>
+
+  <Accordion title="Подходит ли BetterToken для production?">
+    BetterToken в первую очередь сделан для индивидуальных разработчиков, которые используют AI-инструменты вроде Claude Code и Codex. Для крупных production-нагрузок оцените сервис по собственным требованиям.
+  </Accordion>
+</AccordionGroup>
+
+## Конфиденциальность и безопасность
+
+<AccordionGroup>
+  <Accordion title="Хранит ли BetterToken содержимое моих запросов?">
+    BetterToken работает как прокси и не сохраняет содержимое диалогов на постоянной основе. Подробнее смотрите в Privacy Policy (`{{privacy-url}}`).
+  </Accordion>
+
+  <Accordion title="Что делать, если API Key утек?">
+    Сразу войдите в панель управления, удалите старый ключ и создайте новый. Затем обновите каждый инструмент, где использовался этот ключ.
+  </Accordion>
+</AccordionGroup>

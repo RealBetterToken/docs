@@ -4,7 +4,7 @@ sidebarTitle: "Codex API 模式使用 GPT-5.5"
 description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模型目录配置。"
 ---
 
-截至 2026-04-24，部分 Codex 版本在自定义 API 模式下可能无法直接选择 `gpt-5.5`。这是 Codex 本地模型目录尚未包含该模型导致的显示和选择限制，不代表 BetterToken 的 `https://www.bettertoken.ai/v1` 端点不可用。
+截至 2026-04-24，部分 Codex 版本在自定义 API 模式下可能无法直接选择 `gpt-5.5`。这是 Codex 本地模型目录尚未包含该模型导致的显示和选择限制，不代表 BetterToken 的 `{{openai-base-url}}` 端点不可用。
 
 你可以先添加一个本地 `custom-models.json`，让 Codex 识别 `gpt-5.5`，再在 `~/.codex/config.toml` 中引用它。官方后续版本若已经内置支持 `gpt-5.5`，优先使用 Codex 的内置方案。
 
@@ -78,7 +78,7 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
 
     [model_providers.bettertoken]
     name = "BetterToken"
-    base_url = "https://www.bettertoken.ai/v1"
+    base_url = "{{openai-base-url}}"
     env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
@@ -126,7 +126,7 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
 
 1. `model_catalog_json` 是否是本机绝对路径
 2. `custom-models.json` 是否保留了完整模型目录
-3. `base_url` 是否为 `https://www.bettertoken.ai/v1`
+3. `base_url` 是否为 `{{openai-base-url}}`
 4. `wire_api` 是否为 `responses`
 5. `BETTERTOKEN_API_KEY` 是否已在启动 Codex 的同一个终端会话中生效
 

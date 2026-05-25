@@ -9,11 +9,11 @@ openapi: "api-reference/openapi.json POST /v1/images/edits"
 图生图接口使用 `multipart/form-data` 请求体。你需要上传一张或多张参考图片，并通过表单字段提交提示词和参数。
 
 <Note>
-  使用 `https://www.bettertoken.ai/v1` 作为 `Base URL`。调用时通过 `Authorization: Bearer YOUR_API_KEY` 传入 BetterToken API Key。
+  使用 `{{openai-base-url}}` 作为 `Base URL`。调用时通过 `Authorization: Bearer YOUR_API_KEY` 传入 BetterToken API Key。
 </Note>
 
 <Tip>
-  你可以在页面右侧的 Playground 填写表单字段并上传参考图片，直接在线调试。请求会发往 `https://www.bettertoken.ai/v1/images/edits`。
+  你可以在页面右侧的 Playground 填写表单字段并上传参考图片，直接在线调试。请求会发往 `{{images-edits-url}}`。
 </Tip>
 
 <Warning>
@@ -48,7 +48,7 @@ output_format=png
 | `image` | 选择本地文件 `reference.png` |
 
 ```bash
-curl 'https://www.bettertoken.ai/v1/images/edits' \
+curl '{{images-edits-url}}' \
   -H 'Authorization: Bearer sk-***REDACTED***' \
   -F 'model=gpt-image-2' \
   -F 'prompt=参考这张图片，生成一张更精致的方形产品主视觉，保持主体风格一致。' \
@@ -76,7 +76,7 @@ curl 'https://www.bettertoken.ai/v1/images/edits' \
 | `image[]` | 选择本地文件 `reference-3.png` |
 
 ```bash
-curl 'https://www.bettertoken.ai/v1/images/edits' \
+curl '{{images-edits-url}}' \
   -H 'Authorization: Bearer sk-***REDACTED***' \
   -F 'model=gpt-image-2' \
   -F 'prompt=综合这些参考图，生成一张统一风格的宣传海报。' \
@@ -94,7 +94,7 @@ curl 'https://www.bettertoken.ai/v1/images/edits' \
 ```python
 import requests
 
-url = "https://www.bettertoken.ai/v1/images/edits"
+url = "{{images-edits-url}}"
 headers = {
     "Authorization": "Bearer sk-***REDACTED***",
 }
@@ -171,7 +171,7 @@ b64_json = result["data"][0]["b64_json"]
 
 ## 接入检查清单
 
-- Base URL 是 `https://www.bettertoken.ai/v1`。
+- Base URL 是 `{{openai-base-url}}`。
 - Header 包含 `Authorization: Bearer sk-...`。
 - 请求使用 `multipart/form-data`。
 - 模型固定为 `gpt-image-2`。

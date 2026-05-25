@@ -1,0 +1,266 @@
+---
+title: "Настройка OpenClaw с BetterToken"
+sidebarTitle: "OpenClaw"
+description: "Подключите BetterToken к OpenClaw, мультиплатформенному AI agent gateway."
+icon: "paw"
+---
+
+OpenClaw — кроссплатформенный AI agent gateway для Discord, Google Chat, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo и других платформ. На этой странице показано, как подключить BetterToken к OpenClaw и выполнить базовую проверку.
+
+## Установка OpenClaw
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://openclaw.ai/install.sh | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr -useb https://openclaw.ai/install.ps1 | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Установка и подключение
+
+<Tabs>
+  <Tab title="Автоматическая настройка">
+    Можно запустить автоматический скрипт BetterToken. Подготовьте API Key BetterToken до начала. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается. После завершения скрипта перейдите к разделу «Как применить» ниже.
+
+    Выберите шаг для своей ОС. Нужен только один вариант.
+
+    <Steps>
+      <Step title="macOS / Linux">
+        ```bash
+        curl -fsSL {{install-openclaw-provider-sh-url}} | bash
+        ```
+      </Step>
+      <Step title="Windows">
+        ```powershell
+        iwr {{install-openclaw-provider-ps1-url}} -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Настройка через CC Switch">
+    Этот путь поддерживается в [инструкции CC Switch](/ru/ai-tools/cc-switch#openclaw).
+
+    Перейдите сразу к [вкладке OpenClaw в инструкции CC Switch](/ru/ai-tools/cc-switch#openclaw).
+
+    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить startup, verification и activation notes.
+  </Tab>
+
+  <Tab title="Ручная настройка">
+    <Steps>
+      <Step title="Очистите конфликтующие переменные окружения">
+        ```bash
+        unset ANTHROPIC_AUTH_TOKEN
+        unset ANTHROPIC_BASE_URL
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
+
+      <Step title="Запустите onboarding">
+        ```bash
+        openclaw onboard --install-daemon
+        ```
+      </Step>
+
+      <Step title="Добавьте credential BetterToken через auth flow">
+        ```bash
+        openclaw models auth add
+        ```
+      </Step>
+
+      <Step title="Добавьте или проверьте provider BetterToken">
+        В wizard или provider editor заполните или проверьте:
+
+        - **Base URL**: `{{openai-base-url}}`
+        - **API**: `openai-responses`
+        - **API Key**: ваш API Key BetterToken
+        - **Model**: актуальный model ID из model plaza (`{{model-plaza-url}}`)
+
+        Минимальный provider config snippet выглядит так:
+
+        ```json
+        {
+          "models": {
+            "mode": "merge",
+            "providers": {
+              "bettertoken": {
+                "baseUrl": "{{openai-base-url}}",
+                "apiKey": "YOUR_BETTERTOKEN_API_KEY",
+                "api": "openai-responses",
+                "models": [
+                  {
+                    "id": "YOUR_CODEX_MODEL_ID",
+                    "name": "YOUR_CODEX_MODEL_ID"
+                  }
+                ]
+              }
+            }
+          }
+        }
+        ```
+      </Step>
+
+      <Step title="Extra `headers` обычно не нужны">
+        При подключении BetterToken обычно не нужен дополнительный `User-Agent`.
+
+        Добавляйте headers только если вы также используете custom gateway, tenant routing или другой upstream service, который явно требует их.
+      </Step>
+
+      <Step title="Задайте default model и проверьте">
+        Выполните `openclaw models list`, чтобы проверить provider id, затем задайте default model и проверьте status:
+
+        ```bash
+        openclaw models list
+        openclaw models set <provider>/<Codex model ID copied from {{model-plaza-url}}>
+        openclaw gateway restart
+        openclaw models status
+        ```
+
+        После записи config перейдите к разделу «Как применить» ниже, чтобы перезапустить gateway и проверить сессию.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+### Примечания для multi-agent setups и существующих сессий
+
+Effective model priority в OpenClaw обычно такой:
+
+`session override` > `agents.list[*].model` > `agents.defaults.model.primary`
+
+Это значит:
+
+- Если agent явно задает `model` в `agents.list`, он не наследует global default model.
+- Если BetterToken установлен как global default model, но `main` все еще закрепляет старую модель, Discord DM flows, использующие `main`, продолжат использовать старую модель.
+- Если в предыдущей session остались `providerOverride`, `modelOverride` или `authProfileOverride`, текущая session может продолжать использовать старый route даже после обновления default model.
+
+Рекомендуемый workflow:
+
+1. Если вы хотите, чтобы `main` следовал global default, не задавайте отдельный `model` для `main` или измените его на BetterToken.
+2. Выполните `openclaw gateway restart` после изменения config.
+3. Выполните `/new` в Discord, чтобы начать fresh session.
+4. Используйте `/status` и `/model`, чтобы проверить active model.
+
+### Минимальный пример config
+
+Используйте provider id, который показывает `openclaw models list`. В примере ниже используется `bettertoken/gpt-5.4`; замените его, если provider id отличается.
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "bettertoken/gpt-5.4",
+        "fallbacks": []
+      },
+      "models": {
+        "bettertoken/gpt-5.4": {
+          "alias": "bettertoken"
+        }
+      }
+    },
+    "list": [
+      {
+        "id": "main"
+      },
+      {
+        "id": "fitness-coach"
+      },
+      {
+        "id": "trade-recorder",
+        "model": {
+          "primary": "bettertoken/gpt-5.4",
+          "fallbacks": []
+        }
+      }
+    ]
+  }
+}
+```
+
+- `main` не задает `model`, поэтому наследует global BetterToken default.
+- `trade-recorder` задает `model`, поэтому не следует последующим изменениям global default.
+
+## Как применить
+
+<Tip>
+  Если `/model` работает нестабильно, hot reload непоследователен или model picker странно ведет себя в старом OpenClaw build, обновитесь до последней версии перед глубокой диагностикой.
+</Tip>
+
+<Steps>
+  <Step title="Сначала проверьте config layer">
+    Выполните:
+
+    ```bash
+    openclaw models list
+    openclaw models status
+    ```
+
+    Убедитесь, что provider BetterToken существует, а default model указывает на BetterToken.
+  </Step>
+
+  <Step title="Reload gateway">
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+
+  <Step title="Начните новую session">
+    Выполните `/new` в Discord.
+  </Step>
+
+  <Step title="Проверьте модель текущей session">
+    Выполните `/status` в Discord и убедитесь, что current agent и current session используют BetterToken.
+  </Step>
+
+  <Step title="При необходимости проверьте available model picker">
+    Выполните `/model` в Discord.
+
+    Если BetterToken там не появляется, проверьте:
+
+    - указана ли текущая модель в `agents.defaults.models`
+    - есть ли у provider model читаемое display name и, при необходимости, `alias` в `agents.defaults.models`
+    - выполняли ли вы `openclaw gateway restart`
+    - выполняли ли вы `/new`
+  </Step>
+</Steps>
+
+## Быстрая диагностика
+
+- Если вы изменили default model, но runtime все еще использует старую, сначала проверьте `agents.list.main.model`
+- Если BetterToken не появляется в `/model`, проверьте, указан ли он в `agents.defaults.models`
+- Если Discord все еще показывает старый route после изменения config, выполните `openclaw gateway restart`, затем `/new`
+- Если model picker или hot reload все еще выглядят устаревшими, сначала обновите OpenClaw и протестируйте снова
+
+## Fallback: пусть Codex настроит это за вас
+
+Если вы не хотите редактировать config вручную, задайте API Key как environment variable и запустите Codex:
+
+```bash
+export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+codex
+```
+
+Затем отправьте Codex такой prompt:
+
+```text
+Please inspect and fix my local OpenClaw BetterToken setup. Requirements:
+1. Read the current OpenClaw config first and identify the provider id, the default model, and which agents in agents.list explicitly define model.
+2. If the BetterToken provider does not exist, add one that uses the Base URL `{{openai-base-url}}` and sets `api: "openai-responses"`.
+3. Reuse any credential already saved by OpenClaw. Only configure extra headers when the current version or your upstream gateway explicitly requires them; do not assume `User-Agent` is mandatory for BetterToken.
+4. Switch the default model to BetterToken and check whether `main` is still pinned to an older model. If I want `main` to follow the global default, remove the explicit model from `main`.
+5. Make sure the active BetterToken model is present in `agents.defaults.models` and add an easy-to-recognize `alias`.
+6. Back up the original config, make the smallest possible diff, and tell me which fields you plan to change before editing.
+7. After editing, run `openclaw gateway restart` and remind me to validate with `/new`, `/status`, and `/model` in Discord.
+
+Constraints:
+- If you need the API Key, read it from the `BETTERTOKEN_API_KEY` environment variable and do not print the secret in chat or logs.
+- If the current config does not include a BetterToken model yet, ask me for a Codex-group model ID from the BetterToken model plaza.
+```

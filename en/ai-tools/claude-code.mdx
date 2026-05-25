@@ -10,7 +10,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
 ## Prerequisites
 
 - Claude Code installed (see [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code))
-- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
+- BetterToken API Key (register here (`{{register-url}}`))
 
 <Warning>
   Clear these environment variables before setup so they do not override your config file:
@@ -32,12 +32,12 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
     <Steps>
       <Step title="If you use macOS / Linux">
         ```bash
-        curl -fsSL https://www.bettertoken.ai/install-claudecode-provider.sh | bash
+        curl -fsSL {{anthropic-base-url}}/install-claudecode-provider.sh | bash
         ```
       </Step>
       <Step title="If you use Windows">
         ```powershell
-        iwr https://www.bettertoken.ai/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+        iwr {{anthropic-base-url}}/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
         ```
       </Step>
     </Steps>
@@ -59,7 +59,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         - `Claude_*`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
         - `Codex_*`: set the auth fields and add Claude Code model mappings
 
-        Both groups still use the Anthropic protocol. In both cases, set `ANTHROPIC_BASE_URL` to `https://www.bettertoken.ai` without `/v1`.
+        Both groups still use the Anthropic protocol. In both cases, set `ANTHROPIC_BASE_URL` to `{{anthropic-base-url}}` without `/v1`.
       </Step>
 
       <Step title="Edit the Claude Code config file">
@@ -73,7 +73,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         ```json
         {
           "env": {
-            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
             "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
             "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
             "API_TIMEOUT_MS": "3000000"
@@ -96,7 +96,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         ```json
         {
           "env": {
-            "ANTHROPIC_BASE_URL": "https://www.bettertoken.ai",
+            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
             "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
             "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
             "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
@@ -121,7 +121,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         | `model` | Default Claude Code model tier; `opus` uses `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
         <Note>
-          `gpt-5.4` is an example **Codex group** model ID. Use the current **Codex group** model IDs listed in the BetterToken [model plaza](https://www.bettertoken.ai/pricing). You can map all three tiers to the same model or choose different ones.
+          `gpt-5.4` is an example **Codex group** model ID. Use the current **Codex group** model IDs listed in the BetterToken model plaza (`{{model-plaza-url}}`). You can map all three tiers to the same model or choose different ones.
         </Note>
       </Step>
 
@@ -163,7 +163,7 @@ If you use the Claude Code VS Code extension:
       "claudeCode.environmentVariables": [
         {
           "name": "ANTHROPIC_BASE_URL",
-          "value": "https://www.bettertoken.ai"
+          "value": "{{anthropic-base-url}}"
         },
         {
           "name": "ANTHROPIC_AUTH_TOKEN",
@@ -190,7 +190,7 @@ If you use the Claude Code VS Code extension:
       "claudeCode.environmentVariables": [
         {
           "name": "ANTHROPIC_BASE_URL",
-          "value": "https://www.bettertoken.ai"
+          "value": "{{anthropic-base-url}}"
         },
         {
           "name": "ANTHROPIC_AUTH_TOKEN",
@@ -221,7 +221,7 @@ If you use the Claude Code VS Code extension:
     ```
 
     <Note>
-      `gpt-5.4` is only an example **Codex group** model ID. Copy the current model ID from the BetterToken [model plaza](https://www.bettertoken.ai/pricing). When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+      `gpt-5.4` is only an example **Codex group** model ID. Copy the current model ID from the BetterToken model plaza (`{{model-plaza-url}}`). When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
     </Note>
   </Step>
 
@@ -236,7 +236,7 @@ Start Claude Code and send a message. A normal reply means the connection is wor
 
 If authentication fails, check:
 1. `ANTHROPIC_AUTH_TOKEN` contains the correct BetterToken API Key
-2. `ANTHROPIC_BASE_URL` is `https://www.bettertoken.ai`
+2. `ANTHROPIC_BASE_URL` is `{{anthropic-base-url}}`
 3. `Claude_*` keys are not setting model variables, or `Codex_*` keys include the `ANTHROPIC_DEFAULT_*_MODEL` mappings
 4. No old environment variables are overriding your config
 
@@ -246,6 +246,6 @@ If authentication fails, check:
   <Accordion title="What should I do if I see API Error: Unable to connect to API (ConnectionRefused)?">
     This usually means Claude Code cannot reach the BetterToken API. It is normally a network, proxy, or firewall issue, not an API Key or model mapping problem.
 
-    Check that your local network is working, then confirm your system proxy, company network, router, or security software is not blocking `https://www.bettertoken.ai`. If you use a firewall, allow Claude Code to access that address.
+    Check that your local network is working, then confirm your system proxy, company network, router, or security software is not blocking `{{anthropic-base-url}}`. If you use a firewall, allow Claude Code to access that address.
   </Accordion>
 </AccordionGroup>

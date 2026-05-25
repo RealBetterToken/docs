@@ -72,7 +72,7 @@ Do not mix the two setups, or requests may be routed to the wrong model.
 
 **Disable non-essential traffic.** Setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduces background requests from Claude Code, reserving your API quota for actual coding tasks.
 
-**Do not add `/v1` to Claude Code.** `ANTHROPIC_BASE_URL` should be `https://www.bettertoken.ai`.
+**Do not add `/v1` to Claude Code.** `ANTHROPIC_BASE_URL` should be `{{anthropic-base-url}}`.
 
 ---
 
@@ -82,19 +82,19 @@ The same API Key works in Claude Code, Codex, and external tools. Quota is share
 
 But the endpoint must match the protocol:
 
-- Claude Code / `ANTHROPIC_BASE_URL`: `https://www.bettertoken.ai`
-- Codex / `OPENAI_BASE_URL` / external tools: `https://www.bettertoken.ai/v1`
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / external tools: `{{openai-base-url}}`
 
 If you need to track usage separately per project or team, create multiple API Keys in the dashboard and assign one to each tool or project.
 
-For external tools, copy the model ID from the **Codex group** in the [model plaza](https://www.bettertoken.ai/pricing).
+For external tools, copy the model ID from the **Codex group** in the model plaza (`{{model-plaza-url}}`).
 
 ---
 
 ## Troubleshooting checklist
 
 1. **Confirm the API Key is correct** — check the dashboard, paste carefully with no extra spaces
-2. **Confirm the endpoint for the protocol** — Claude Code uses `https://www.bettertoken.ai`; Codex / external tools use `https://www.bettertoken.ai/v1`
+2. **Confirm the endpoint for the protocol** — Claude Code uses `{{anthropic-base-url}}`; Codex / external tools use `{{openai-base-url}}`
 3. **Check for conflicting env vars** — run `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL`, and related commands
 4. **Check the tool's official setup requirements** — for external tools, verify the `Base URL`, API key, model ID, and tool version first; only add extra headers when the tool's official docs or your upstream gateway explicitly requires them
 5. **Check your balance** — requests are rejected when the balance is depleted

@@ -1,0 +1,161 @@
+---
+title: "Настройка OpenCode с BetterToken"
+sidebarTitle: "OpenCode"
+description: "Подключите BetterToken к OpenCode с ID моделей Codex group."
+icon: "brackets-curly"
+---
+
+OpenCode можно подключить к BetterToken так: сначала добавьте credentials через `/connect`, затем объявите BetterToken как OpenAI-compatible provider в конфиге и выберите ID модели из Codex group.
+
+## Требования
+
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+
+## Установка OpenCode
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## Настройка
+
+<Tabs>
+  <Tab title="Автоматическая настройка">
+    Можно запустить автоматический скрипт BetterToken. Он записывает только provider-конфигурацию BetterToken и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
+
+    Выберите шаг для своей ОС. Нужен только один вариант.
+
+    <Steps>
+      <Step title="macOS / Linux">
+        ```bash
+        curl -fsSL {{install-opencode-provider-sh-url}} | bash
+        ```
+      </Step>
+      <Step title="Windows">
+        ```powershell
+        iwr {{install-opencode-provider-ps1-url}} -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Настройка через CC Switch">
+    Этот путь описан в [инструкции CC Switch](/ru/ai-tools/cc-switch#opencode).
+
+    Перейдите сразу к [вкладке OpenCode в инструкции CC Switch](/ru/ai-tools/cc-switch#opencode).
+
+    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить запуск и остальные примечания.
+  </Tab>
+
+  <Tab title="Ручная настройка">
+    <Steps>
+      <Step title="Очистите конфликтующие переменные окружения">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
+
+      <Step title="Сначала добавьте credential BetterToken через /connect">
+        Запустите OpenCode и выполните:
+
+        ```bash
+        /connect
+        ```
+
+        В мастере выберите **Other**, затем:
+
+        - задайте **provider id** как `bettertoken`
+        - вставьте API Key BetterToken
+
+        OpenCode сохранит credential в `~/.local/share/opencode/auth.json`.
+      </Step>
+
+      <Step title="Отредактируйте конфиг OpenCode">
+        Можно использовать глобальный конфиг `~/.config/opencode/opencode.json` или создать `opencode.json` в корне проекта. Project config имеет более высокий приоритет.
+
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+          "provider": {
+            "bettertoken": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "BetterToken",
+              "options": {
+                "baseURL": "{{openai-base-url}}"
+              },
+              "models": {
+                "YOUR_CODEX_MODEL_ID": {
+                  "name": "YOUR_CODEX_MODEL_ID"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        Замените `YOUR_CODEX_MODEL_ID` на актуальный ID модели **Codex group** из model plaza (`{{model-plaza-url}}`).
+      </Step>
+
+      <Step title="Если нужно inline API key, используйте fallback-формат">
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "bettertoken/YOUR_CODEX_MODEL_ID",
+          "provider": {
+            "bettertoken": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "BetterToken",
+              "options": {
+                "baseURL": "{{openai-base-url}}",
+                "apiKey": "YOUR_API_KEY"
+              },
+              "models": {
+                "YOUR_CODEX_MODEL_ID": {
+                  "name": "YOUR_CODEX_MODEL_ID"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        Это fallback. Предпочтительный путь — `/connect` выше.
+      </Step>
+
+      <Step title="Используйте `options.headers` только для provider-specific задач">
+        Официальная документация OpenCode поддерживает custom headers через `provider.<id>.options.headers`, но это optional. При подключении BetterToken обычно не нужен дополнительный `User-Agent`.
+
+        Если вы также используете Helicone, tenant routing, observability или кеширующие сервисы, добавляйте нужные headers по официальной документации этих upstream-сервисов.
+      </Step>
+
+      <Step title="Перезапустите OpenCode">
+        После обновления конфига завершите текущую сессию OpenCode и запустите ее снова.
+      </Step>
+
+      <Step title="Запустите OpenCode">
+        ```bash
+        cd /path/to/your/project
+        opencode
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Примечания
+
+- Используйте ID модели **Codex group** по умолчанию вместо фиксированных имен Claude-моделей
+- Для BetterToken сейчас следует использовать `@ai-sdk/openai-compatible` как OpenAI-compatible provider adapter
+- Если вы используете `/connect`, обычно не нужно хранить API key прямо в конфиге
+- Официальная документация OpenCode трактует `options.headers` как optional extended configuration; BetterToken обычно не требует extra headers

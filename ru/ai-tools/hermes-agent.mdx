@@ -1,0 +1,61 @@
+---
+title: "Настройка Hermes Agent с BetterToken"
+sidebarTitle: "Hermes Agent"
+description: "Подключите BetterToken к Hermes Agent с ID моделей Codex group."
+icon: "user-astronaut"
+---
+
+Hermes Agent поддерживает custom model providers. Внешние инструменты должны использовать Codex group с OpenAI-style протоколом.
+
+## Требования
+
+- API Key BetterToken (зарегистрироваться (`{{register-url}}`))
+- macOS, Linux или Windows WSL2
+
+## Установка Hermes Agent
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+## Настройка
+
+<Steps>
+  <Step title="Запустите выбор модели">
+    ```bash
+    hermes model
+    ```
+  </Step>
+
+  <Step title="Выберите OpenAI или OpenAI Compatible provider">
+    Выберите **OpenAI** или **OpenAI Compatible** в списке providers.
+  </Step>
+
+  <Step title="Заполните конфигурацию BetterToken">
+    Введите:
+
+    - **Base URL**: `{{openai-base-url}}`
+    - **API Key**: ваш API Key BetterToken
+    - **Model**: ID модели **Codex group** из model plaza (`{{model-plaza-url}}`)
+  </Step>
+
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Мы не нашли официального требования Hermes Agent, по которому `User-Agent` обязателен для BetterToken. Начните с `Base URL`, API key и model ID на этой странице.
+
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
+  </Step>
+
+  <Step title="Перезапустите Hermes Agent">
+    После обновления конфигурации завершите текущую сессию Hermes Agent и запустите ее снова.
+  </Step>
+
+  <Step title="Запустите Hermes Agent">
+    ```bash
+    hermes
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  Если вам нужны extra headers, следуйте текущей документации Hermes Agent или требованиям вашего upstream gateway.
+</Note>

@@ -33,12 +33,12 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
     <Steps>
       <Step title="如果你使用 macOS / Linux">
         ```bash
-        curl -fsSL https://www.bettertoken.ai/install-openclaw-provider.sh | bash
+        curl -fsSL {{install-openclaw-provider-sh-url}} | bash
         ```
       </Step>
       <Step title="如果你使用 Windows">
         ```powershell
-        iwr https://www.bettertoken.ai/install-openclaw-provider.ps1 -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+        iwr {{install-openclaw-provider-ps1-url}} -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
         ```
       </Step>
     </Steps>
@@ -80,10 +80,10 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
       <Step title="添加或确认 BetterToken provider">
         在向导或 provider 编辑器中填写或确认以下内容：
 
-        - **Base URL**：`https://www.bettertoken.ai/v1`
+        - **Base URL**：`{{openai-base-url}}`
         - **API**：`openai-responses`
         - **API Key**：你的 BetterToken API Key
-        - **模型**：从[模型广场](https://www.bettertoken.ai/pricing)复制当前可用的 Codex 分组模型 ID
+        - **模型**：从模型广场 (`{{model-plaza-url}}`)复制当前可用的 Codex 分组模型 ID
 
         最小 provider 配置片段可以写成：
 
@@ -93,7 +93,7 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
             "mode": "merge",
             "providers": {
               "bettertoken": {
-                "baseUrl": "https://www.bettertoken.ai/v1",
+                "baseUrl": "{{openai-base-url}}",
                 "apiKey": "YOUR_BETTERTOKEN_API_KEY",
                 "api": "openai-responses",
                 "models": [
@@ -120,7 +120,7 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
 
         ```bash
         openclaw models list
-        openclaw models set <provider>/<从 https://www.bettertoken.ai/pricing 复制的 Codex 模型 ID>
+        openclaw models set <provider>/<从 {{model-plaza-url}} 复制的 Codex 模型 ID>
         openclaw gateway restart
         openclaw models status
         ```
@@ -253,7 +253,7 @@ codex
 ```text
 请帮我检查并修复本机 OpenClaw 的 BetterToken 配置。要求：
 1. 先读取当前 OpenClaw 配置，确认 provider id、默认模型，以及 agents.list 中哪些 agent 显式写了 model。
-2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `https://www.bettertoken.ai/v1` 的 provider，并写入 `api: "openai-responses"`。
+2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `{{openai-base-url}}` 的 provider，并写入 `api: "openai-responses"`。
 3. 优先复用 OpenClaw 已保存的认证信息。只有当当前版本或你的上游网关明确要求额外 headers 时，才单独配置；不要默认把 `User-Agent` 当作 BetterToken 必填项。
 4. 把默认模型切到 BetterToken，并检查 `main` 是否被显式 model 覆盖；如果我希望 `main` 跟随全局默认，就删除它的显式 model。
 5. 确保当前 BetterToken 模型出现在 `agents.defaults.models` 中，并补一个易识别的 `alias`。

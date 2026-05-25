@@ -31,17 +31,17 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
 
 ## What to prepare
 
-- BetterToken API Key ([register here](https://www.bettertoken.ai/register))
-- Claude Code uses the Anthropic protocol, so its `Base URL` is `https://www.bettertoken.ai`
-- Codex, OpenCode, and OpenClaw use the OpenAI-compatible protocol, so their `Base URL` is `https://www.bettertoken.ai/v1`
-- Prepare one current **Codex group** model ID for Codex, OpenCode, and OpenClaw. You can copy it from the BetterToken [model plaza](https://www.bettertoken.ai/pricing), or let CC Switch fetch it from `/v1/models`
+- BetterToken API Key (register here (`{{register-url}}`))
+- Claude Code uses the Anthropic protocol, so its `Base URL` is `{{anthropic-base-url}}`
+- Codex, OpenCode, and OpenClaw use the OpenAI-compatible protocol, so their `Base URL` is `{{openai-base-url}}`
+- Prepare one current **Codex group** model ID for Codex, OpenCode, and OpenClaw. You can copy it from the BetterToken model plaza (`{{model-plaza-url}}`), or let CC Switch fetch it from `/v1/models`
 
 <Info>
   On first launch, CC Switch automatically imports the configs it already finds on your machine. You can keep your official provider as a fallback and add BetterToken alongside it.
 </Info>
 
 <Note>
-  BetterToken uses two access modes: Anthropic and OpenAI-compatible. To avoid mixing `https://www.bettertoken.ai` with `https://www.bettertoken.ai/v1`, it is better to create providers per app instead of trying to force Claude Code and the OpenAI-compatible tools into one universal provider.
+  BetterToken uses two access modes: Anthropic and OpenAI-compatible. To avoid mixing `{{anthropic-base-url}}` with `{{openai-base-url}}`, it is better to create providers per app instead of trying to force Claude Code and the OpenAI-compatible tools into one universal provider.
 </Note>
 
 ## Add a BetterToken provider
@@ -63,7 +63,7 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
 
       <Step title="Fill the basic fields">
         - **Provider Name**: `BetterToken`
-        - **Base URL**: `https://www.bettertoken.ai`
+        - **Base URL**: `{{anthropic-base-url}}`
         - **API Key**: your BetterToken API Key
 
         The numbered markers in the screenshot match these fields:
@@ -107,7 +107,7 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
           />
         </Frame>
 
-        All of these models should use current **Codex group** model IDs from the BetterToken [model plaza](https://www.bettertoken.ai/pricing).
+        All of these models should use current **Codex group** model IDs from the BetterToken model plaza (`{{model-plaza-url}}`).
       </Step>
 
       <Step title="Save, switch, and decide whether to enable the proxy">
@@ -151,7 +151,7 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
 
       <Step title="Fill the basic fields">
         - **Provider Name**: `BetterToken`
-        - **Base URL**: `https://www.bettertoken.ai/v1`
+        - **Base URL**: `{{openai-base-url}}`
         - **API Key**: your BetterToken API Key
 
         If you switch to a custom config view, make sure the underlying config uses `wire_api = "responses"`.
@@ -228,12 +228,12 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
 
       <Step title="Fill the basic fields">
         - **Provider Name**: `BetterToken`
-        - **Base URL**: `https://www.bettertoken.ai/v1`
+        - **Base URL**: `{{openai-base-url}}`
         - **API Key**: your BetterToken API Key
       </Step>
 
       <Step title="Choose the default model">
-        Use **Fetch Models** when possible. If you need to enter the model manually, use a current **Codex group** model ID from the BetterToken [model plaza](https://www.bettertoken.ai/pricing).
+        Use **Fetch Models** when possible. If you need to enter the model manually, use a current **Codex group** model ID from the BetterToken model plaza (`{{model-plaza-url}}`).
       </Step>
 
       <Step title="Save and switch">
@@ -250,7 +250,7 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
 
       <Step title="Fill the basic fields">
         - **Provider Name**: `BetterToken`
-        - **Base URL**: `https://www.bettertoken.ai/v1`
+        - **Base URL**: `{{openai-base-url}}`
         - **API Key**: your BetterToken API Key
 
         If you are editing a custom OpenClaw provider config, make sure `api` is set to `openai-responses`.
@@ -281,7 +281,7 @@ After saving and switching providers, restart the affected client or gateway bef
 - Do not add `/v1` to the Claude Code `Base URL`
 - When Claude Code uses a `Codex_*` key, set **API Format** to **OpenAI Responses API** under **Advanced Options**
 - When Claude Code uses a `Claude_*` key, you do not need to enable the **CC Switch proxy**
-- Codex, OpenCode, and OpenClaw should use `https://www.bettertoken.ai/v1`
+- Codex, OpenCode, and OpenClaw should use `{{openai-base-url}}`
 - Use a **Codex group** model ID as the default model for Codex, OpenCode, and OpenClaw
 - If **Fetch Models** fails, check the API key and `Base URL`, then paste the model ID manually
 - If switching does not take effect, confirm that BetterToken is the active provider in CC Switch and restart the affected client or gateway as described above
