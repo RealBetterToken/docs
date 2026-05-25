@@ -54,8 +54,8 @@ jobs:
           set -euo pipefail
 
           if [ -z "${MINTLIFY_API_KEY:-}" ] || [ -z "${MINTLIFY_PROJECT_ID:-}" ]; then
-            echo "Skipping Mintlify update because BETTERTOKEN_MINTLIFY_API_KEY or BETTERTOKEN_MINTLIFY_PROJECT_ID is not configured."
-            exit 0
+            echo "::error::BETTERTOKEN_MINTLIFY_API_KEY or BETTERTOKEN_MINTLIFY_PROJECT_ID is not configured."
+            exit 1
           fi
 
           node scripts/trigger-mintlify-update.mjs
