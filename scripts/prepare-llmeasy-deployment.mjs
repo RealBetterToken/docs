@@ -157,6 +157,65 @@ async function walkTextFiles(dir, files = []) {
   return files;
 }
 
+function walkNavPages(node, pages = []) {
+  if (!node) {
+    return pages;
+  }
+
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      walkNavPages(item, pages);
+    }
+    return pages;
+  }
+
+  if (typeof node === 'string') {
+    pages.push(node);
+    return pages;
+  }
+
+  if (typeof node === 'object') {
+    if (typeof node.href === 'string' && !/^https?:\/\//.test(node.href)) {
+      pages.push(node.href);
+    }
+
+    for (const key of ['languages', 'tabs', 'groups', 'pages', 'anchors', 'dropdowns', 'versions']) {
+      walkNavPages(node[key], pages);
+    }
+  }
+
+  return pages;
+}
+
+function frontmatter(text) {
+  return text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+}
+
+function frontmatterValue(metadata, key) {
+  const match = metadata.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+  if (!match) {
+    return undefined;
+  }
+
+  return match[1].trim().replace(/^['"]|['"]$/g, '');
+}
+
+function stripFrontmatter(text) {
+  return text.replace(/^---\n[\s\S]*?\n---\n?/, '').trim();
+}
+
+function resolveVariables(text, variables) {
+  return text.replace(/\{\{([a-z0-9-]+)\}\}/gi, (match, name) => variables[name] ?? match);
+}
+
+function normalizeMdxContent(text, variables) {
+  return resolveVariables(stripFrontmatter(text), variables)
+    .replace(/^import\s.+$/gm, '')
+    .replace(/^export\s.+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 async function rewriteRegionalBrand() {
   const textFiles = await walkTextFiles(outputDir);
 
@@ -172,6 +231,52 @@ async function rewriteRegionalBrand() {
       await writeFile(filePath, updated);
     }
   }
+}
+
+async function generateLlmsFull() {
+  const config = JSON.parse(await readFile(outputConfigPath, 'utf8'));
+  const variables = config.variables ?? {};
+  const pages = [...new Set(walkNavPages(config.navigation))];
+  const sections = [`# ${config.name ?? 'LLMEasy'}`];
+
+  if (config.description) {
+    sections.push(`> ${config.description}`);
+  }
+
+  for (const page of pages) {
+    const filePath = path.join(outputDir, `${page}.mdx`);
+    const text = await readFile(filePath, 'utf8');
+    const metadata = frontmatter(text);
+    const title = resolveVariables(frontmatterValue(metadata, 'title') ?? page, variables);
+    const description = resolveVariables(frontmatterValue(metadata, 'description') ?? '', variables);
+    const content = normalizeMdxContent(text, variables);
+    const sourceUrl = `${variables['site-url']}/${page}`;
+    const pageParts = [`## ${title}`, `Source: ${sourceUrl}`];
+
+    if (description) {
+      pageParts.push(`Description: ${description}`);
+    }
+
+    if (content) {
+      pageParts.push(content);
+    }
+
+    sections.push(pageParts.join('\n\n'));
+  }
+
+  if (config.api?.openapi) {
+    const openApiPath = config.api.openapi;
+    const openApiText = await readFile(path.join(outputDir, openApiPath), 'utf8');
+    sections.push([
+      '## OpenAPI specification',
+      `Source: ${variables['site-url']}/${openApiPath}`,
+      '```json',
+      openApiText.trim(),
+      '```',
+    ].join('\n\n'));
+  }
+
+  await writeFile(path.join(outputDir, 'llms-full.txt'), `${sections.join('\n\n---\n\n')}\n`);
 }
 
 async function renameRegionalPaths(dir) {
@@ -197,6 +302,7 @@ await copyTree(rootDir, outputDir);
 await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
+await generateLlmsFull();
 
 const relativeOutput = path.relative(rootDir, outputDir) || '.';
 console.log(`Prepared LLMEasy docs deployment at ${relativeOutput}`);

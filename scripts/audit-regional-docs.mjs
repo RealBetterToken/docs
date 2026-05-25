@@ -343,6 +343,21 @@ function checkGeneratedRegionalOutput() {
     }
   }
 
+  const llmsFullPath = path.join(generatedRoot, 'llms-full.txt');
+  if (!fs.existsSync(llmsFullPath)) {
+    errors.push('.mintlify-llmeasy/llms-full.txt: missing generated custom llms-full file');
+  } else {
+    const llmsFullText = fs.readFileSync(llmsFullPath, 'utf8');
+
+    if (!llmsFullText.startsWith('# LLMEasy')) {
+      errors.push('.mintlify-llmeasy/llms-full.txt: expected # LLMEasy heading');
+    }
+
+    if (/BetterToken|bettertoken|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai|bettertoken\.mintlify\.app/.test(llmsFullText)) {
+      errors.push('.mintlify-llmeasy/llms-full.txt: contains BetterToken brand text, production domain, or starter cache URL');
+    }
+  }
+
   for (const filePath of textFiles) {
     const text = fs.readFileSync(filePath, 'utf8');
     const relativePath = path.relative(rootDir, filePath);

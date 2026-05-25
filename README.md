@@ -58,6 +58,8 @@ Use `.mintlify-llmeasy` as the Mintlify project root, or publish that generated 
 
 When content changes, update the shared MDX source first, then run the prepare script again so the LLMEasy deployment receives the latest pages with `docs.llmeasy.json` promoted to `docs.json`.
 
+The prepare script also creates a custom `llms-full.txt` in the generated deployment root. Mintlify serves that file instead of an automatically generated `llms-full.txt`, which keeps the LLMEasy AI-readable bundle aligned with the regional branch.
+
 The workflow `.github/workflows/publish-llmeasy-docs.yml` prepares, audits, validates, and publishes the generated LLMEasy site to the `llmeasy-docs` branch after changes land on `main`. Configure the LLMEasy Mintlify project to use:
 
 - Repository: this repository
