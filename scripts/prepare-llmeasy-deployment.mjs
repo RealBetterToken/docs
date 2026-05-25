@@ -225,7 +225,8 @@ async function rewriteRegionalBrand() {
       .replaceAll('https://docs.bettertoken.ai', 'https://www.llmeasy.ru')
       .replaceAll('https://www.bettertoken.ai', 'https://www.llmeasy.ru')
       .replaceAll('BetterToken', 'LLMEasy')
-      .replaceAll('bettertoken', 'llmeasy');
+      .replaceAll('bettertoken', 'llmeasy')
+      .replaceAll('BETTERTOKEN', 'LLMEASY');
 
     if (updated !== original) {
       await writeFile(filePath, updated);

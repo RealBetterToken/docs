@@ -353,7 +353,7 @@ function checkGeneratedRegionalOutput() {
       errors.push('.mintlify-llmeasy/llms-full.txt: expected # LLMEasy heading');
     }
 
-    if (/BetterToken|bettertoken|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai|bettertoken\.mintlify\.app/.test(llmsFullText)) {
+    if (/BetterToken|bettertoken|BETTERTOKEN|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai|bettertoken\.mintlify\.app/.test(llmsFullText)) {
       errors.push('.mintlify-llmeasy/llms-full.txt: contains BetterToken brand text, production domain, or starter cache URL');
     }
   }
@@ -371,7 +371,7 @@ function checkGeneratedRegionalOutput() {
       errors.push(`${relativePath}: contains BetterToken production domain`);
     }
 
-    if (/BetterToken|bettertoken/.test(text)) {
+    if (/BetterToken|bettertoken|BETTERTOKEN/.test(text)) {
       errors.push(`${relativePath}: contains BetterToken brand text`);
     }
 
@@ -397,7 +397,7 @@ function checkRegionalOpenApiSource() {
     errors.push('api-reference/openapi.llmeasy.json: contains Chinese text');
   }
 
-  if (/BetterToken|bettertoken|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai/.test(text)) {
+  if (/BetterToken|bettertoken|BETTERTOKEN|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai/.test(text)) {
     errors.push('api-reference/openapi.llmeasy.json: contains BetterToken brand text or production domain');
   }
 }
