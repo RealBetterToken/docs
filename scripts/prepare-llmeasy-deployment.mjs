@@ -23,6 +23,9 @@ const skippedTopLevelFiles = new Set([
 ]);
 const skippedRelativeFiles = new Set([
   'api-reference/openapi.json',
+  'ai-tools/yingdao-ai-power.mdx',
+  'en/ai-tools/yingdao-ai-power.mdx',
+  'ru/ai-tools/yingdao-ai-power.mdx',
   'images/checks-passed.png',
   'images/hero-dark.png',
   'images/hero-light.png',
