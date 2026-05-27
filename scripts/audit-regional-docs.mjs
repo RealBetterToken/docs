@@ -286,6 +286,43 @@ function checkGeneratedRegionalOutput() {
 
   const generatedRoot = path.join(rootDir, '.mintlify-llmeasy');
   checkConfigAssets(generatedConfig, '.mintlify-llmeasy/docs.json', generatedRoot);
+
+  const generatedLanguages = generatedConfig.navigation?.languages ?? [];
+  const generatedRuPages = pagesForLanguage(generatedConfig, 'ru');
+  const generatedZhPages = pagesForLanguage(generatedConfig, 'zh');
+  const generatedIndex = path.join(generatedRoot, 'index.mdx');
+  const generatedZhIndex = path.join(generatedRoot, 'zh/index.mdx');
+
+  if (generatedLanguages[0]?.language !== 'ru') {
+    errors.push('.mintlify-llmeasy/docs.json: expected ru to be the first/default language');
+  }
+
+  if (generatedLanguages[0]?.default !== true) {
+    errors.push('.mintlify-llmeasy/docs.json: expected ru language to set default=true');
+  }
+
+  if (!generatedRuPages.includes('index')) {
+    errors.push('.mintlify-llmeasy/docs.json: expected ru navigation to use root index page');
+  }
+
+  for (const page of generatedZhPages) {
+    if (!page.startsWith('zh/')) {
+      errors.push(`.mintlify-llmeasy/docs.json: expected zh page to use zh/ prefix: ${page}`);
+    }
+  }
+
+  if (fs.existsSync(path.join(generatedRoot, 'ru/index.mdx'))) {
+    errors.push('.mintlify-llmeasy/ru/index.mdx: Russian default page should be promoted to index.mdx');
+  }
+
+  if (!fs.existsSync(generatedIndex) || !fs.readFileSync(generatedIndex, 'utf8').includes('Что такое LLMEasy?')) {
+    errors.push('.mintlify-llmeasy/index.mdx: expected Russian default content');
+  }
+
+  if (!fs.existsSync(generatedZhIndex) || !fs.readFileSync(generatedZhIndex, 'utf8').includes('什么是 LLMEasy？')) {
+    errors.push('.mintlify-llmeasy/zh/index.mdx: expected Chinese content under zh/ prefix');
+  }
+
   const forbiddenGeneratedPaths = new Set([
     'CONTRIBUTING.md',
     'LICENSE',

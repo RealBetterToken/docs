@@ -219,6 +219,50 @@ function normalizeMdxContent(text, variables) {
     .trim();
 }
 
+function remapNavPages(node, mapper) {
+  if (!node) {
+    return node;
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((item) => remapNavPages(item, mapper));
+  }
+
+  if (typeof node === 'string') {
+    return mapper(node);
+  }
+
+  if (typeof node === 'object') {
+    const next = { ...node };
+
+    if (typeof next.href === 'string' && !/^https?:\/\//.test(next.href)) {
+      next.href = mapper(next.href);
+    }
+
+    for (const key of ['languages', 'tabs', 'groups', 'pages', 'anchors', 'dropdowns', 'versions']) {
+      if (next[key]) {
+        next[key] = remapNavPages(next[key], mapper);
+      }
+    }
+
+    return next;
+  }
+
+  return node;
+}
+
+function rewritePageLinks(text, mapper) {
+  return text.replace(/(["'(=])\/([^"'()\s?#]+)([#?][^"'()\s]*)?/g, (match, prefix, route, suffix = '') => {
+    const mapped = mapper(route);
+
+    if (!mapped) {
+      return match;
+    }
+
+    return `${prefix}/${mapped}${suffix}`;
+  });
+}
+
 async function rewriteRegionalBrand() {
   const textFiles = await walkTextFiles(outputDir);
 
@@ -235,6 +279,95 @@ async function rewriteRegionalBrand() {
       await writeFile(filePath, updated);
     }
   }
+}
+
+async function rewritePage(filePath, mapper) {
+  const original = await readFile(filePath, 'utf8');
+  const updated = rewritePageLinks(original, mapper);
+
+  if (updated !== original) {
+    await writeFile(filePath, updated);
+  }
+}
+
+async function movePage(fromPage, toPage) {
+  if (fromPage === toPage) {
+    return;
+  }
+
+  const fromPath = path.join(outputDir, `${fromPage}.mdx`);
+  const toPath = path.join(outputDir, `${toPage}.mdx`);
+
+  await mkdir(path.dirname(toPath), { recursive: true });
+  await rm(toPath, { force: true });
+  await rename(fromPath, toPath);
+}
+
+async function promoteRussianDefaultLanguage() {
+  const config = JSON.parse(await readFile(outputConfigPath, 'utf8'));
+  const languages = config.navigation?.languages;
+
+  if (!Array.isArray(languages)) {
+    return;
+  }
+
+  const zhLanguage = languages.find((item) => item.language === 'zh');
+  const enLanguage = languages.find((item) => item.language === 'en');
+  const ruLanguage = languages.find((item) => item.language === 'ru');
+
+  if (!zhLanguage || !enLanguage || !ruLanguage) {
+    throw new Error('LLMEasy navigation must include zh, en, and ru languages');
+  }
+
+  const zhPages = [...new Set(walkNavPages(zhLanguage))];
+  const ruPages = [...new Set(walkNavPages(ruLanguage))];
+  const defaultPages = ruPages.map((page) => {
+    if (!page.startsWith('ru/')) {
+      throw new Error(`Expected Russian page to use ru/ prefix: ${page}`);
+    }
+
+    return page.slice('ru/'.length);
+  });
+  const defaultPageSet = new Set(defaultPages);
+  const zhPageSet = new Set(zhPages);
+
+  for (const page of zhPages) {
+    await movePage(page, `zh/${page}`);
+  }
+
+  for (let index = 0; index < ruPages.length; index += 1) {
+    await movePage(ruPages[index], defaultPages[index]);
+  }
+
+  await rm(path.join(outputDir, 'ru'), { recursive: true, force: true });
+
+  const remappedZh = remapNavPages(zhLanguage, (page) => `zh/${page}`);
+  const remappedRu = remapNavPages(ruLanguage, (page) => page.replace(/^ru\//, ''));
+  remappedRu.default = true;
+
+  config.navigation.languages = [remappedRu, enLanguage, remappedZh];
+
+  for (const page of zhPages) {
+    await rewritePage(path.join(outputDir, `zh/${page}.mdx`), (route) => {
+      if (zhPageSet.has(route)) {
+        return `zh/${route}`;
+      }
+
+      return undefined;
+    });
+  }
+
+  for (const page of defaultPages) {
+    await rewritePage(path.join(outputDir, `${page}.mdx`), (route) => {
+      if (route.startsWith('ru/') && defaultPageSet.has(route.slice('ru/'.length))) {
+        return route.slice('ru/'.length);
+      }
+
+      return undefined;
+    });
+  }
+
+  await writeFile(outputConfigPath, `${JSON.stringify(config, null, 2)}\n`);
 }
 
 async function generateLlmsFull() {
@@ -311,6 +444,7 @@ await copyTree(rootDir, outputDir);
 await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
+await promoteRussianDefaultLanguage();
 await generateLlmsFull();
 
 const relativeOutput = path.relative(rootDir, outputDir) || '.';
