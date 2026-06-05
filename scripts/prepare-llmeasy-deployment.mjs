@@ -269,7 +269,7 @@ async function rewriteRegionalBrand() {
   for (const filePath of textFiles) {
     const original = await readFile(filePath, 'utf8');
     const updated = original
-      .replaceAll('https://docs.bettertoken.ai', 'https://www.llmeasy.ru')
+      .replaceAll('https://docs.bettertoken.ai', 'https://docs.llmeasy.ru')
       .replaceAll('https://www.bettertoken.ai', 'https://www.llmeasy.ru')
       .replaceAll('BetterToken', 'LLMEasy')
       .replaceAll('bettertoken', 'llmeasy')

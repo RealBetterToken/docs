@@ -42,7 +42,7 @@ View your local preview at `http://localhost:3000`.
 
 ## LLMEasy regional deployment
 
-This repository keeps the shared documentation source for BetterToken and LLMEasy. The default `docs.json` publishes the BetterToken documentation. The regional `docs.llmeasy.json` publishes the LLMEasy documentation with the `LLMEasy` name, logo, canonical URL, and Base URL values for `https://www.llmeasy.ru`.
+This repository keeps the shared documentation source for BetterToken and LLMEasy. The default `docs.json` publishes the BetterToken documentation. The regional `docs.llmeasy.json` publishes the LLMEasy documentation with the `LLMEasy` name, logo, canonical documentation URL for `https://docs.llmeasy.ru`, and product/API Base URL values for `https://www.llmeasy.ru`.
 
 Prepare the LLMEasy deployment root before publishing or validating that regional site:
 
@@ -54,7 +54,7 @@ mint broken-links
 mint validate
 ```
 
-Use `.mintlify-llmeasy` as the Mintlify project root, or publish that generated directory through a deployment branch or CI artifact. In the Mintlify dashboard, create a separate deployment for LLMEasy and set the custom domain to `www.llmeasy.ru`. Follow the DNS record shown by Mintlify for that deployment.
+Use `.mintlify-llmeasy` as the Mintlify project root, or publish that generated directory through a deployment branch or CI artifact. In the Mintlify dashboard, create a separate deployment for LLMEasy and set the custom domain to `docs.llmeasy.ru`. Follow the DNS record shown by Mintlify for that deployment.
 
 When content changes, update the shared MDX source first, then run the prepare script again so the LLMEasy deployment receives the latest pages with `docs.llmeasy.json` promoted to `docs.json`.
 
@@ -65,7 +65,7 @@ The workflow `.github/workflows/publish-llmeasy-docs.yml` prepares, audits, vali
 - Repository: this repository
 - Branch: `llmeasy-docs`
 - Project root: `/`
-- Custom domain: `www.llmeasy.ru`
+- Custom domain: `docs.llmeasy.ru`
 
 The Mintlify API can trigger an update for an existing project, but it does not replace the dashboard steps for creating the LLMEasy deployment or adding the custom domain. After the LLMEasy project exists, copy its project ID from the Mintlify API keys page and trigger a rebuild with:
 
@@ -77,7 +77,7 @@ node scripts/trigger-mintlify-update.mjs
 
 To trigger Mintlify automatically from GitHub Actions after the `llmeasy-docs` branch is published, add both values as repository secrets named `MINTLIFY_API_KEY` and `MINTLIFY_PROJECT_ID`. If either secret is missing, the workflow still publishes the branch and skips the Mintlify API update.
 
-After adding `www.llmeasy.ru` in the Mintlify dashboard, add the two verification `TXT` records that Mintlify shows for that domain. Wait until both records are verified in the dashboard, then point the domain to Mintlify with the `CNAME` record shown by Mintlify. Do not switch the `CNAME` before the verification records pass, because TLS provisioning depends on those records.
+After adding `docs.llmeasy.ru` in the Mintlify dashboard, add any verification `TXT` records that Mintlify shows for that domain. Wait until the records are verified in the dashboard, then point the domain to Mintlify with the `CNAME` record shown by Mintlify. Do not switch the `CNAME` before the verification records pass, because TLS provisioning depends on those records.
 
 After the Mintlify dashboard and DNS records are configured, verify the public domain:
 

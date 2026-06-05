@@ -3,9 +3,9 @@
 import dns from 'node:dns/promises';
 import https from 'node:https';
 
-const domain = 'www.llmeasy.ru';
-const diagnosticDomain = 'docs.llmeasy.ru';
-const requiredTxtNames = [
+const domain = 'docs.llmeasy.ru';
+const diagnosticDomain = 'www.llmeasy.ru';
+const diagnosticTxtNames = [
   `_cf-custom-hostname.${domain}`,
   `_acme-challenge.${domain}`,
 ];
@@ -64,24 +64,19 @@ async function logDomainRecords(hostname) {
   }
 }
 
-async function checkTxtRecords() {
-  for (const name of requiredTxtNames) {
+async function logTxtRecords() {
+  for (const name of diagnosticTxtNames) {
     try {
       const records = await dns.resolveTxt(name);
       const flattened = records.map((record) => record.join(''));
       console.log(`${name} TXT: ${flattened.join(', ') || '(none)'}`);
-
-      if (flattened.length === 0) {
-        failures.push(`${name} has no TXT records.`);
-      }
     } catch (error) {
       if (error.code === 'ENODATA' || error.code === 'ENOTFOUND') {
         console.log(`${name} TXT: (none)`);
-        failures.push(`${name} has no TXT records.`);
         continue;
       }
 
-      failures.push(`${name} TXT lookup failed: ${error.message}`);
+      console.log(`${name} TXT: lookup failed: ${error.message}`);
     }
   }
 }
@@ -122,7 +117,7 @@ function checkHttps() {
 }
 
 await checkCnameOrA();
-await checkTxtRecords();
+await logTxtRecords();
 await checkHttps();
 await logDomainRecords(diagnosticDomain);
 

@@ -37,7 +37,7 @@ const regionalExpectedVariables = Object.fromEntries(
   Object.entries(sourceExpectedVariables).map(([key, value]) => [
     key,
     value
-      .replace('https://docs.bettertoken.ai', 'https://www.llmeasy.ru')
+      .replace('https://docs.bettertoken.ai', 'https://docs.llmeasy.ru')
       .replace('https://www.bettertoken.ai', 'https://www.llmeasy.ru'),
   ]),
 );
@@ -171,6 +171,10 @@ function checkConfig(config, label, expected) {
   if (expected.openapi && config.api?.openapi !== expected.openapi) {
     errors.push(`${label}: expected api.openapi ${expected.openapi}, found ${config.api?.openapi}`);
   }
+
+  if (expected.canonical && config.seo?.metatags?.canonical !== expected.canonical) {
+    errors.push(`${label}: expected seo.metatags.canonical ${expected.canonical}, found ${config.seo?.metatags?.canonical}`);
+  }
 }
 
 function checkConfigAssets(config, label, baseDir = rootDir) {
@@ -282,6 +286,7 @@ function checkGeneratedRegionalOutput() {
     name: 'LLMEasy',
     openapi: 'api-reference/openapi.llmeasy.json',
     variables: regionalExpectedVariables,
+    canonical: 'https://docs.llmeasy.ru',
   });
 
   const generatedRoot = path.join(rootDir, '.mintlify-llmeasy');
@@ -476,6 +481,7 @@ function checkNoHardcodedProductionDomainsInMdx() {
     'https://www.bettertoken.ai',
     'https://docs.bettertoken.ai',
     'https://www.llmeasy.ru',
+    'https://docs.llmeasy.ru',
   ];
 
   for (const filePath of files) {
@@ -494,14 +500,16 @@ checkConfig(sourceConfig, 'docs.json', {
   name: 'BetterToken',
   openapi: 'api-reference/openapi.json',
   variables: sourceExpectedVariables,
+  canonical: 'https://docs.bettertoken.ai',
 });
 checkConfigAssets(sourceConfig, 'docs.json');
-checkConfigDomainIsolation(sourceConfig, 'docs.json', ['https://www.llmeasy.ru']);
+checkConfigDomainIsolation(sourceConfig, 'docs.json', ['https://www.llmeasy.ru', 'https://docs.llmeasy.ru']);
 
 checkConfig(regionalConfig, 'docs.llmeasy.json', {
   name: 'LLMEasy',
   openapi: 'api-reference/openapi.llmeasy.json',
   variables: regionalExpectedVariables,
+  canonical: 'https://docs.llmeasy.ru',
 });
 checkConfigAssets(regionalConfig, 'docs.llmeasy.json');
 checkConfigDomainIsolation(regionalConfig, 'docs.llmeasy.json', [
