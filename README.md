@@ -105,6 +105,13 @@ https://docs.bettertoken.ai/sitemap.xml
 https://docs.bettertoken.ai/robots.txt
 ```
 
+The LLMEasy documentation site exposes:
+
+```txt
+https://docs.llmeasy.ru/sitemap.xml
+https://docs.llmeasy.ru/robots.txt
+```
+
 Before enabling automation:
 
 1. Add and verify the URL-prefix property `https://docs.bettertoken.ai/` in Google Search Console.
@@ -112,6 +119,8 @@ Before enabling automation:
 3. Create an OAuth client for CI.
 4. Authorize the OAuth client with a Google account that is a verified owner of `https://docs.bettertoken.ai/`.
 5. Store the OAuth credentials in GitHub Actions secrets as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`.
+
+For LLMEasy, verify the domain property `llmeasy.ru` in Google Search Console and submit `https://docs.llmeasy.ru/sitemap.xml` with `SITE_URL=sc-domain:llmeasy.ru`. The workflow `.github/workflows/submit-llmeasy-sitemap.yml` handles that submission with the same OAuth secrets.
 
 Use this workflow as `.github/workflows/submit-google-sitemap.yml`:
 
