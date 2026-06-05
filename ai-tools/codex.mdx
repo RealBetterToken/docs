@@ -75,8 +75,8 @@ npm install -g @openai/codex
 
   <Tab title="手动配置">
     <Steps>
-      <Step title="从模型广场复制模型 ID">
-        打开 BetterToken 模型广场 (`{{model-plaza-url}}`)，复制 **Codex 分组**下当前可用的模型 ID。下文示例中的 `YOUR_CODEX_MODEL_ID` 都应替换为这个值。
+      <Step title="确认默认模型">
+        下方配置默认使用 `gpt-5.5`，并将 review model 设置为 `gpt-5.4`。如果你需要切换模型，请从 BetterToken 模型广场 (`{{model-plaza-url}}`) 复制 **Codex 分组**下当前可用的模型 ID。
       </Step>
 
       <Step title="确认配置文件位置">
@@ -98,18 +98,21 @@ npm install -g @openai/codex
         添加以下内容：
 
         ```toml
-        model_provider = "bettertoken"
-        model = "YOUR_CODEX_MODEL_ID"
-        model_reasoning_effort = "high"
+        model_provider = "OpenAI"
+        model = "gpt-5.5"
+        review_model = "gpt-5.4"
         disable_response_storage = true
+        network_access = "enabled"
+        windows_wsl_setup_acknowledged = true
+        model_context_window = 1000000
+        model_auto_compact_token_limit = 900000
 
-        [model_providers.bettertoken]
-        name = "BetterToken"
+        [model_providers]
+        [model_providers.OpenAI]
+        name = "OpenAI"
         base_url = "{{openai-base-url}}"
         wire_api = "responses"
         requires_openai_auth = true
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
         ```
       </Step>
 
@@ -140,12 +143,14 @@ npm install -g @openai/codex
 
     | 参数 | 说明 |
     | --- | --- |
-    | `model_provider` | 当前默认使用的模型提供商标识，需要与 `[model_providers.bettertoken]` 中的 `bettertoken` 保持一致 |
-    | `model` | Codex 启动后默认使用的模型 ID，请填写从模型广场复制的 **Codex 分组**模型 |
-    | `model_reasoning_effort` | 模型推理强度，可按需要设置为 `low`、`medium` 或 `high` |
+    | `model_provider` | 当前默认使用的模型提供商标识，需要与 `[model_providers.OpenAI]` 中的 `OpenAI` 保持一致 |
+    | `model` | Codex 启动后默认使用的模型 ID，示例使用 `gpt-5.5` |
+    | `review_model` | Codex review 工作默认使用的模型 ID，示例使用 `gpt-5.4` |
     | `disable_response_storage` | 禁用响应存储，建议保持为 `true` |
-    | `name` | 提供商显示名称，可保持为 `BetterToken` |
-    | `base_url` | BetterToken 的 Codex / OpenAI-compatible 协议入口，必须带 `/v1` |
+    | `network_access` | 允许 Codex 在需要时访问网络，保持为 `enabled` |
+    | `windows_wsl_setup_acknowledged` | 确认 Windows / WSL 环境提示，保持为 `true` |
+    | `name` | 提供商显示名称，可保持为 `OpenAI` |
+    | `base_url` | Codex / OpenAI-compatible 协议入口，必须带 `/v1` |
     | `wire_api` | Codex 使用的 API 协议，保持为 `responses` |
     | `requires_openai_auth` | 使用 Codex 的 OpenAI 认证文件读取 API Key，保持为 `true` |
 

@@ -75,8 +75,8 @@ npm install -g @openai/codex
 
   <Tab title="Manual setup">
     <Steps>
-      <Step title="Copy a model ID from the model plaza">
-        Open the BetterToken model plaza (`{{model-plaza-url}}`) and copy a currently available model ID from the **Codex group**. Replace every `YOUR_CODEX_MODEL_ID` below with that value.
+      <Step title="Confirm the default models">
+        The config below uses `gpt-5.5` as the default model and `gpt-5.4` as the review model. If you need to switch models, open the BetterToken model plaza (`{{model-plaza-url}}`) and copy a currently available model ID from the **Codex group**.
       </Step>
 
       <Step title="Confirm the config file locations">
@@ -98,18 +98,21 @@ npm install -g @openai/codex
         Add the following config:
 
         ```toml
-        model_provider = "bettertoken"
-        model = "YOUR_CODEX_MODEL_ID"
-        model_reasoning_effort = "high"
+        model_provider = "OpenAI"
+        model = "gpt-5.5"
+        review_model = "gpt-5.4"
         disable_response_storage = true
+        network_access = "enabled"
+        windows_wsl_setup_acknowledged = true
+        model_context_window = 1000000
+        model_auto_compact_token_limit = 900000
 
-        [model_providers.bettertoken]
-        name = "BetterToken"
+        [model_providers]
+        [model_providers.OpenAI]
+        name = "OpenAI"
         base_url = "{{openai-base-url}}"
         wire_api = "responses"
         requires_openai_auth = true
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
         ```
       </Step>
 
@@ -140,12 +143,14 @@ npm install -g @openai/codex
 
     | Parameter | Description |
     | --- | --- |
-    | `model_provider` | The default model provider ID. It must match `bettertoken` in `[model_providers.bettertoken]` |
-    | `model` | The default model ID Codex uses after startup. Use a model copied from the **Codex group** in the model plaza |
-    | `model_reasoning_effort` | Model reasoning effort. Set it to `low`, `medium`, or `high` as needed |
+    | `model_provider` | The default model provider ID. It must match `OpenAI` in `[model_providers.OpenAI]` |
+    | `model` | The default model ID Codex uses after startup. The example uses `gpt-5.5` |
+    | `review_model` | The model ID Codex uses for review workflows. The example uses `gpt-5.4` |
     | `disable_response_storage` | Disables response storage. Keep this set to `true` |
-    | `name` | Provider display name. You can keep it as `BetterToken` |
-    | `base_url` | BetterToken Codex / OpenAI-compatible protocol endpoint. It must include `/v1` |
+    | `network_access` | Allows Codex to access the network when needed. Keep this set to `enabled` |
+    | `windows_wsl_setup_acknowledged` | Acknowledges the Windows / WSL setup prompt. Keep this set to `true` |
+    | `name` | Provider display name. You can keep it as `OpenAI` |
+    | `base_url` | Codex / OpenAI-compatible protocol endpoint. It must include `/v1` |
     | `wire_api` | The API protocol used by Codex. Keep this set to `responses` |
     | `requires_openai_auth` | Tells Codex to read the API Key from its OpenAI auth file. Keep this set to `true` |
 

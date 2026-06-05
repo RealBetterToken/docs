@@ -75,8 +75,8 @@ npm install -g @openai/codex
 
   <Tab title="Ручная настройка">
     <Steps>
-      <Step title="Скопируйте model ID из model plaza">
-        Откройте model plaza (`{{model-plaza-url}}`) BetterToken и скопируйте актуальный ID модели из **Codex group**. Ниже замените все `YOUR_CODEX_MODEL_ID` на это значение.
+      <Step title="Проверьте модели по умолчанию">
+        Конфигурация ниже использует `gpt-5.5` как модель по умолчанию и `gpt-5.4` как review model. Если нужно выбрать другую модель, откройте BetterToken model plaza (`{{model-plaza-url}}`) и скопируйте актуальный ID модели из **Codex group**.
       </Step>
 
       <Step title="Проверьте расположение конфигов">
@@ -98,18 +98,21 @@ npm install -g @openai/codex
         Добавьте:
 
         ```toml
-        model_provider = "bettertoken"
-        model = "YOUR_CODEX_MODEL_ID"
-        model_reasoning_effort = "high"
+        model_provider = "OpenAI"
+        model = "gpt-5.5"
+        review_model = "gpt-5.4"
         disable_response_storage = true
+        network_access = "enabled"
+        windows_wsl_setup_acknowledged = true
+        model_context_window = 1000000
+        model_auto_compact_token_limit = 900000
 
-        [model_providers.bettertoken]
-        name = "BetterToken"
+        [model_providers]
+        [model_providers.OpenAI]
+        name = "OpenAI"
         base_url = "{{openai-base-url}}"
         wire_api = "responses"
         requires_openai_auth = true
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
         ```
       </Step>
 
@@ -140,12 +143,14 @@ npm install -g @openai/codex
 
     | Параметр | Описание |
     | --- | --- |
-    | `model_provider` | ID provider по умолчанию. Должен совпадать с `bettertoken` в `[model_providers.bettertoken]` |
-    | `model` | ID модели, которую Codex использует после запуска. Берите модель из **Codex group** в model plaza |
-    | `model_reasoning_effort` | Усилие reasoning. Используйте `low`, `medium` или `high` по необходимости |
+    | `model_provider` | ID provider по умолчанию. Должен совпадать с `OpenAI` в `[model_providers.OpenAI]` |
+    | `model` | ID модели, которую Codex использует после запуска. В примере используется `gpt-5.5` |
+    | `review_model` | ID модели для review workflows в Codex. В примере используется `gpt-5.4` |
     | `disable_response_storage` | Отключает сохранение response. Оставьте `true` |
-    | `name` | Отображаемое имя provider. Можно оставить `BetterToken` |
-    | `base_url` | Endpoint BetterToken для Codex / OpenAI-compatible protocol. Должен включать `/v1` |
+    | `network_access` | Разрешает Codex доступ к сети при необходимости. Оставьте `enabled` |
+    | `windows_wsl_setup_acknowledged` | Подтверждает prompt для Windows / WSL. Оставьте `true` |
+    | `name` | Отображаемое имя provider. Можно оставить `OpenAI` |
+    | `base_url` | Endpoint для Codex / OpenAI-compatible protocol. Должен включать `/v1` |
     | `wire_api` | Протокол API, который использует Codex. Оставьте `responses` |
     | `requires_openai_auth` | Указывает Codex читать API Key из OpenAI auth file. Оставьте `true` |
 

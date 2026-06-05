@@ -75,21 +75,21 @@ You can add a local `custom-models.json` file so Codex can recognize `gpt-5.5`, 
 
     ```toml
     model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-
-    [model_providers.bettertoken]
-    name = "BetterToken"
-    base_url = "{{openai-base-url}}"
-    env_key = "BETTERTOKEN_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 10
-    stream_idle_timeout_ms = 300000
-
-    [profiles.bt-gpt-5-5]
+    model_provider = "OpenAI"
     model = "gpt-5.5"
-    model_provider = "bettertoken"
-    model_reasoning_effort = "high"
+    review_model = "gpt-5.4"
+    disable_response_storage = true
+    network_access = "enabled"
+    windows_wsl_setup_acknowledged = true
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+
+    [model_providers]
+    [model_providers.OpenAI]
+    name = "OpenAI"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
     ```
 
     Windows example:
@@ -101,21 +101,23 @@ You can add a local `custom-models.json` file so Codex can recognize `gpt-5.5`, 
     `model_catalog_json` must be a local absolute path. In TOML double-quoted strings on Windows, write `\` as `\\`.
   </Step>
 
-  <Step title="Set your BetterToken API Key">
-    Set the environment variable in your terminal:
+  <Step title="Write the Codex auth file">
+    Open `~/.codex/auth.json`. Create it if it does not exist, then write:
 
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```json
+    {
+      "OPENAI_API_KEY": "YOUR_API_KEY"
+    }
     ```
 
-    To make it available in every new terminal session, add the command to `~/.zshrc` or `~/.bashrc`.
+    Replace `YOUR_API_KEY` with your BetterToken API Key.
   </Step>
 
-  <Step title="Restart and select the profile">
-    After changing the config file or environment variable, stop the current Codex process and start it in a new terminal session:
+  <Step title="Restart Codex">
+    After changing the config or auth file, stop the current Codex process and start it in a new terminal session:
 
     ```bash
-    codex --profile bt-gpt-5-5
+    codex
     ```
   </Step>
 </Steps>
@@ -128,6 +130,6 @@ If `gpt-5.5` still does not work, check these items in order:
 2. `custom-models.json` keeps the complete model catalog
 3. `base_url` is `{{openai-base-url}}`
 4. `wire_api` is `responses`
-5. `BETTERTOKEN_API_KEY` is available in the same terminal session that starts Codex
+5. `OPENAI_API_KEY` in `~/.codex/auth.json` is your BetterToken API Key
 
 If your Codex version already supports `gpt-5.5` natively, remove `model_catalog_json` and return to the regular [Codex setup guide](/en/ai-tools/codex).

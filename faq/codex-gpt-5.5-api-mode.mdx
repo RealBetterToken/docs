@@ -75,21 +75,21 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
 
     ```toml
     model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-
-    [model_providers.bettertoken]
-    name = "BetterToken"
-    base_url = "{{openai-base-url}}"
-    env_key = "BETTERTOKEN_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 10
-    stream_idle_timeout_ms = 300000
-
-    [profiles.bt-gpt-5-5]
+    model_provider = "OpenAI"
     model = "gpt-5.5"
-    model_provider = "bettertoken"
-    model_reasoning_effort = "high"
+    review_model = "gpt-5.4"
+    disable_response_storage = true
+    network_access = "enabled"
+    windows_wsl_setup_acknowledged = true
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+
+    [model_providers]
+    [model_providers.OpenAI]
+    name = "OpenAI"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
     ```
 
     Windows 示例：
@@ -101,21 +101,23 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
     `model_catalog_json` 使用本机绝对路径。Windows 路径写在 TOML 双引号字符串里时，建议把 `\` 写成 `\\`。
   </Step>
 
-  <Step title="设置 BetterToken API Key">
-    在终端中设置环境变量：
+  <Step title="写入 Codex 认证文件">
+    打开 `~/.codex/auth.json`（不存在则新建），写入以下内容：
 
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```json
+    {
+      "OPENAI_API_KEY": "YOUR_API_KEY"
+    }
     ```
 
-    如果希望每次启动终端都自动生效，将上述命令添加到 `~/.zshrc` 或 `~/.bashrc` 中。
+    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。
   </Step>
 
-  <Step title="重启并选择配置">
-    修改配置文件或环境变量后，结束当前 Codex 进程，并在新终端会话中启动：
+  <Step title="重启 Codex">
+    修改配置文件或认证文件后，结束当前 Codex 进程，并在新终端会话中启动：
 
     ```bash
-    codex --profile bt-gpt-5-5
+    codex
     ```
   </Step>
 </Steps>
@@ -128,6 +130,6 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
 2. `custom-models.json` 是否保留了完整模型目录
 3. `base_url` 是否为 `{{openai-base-url}}`
 4. `wire_api` 是否为 `responses`
-5. `BETTERTOKEN_API_KEY` 是否已在启动 Codex 的同一个终端会话中生效
+5. `~/.codex/auth.json` 中的 `OPENAI_API_KEY` 是否为你的 BetterToken API Key
 
 如果你的 Codex 已经内置支持 `gpt-5.5`，可以删除 `model_catalog_json`，改回常规 [Codex 接入文档](/ai-tools/codex) 中的配置方式。
