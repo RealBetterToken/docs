@@ -7,13 +7,17 @@ icon: "code"
 
 Для подключения Codex к BetterToken нужен custom model provider и API Key. `base_url` должен быть `{{openai-base-url}}`, протокол — `OpenAI Responses`.
 
+<Info>
+  Если вы хотите сохранить официальный login state Codex App, plugins или Remote Control при использовании стороннего API, используйте [настройку с сохранением login state](/ru/faq/codex-official-login-third-party-api).
+</Info>
+
 ## Требования
 
 - Установленный Node.js
 - API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
 <Warning>
-  Перед настройкой очистите OpenAI-related переменные окружения, чтобы они не переопределили `config.toml` или `auth.json`.
+  Перед настройкой очистите OpenAI-related переменные окружения, чтобы они не переопределили `config.toml`.
 
   Очистите:
 
@@ -80,12 +84,12 @@ npm install -g @openai/codex
       </Step>
 
       <Step title="Проверьте расположение конфигов">
-        Для ручной настройки нужны файлы Codex `config.toml` и `auth.json`.
+        Для ручной настройки нужен файл Codex `config.toml`.
 
-        | Система | `config.toml` | `auth.json` |
-        | --- | --- | --- |
-        | macOS / Linux | `~/.codex/config.toml` | `~/.codex/auth.json` |
-        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` | `C:\Users\YOUR_USER\.codex\auth.json` |
+        | Система | `config.toml` |
+        | --- | --- |
+        | macOS / Linux | `~/.codex/config.toml` |
+        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
       </Step>
 
       <Step title="Отредактируйте config.toml Codex">
@@ -98,39 +102,29 @@ npm install -g @openai/codex
         Добавьте:
 
         ```toml
-        model_provider = "OpenAI"
+        model_provider = "{{codex-provider-id}}"
         model = "gpt-5.5"
         review_model = "gpt-5.4"
-        disable_response_storage = true
-        network_access = "enabled"
-        windows_wsl_setup_acknowledged = true
+        model_reasoning_effort = "high"
         model_context_window = 1000000
         model_auto_compact_token_limit = 900000
+        windows_wsl_setup_acknowledged = true
 
         [model_providers]
-        [model_providers.OpenAI]
-        name = "OpenAI"
+        [model_providers.{{codex-provider-id}}]
+        name = "{{codex-provider-name}}"
         base_url = "{{openai-base-url}}"
         wire_api = "responses"
-        requires_openai_auth = true
-        experimental_bearer_token = "APIkey"
-        ```
-      </Step>
-
-      <Step title="Запишите auth.json Codex">
-        Откройте `auth.json`. Создайте его, если файла нет.
-
-        Запишите содержимое ниже, заменив `YOUR_API_KEY` на API Key BetterToken:
-
-        ```json
-        {
-          "OPENAI_API_KEY": "YOUR_API_KEY"
-        }
+        requires_openai_auth = false
+        request_max_retries = 4
+        stream_max_retries = 8
+        stream_idle_timeout_ms = 300000
+        supports_websockets = false
         ```
       </Step>
 
       <Step title="Перезапустите Codex в терминале">
-        После изменения `config.toml` или `auth.json` остановите текущий процесс Codex и запустите его в новой terminal session.
+        После изменения `config.toml` остановите текущий процесс Codex и запустите его в новой terminal session.
       </Step>
 
       <Step title="Запустите Codex">
@@ -142,33 +136,29 @@ npm install -g @openai/codex
 
     ### Справочник параметров
 
-    | Параметр | Описание |
-    | --- | --- |
-    | `model_provider` | ID provider по умолчанию. Должен совпадать с `OpenAI` в `[model_providers.OpenAI]` |
-    | `model` | ID модели, которую Codex использует после запуска. В примере используется `gpt-5.5` |
-    | `review_model` | ID модели для review workflows в Codex. В примере используется `gpt-5.4` |
-    | `disable_response_storage` | Отключает сохранение response. Оставьте `true` |
-    | `network_access` | Разрешает Codex доступ к сети при необходимости. Оставьте `enabled` |
-    | `windows_wsl_setup_acknowledged` | Подтверждает prompt для Windows / WSL. Оставьте `true` |
-    | `name` | Отображаемое имя provider. Можно оставить `OpenAI` |
-    | `base_url` | Endpoint для Codex / OpenAI-compatible protocol. Должен включать `/v1` |
-    | `wire_api` | Протокол API, который использует Codex. Оставьте `responses` |
-    | `requires_openai_auth` | Указывает Codex читать API Key из OpenAI auth file. Оставьте `true` |
-    | `experimental_bearer_token` | Задает bearer token напрямую для этого provider. Замените `APIkey` на ваш API Key |
+    В [официальном справочнике конфигурации Codex](https://developers.openai.com/codex/config-reference) указано, что `model_provider` ссылается на provider id внутри `model_providers`, custom provider задается через `[model_providers.<id>]`, а `wire_api = "responses"` — поддерживаемое значение provider protocol.
 
-    ### Конфигурация 1M context
+    | Конфигурация | Значение | Рекомендуемое значение |
+    | --- | --- | --- |
+    | `model_provider` | Выбирает model provider, который использует Codex. Значение должно совпадать с `[model_providers.{{codex-provider-id}}]`. | `"{{codex-provider-id}}"` |
+    | `model` | Основная модель Codex для повседневного написания кода, правок и задач агента. | `"gpt-5.5"` |
+    | `review_model` | Модель для команды `/review`. Если не задано, Codex использует текущую основную модель. | `"gpt-5.4"` |
+    | `model_reasoning_effort` | Управляет reasoning strength для моделей с Responses API. Возможные значения: `minimal`, `low`, `medium`, `high`, `xhigh`. | `"high"` |
+    | `model_context_window` | Сообщает Codex размер context window активной модели в токенах. | `1000000` |
+    | `model_auto_compact_token_limit` | Автоматически сжимает историю диалога при достижении этого token threshold. | `900000` |
+    | `windows_wsl_setup_acknowledged` | Флаг подтверждения Windows / WSL onboarding, чтобы избежать повторных setup prompts. | `true` |
+    | `[model_providers]` | Родительская секция для custom model provider configuration. | `[model_providers]` |
+    | `[model_providers.{{codex-provider-id}}]` | Определяет custom provider с id `{{codex-provider-id}}`; `model_provider = "{{codex-provider-id}}"` ссылается на эту секцию. | `[model_providers.{{codex-provider-id}}]` |
+    | `name` | Отображаемое имя provider. Влияет только на отображение, не на request logic. | `"{{codex-provider-name}}"` |
+    | `base_url` | Базовый API URL. Codex отправляет model requests на этот адрес. | `"{{openai-base-url}}"` |
+    | `wire_api` | Provider protocol. В конфигурации Codex provider `responses` — поддерживаемое и default значение. | `"responses"` |
+    | `requires_openai_auth` | Использовать ли официальную OpenAI authentication. Для этого custom proxy provider OpenAI auth отключен. | `false` |
+    | `request_max_retries` | Максимальное число повторов для обычных failed HTTP requests. Официальное default значение — `4`. | `4` |
+    | `stream_max_retries` | Максимальное число повторов при прерывании SSE stream. Официальное default значение — `5`; для proxy chain можно увеличить. | `8` |
+    | `stream_idle_timeout_ms` | Idle timeout для SSE stream в миллисекундах. `300000` — это 5 минут. | `300000` |
+    | `supports_websockets` | Объявляет ли provider поддержку Responses API WebSocket transport. | `false` |
 
-    Если вы используете long-context модель из **Codex group**, оставьте эти две настройки:
-
-    ```toml
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
-    ```
-
-    | Параметр | Назначение |
-    | --- | --- |
-    | `model_context_window` | Задает доступное context window в `1,000,000` токенов |
-    | `model_auto_compact_token_limit` | Запускает compaction до жесткого лимита контекста и снижает риск исчерпания context |
+    Примечание: [страница модели `gpt-5.5`](https://developers.openai.com/api/docs/models/gpt-5.5) показывает поддержку `high` reasoning effort и context window `1,050,000` tokens. Поэтому `model_context_window = 1000000` — разумное консервативное значение, а `model_auto_compact_token_limit = 900000` откладывает compaction и подходит для долгих задач.
 
     Если конфигурацию пишет CC Switch, предпочитайте сгенерированный им файл. Редактируйте эти значения вручную только для manual setup или troubleshooting.
   </Tab>
@@ -183,5 +173,5 @@ npm install -g @openai/codex
 1. `base_url` равен `{{openai-base-url}}`
 2. `wire_api` остается `responses`
 3. `model` — это ID модели из **Codex group**
-4. `OPENAI_API_KEY` в `~/.codex/auth.json` — ваш API Key BetterToken
+4. `model_provider` совпадает с provider id в `[model_providers.{{codex-provider-id}}]`
 5. Старые переменные `OPENAI_API_KEY` или `OPENAI_BASE_URL` не мешают настройке

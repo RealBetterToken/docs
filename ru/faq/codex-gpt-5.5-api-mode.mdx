@@ -75,21 +75,24 @@ description: "Временно включите GPT-5.5 в Codex custom API mode
 
     ```toml
     model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-    model_provider = "OpenAI"
+    model_provider = "{{codex-provider-id}}"
     model = "gpt-5.5"
     review_model = "gpt-5.4"
-    disable_response_storage = true
-    network_access = "enabled"
-    windows_wsl_setup_acknowledged = true
+    model_reasoning_effort = "high"
     model_context_window = 1000000
     model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
 
     [model_providers]
-    [model_providers.OpenAI]
-    name = "OpenAI"
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
     wire_api = "responses"
-    requires_openai_auth = true
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
     ```
 
     Пример для Windows:
@@ -101,20 +104,8 @@ description: "Временно включите GPT-5.5 в Codex custom API mode
     `model_catalog_json` должен быть локальным абсолютным путем. В TOML double-quoted strings на Windows пишите `\` как `\\`.
   </Step>
 
-  <Step title="Запишите auth file Codex">
-    Откройте `~/.codex/auth.json`. Создайте файл, если его нет, и запишите:
-
-    ```json
-    {
-      "OPENAI_API_KEY": "YOUR_API_KEY"
-    }
-    ```
-
-    Замените `YOUR_API_KEY` на ваш API Key BetterToken.
-  </Step>
-
   <Step title="Перезапустите Codex">
-    После изменения config file или auth file остановите текущий процесс Codex и запустите его в новой terminal session:
+    После изменения config file остановите текущий процесс Codex и запустите его в новой terminal session:
 
     ```bash
     codex
@@ -130,6 +121,6 @@ description: "Временно включите GPT-5.5 в Codex custom API mode
 2. `custom-models.json` сохраняет полный model catalog
 3. `base_url` равен `{{openai-base-url}}`
 4. `wire_api` равен `responses`
-5. `OPENAI_API_KEY` в `~/.codex/auth.json` — ваш API Key BetterToken
+5. `model_provider` совпадает с provider id в `[model_providers.{{codex-provider-id}}]`
 
 Если ваша версия Codex уже поддерживает `gpt-5.5` нативно, удалите `model_catalog_json` и вернитесь к обычной [инструкции Codex](/ru/ai-tools/codex).

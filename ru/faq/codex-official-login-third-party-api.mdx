@@ -1,0 +1,174 @@
+---
+title: "Как сохранить login state Codex при использовании стороннего API?"
+sidebarTitle: "Login state Codex"
+description: "Сохраните официальный login state Codex App и направляйте model requests через BetterToken или другой сторонний API, чтобы продолжать использовать plugins, Remote Control и official session sync."
+---
+
+Если вам нужно только подключить сторонний API в Codex CLI или Codex App, используйте обычную [инструкцию Codex](/ru/ai-tools/codex).
+
+Если вам также нужны **plugins**, **Remote Control**, управление с телефона или official session sync, сохраните официальный login state Codex и направьте model requests в сторонний API.
+
+Идея в разделении двух слоев:
+
+| Слой | За что отвечает | Рекомендуемый источник |
+|------|-----------------|------------------------|
+| Auth layer | Login state Codex App, plugins, Remote Control, session sync | Официальный вход ChatGPT / Codex |
+| Inference layer | Model requests, model list, расход API Key | BetterToken или другой сторонний API |
+
+<Warning>
+  Не публикуйте `auth.json`, `refresh_token`, `id_token`, `experimental_bearer_token` или API Key в issues, чатах, скриншотах и логах.
+</Warning>
+
+## Способы настройки
+
+<Tabs>
+  <Tab title="Через CC Switch">
+    Это рекомендуемый способ. В CC Switch сохранение official login state вынесено в UI-настройку, поэтому этот вариант безопаснее для большинства пользователей.
+
+    <Steps>
+      <Step title="Сначала настройте Codex API provider">
+        Следуйте [шагам Codex CLI в инструкции CC Switch](/ru/ai-tools/cc-switch#codex-cli), установите CC Switch и добавьте Codex API provider.
+
+        Заполните provider поля данными BetterToken:
+
+        | Поле | Значение |
+        |------|----------|
+        | **Provider Name** | `BetterToken` или удобное имя |
+        | **Base URL** | `{{openai-base-url}}` |
+        | **API Key** | Ваш BetterToken API Key |
+        | **API format** | `OpenAI Responses API` |
+
+        Сохраните provider и сделайте его **In Use**.
+
+        <Frame>
+          <img
+            src="/images/codex-official-login-state/cc-switch-provider-list.png"
+            alt="В CC Switch добавлен сторонний Codex API provider, а стрелка показывает вход в settings."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Откройте настройки CC Switch">
+        Вернитесь в главное окно CC Switch и нажмите иконку **Settings** в левом верхнем углу.
+      </Step>
+
+      <Step title="Включите Codex App Enhancements">
+        Во вкладке **General** найдите **Codex App Enhancements** и включите **Keep official login when switching third-party providers**.
+
+        Этот переключатель сохраняет официальный login state Codex App при переключении на сторонний provider. После включения Codex App продолжит использовать official plugins, Remote Control и mobile control, а model requests будут идти через выбранный сторонний API provider.
+
+        <Frame>
+          <img
+            src="/images/codex-official-login-state/cc-switch-enhancements-toggle.png"
+            alt="В настройках CC Switch включен переключатель Codex App Enhancements."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Перезапустите Codex App и проверьте">
+        Полностью закройте и снова откройте Codex App. Проверьте:
+
+        1. Codex App по-прежнему показывает официальный account login state
+        2. Plugins, Remote Control или mobile control работают
+        3. Активный provider — сторонний API provider, выбранный в CC Switch
+        4. Тестовое сообщение получает нормальный ответ
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Ручная настройка">
+    Ручная настройка предназначена для опытных пользователей, которые уверенно редактируют локальные файлы Codex. По возможности используйте CC Switch.
+
+    <Steps>
+      <Step title="Сохраните официальный login state Codex">
+        Сначала войдите в официальный аккаунт ChatGPT / Codex в Codex App или Codex CLI и убедитесь, что Remote Control или plugins работают.
+
+        Файл `~/.codex/auth.json` должен сохранять официальный login state. Обычно это token structure с `auth_mode = chatgpt`, а не простой объект `OPENAI_API_KEY`.
+
+        Структура выглядит примерно так. Не копируйте placeholder values; оставьте реальный файл, созданный локальным official login:
+
+        ```json
+        {
+          "auth_mode": "chatgpt",
+          "tokens": {
+            "id_token": "OFFICIAL_ID_TOKEN",
+            "refresh_token": "OFFICIAL_REFRESH_TOKEN",
+            "account_id": "OFFICIAL_ACCOUNT_ID"
+          },
+          "last_refresh": "2026-05-10T14:42:19+08:00"
+        }
+        ```
+
+        <Warning>
+          Эти tokens представляют login state официального аккаунта. Храните их только локально, не коммитьте и не передавайте другим.
+        </Warning>
+      </Step>
+
+      <Step title="Отредактируйте config.toml">
+        Откройте `~/.codex/config.toml`, затем добавьте или объедините provider config ниже.
+
+        ```toml
+        model_provider = "{{codex-provider-id}}"
+        model = "gpt-5.5"
+        review_model = "gpt-5.4"
+        model_reasoning_effort = "high"
+        model_context_window = 1000000
+        model_auto_compact_token_limit = 900000
+        windows_wsl_setup_acknowledged = true
+
+        [model_providers]
+        [model_providers.{{codex-provider-id}}]
+        name = "{{codex-provider-name}}"
+        base_url = "{{openai-base-url}}"
+        wire_api = "responses"
+        requires_openai_auth = true
+        experimental_bearer_token = "YOUR_API_KEY"
+        request_max_retries = 4
+        stream_max_retries = 8
+        stream_idle_timeout_ms = 300000
+        supports_websockets = false
+        ```
+
+        Замените `YOUR_API_KEY` на ваш BetterToken API Key.
+
+        Это отличается от обычного API Key mode:
+
+        | Config | Назначение |
+        |------|------------|
+        | `requires_openai_auth = true` | Сохраняет официальный login state Codex для plugins, Remote Control и session sync |
+        | `experimental_bearer_token = "YOUR_API_KEY"` | Использует сторонний API Key для model requests |
+        | `base_url = "{{openai-base-url}}"` | Отправляет model requests в OpenAI-compatible / Responses API endpoint BetterToken |
+      </Step>
+
+      <Step title="Перезапустите и проверьте">
+        Полностью закройте Codex App и откройте снова. Проверьте по порядку:
+
+        1. Официальный login state сохранился
+        2. Remote Control или plugins открываются
+        3. Тестовое сообщение идет через сторонний API provider
+        4. Если модель недоступна, убедитесь, что `model` скопирован из **Codex group** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## FAQ
+
+### Чем это отличается от обычной настройки Codex API?
+
+Обычная настройка только направляет model requests в сторонний API. Эта схема также сохраняет официальный login state, поэтому official features Codex App продолжают работать.
+
+Если вам не нужны plugins, Remote Control или mobile control, используйте обычную [инструкцию Codex](/ru/ai-tools/codex).
+
+### Почему API Key не нужно класть в auth.json?
+
+В этом режиме `auth.json` хранит официальный login state. Сторонний API Key должен находиться в `experimental_bearer_token` внутри `config.toml`.
+
+Если заменить `auth.json` простым объектом `OPENAI_API_KEY`, Codex App может перестать распознавать официальный login state, а plugins или Remote Control могут перестать работать.
+
+### Ссылки
+
+- [CC Switch issue #2850](https://github.com/farion1231/cc-switch/issues/2850)
+- [Пример ручной настройки из сообщества](https://linux.do/t/topic/2184352)

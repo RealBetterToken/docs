@@ -75,21 +75,24 @@ You can add a local `custom-models.json` file so Codex can recognize `gpt-5.5`, 
 
     ```toml
     model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-    model_provider = "OpenAI"
+    model_provider = "{{codex-provider-id}}"
     model = "gpt-5.5"
     review_model = "gpt-5.4"
-    disable_response_storage = true
-    network_access = "enabled"
-    windows_wsl_setup_acknowledged = true
+    model_reasoning_effort = "high"
     model_context_window = 1000000
     model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
 
     [model_providers]
-    [model_providers.OpenAI]
-    name = "OpenAI"
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
     wire_api = "responses"
-    requires_openai_auth = true
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
     ```
 
     Windows example:
@@ -101,20 +104,8 @@ You can add a local `custom-models.json` file so Codex can recognize `gpt-5.5`, 
     `model_catalog_json` must be a local absolute path. In TOML double-quoted strings on Windows, write `\` as `\\`.
   </Step>
 
-  <Step title="Write the Codex auth file">
-    Open `~/.codex/auth.json`. Create it if it does not exist, then write:
-
-    ```json
-    {
-      "OPENAI_API_KEY": "YOUR_API_KEY"
-    }
-    ```
-
-    Replace `YOUR_API_KEY` with your BetterToken API Key.
-  </Step>
-
   <Step title="Restart Codex">
-    After changing the config or auth file, stop the current Codex process and start it in a new terminal session:
+    After changing the config file, stop the current Codex process and start it in a new terminal session:
 
     ```bash
     codex
@@ -130,6 +121,6 @@ If `gpt-5.5` still does not work, check these items in order:
 2. `custom-models.json` keeps the complete model catalog
 3. `base_url` is `{{openai-base-url}}`
 4. `wire_api` is `responses`
-5. `OPENAI_API_KEY` in `~/.codex/auth.json` is your BetterToken API Key
+5. `model_provider` matches the provider id in `[model_providers.{{codex-provider-id}}]`
 
 If your Codex version already supports `gpt-5.5` natively, remove `model_catalog_json` and return to the regular [Codex setup guide](/en/ai-tools/codex).
