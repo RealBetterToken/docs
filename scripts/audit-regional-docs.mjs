@@ -22,8 +22,6 @@ const sourceExpectedVariables = {
   'anthropic-base-url': 'https://www.bettertoken.ai',
   'openai-base-url': 'https://www.bettertoken.ai/v1',
   'chat-completions-url': 'https://www.bettertoken.ai/v1/chat/completions',
-  'images-generations-url': 'https://www.bettertoken.ai/v1/images/generations',
-  'images-edits-url': 'https://www.bettertoken.ai/v1/images/edits',
   'register-url': 'https://www.bettertoken.ai/register',
   'pricing-url': 'https://www.bettertoken.ai/#',
   'model-plaza-url': 'https://www.bettertoken.ai/pricing',
@@ -288,7 +286,6 @@ function checkGeneratedRegionalOutput() {
 
   checkConfig(generatedConfig, '.mintlify-llmeasy/docs.json', {
     name: 'LLMEasy',
-    openapi: 'api-reference/openapi.llmeasy.json',
     variables: regionalExpectedVariables,
     canonical: 'https://docs.llmeasy.ru',
   });
@@ -438,19 +435,6 @@ function checkGeneratedRegionalOutput() {
   }
 }
 
-function checkRegionalOpenApiSource() {
-  const filePath = path.join(rootDir, 'api-reference/openapi.llmeasy.json');
-  const text = fs.readFileSync(filePath, 'utf8');
-
-  if (/[\u4e00-\u9fff]/.test(text)) {
-    errors.push('api-reference/openapi.llmeasy.json: contains Chinese text');
-  }
-
-  if (/BetterToken|bettertoken|BETTERTOKEN|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai/.test(text)) {
-    errors.push('api-reference/openapi.llmeasy.json: contains BetterToken brand text or production domain');
-  }
-}
-
 function checkRussianPages() {
   const checks = [
     {
@@ -502,7 +486,6 @@ function checkNoHardcodedProductionDomainsInMdx() {
 
 checkConfig(sourceConfig, 'docs.json', {
   name: 'BetterToken',
-  openapi: 'api-reference/openapi.json',
   variables: sourceExpectedVariables,
   canonical: 'https://docs.bettertoken.ai',
 });
@@ -511,7 +494,6 @@ checkConfigDomainIsolation(sourceConfig, 'docs.json', ['https://www.llmeasy.ru',
 
 checkConfig(regionalConfig, 'docs.llmeasy.json', {
   name: 'LLMEasy',
-  openapi: 'api-reference/openapi.llmeasy.json',
   variables: regionalExpectedVariables,
   canonical: 'https://docs.llmeasy.ru',
 });
@@ -523,7 +505,6 @@ checkConfigDomainIsolation(regionalConfig, 'docs.llmeasy.json', [
 
 checkLanguageCoverage();
 checkNoUnlistedPages();
-checkRegionalOpenApiSource();
 checkRussianPages();
 checkNoHardcodedProductionDomainsInMdx();
 checkVariableDefinitions(sourceConfig, 'docs.json', [

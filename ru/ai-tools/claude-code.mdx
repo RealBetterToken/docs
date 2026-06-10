@@ -56,8 +56,8 @@ icon: "terminal"
       <Step title="Проверьте группу API Key">
         Сначала проверьте, какую группу API Key BetterToken вы используете:
 
-        - `Claude_*`: задайте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
-        - `Codex_*`: задайте auth fields и добавьте Claude Code model mappings
+        - `Claude`: задайте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
+        - `GPT`: задайте auth fields и добавьте Claude Code model mappings
 
         Обе группы используют Anthropic-протокол. В обоих случаях `ANTHROPIC_BASE_URL` должен быть `{{anthropic-base-url}}` без `/v1`.
       </Step>
@@ -68,7 +68,7 @@ icon: "terminal"
         - macOS / Linux: `~/.claude/settings.json`
         - Windows: `%USERPROFILE%\.claude\settings.json`
 
-        Если вы используете ключ `Claude_*`, замените `YOUR_API_KEY` на API Key BetterToken:
+        Если вы используете группу ключа **Claude**, замените `YOUR_API_KEY` на API Key BetterToken:
 
         ```json
         {
@@ -82,15 +82,15 @@ icon: "terminal"
         ```
 
         <Note>
-          С ключом `Claude_*` вам не нужны `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` или другие model variables. Claude Code сам управляет выбором модели.
+          С группой ключа **Claude** вам не нужны `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` или другие model variables. Claude Code сам управляет выбором модели.
         </Note>
       </Step>
 
-      <Step title="Добавьте model mappings для ключей Codex_*">
-        Если ваш API Key относится к группе `Codex_*`, используйте эту конфигурацию:
+      <Step title="Добавьте model mappings для группы ключа GPT">
+        Если ваш API Key относится к группе `GPT`, используйте эту конфигурацию:
 
         <Tip>
-          Если вы используете ключ `Codex_*`, мы рекомендуем сначала настроить Claude Code через [CC Switch](/ru/ai-tools/cc-switch#claude-code). Он надежнее обрабатывает Claude Code model mappings и proxy toggle. Используйте ручной config ниже только если хотите поддерживать файл конфигурации самостоятельно.
+          Если вы используете группу ключа **GPT**, мы рекомендуем сначала настроить Claude Code через [CC Switch](/ru/ai-tools/cc-switch#claude-code). Он надежнее обрабатывает Claude Code model mappings и proxy toggle. Используйте ручной config ниже только если хотите поддерживать файл конфигурации самостоятельно.
         </Tip>
 
         ```json
@@ -121,7 +121,7 @@ icon: "terminal"
         | `model` | Model tier Claude Code по умолчанию; `opus` использует `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
         <Note>
-          `gpt-5.4` — пример ID модели **Codex group**. Используйте актуальные ID моделей **Codex group** из BetterToken model plaza (`{{model-plaza-url}}`). Можно сопоставить все три уровня с одной моделью или выбрать разные модели.
+          `gpt-5.4` — пример ID модели группы **GPT**. Используйте актуальные ID моделей группы **GPT** из BetterToken model plaza (`{{model-plaza-url}}`). Можно сопоставить все три уровня с одной моделью или выбрать разные модели.
         </Note>
       </Step>
 
@@ -156,7 +156,7 @@ icon: "terminal"
     Откройте UI настроек расширения.
   </Step>
   <Step title="Задайте переменные окружения">
-    Если вы используете ключ `Claude_*`, нажмите **Edit in settings.json** и обновите `claudeCode.environmentVariables`:
+    Если вы используете группу ключа **Claude**, нажмите **Edit in settings.json** и обновите `claudeCode.environmentVariables`:
 
     ```json
     {
@@ -182,8 +182,8 @@ icon: "terminal"
     ```
   </Step>
 
-  <Step title="Добавьте model mappings для ключей Codex_*">
-    Если ваш API Key относится к группе `Codex_*`, используйте:
+  <Step title="Добавьте model mappings для группы ключа GPT">
+    Если ваш API Key относится к группе `GPT`, используйте:
 
     ```json
     {
@@ -221,7 +221,7 @@ icon: "terminal"
     ```
 
     <Note>
-      `gpt-5.4` — только пример ID модели **Codex group**. Скопируйте актуальный model ID из BetterToken model plaza (`{{model-plaza-url}}`). Когда расширение использует Opus tier по умолчанию, оно будет разрешаться через `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+      `gpt-5.4` — только пример ID модели группы **GPT**. Скопируйте актуальный model ID из BetterToken model plaza (`{{model-plaza-url}}`). Когда расширение использует Opus tier по умолчанию, оно будет разрешаться через `ANTHROPIC_DEFAULT_OPUS_MODEL`.
     </Note>
   </Step>
 
@@ -238,7 +238,7 @@ icon: "terminal"
 
 1. `ANTHROPIC_AUTH_TOKEN` содержит правильный API Key BetterToken
 2. `ANTHROPIC_BASE_URL` равен `{{anthropic-base-url}}`
-3. Ключи `Claude_*` не задают model variables, а ключи `Codex_*` содержат mappings `ANTHROPIC_DEFAULT_*_MODEL`
+3. Группа ключа **Claude** не задает model variables, а группа ключа **GPT** содержит mappings `ANTHROPIC_DEFAULT_*_MODEL`
 4. Старые переменные окружения не переопределяют ваш config
 
 ## FAQ

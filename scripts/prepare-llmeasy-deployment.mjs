@@ -22,7 +22,6 @@ const skippedTopLevelFiles = new Set([
   'skills-lock.json',
 ]);
 const skippedRelativeFiles = new Set([
-  'api-reference/openapi.json',
   'ai-tools/yingdao-ai-power.mdx',
   'en/ai-tools/yingdao-ai-power.mdx',
   'ru/ai-tools/yingdao-ai-power.mdx',

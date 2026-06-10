@@ -53,11 +53,11 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
 
   <Tab title="Manual setup">
     <Steps>
-      <Step title="Check your API Key group">
-        First confirm which BetterToken API Key group you are using:
+      <Step title="Check your Key group">
+        First confirm which BetterToken Key group you are using:
 
-        - `Claude_*`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
-        - `Codex_*`: set the auth fields and add Claude Code model mappings
+        - `Claude`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
+        - `GPT`: set the auth fields and add Claude Code model mappings
 
         Both groups still use the Anthropic protocol. In both cases, set `ANTHROPIC_BASE_URL` to `{{anthropic-base-url}}` without `/v1`.
       </Step>
@@ -68,7 +68,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         - macOS / Linux: `~/.claude/settings.json`
         - Windows: `%USERPROFILE%\.claude\settings.json`
 
-        If you use a `Claude_*` key, replace `YOUR_API_KEY` with your BetterToken API Key:
+        If you use the **Claude Key group**, replace `YOUR_API_KEY` with your BetterToken API Key:
 
         ```json
         {
@@ -82,15 +82,15 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         ```
 
         <Note>
-          With a `Claude_*` key, you do not need `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model variables. Claude Code manages model selection itself.
+          With the **Claude Key group**, you do not need `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model variables. Claude Code manages model selection itself.
         </Note>
       </Step>
 
-      <Step title="Add model mappings for Codex_* keys">
-        If your API Key belongs to the `Codex_*` group, use this config instead:
+      <Step title="Add model mappings for the GPT Key group">
+        If your API Key belongs to the **GPT Key group**, use this config instead:
 
         <Tip>
-          If you use a `Codex_*` key, we recommend configuring Claude Code through [CC Switch](/en/ai-tools/cc-switch#claude-code) first. It handles the Claude Code model mappings and proxy toggle more reliably. Only use the manual config below when you explicitly want to maintain the config file yourself.
+          If you use the **GPT Key group**, we recommend configuring Claude Code through [CC Switch](/en/ai-tools/cc-switch#claude-code) first. It handles the Claude Code model mappings and proxy toggle more reliably. Only use the manual config below when you explicitly want to maintain the config file yourself.
         </Tip>
 
         ```json
@@ -121,7 +121,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         | `model` | Default Claude Code model tier; `opus` uses `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
         <Note>
-          `gpt-5.4` is an example **Codex group** model ID. Use the current **Codex group** model IDs listed in the BetterToken model plaza (`{{model-plaza-url}}`). You can map all three tiers to the same model or choose different ones.
+          `gpt-5.4` is an example **GPT Key group** model ID. Use the current **GPT Key group** model IDs listed in the BetterToken model plaza (`{{model-plaza-url}}`). You can map all three tiers to the same model or choose different ones.
         </Note>
       </Step>
 
@@ -156,7 +156,7 @@ If you use the Claude Code VS Code extension:
     Open the extension settings UI.
   </Step>
   <Step title="Set environment variables">
-    If you use a `Claude_*` key, click **Edit in settings.json** and update `claudeCode.environmentVariables`:
+    If you use the **Claude Key group**, click **Edit in settings.json** and update `claudeCode.environmentVariables`:
 
     ```json
     {
@@ -182,8 +182,8 @@ If you use the Claude Code VS Code extension:
     ```
   </Step>
 
-  <Step title="Add model mappings for Codex_* keys">
-    If your API Key belongs to the `Codex_*` group, use:
+  <Step title="Add model mappings for the GPT Key group">
+    If your API Key belongs to the **GPT Key group**, use:
 
     ```json
     {
@@ -221,7 +221,7 @@ If you use the Claude Code VS Code extension:
     ```
 
     <Note>
-      `gpt-5.4` is only an example **Codex group** model ID. Copy the current model ID from the BetterToken model plaza (`{{model-plaza-url}}`). When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+      `gpt-5.4` is only an example **GPT Key group** model ID. Copy the current model ID from the BetterToken model plaza (`{{model-plaza-url}}`). When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
     </Note>
   </Step>
 
@@ -237,7 +237,7 @@ Start Claude Code and send a message. A normal reply means the connection is wor
 If authentication fails, check:
 1. `ANTHROPIC_AUTH_TOKEN` contains the correct BetterToken API Key
 2. `ANTHROPIC_BASE_URL` is `{{anthropic-base-url}}`
-3. `Claude_*` keys are not setting model variables, or `Codex_*` keys include the `ANTHROPIC_DEFAULT_*_MODEL` mappings
+3. The **Claude Key group** does not set model variables, while the **GPT Key group** includes the `ANTHROPIC_DEFAULT_*_MODEL` mappings
 4. No old environment variables are overriding your config
 
 ## FAQ
