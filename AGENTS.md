@@ -25,6 +25,7 @@
 - Distinguish the two access modes clearly:
   - Claude Code / Anthropic protocol: `https://www.bettertoken.ai`
   - Codex / OpenAI-compatible protocol: `https://www.bettertoken.ai/v1`
+- For Mintlify variables that should render as clickable external links, use explicit MDX anchors such as `<a href={"{{register-url}}"}>注册并获取</a>` or `<a href={"{{model-plaza-url}}"}>模型广场</a>`. Do not wrap the variable itself in backticks, and do not write parenthesized text such as `注册并获取 ({{register-url}})` or `模型广场 ({{model-plaza-url}})`, because Mintlify will substitute the URL but the page will display it as non-clickable text.
 
 ## Style preferences
 

@@ -106,6 +106,10 @@ function variables(text) {
   return [...text.matchAll(/\{\{([a-z0-9-]+)\}\}/gi)].map((match) => match[1]).sort();
 }
 
+function stripFencedCodeBlocks(text) {
+  return text.replace(/^```[\s\S]*?^```/gm, '');
+}
+
 function mdxFiles(dir, files = []) {
   if (!fs.existsSync(dir)) {
     return files;
@@ -484,6 +488,34 @@ function checkNoHardcodedProductionDomainsInMdx() {
   }
 }
 
+function checkNoTextOnlyVariableLinks() {
+  const files = mdxFiles(rootDir).filter((filePath) => !filePath.includes(`${path.sep}.mintlify-llmeasy${path.sep}`));
+  const linkVariables = '(?:register-url|pricing-url|model-plaza-url|privacy-url)';
+  const codeFormattedVariable = new RegExp(`\`\\{\\{${linkVariables}\\}\\}\``, 'g');
+  const parenthesizedVariable = new RegExp(`(^|[^\\]])\\(\\s*\`?\\{\\{${linkVariables}\\}\\}\`?\\s*\\)`, 'g');
+
+  for (const filePath of files) {
+    const text = stripFencedCodeBlocks(fs.readFileSync(filePath, 'utf8'));
+    const relativePath = path.relative(rootDir, filePath).split(path.sep).join('/');
+    const reportedLines = new Set();
+
+    for (const pattern of [codeFormattedVariable, parenthesizedVariable]) {
+      pattern.lastIndex = 0;
+      for (const match of text.matchAll(pattern)) {
+        const line = text.slice(0, match.index).split('\n').length;
+        if (reportedLines.has(line)) {
+          continue;
+        }
+
+        reportedLines.add(line);
+        errors.push(
+          `${relativePath}:${line}: link variable is rendered as text; use <a href={"{{variable-name}}"}>label</a> instead`,
+        );
+      }
+    }
+  }
+}
+
 checkConfig(sourceConfig, 'docs.json', {
   name: 'BetterToken',
   variables: sourceExpectedVariables,
@@ -507,6 +539,7 @@ checkLanguageCoverage();
 checkNoUnlistedPages();
 checkRussianPages();
 checkNoHardcodedProductionDomainsInMdx();
+checkNoTextOnlyVariableLinks();
 checkVariableDefinitions(sourceConfig, 'docs.json', [
   ...mdxFiles(rootDir).filter((filePath) => !filePath.includes(`${path.sep}.mintlify-llmeasy${path.sep}`)),
 ]);
