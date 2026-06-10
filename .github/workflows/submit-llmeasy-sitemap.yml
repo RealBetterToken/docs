@@ -2,17 +2,11 @@ name: Submit LLMEasy sitemap
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "**/*.mdx"
-      - "docs.llmeasy.json"
-      - "api-reference/openapi.llmeasy.json"
-      - "images/**"
-      - "logo/llmeasy-*.png"
-      - "scripts/prepare-llmeasy-deployment.mjs"
-      - "scripts/audit-regional-docs.mjs"
+  workflow_run:
+    workflows:
+      - Publish LLMEasy docs branch
+    types:
+      - completed
   schedule:
     - cron: "45 2 * * 1"
 
@@ -22,6 +16,7 @@ permissions:
 jobs:
   submit-sitemap:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Wait for LLMEasy docs deployment

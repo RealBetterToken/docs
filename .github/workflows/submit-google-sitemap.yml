@@ -2,14 +2,11 @@ name: Submit Google sitemap
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "**/*.mdx"
-      - "docs.json"
-      - "images/**"
-      - "snippets/**"
+  workflow_run:
+    workflows:
+      - Publish BetterToken docs
+    types:
+      - completed
   schedule:
     - cron: "15 2 * * 1"
 
@@ -19,6 +16,7 @@ permissions:
 jobs:
   submit-sitemap:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Wait for production docs deployment
