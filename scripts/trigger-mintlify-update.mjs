@@ -24,6 +24,11 @@ function requireEnv(name, value) {
   }
 }
 
+function isPlanRestrictedError(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Mintlify API 401 Unauthorized: Please upgrade to access the API.');
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...options,
@@ -82,19 +87,32 @@ if (showHelp) {
   process.exit(0);
 }
 
-requireEnv('MINTLIFY_API_KEY', apiKey);
-requireEnv('MINTLIFY_PROJECT_ID', projectId);
+async function main() {
+  requireEnv('MINTLIFY_API_KEY', apiKey);
+  requireEnv('MINTLIFY_PROJECT_ID', projectId);
 
-const result = await request(`/project/update/${encodeURIComponent(projectId)}`, {
-  method: 'POST',
-});
+  const result = await request(`/project/update/${encodeURIComponent(projectId)}`, {
+    method: 'POST',
+  });
 
-if (!result.statusId) {
-  throw new Error('Mintlify API response did not include statusId.');
+  if (!result.statusId) {
+    throw new Error('Mintlify API response did not include statusId.');
+  }
+
+  console.log(`Triggered Mintlify update: ${result.statusId}`);
+
+  if (shouldWait) {
+    await pollStatus(result.statusId);
+  }
 }
 
-console.log(`Triggered Mintlify update: ${result.statusId}`);
+try {
+  await main();
+} catch (error) {
+  if (isPlanRestrictedError(error)) {
+    console.warn('Mintlify API update skipped: current Mintlify plan does not allow Admin API deployment triggers.');
+    process.exit(0);
+  }
 
-if (shouldWait) {
-  await pollStatus(result.statusId);
+  throw error;
 }
