@@ -80,7 +80,28 @@ const skippedTopLevel = new Set([
   '.windsurf',
   '.zencoder',
 ]);
-const llmeasyEnglishContactSection = `
+const llmeasyContactSections = [
+  {
+    page: 'index',
+    heading: '## Контакты и регион обслуживания',
+    content: `
+## Контакты и регион обслуживания
+
+LLM Easy предоставляет API-шлюз для AI-моделей пользователям в России.
+
+Для поддержки на русском или английском языке свяжитесь с LLM Easy в Telegram:
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+- Основной сайт: <a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
+- Консоль сервиса: <a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
+- Страница контактов: <a href="https://www.llmeasy.ru/contacts">https://www.llmeasy.ru/contacts</a>
+- Регион обслуживания: Россия
+`,
+  },
+  {
+    page: 'en/index',
+    heading: '## Contact and service region',
+    content: `
 ## Contact and service region
 
 LLM Easy provides an AI model API gateway for users in Russia.
@@ -92,7 +113,26 @@ For customer support in Russian or English, contact LLM Easy through Telegram:
 - Service console: <a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
 - Contacts page: <a href="https://www.llmeasy.ru/contacts">https://www.llmeasy.ru/contacts</a>
 - Service region: Russia
-`;
+`,
+  },
+  {
+    page: 'zh/index',
+    heading: '## 联系方式与服务区域',
+    content: `
+## 联系方式与服务区域
+
+LLM Easy 为俄罗斯用户提供 AI 模型 API 网关服务。
+
+如需俄语或英语客户支持，请通过 Telegram 联系 LLM Easy：
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+- 主站：<a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
+- 服务控制台：<a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
+- 联系页面：<a href="https://www.llmeasy.ru/contacts">https://www.llmeasy.ru/contacts</a>
+- 服务区域：俄罗斯
+`,
+  },
+];
 
 function isInside(parent, child) {
   const relativePath = path.relative(parent, child);
@@ -438,15 +478,17 @@ async function generateIndexNowKeyFile() {
   await writeFile(path.join(outputDir, indexNowKeyFileName), `${indexNowKey}\n`);
 }
 
-async function addEnglishContactSection() {
-  const filePath = path.join(outputDir, 'en/index.mdx');
-  const text = await readFile(filePath, 'utf8');
+async function addContactSections() {
+  for (const section of llmeasyContactSections) {
+    const filePath = path.join(outputDir, `${section.page}.mdx`);
+    const text = await readFile(filePath, 'utf8');
 
-  if (text.includes('## Contact and service region')) {
-    return;
+    if (text.includes(section.heading)) {
+      continue;
+    }
+
+    await writeFile(filePath, `${text.trimEnd()}\n\n${section.content.trim()}\n`);
   }
-
-  await writeFile(filePath, `${text.trimEnd()}\n\n${llmeasyEnglishContactSection.trim()}\n`);
 }
 
 async function renameRegionalPaths(dir) {
@@ -473,7 +515,7 @@ await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
 await promoteRussianDefaultLanguage();
-await addEnglishContactSection();
+await addContactSections();
 await generateLlmsFull();
 await generateIndexNowKeyFile();
 

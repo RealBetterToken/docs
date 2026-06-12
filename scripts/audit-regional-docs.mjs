@@ -304,6 +304,38 @@ function checkGeneratedRegionalOutput() {
   const generatedIndex = path.join(generatedRoot, 'index.mdx');
   const generatedEnIndex = path.join(generatedRoot, 'en/index.mdx');
   const generatedZhIndex = path.join(generatedRoot, 'zh/index.mdx');
+  const generatedContactPages = [
+    {
+      filePath: generatedIndex,
+      label: '.mintlify-llmeasy/index.mdx',
+      expected: [
+        '## Контакты и регион обслуживания',
+        'https://t.me/+j1DJr0c_a1JhZmM0',
+        'https://www.llmeasy.ru/contacts',
+        'Регион обслуживания: Россия',
+      ],
+    },
+    {
+      filePath: generatedEnIndex,
+      label: '.mintlify-llmeasy/en/index.mdx',
+      expected: [
+        '## Contact and service region',
+        'https://t.me/+j1DJr0c_a1JhZmM0',
+        'https://www.llmeasy.ru/contacts',
+        'Service region: Russia',
+      ],
+    },
+    {
+      filePath: generatedZhIndex,
+      label: '.mintlify-llmeasy/zh/index.mdx',
+      expected: [
+        '## 联系方式与服务区域',
+        'https://t.me/+j1DJr0c_a1JhZmM0',
+        'https://www.llmeasy.ru/contacts',
+        '服务区域：俄罗斯',
+      ],
+    },
+  ];
 
   if (generatedLanguages[0]?.language !== 'ru') {
     errors.push('.mintlify-llmeasy/docs.json: expected ru to be the first/default language');
@@ -335,20 +367,17 @@ function checkGeneratedRegionalOutput() {
     errors.push('.mintlify-llmeasy/zh/index.mdx: expected Chinese content under zh/ prefix');
   }
 
-  if (!fs.existsSync(generatedEnIndex)) {
-    errors.push('.mintlify-llmeasy/en/index.mdx: missing generated English index page');
-  } else {
-    const generatedEnText = fs.readFileSync(generatedEnIndex, 'utf8');
-    const expectedContactInfo = [
-      '## Contact and service region',
-      'https://t.me/+j1DJr0c_a1JhZmM0',
-      'https://www.llmeasy.ru/contacts',
-      'Service region: Russia',
-    ];
+  for (const page of generatedContactPages) {
+    if (!fs.existsSync(page.filePath)) {
+      errors.push(`${page.label}: missing generated page`);
+      continue;
+    }
 
-    for (const expectedText of expectedContactInfo) {
-      if (!generatedEnText.includes(expectedText)) {
-        errors.push(`.mintlify-llmeasy/en/index.mdx: missing LLMEasy contact info ${expectedText}`);
+    const text = fs.readFileSync(page.filePath, 'utf8');
+
+    for (const expectedText of page.expected) {
+      if (!text.includes(expectedText)) {
+        errors.push(`${page.label}: missing LLMEasy contact info ${expectedText}`);
       }
     }
   }
