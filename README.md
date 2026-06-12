@@ -60,7 +60,7 @@ When content changes, update the shared MDX source first, then run the prepare s
 
 The prepare script also creates a custom `llms-full.txt` in the generated deployment root. Mintlify serves that file instead of an automatically generated `llms-full.txt`, which keeps the LLMEasy AI-readable bundle aligned with the regional branch.
 
-The prepare script also creates the IndexNow verification key file in the generated deployment root. Keep that file in the LLMEasy deployment output only, because it proves ownership for `docs.llmeasy.ru` when search engines receive IndexNow updates.
+The prepare script also creates the IndexNow verification key file in the generated deployment root. The key file uses a `.json` extension so Mintlify serves it on all plans, but its file body is still only the IndexNow key value. Keep that file in the LLMEasy deployment output only, because it proves ownership for `docs.llmeasy.ru` when search engines receive IndexNow updates.
 
 The workflow `.github/workflows/publish-llmeasy-docs.yml` prepares, audits, validates, and publishes the generated LLMEasy site to the `llmeasy-docs` branch after changes land on `main`. Configure the LLMEasy Mintlify project to use:
 
