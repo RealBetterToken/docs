@@ -3,6 +3,7 @@
 import { copyFile, lstat, mkdir, readdir, readFile, readlink, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { indexNowKey, indexNowKeyFileName } from './indexnow-config.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputDir = path.resolve(rootDir, process.argv[2] ?? '.mintlify-llmeasy');
@@ -420,6 +421,10 @@ async function generateLlmsFull() {
   await writeFile(path.join(wellKnownDir, 'llms-full.txt'), content);
 }
 
+async function generateIndexNowKeyFile() {
+  await writeFile(path.join(outputDir, indexNowKeyFileName), `${indexNowKey}\n`);
+}
+
 async function renameRegionalPaths(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
 
@@ -445,6 +450,7 @@ await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
 await promoteRussianDefaultLanguage();
 await generateLlmsFull();
+await generateIndexNowKeyFile();
 
 const relativeOutput = path.relative(rootDir, outputDir) || '.';
 console.log(`Prepared LLMEasy docs deployment at ${relativeOutput}`);

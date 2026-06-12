@@ -60,6 +60,8 @@ When content changes, update the shared MDX source first, then run the prepare s
 
 The prepare script also creates a custom `llms-full.txt` in the generated deployment root. Mintlify serves that file instead of an automatically generated `llms-full.txt`, which keeps the LLMEasy AI-readable bundle aligned with the regional branch.
 
+The prepare script also creates the IndexNow verification key file in the generated deployment root. Keep that file in the LLMEasy deployment output only, because it proves ownership for `docs.llmeasy.ru` when search engines receive IndexNow updates.
+
 The workflow `.github/workflows/publish-llmeasy-docs.yml` prepares, audits, validates, and publishes the generated LLMEasy site to the `llmeasy-docs` branch after changes land on `main`. Configure the LLMEasy Mintlify project to use:
 
 - Repository: this repository
@@ -121,6 +123,12 @@ Before enabling automation:
 5. Store the OAuth credentials in GitHub Actions secrets as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`.
 
 For LLMEasy, verify the domain property `llmeasy.ru` in Google Search Console and submit `https://docs.llmeasy.ru/sitemap.xml` with `SITE_URL=sc-domain:llmeasy.ru`. The workflow `.github/workflows/submit-llmeasy-sitemap.yml` handles that submission with the same OAuth secrets.
+
+For Yandex, add the LLMEasy site in Yandex Webmaster and submit `https://docs.llmeasy.ru/sitemap.xml` once in the dashboard. After that, `.github/workflows/submit-llmeasy-sitemap.yml` also runs `node scripts/submit-indexnow.mjs` after each successful LLMEasy publish, reads the live sitemap, and sends the sitemap URL list through IndexNow. To test the script without notifying search engines, run:
+
+```bash
+node scripts/submit-indexnow.mjs --dry-run
+```
 
 Use this workflow as `.github/workflows/submit-google-sitemap.yml`:
 

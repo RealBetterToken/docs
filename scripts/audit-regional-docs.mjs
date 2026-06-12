@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { indexNowKey, indexNowKeyFileName } from './indexnow-config.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceConfig = readJson('docs.json');
@@ -406,6 +407,13 @@ function checkGeneratedRegionalOutput() {
     if (/BetterToken|bettertoken|BETTERTOKEN|https:\/\/www\.bettertoken\.ai|https:\/\/docs\.bettertoken\.ai|bettertoken\.mintlify\.app/.test(llmsFullText)) {
       errors.push(`.mintlify-llmeasy/${llmsFullRelativePath}: contains BetterToken brand text, production domain, or starter cache URL`);
     }
+  }
+
+  const indexNowKeyPath = path.join(generatedRoot, indexNowKeyFileName);
+  if (!fs.existsSync(indexNowKeyPath)) {
+    errors.push(`.mintlify-llmeasy/${indexNowKeyFileName}: missing generated IndexNow key file`);
+  } else if (fs.readFileSync(indexNowKeyPath, 'utf8').trim() !== indexNowKey) {
+    errors.push(`.mintlify-llmeasy/${indexNowKeyFileName}: IndexNow key file content does not match scripts/indexnow-config.mjs`);
   }
 
   for (const filePath of textFiles) {

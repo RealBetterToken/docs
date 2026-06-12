@@ -19,6 +19,14 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
 
     steps:
+      - name: Check out source
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 24
+
       - name: Wait for LLMEasy docs deployment
         run: sleep 120
 
@@ -72,3 +80,6 @@ jobs:
           with urllib.request.urlopen(request) as response:
               response.read()
           PY
+
+      - name: Submit LLMEasy URLs to IndexNow
+        run: node scripts/submit-indexnow.mjs
