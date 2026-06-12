@@ -7,6 +7,7 @@ const sitemapUrl = process.env.INDEXNOW_SITEMAP_URL ?? indexNowSitemapUrl;
 const keyLocation = process.env.INDEXNOW_KEY_LOCATION ?? `https://${indexNowHost}/${indexNowKeyFileName}`;
 const isDryRun =
   process.argv.includes('--dry-run') || ['1', 'true'].includes((process.env.INDEXNOW_DRY_RUN ?? '').toLowerCase());
+const isBestEffort = ['1', 'true'].includes((process.env.INDEXNOW_BEST_EFFORT ?? '').toLowerCase());
 const maxUrlsPerRequest = 10000;
 
 function decodeXmlEntities(value) {
@@ -94,7 +95,14 @@ async function submitUrls(urls, chunkIndex, chunkCount) {
   const body = await response.text();
 
   if (![200, 202].includes(response.status)) {
-    throw new Error(`IndexNow submission failed for chunk ${chunkIndex}/${chunkCount}: HTTP ${response.status}\n${body}`);
+    const message = `IndexNow submission failed for chunk ${chunkIndex}/${chunkCount}: HTTP ${response.status}\n${body}`;
+
+    if (isBestEffort) {
+      console.warn(message);
+      return;
+    }
+
+    throw new Error(message);
   }
 
   console.log(`IndexNow accepted chunk ${chunkIndex}/${chunkCount}: ${urls.length} URL(s), HTTP ${response.status}.`);

@@ -124,7 +124,7 @@ Before enabling automation:
 
 For LLMEasy, verify the domain property `llmeasy.ru` in Google Search Console and submit `https://docs.llmeasy.ru/sitemap.xml` with `SITE_URL=sc-domain:llmeasy.ru`. The workflow `.github/workflows/submit-llmeasy-sitemap.yml` handles that submission with the same OAuth secrets.
 
-For Yandex, add the LLMEasy site in Yandex Webmaster and submit `https://docs.llmeasy.ru/sitemap.xml` once in the dashboard. After that, `.github/workflows/submit-llmeasy-sitemap.yml` also runs `node scripts/submit-indexnow.mjs` after each successful LLMEasy publish, reads the live sitemap, and sends the sitemap URL list through IndexNow. To test the script without notifying search engines, run:
+For Yandex, add the LLMEasy site in Yandex Webmaster and submit `https://docs.llmeasy.ru/sitemap.xml` once in the dashboard. After that, `.github/workflows/submit-llmeasy-sitemap.yml` also runs `node scripts/submit-indexnow.mjs` after each successful LLMEasy publish, reads the live sitemap, and attempts a best-effort IndexNow notification. The workflow keeps Google sitemap submission green even if IndexNow rejects the key file; switch off `INDEXNOW_BEST_EFFORT` only after the custom domain can serve a root-level `.txt` key file. To test the script without notifying search engines, run:
 
 ```bash
 node scripts/submit-indexnow.mjs --dry-run
