@@ -302,6 +302,7 @@ function checkGeneratedRegionalOutput() {
   const generatedRuPages = pagesForLanguage(generatedConfig, 'ru');
   const generatedZhPages = pagesForLanguage(generatedConfig, 'zh');
   const generatedIndex = path.join(generatedRoot, 'index.mdx');
+  const generatedEnIndex = path.join(generatedRoot, 'en/index.mdx');
   const generatedZhIndex = path.join(generatedRoot, 'zh/index.mdx');
 
   if (generatedLanguages[0]?.language !== 'ru') {
@@ -332,6 +333,24 @@ function checkGeneratedRegionalOutput() {
 
   if (!fs.existsSync(generatedZhIndex) || !fs.readFileSync(generatedZhIndex, 'utf8').includes('什么是 LLMEasy？')) {
     errors.push('.mintlify-llmeasy/zh/index.mdx: expected Chinese content under zh/ prefix');
+  }
+
+  if (!fs.existsSync(generatedEnIndex)) {
+    errors.push('.mintlify-llmeasy/en/index.mdx: missing generated English index page');
+  } else {
+    const generatedEnText = fs.readFileSync(generatedEnIndex, 'utf8');
+    const expectedContactInfo = [
+      '## Contact and service region',
+      'https://t.me/+j1DJr0c_a1JhZmM0',
+      'https://www.llmeasy.ru/contacts',
+      'Service region: Russia',
+    ];
+
+    for (const expectedText of expectedContactInfo) {
+      if (!generatedEnText.includes(expectedText)) {
+        errors.push(`.mintlify-llmeasy/en/index.mdx: missing LLMEasy contact info ${expectedText}`);
+      }
+    }
   }
 
   const forbiddenGeneratedPaths = new Set([

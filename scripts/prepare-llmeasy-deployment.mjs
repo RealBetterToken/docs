@@ -80,6 +80,19 @@ const skippedTopLevel = new Set([
   '.windsurf',
   '.zencoder',
 ]);
+const llmeasyEnglishContactSection = `
+## Contact and service region
+
+LLM Easy provides an AI model API gateway for users in Russia.
+
+For customer support in Russian or English, contact LLM Easy through Telegram:
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+- Main website: <a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
+- Service console: <a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
+- Contacts page: <a href="https://www.llmeasy.ru/contacts">https://www.llmeasy.ru/contacts</a>
+- Service region: Russia
+`;
 
 function isInside(parent, child) {
   const relativePath = path.relative(parent, child);
@@ -425,6 +438,17 @@ async function generateIndexNowKeyFile() {
   await writeFile(path.join(outputDir, indexNowKeyFileName), `${indexNowKey}\n`);
 }
 
+async function addEnglishContactSection() {
+  const filePath = path.join(outputDir, 'en/index.mdx');
+  const text = await readFile(filePath, 'utf8');
+
+  if (text.includes('## Contact and service region')) {
+    return;
+  }
+
+  await writeFile(filePath, `${text.trimEnd()}\n\n${llmeasyEnglishContactSection.trim()}\n`);
+}
+
 async function renameRegionalPaths(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
 
@@ -449,6 +473,7 @@ await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
 await promoteRussianDefaultLanguage();
+await addEnglishContactSection();
 await generateLlmsFull();
 await generateIndexNowKeyFile();
 
