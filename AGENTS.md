@@ -36,7 +36,7 @@
 - Use code formatting for commands, environment variables, file paths, endpoints, and model IDs.
 - Prefer concrete setup guidance over marketing language.
 - When documenting external-tool setup, tell readers which endpoint, auth field, and model group to use.
-- Keep Chinese and English pages aligned in meaning. Do not let one language drift from the other on protocol, endpoint, or model guidance.
+- Keep Chinese, English, and Russian pages aligned in meaning. Any user-facing documentation change should be synchronized across all three languages unless the user explicitly asks for one language only.
 
 ## User-facing documentation standard
 
