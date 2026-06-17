@@ -423,6 +423,16 @@ async function promoteRussianDefaultLanguage() {
   await writeFile(outputConfigPath, `${JSON.stringify(config, null, 2)}\n`);
 }
 
+async function generateRootFavicon() {
+  const sourcePath = path.join(outputDir, 'favicon-llmeasy.ico');
+  const targetPath = path.join(outputDir, 'favicon.ico');
+  const config = JSON.parse(await readFile(outputConfigPath, 'utf8'));
+
+  await copyFile(sourcePath, targetPath);
+  config.favicon = '/favicon.ico';
+  await writeFile(outputConfigPath, `${JSON.stringify(config, null, 2)}\n`);
+}
+
 async function generateLlmsFull() {
   const config = JSON.parse(await readFile(outputConfigPath, 'utf8'));
   const variables = config.variables ?? {};
@@ -515,6 +525,7 @@ await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
 await promoteRussianDefaultLanguage();
+await generateRootFavicon();
 await addContactSections();
 await generateLlmsFull();
 await generateIndexNowKeyFile();
