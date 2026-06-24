@@ -1,0 +1,57 @@
+---
+title: "MCP vs API Key and Base URL"
+sidebarTitle: "MCP vs API"
+description: "Understand the difference between MCP, API Key, Base URL, model protocols, and tool protocols."
+---
+
+## Short answer
+
+MCP is a protocol for connecting AI tools to external tools, data sources, and context. API Key and Base URL are model request authentication and routing settings.
+
+MCP answers: what tools and data can the agent use? API Key / Base URL answers: where do model requests go and how are they authenticated?
+
+Configuring MCP does not configure the model API. Configuring a model API does not automatically give the tool external system access.
+
+## Comparison
+
+| Item | MCP | API Key / Base URL |
+| --- | --- | --- |
+| Main job | Tool, data source, and context integration | Model requests, authentication, routing |
+| Common targets | Local services, databases, files, browsers, business systems | OpenAI-compatible or Anthropic-compatible endpoints |
+| Main risk | Tool permissions, data access, side effects | Secret leakage, protocol mismatch, model cost |
+| Determines model | No | Usually yes |
+
+## When people mix them up
+
+- They think MCP changes the model.
+- They think changing Base URL connects local tools.
+- They treat an MCP server as a model provider.
+- They put a model API Key into MCP configuration.
+- They do not know whether a tool expects OpenAI-compatible or Anthropic-compatible API.
+
+## How to decide
+
+If you want an agent to access a database, browser, filesystem, internal system, or extra tool, look at MCP.
+
+If you want to switch model, gateway, billing account, or provider, look at API Key, Base URL, and protocol.
+
+If a workflow needs both a model switch and external tools, configure both layers and review permissions separately.
+
+## Where BetterToken fits
+
+BetterToken is the model API layer, not an MCP server. It handles API Key, Base URL, model routing, and usage records.
+
+You can use BetterToken and MCP together: BetterToken handles model requests, while MCP handles tool and context extension.
+
+## Related docs
+
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [How to configure MCP in Claude Desktop](/en/faq/claude-desktop/mcp)
+- [How to configure MCP in Cursor](/en/faq/cursor/mcp)
+- [Claude Code permissions and hooks](/en/faq/claude-code/permissions-and-hooks)
+
+## References
+
+- [Claude Code MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Model Context Protocol introduction](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [Anthropic MCP overview](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)

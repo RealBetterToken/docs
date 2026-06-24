@@ -1,0 +1,78 @@
+---
+title: "How to Configure API Key and Base URL in Claude Code"
+sidebarTitle: "API Key and Base URL"
+description: "Learn how API Key, Base URL, Anthropic-compatible endpoints, and Claude/GPT Key groups fit together when configuring Claude Code."
+---
+
+## Quick answer
+
+When configuring a third-party API in Claude Code, first confirm that the endpoint is Anthropic-compatible. In this documentation, Claude Code uses `{{anthropic-base-url}}`. Do not add `/v1`.
+
+The API Key authenticates the request. The Base URL tells Claude Code where to send model requests. Both must belong to the same provider and protocol.
+
+With the **Claude Key group**, Claude Code usually needs `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. With the **GPT Key group**, you also need Claude Code model mappings from the setup guide.
+
+## When this matters
+
+- You want Claude Code to use a custom API gateway
+- You have an API Key but are unsure which Base URL to use
+- Claude Code reports an authentication or endpoint error
+- You are choosing between `{{anthropic-base-url}}` and `{{openai-base-url}}`
+- You need to understand Claude and GPT Key groups
+
+## Key concepts
+
+| Field | Meaning |
+| --- | --- |
+| API Key | Credential for model API requests |
+| Base URL | The API address where requests are sent |
+| Anthropic-compatible API | Endpoint that follows Anthropic / Claude request conventions |
+| OpenAI-compatible API | Endpoint that follows OpenAI-style conventions, often used by Codex, Cursor, and Cline |
+| Model ID | The model name or mapping value requested by the tool |
+
+## Recommended setup
+
+Choose the setup path by API Key group.
+
+Claude Key group:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+The GPT Key group needs additional Claude Code model mappings. Use the full [Claude Code setup guide](/en/ai-tools/claude-code) instead of copying only this short example.
+
+After editing the config, restart Claude Code and send a short test message. If it fails, first check whether the Base URL was accidentally set to `{{openai-base-url}}`.
+
+## Common mistakes
+
+- Adding `/v1` to the Claude Code Base URL.
+- Changing the API Key but leaving requests pointed at the default endpoint.
+- Treating a GPT Key group model ID as a Claude Key group model.
+- Putting an OpenAI-compatible endpoint into Claude Code's Anthropic-compatible fields.
+- Defining old environment variables in a shell profile that override the new config.
+
+## Where BetterToken fits
+
+BetterToken provides two endpoint types: the Anthropic-compatible `{{anthropic-base-url}}` for Claude Code and the OpenAI-compatible `{{openai-base-url}}` for Codex and external tools.
+
+This lets you manage API Keys, balance, and usage history in one dashboard, but it does not change Claude Code's requirement for Anthropic-compatible request formatting.
+
+## Related docs
+
+- [Claude Code setup guide](/en/ai-tools/claude-code)
+- [Does Claude Code use a Claude.ai account or an API Key?](/en/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Why Claude Code uses so many tokens and how to reduce cost](/en/faq/token-cost/claude-code-token-usage)
+
+## References
+
+- [Claude Code LLM gateway configuration](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Claude Code model configuration](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code setup guide](/en/ai-tools/claude-code)

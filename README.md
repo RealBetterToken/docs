@@ -62,6 +62,8 @@ The prepare script also creates a custom `llms-full.txt` in the generated deploy
 
 The prepare script also creates the IndexNow verification key file in the generated deployment root. The key file uses a `.json` extension so Mintlify serves it on all plans, but its file body is still only the IndexNow key value. Keep that file in the LLMEasy deployment output only, because it proves ownership for `docs.llmeasy.ru` when search engines receive IndexNow updates.
 
+The prepare script also copies `favicon-llmeasy.ico` to a root-level `favicon.ico` in the generated deployment and rewrites the generated `docs.json` favicon path to `/favicon.ico`. Keep this behavior in place for LLMEasy, because Yandex Webmaster checks the standard root favicon path.
+
 The workflow `.github/workflows/publish-llmeasy-docs.yml` prepares, audits, validates, and publishes the generated LLMEasy site to the `llmeasy-docs` branch after changes land on `main`. Configure the LLMEasy Mintlify project to use:
 
 - Repository: this repository
@@ -86,6 +88,23 @@ After the Mintlify dashboard and DNS records are configured, verify the public d
 ```bash
 node scripts/check-llmeasy-domain.mjs
 ```
+
+### LLMEasy Russia reachability runbook
+
+Status: resolved as of 2026-06-24, based on user and operations confirmation. Keep this section as a recurrence runbook.
+
+If users in Russia report that `https://docs.llmeasy.ru/` is unreachable while `https://www.llmeasy.ru/` still works, first compare DNS and HTTP reachability for both hosts:
+
+```bash
+dig +short docs.llmeasy.ru
+dig +short www.llmeasy.ru
+curl -I https://docs.llmeasy.ru/
+curl -I https://www.llmeasy.ru/
+```
+
+Historical issue observed on 2026-06-17: some Russian routes timed out when `docs.llmeasy.ru` reached the Mintlify/Cloudflare edge, even when DNS pointed directly to `104.18.2.204` and `104.18.3.204`. The main site `www.llmeasy.ru` on `67.230.182.168` stayed reachable.
+
+If the issue recurs and DNS checks show that `docs.llmeasy.ru` is again routed through an edge unavailable to some Russian users, compare the current fixed DNS, TLS, and proxy setup before changing records. Without confirmed server configuration, forcing `docs.llmeasy.ru` to `67.230.182.168` can fail at TLS/SNI or return an empty HTTP response.
 
 ## Publishing changes
 
@@ -128,6 +147,14 @@ For Yandex, add the LLMEasy site in Yandex Webmaster and submit `https://docs.ll
 
 ```bash
 node scripts/submit-indexnow.mjs --dry-run
+```
+
+Yandex can take time to show a newly submitted site in search results. When checking an indexing issue, verify that the public site is crawlable before changing content:
+
+```bash
+curl -I https://docs.llmeasy.ru/robots.txt
+curl -I https://docs.llmeasy.ru/sitemap.xml
+curl -A "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)" -I https://docs.llmeasy.ru/
 ```
 
 Use this workflow as `.github/workflows/submit-google-sitemap.yml`:

@@ -1,0 +1,66 @@
+---
+title: "Claude Code и Claude Desktop: в чем разница?"
+sidebarTitle: "Code vs Desktop"
+description: "Сравнение Claude Code и Claude Desktop: coding workflow, локальные файлы, MCP, Gateway и настройка API provider."
+---
+
+## Короткий ответ
+
+Claude Code — это coding agent для работы с кодовой базой. Он ориентирован на чтение проекта, редактирование файлов, запуск команд и проверку результата.
+
+Claude Desktop — это desktop app для Claude. Это графический вход для диалогов, desktop extensions, local MCP servers и некоторых desktop workflows, например Cowork или Code features.
+
+Возможности могут пересекаться, но setup, permission model, MCP behavior и Gateway configuration у них могут отличаться.
+
+## Когда это важно
+
+- Вы выбираете между Claude Code CLI и Claude Desktop
+- Вы хотите, чтобы Claude изменял репозиторий
+- Вы настраиваете Claude Desktop Gateway или MCP
+- Вы используете Claude Code через терминал, IDE, desktop app или web
+- Вы разбираете отличие поведения Desktop и CLI
+
+## Ключевые понятия
+
+| Область | Claude Code | Claude Desktop |
+| --- | --- | --- |
+| Основная роль | Coding agent | Desktop app |
+| Типичный вход | Terminal, IDE, desktop, web | macOS или Windows desktop app |
+| Работа с кодом | Создан для file reads, edits и commands | Зависит от Desktop features, extensions, Cowork или Code mode |
+| Фокус настройки | Project directory, permissions, `CLAUDE.md`, API provider | Login, desktop extensions, MCP, Gateway |
+| Лучший сценарий | Code changes, tests, review, automation | Диалоги, desktop connectors, visual workflows |
+
+## Как выбрать
+
+Если нужно, чтобы agent работал прямо внутри кодовой базы, начните с Claude Code. Его workflow строится вокруг project directory, file changes, commands и verification.
+
+Если нужен графический Claude app, desktop extensions, local MCP servers или Desktop-specific workflows, начните с Claude Desktop. Если используете Code или Cowork в Desktop, отдельно проверьте, работает ли это через bundled Claude Code behavior или через самостоятельную Claude Code CLI настройку.
+
+Для third-party APIs следуйте протоколу текущего интерфейса. В этой документации Claude Code использует `{{anthropic-base-url}}`. Не вставляйте OpenAI-compatible `{{openai-base-url}}` напрямую в Anthropic-compatible Gateway field.
+
+## Частые ошибки
+
+- Думать, что Claude Desktop автоматически устанавливает или заменяет Claude Code CLI.
+- Копировать MCP settings из Desktop в Claude Code или наоборот.
+- Считать Claude.ai subscription API Key.
+- Использовать OpenAI-compatible Base URL в Claude Desktop Gateway field, который ожидает Anthropic-compatible traffic.
+- Думать, что Desktop features заменяют permissions, hooks или command policies Claude Code.
+
+## Где здесь BetterToken
+
+BetterToken относится к model API layer. Он может предоставлять compatible endpoints там, где инструмент поддерживает custom API Key и Base URL.
+
+Он не объединяет Claude Code и Claude Desktop в один setup. Нужно следовать протоколу, Gateway, MCP и permission model того интерфейса, который вы используете.
+
+## Related docs
+
+- [Что такое Claude Code и как он работает?](/ru/faq/claude-code/what-is-claude-code)
+- [Claude Code использует Claude.ai account или API Key?](/ru/faq/claude-code/claude-account-or-api-key)
+- [Может ли Claude Desktop использовать third-party models?](/ru/faq/claude-desktop-third-party-models)
+- [Настройка Claude Desktop API](/ru/faq/claude-desktop-bettertoken-api)
+
+## References
+
+- [Claude Code overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Install Claude Desktop](https://support.anthropic.com/en/articles/10065433-installing-claude-for-desktop)
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)

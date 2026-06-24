@@ -1,0 +1,63 @@
+---
+title: "Cline 如何配置 OpenAI-compatible API？"
+sidebarTitle: "Cline OpenAI-compatible"
+description: "说明 Cline 中 OpenAI Compatible provider、Base URL、API Key、Model ID 和常见配置误区。"
+---
+
+## 简短答案
+
+在 Cline 中使用 OpenAI-compatible API 时，通常选择 **OpenAI Compatible** provider，然后填写 Base URL、API Key 和 Model ID。
+
+Base URL 是 provider 的 API endpoint。API Key 是鉴权凭证。Model ID 是当前 provider 可识别的模型名称或标识。
+
+## 什么时候需要它
+
+- 你想在 Cline 中使用第三方模型 provider
+- 你有一个 OpenAI-compatible `/v1` endpoint
+- 你需要 BYOK 或自定义模型
+- 你遇到 Invalid API Key、Model Not Found 或连接失败
+- 你想把 Cline 和其他外部工具统一到同一个模型出口
+
+## 字段说明
+
+| 字段 | 说明 |
+| --- | --- |
+| API Provider | 选择 `OpenAI Compatible` |
+| Base URL | provider 提供的 OpenAI-compatible endpoint |
+| API Key | provider 生成的密钥 |
+| Model ID | provider 支持的模型 ID |
+| Model configuration | 上下文窗口、输出限制、价格等高级设置 |
+
+## 推荐步骤
+
+1. 在 Cline 设置中选择 `OpenAI Compatible`。
+2. 填写 Base URL。
+3. 填写 API Key。
+4. 选择或输入 Model ID。
+5. 点击验证或发起简单请求确认连接。
+
+## 常见误区
+
+- 把官方 OpenAI 地址和第三方 API Key 混用。
+- 把 Anthropic-compatible 地址填到 OpenAI-compatible provider。
+- 使用 provider 不支持的 Model ID。
+- 忽略上下文窗口和输出限制配置。
+- 把 Cline Rules 或 Memory Bank 当成 API 配置。
+
+## BetterToken 在这里的位置
+
+Cline 适合通过 OpenAI-compatible provider 接入 BetterToken。Base URL 填 `{{openai-base-url}}`，API Key 使用你的 BetterToken key，Model ID 从 **GPT 分组**复制。
+
+如果你使用的是 Claude Code 的 Anthropic-compatible 地址，请不要填到 Cline 的 OpenAI Compatible provider 中。
+
+## Related docs
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Cursor 如何配置自定义 OpenAI API Key 和 Base URL？](/faq/cursor/custom-openai-api)
+- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
+- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [Cline OpenAI Compatible provider](https://docs.cline.bot/provider-config/openai-compatible)
+- [Cline authorization guide](https://docs.cline.bot/getting-started/authorizing-with-cline)

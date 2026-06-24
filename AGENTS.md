@@ -62,6 +62,14 @@
 - For post-deploy automation, submit the sitemap through Google Search Console Sitemaps API after the production site is updated.
 - Store Google credentials only in CI secrets such as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`. Never commit client secrets, refresh tokens, or access tokens.
 
+## LLMEasy regional operations
+
+- LLMEasy is generated from the shared source by `scripts/prepare-llmeasy-deployment.mjs`, then published from the `llmeasy-docs` branch. Do not treat `.mintlify-llmeasy` as source content.
+- The prepare script promotes Russian to the default language, rewrites the regional favicon to root-level `/favicon.ico` from `favicon-llmeasy.ico`, creates the custom `llms-full.txt`, and writes the IndexNow verification key file. After touching these paths, run `node scripts/prepare-llmeasy-deployment.mjs` and `node scripts/audit-regional-docs.mjs`.
+- LLMEasy search automation uses `.github/workflows/submit-llmeasy-sitemap.yml`: Google Search Console sitemap submission plus best-effort IndexNow after the LLMEasy publish workflow succeeds. Yandex Webmaster still needs the site and sitemap to be added in the dashboard first.
+- Yandex indexing can lag after sitemap submission. Before changing content for an indexing issue, verify `https://docs.llmeasy.ru/robots.txt`, `https://docs.llmeasy.ru/sitemap.xml`, canonical URLs, and a YandexBot user-agent fetch.
+- Historical operations note: on 2026-06-17, some Russian networks timed out when reaching Mintlify/Cloudflare for `docs.llmeasy.ru`, while `www.llmeasy.ru` on `67.230.182.168` stayed reachable. The access issue was confirmed fixed on 2026-06-24. Keep the note only as a recurrence runbook: verify DNS, TLS, regional probes, and current server routing before redeploying; do not assume a GitHub or Mintlify redeploy can fix regional network timeouts.
+
 ## Editing guidance
 
 - Prefer updating an existing page over creating a new one when the topic already exists.

@@ -1,0 +1,77 @@
+---
+title: "Codex CLI 中 model_provider、base_url 和 wire_api 是什么？"
+sidebarTitle: "provider / base_url / wire_api"
+description: "解释 Codex CLI 自定义 provider 配置中的 model_provider、base_url、wire_api、model 和 review_model 的关系。"
+---
+
+## 简短答案
+
+`model_provider` 决定 Codex CLI 当前使用哪个 provider。它的值要对应下面 `[model_providers.<id>]` 中定义的 provider id。
+
+`base_url` 是模型请求发往的 API 地址。对 OpenAI-compatible provider，它通常指向 `/v1` 风格的 endpoint。
+
+`wire_api` 指定 Codex 与该 provider 通信时使用的协议形态。根据 Codex 配置参考，`responses` 是 provider 配置中支持的协议值之一。
+
+## 什么时候需要理解它
+
+- 你在配置自定义 OpenAI-compatible provider
+- Codex 提示 provider 找不到或模型请求失败
+- 你不确定 `model_provider` 和 `model` 的区别
+- 你在把 BetterToken、OpenAI 或其他 provider 放进同一份 `config.toml`
+- 你想区分 Base URL、API Key、Model ID 三个字段
+
+## 字段关系
+
+| 字段 | 作用 |
+| --- | --- |
+| `model_provider` | 选择当前使用哪个 provider id |
+| `[model_providers.<id>]` | 定义某个 provider 的详细配置 |
+| `name` | provider 的显示名称 |
+| `base_url` | API 请求根地址 |
+| `wire_api` | provider 通信协议，常见值是 `responses` |
+| `model` | 默认主模型 ID |
+| `review_model` | `/review` 等代码审查场景使用的模型 |
+
+## 推荐配置方式
+
+保持 provider id 一致：
+
+```toml
+model_provider = "bettertoken"
+model = "gpt-5.5"
+
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = false
+```
+
+这表示：Codex 使用名为 `bettertoken` 的 provider，把模型请求发送到 `{{openai-base-url}}`，并按 Responses API 形态通信。
+
+## 常见误区
+
+- 把 `model_provider` 写成显示名称，而不是 provider id。
+- 把 `model` 当作 provider 名称。
+- 忘记 `base_url` 和 provider 必须属于同一种协议。
+- 把 Anthropic-compatible Base URL 填到 Codex 的 OpenAI-compatible provider。
+- 用工具界面里的模型展示名替代 API 可识别的 Model ID。
+
+## BetterToken 在这里的位置
+
+BetterToken 可以作为 `[model_providers.bettertoken]` 这样的自定义 provider。`base_url` 使用 `{{openai-base-url}}`，模型 ID 从 **GPT 分组**复制。
+
+在 LLMEasy 区域站中，同一个配置概念对应 LLMEasy 的 provider 名称和区域 Base URL。
+
+## Related docs
+
+- [如何配置 Codex CLI 的 config.toml？](/faq/codex/config-toml)
+- [Codex 接入 BetterToken 指南](/ai-tools/codex)
+- [Codex CLI sandbox 和 approval mode 是什么？](/faq/codex/sandbox-approval)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)
+- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)

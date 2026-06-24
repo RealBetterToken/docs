@@ -1,0 +1,83 @@
+---
+title: "如何配置 Codex CLI 的 config.toml？"
+sidebarTitle: "config.toml"
+description: "说明 Codex CLI config.toml 的位置、核心字段、自定义 provider 示例，以及 API Key、Base URL 和模型配置的边界。"
+---
+
+## 简短答案
+
+`config.toml` 是 Codex CLI 的主要本地配置文件。你可以在这里设置默认模型、model provider、sandbox、approval、推理强度、重试和其他行为。
+
+接入自定义 OpenAI-compatible provider 时，重点是让 `model_provider` 指向 `[model_providers.<id>]`，并在 provider 里设置 `base_url`、`wire_api` 和认证方式。
+
+不要把 API Key 写进公开仓库。API Key 应放在本机环境变量、CLI 登录状态、受保护配置，或由你使用的工具安全保存。
+
+## 什么时候需要配置它
+
+- 你想让 Codex CLI 使用第三方 OpenAI-compatible provider
+- 你需要固定默认模型或 review model
+- 你想调整 sandbox、approval 或推理强度
+- 你要解决 `model_provider`、`base_url`、`wire_api` 填错的问题
+- 你要给团队提供可复制的 Codex CLI 配置示例
+
+## 常见位置
+
+| 系统 | 典型路径 |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
+
+项目级说明通常写在仓库里的 `AGENTS.md`，不要把它和用户级 `config.toml` 混在一起。
+
+## 推荐配置示例
+
+下面是基于本仓库 Codex 接入页的示例。实际模型 ID 请从模型广场复制当前可用的 **GPT 分组**模型。
+
+```toml
+model_provider = "bettertoken"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers]
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+## 常见误区
+
+- 只写 `[model_providers.bettertoken]`，忘记把 `model_provider = "bettertoken"` 指向它。
+- 把 Claude Code 的 `{{anthropic-base-url}}` 填进 Codex CLI。
+- 把网页显示的模型营销名称当作 API model ID。
+- 把 API Key、token 或登录态提交到仓库。
+- 用过宽的 sandbox / approval 设置运行不可信命令。
+
+## BetterToken 在这里的位置
+
+BetterToken 在 Codex CLI 中作为自定义 OpenAI-compatible provider 出现。`base_url` 使用 `{{openai-base-url}}`，模型使用 **GPT 分组**下的模型 ID。
+
+这只影响模型请求发往哪里。Codex CLI 的文件访问、命令执行、sandbox 和 approval 仍由 Codex CLI 控制。
+
+## Related docs
+
+- [Codex 接入 BetterToken 指南](/ai-tools/codex)
+- [model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI sandbox 和 approval mode 是什么？](/faq/codex/sandbox-approval)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)

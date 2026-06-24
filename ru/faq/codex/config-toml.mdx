@@ -1,0 +1,83 @@
+---
+title: "Как настроить Codex CLI config.toml"
+sidebarTitle: "config.toml"
+description: "Где находится Codex CLI config.toml, какие поля важны, как работают custom providers и чем отличаются API Key, Base URL и настройки модели."
+---
+
+## Короткий ответ
+
+`config.toml` — главный локальный конфиг Codex CLI. Через него можно задать модель по умолчанию, model provider, sandbox, approvals, reasoning effort, retry behavior и другие настройки.
+
+Для custom OpenAI-compatible provider важно, чтобы `model_provider` ссылался на `[model_providers.<id>]`, а внутри provider table были заданы `base_url`, `wire_api` и authentication behavior.
+
+Не добавляйте API Keys в публичный репозиторий. Храните API Keys в локальных environment variables, CLI login state, защищенной локальной конфигурации или secure store, которым управляет ваш инструмент.
+
+## Когда это нужно
+
+- Вы хотите использовать Codex CLI со сторонним OpenAI-compatible provider
+- Вам нужна фиксированная default model или review model
+- Вы хотите настроить sandbox, approval или reasoning effort
+- Вы исправляете неверные `model_provider`, `base_url` или `wire_api`
+- Вы готовите воспроизводимый пример Codex CLI config для команды
+
+## Типичные расположения
+
+| Система | Типичный путь |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
+
+Инструкции проекта обычно хранятся в `AGENTS.md` внутри репозитория. Не смешивайте их с user-level `config.toml`.
+
+## Рекомендуемый пример конфигурации
+
+Пример ниже соответствует странице настройки Codex в этой документации. Перед использованием скопируйте актуальный model ID из **группы ключа GPT** в model plaza.
+
+```toml
+model_provider = "bettertoken"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers]
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+## Частые ошибки
+
+- Определить `[model_providers.bettertoken]`, но забыть `model_provider = "bettertoken"`.
+- Вставить Claude Code `{{anthropic-base-url}}` в Codex CLI.
+- Использовать marketing model name вместо API model ID.
+- Закоммитить API Keys, tokens или login state в репозиторий.
+- Запускать untrusted commands с слишком широкими sandbox или approval settings.
+
+## Где здесь BetterToken
+
+В Codex CLI BetterToken — это custom OpenAI-compatible provider. Для `base_url` используйте `{{openai-base-url}}`, а model ID берите из **группы ключа GPT**.
+
+Это меняет только то, куда отправляются model requests. File access, command execution, sandbox и approvals остаются под управлением Codex CLI.
+
+## Связанные материалы
+
+- [Настройка Codex с BetterToken](/ru/ai-tools/codex)
+- [Что такое model_provider, base_url и wire_api?](/ru/faq/codex/model-provider-base-url-wire-api)
+- [Что такое sandbox и approval mode в Codex CLI?](/ru/faq/codex/sandbox-approval)
+- [OpenAI-compatible API и Anthropic-compatible API](/ru/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)

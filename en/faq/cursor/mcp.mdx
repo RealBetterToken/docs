@@ -1,0 +1,53 @@
+---
+title: "How to configure MCP in Cursor"
+sidebarTitle: "Cursor MCP"
+description: "Understand Cursor MCP, project and global configuration, mcp.json, tool approval, and how MCP differs from model API setup."
+---
+
+## Short answer
+
+Cursor MCP connects external tools and data sources to the AI workflow inside the editor. It is not model API configuration and does not replace an OpenAI-compatible Base URL.
+
+In Cursor, MCP setup usually involves `mcp.json`, project or global settings, environment variables, and tool approval.
+
+## When this matters
+
+- You want Cursor to use external tools
+- You need project-specific MCP server configuration
+- You want to distinguish project MCP from global MCP
+- You want to understand tool approval
+- You think MCP can replace API Key / Base URL
+
+## MCP vs model API
+
+| Item | Cursor MCP | OpenAI-compatible API |
+| --- | --- | --- |
+| Role | Connect tools, data sources, context | Connect model provider |
+| Main config | `mcp.json`, server, env, approval | API Key, Base URL, Model ID |
+| Main risk | Tool permissions and data access | Authentication, billing, model availability |
+
+## Recommended practice
+
+1. Confirm that you are adding tool capability, not a model provider.
+2. Choose global or project MCP config according to Cursor docs.
+3. Give the MCP server only the environment variables it needs.
+4. Keep tool approval for tools that write files or access external services.
+5. Debug model API setup and MCP setup separately.
+
+## Where BetterToken fits
+
+BetterToken is the model API layer. Cursor MCP is the tool layer. You can use both, but they do not replace each other.
+
+If your goal is to switch model routing, configure `{{openai-base-url}}` and a **GPT Key group** model. If your goal is to let Cursor call external tools, configure MCP.
+
+## Related docs
+
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [How to configure a custom OpenAI API in Cursor](/en/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md, and .cursorignore](/en/faq/cursor/rules-agents-cursorignore)
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
+
+## References
+
+- [Cursor MCP documentation](https://cursor.com/docs/mcp)
+- [Cursor MCP markdown documentation](https://cursor.com/docs/mcp.md)

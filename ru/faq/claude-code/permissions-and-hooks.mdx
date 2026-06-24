@@ -1,0 +1,63 @@
+---
+title: "Permissions и hooks в Claude Code"
+sidebarTitle: "Permissions и hooks"
+description: "Разберите Claude Code permissions, confirmation flow, hooks, безопасный автозапуск тестов и local safety boundaries."
+---
+
+## Короткий ответ
+
+Claude Code permissions решают, какие действия могут выполняться автоматически, а какие требуют подтверждения. Hooks могут запускать scripts или commands в определенные моменты: форматирование, тесты, checks или security controls.
+
+Эти механизмы управляют local tool behavior, а не model API provider. Даже если Claude Code использует сторонний Base URL, file access, command execution и automation boundaries остаются внутри Claude Code.
+
+## Когда это важно
+
+- Claude Code просит подтверждение перед каждой командой
+- Вы хотите автоматически запускать tests или formatters
+- Вы переживаете за sensitive files
+- Вы хотите checks перед завершением изменения
+- Вы хотите избежать broad auto-approval
+
+## Permissions vs hooks
+
+| Понятие | Роль |
+| --- | --- |
+| Permissions | Решают, разрешено действие, запрещено или требует confirmation |
+| Hooks | Запускают custom commands до или после определенных events |
+| Confirmation flow | Дает пользователю оценить higher-risk operations |
+| Safety boundary | Ограничивает риски file, command, network и sensitive data |
+
+## Рекомендуемая практика
+
+1. Оставляйте default permissions консервативными.
+2. Точечно разрешайте common tests, formatting и read-only checks.
+3. Оставляйте confirmation для deletion, Git reset, sensitive paths и network commands.
+4. Запишите team expectations в `CLAUDE.md` или project settings.
+5. Пересматривайте hooks по мере изменения проекта.
+
+## Частые ошибки
+
+- Считать permissions model configuration.
+- Auto-approve всех команд ради меньшего числа prompts.
+- Позволять hooks становиться неуправляемой скрытой automation.
+- Игнорировать разницу между reading и modifying files.
+- Думать, что API gateway управляет local permissions.
+
+## Где здесь BetterToken
+
+BetterToken отвечает за model API access, model routing, balance и usage records. Он не меняет permissions или hooks в Claude Code.
+
+Если проблема связана с command confirmation, file access или automation, проверяйте permissions и hooks Claude Code, а не Base URL.
+
+## Связанные материалы
+
+- [Что такое Claude Code?](/ru/faq/claude-code/what-is-claude-code)
+- [Что такое CLAUDE.md в Claude Code?](/ru/faq/claude-code/claude-md)
+- [Как переключать Sonnet и Opus в Claude Code](/ru/faq/claude-code/switch-sonnet-opus)
+- [MCP и API Key / Base URL](/ru/faq/concepts/mcp-vs-api-key-base-url)
+
+## References
+
+- [Claude Code security](https://docs.anthropic.com/en/docs/claude-code/security)
+- [Claude Code hooks guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide)
+- [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks)

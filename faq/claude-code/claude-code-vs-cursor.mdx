@@ -1,0 +1,59 @@
+---
+title: "Claude Code 和 Cursor 哪个更适合本地开发？"
+sidebarTitle: "Claude Code vs Cursor"
+description: "对比 Claude Code 与 Cursor 在本地项目、编辑器集成、规则文件、MCP、模型接入和权限控制上的差异。"
+---
+
+## 简短答案
+
+Claude Code 更像终端里的 coding agent。它适合在已有仓库中读取代码、执行命令、修改文件，并通过 `CLAUDE.md`、permissions、hooks 和 MCP 管理项目行为。
+
+Cursor 更像带 AI 能力的编辑器。它适合希望在 IDE 中完成补全、聊天、Composer、规则文件、索引和编辑器内改代码的用户。
+
+两者不是谁完全替代谁。选择取决于你更偏终端 agent 工作流，还是编辑器内 AI 工作流。
+
+## 核心对比
+
+| 维度 | Claude Code | Cursor |
+| --- | --- | --- |
+| 主要入口 | 终端 / 命令行 | AI IDE |
+| 项目上下文 | `CLAUDE.md`、会话上下文、工具读取 | Cursor Rules、索引、编辑器上下文 |
+| 权限控制 | permissions、hooks、确认机制 | tool approval、编辑器权限、规则文件 |
+| MCP | 支持 MCP 工具接入 | 支持 MCP 工具接入 |
+| 模型接入 | Claude / Anthropic-compatible 为核心 | OpenAI-compatible、自定义 provider、内置模型 |
+| 适合场景 | 多步骤任务、命令执行、仓库级改动 | 编辑器内交互、文件跳转、局部改动、补全 |
+
+## 怎么选择
+
+如果你喜欢先让 agent 读仓库、规划、运行测试，再批量改文件，Claude Code 更自然。
+
+如果你长期待在编辑器里，希望 AI 理解当前文件、选区、索引和项目规则，Cursor 更自然。
+
+如果你同时使用两者，可以让它们共享同一个 API 接入层，但分别维护自己的规则文件和权限边界。
+
+## 常见误区
+
+- 以为 Cursor Rules 会自动被 Claude Code 读取。
+- 以为 `CLAUDE.md` 会替代 Cursor 的项目规则。
+- 只比较模型，不比较工作流和权限。
+- 把 MCP 当作模型 API，而不是工具/上下文扩展层。
+- 忽略编辑器索引和终端命令执行的差异。
+
+## BetterToken 在这里的位置
+
+如果你希望 Claude Code、Cursor 等工具统一模型出口和用量观察，可以让它们分别接入 BetterToken 的对应协议地址。
+
+Claude Code 通常走 `{{anthropic-base-url}}`。Cursor 这类外部工具通常走 `{{openai-base-url}}`，模型从 **GPT 分组**复制。
+
+## Related docs
+
+- [Claude Code 是什么？](/faq/claude-code/what-is-claude-code)
+- [Cursor 如何配置自定义 OpenAI API Key 和 Base URL？](/faq/cursor/custom-openai-api)
+- [Claude Code MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Claude Code overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Cursor documentation](https://cursor.com/docs)
+- [Hacker News discussion on Claude Code and Cursor](https://news.ycombinator.com/item?id=44353879)

@@ -1,0 +1,63 @@
+---
+title: "Claude Code permissions and hooks explained"
+sidebarTitle: "Permissions and hooks"
+description: "Understand Claude Code permissions, confirmation flow, hooks, safe test automation, and local safety boundaries."
+---
+
+## Short answer
+
+Claude Code permissions decide which actions can run automatically and which require confirmation. Hooks can run scripts or commands at specific moments, such as formatting, tests, checks, or security controls.
+
+These mechanisms control local tool behavior, not the model API provider. Even when Claude Code uses a third-party Base URL, file access, command execution, and automation boundaries still belong to Claude Code.
+
+## When this matters
+
+- Claude Code asks for confirmation before every command
+- You want tests or formatters to run automatically
+- You are worried about sensitive files being modified
+- You want checks before finishing a change
+- You need to avoid broad auto-approval
+
+## Permissions vs hooks
+
+| Concept | Role |
+| --- | --- |
+| Permissions | Decide whether an action is allowed, denied, or requires confirmation |
+| Hooks | Run custom commands before or after specific events |
+| Confirmation flow | Lets the user judge higher-risk operations |
+| Safety boundary | Limits file, command, network, and sensitive data risk |
+
+## Recommended practice
+
+1. Keep default permissions conservative.
+2. Allow common tests, formatting, and read-only checks selectively.
+3. Keep confirmation for deletion, Git reset, sensitive paths, and network commands.
+4. Put team expectations in `CLAUDE.md` or project settings.
+5. Review hooks as the project changes.
+
+## Common mistakes
+
+- Treating permissions as model configuration.
+- Auto-approving every command to reduce prompts.
+- Letting hooks become unmaintained hidden automation.
+- Ignoring the difference between reading and modifying files.
+- Assuming an API gateway controls local permissions.
+
+## Where BetterToken fits
+
+BetterToken handles model API access, model routing, balance, and usage records. It does not change Claude Code permissions or hooks.
+
+If the issue is command confirmation, file access, or automation, check Claude Code permissions and hooks rather than the Base URL.
+
+## Related docs
+
+- [What is Claude Code?](/en/faq/claude-code/what-is-claude-code)
+- [What is CLAUDE.md in Claude Code?](/en/faq/claude-code/claude-md)
+- [How to switch Sonnet and Opus in Claude Code](/en/faq/claude-code/switch-sonnet-opus)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+
+## References
+
+- [Claude Code security](https://docs.anthropic.com/en/docs/claude-code/security)
+- [Claude Code hooks guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide)
+- [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks)

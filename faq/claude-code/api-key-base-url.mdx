@@ -1,0 +1,78 @@
+---
+title: "如何在 Claude Code 中配置 API Key 和 Base URL？"
+sidebarTitle: "API Key 和 Base URL"
+description: "说明 Claude Code 中 API Key、Base URL、Claude 分组、GPT 分组和 Anthropic-compatible endpoint 的配置边界。"
+---
+
+## 简短答案
+
+在 Claude Code 中配置第三方 API 时，要先确认你使用的是 Anthropic-compatible endpoint。对于本仓库的接入方式，Claude Code 的 Base URL 使用 `{{anthropic-base-url}}`，不要添加 `/v1`。
+
+API Key 是你的认证凭证，Base URL 是 Claude Code 把模型请求发往的 API 地址。两者必须属于同一个 provider 和同一种协议。
+
+如果你使用 BetterToken 的 **Claude 分组** API Key，通常只需要配置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`。如果使用 **GPT 分组**，还需要按接入文档配置 Claude Code 的模型映射。
+
+## 什么时候需要配置它
+
+- 你想让 Claude Code 使用自定义 API gateway
+- 你拿到了 API Key，但不知道 Base URL 应该填什么
+- 你在 Claude Code 里看到认证失败或 endpoint 不匹配
+- 你不确定 `{{anthropic-base-url}}` 和 `{{openai-base-url}}` 的区别
+- 你需要在 Claude 分组和 GPT 分组之间选择
+
+## 核心概念
+
+| 字段 | 含义 |
+| --- | --- |
+| API Key | 用于认证模型 API 请求的密钥 |
+| Base URL | 模型请求发送到的 API 地址 |
+| Anthropic-compatible API | 兼容 Anthropic / Claude 请求格式的 endpoint |
+| OpenAI-compatible API | 兼容 OpenAI 请求格式的 endpoint，常用于 Codex、Cursor、Cline 等工具 |
+| Model ID | 工具实际请求的模型名称或模型映射值 |
+
+## 推荐配置
+
+在 Claude Code 中接入 BetterToken 时，先按 API Key 分组选择路径。
+
+Claude 分组：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+GPT 分组需要额外设置 Claude Code 的模型映射。完整配置请使用 [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)，不要只复制本页的简化片段。
+
+配置后重启 Claude Code，并发送一个短消息验证。如果失败，优先检查 Base URL 是否误填成 `{{openai-base-url}}`。
+
+## 常见误区
+
+- 给 Claude Code 的 Base URL 添加 `/v1`。Claude Code 的 Anthropic-compatible 配置不使用这个地址。
+- 只换 API Key，不换 Base URL，导致请求仍走默认 endpoint。
+- 把 GPT 分组模型 ID 当作 Claude 分组模型来用。
+- 把 OpenAI-compatible endpoint 填进 Claude Code 的 Anthropic-compatible 字段。
+- 在多个 shell profile、系统环境变量和配置文件里重复设置，导致旧变量覆盖新配置。
+
+## BetterToken 在这里的位置
+
+BetterToken 提供两类 endpoint：Claude Code 使用的 Anthropic-compatible `{{anthropic-base-url}}`，以及 Codex / 外部工具使用的 OpenAI-compatible `{{openai-base-url}}`。
+
+这能让你在同一个 dashboard 中管理 API Key、余额和用量记录，但不会改变 Claude Code 对 Anthropic-compatible 请求格式的要求。
+
+## Related docs
+
+- [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)
+- [Claude Code 是用 Claude.ai 账号还是 API Key？](/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code token 为什么消耗很多？如何降低成本？](/faq/token-cost/claude-code-token-usage)
+
+## References
+
+- [Claude Code LLM gateway configuration](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Claude Code model configuration](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)

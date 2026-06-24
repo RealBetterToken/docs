@@ -1,0 +1,69 @@
+---
+title: "Claude Code 是什么？它是如何工作的？"
+sidebarTitle: "Claude Code 是什么"
+description: "解释 Claude Code 的定位、工作方式、上下文、工具权限，以及它和普通聊天页面的区别。"
+---
+
+## 简短答案
+
+Claude Code 是面向软件开发的 coding agent。它不是普通聊天页面，而是可以读取代码库、编辑文件、运行命令，并通过终端、IDE、桌面端或浏览器参与开发任务的工具。
+
+Claude Code 的核心工作方式是：先读取你的项目上下文，再根据你的请求制定计划、调用工具、修改文件，并在需要时运行命令验证结果。它能处理多文件修改、测试修复、代码审查、脚本化任务和长周期开发工作。
+
+你仍然要控制它能访问哪些目录、能运行哪些命令、是否允许自动执行。模型 API 只负责推理，Claude Code 的本地权限、工具调用和工作流边界仍由 Claude Code 自己控制。
+
+## 什么时候需要理解它
+
+- 第一次安装 Claude Code，不确定它和 Claude 网页聊天有什么区别
+- 准备让 Claude Code 修改本地代码库
+- 想知道 Claude Code 为什么会读取文件、运行命令或消耗较多 token
+- 准备接入自定义 API Key 和 Base URL
+- 在 Claude Code、Claude Desktop、Cursor、Codex CLI 之间选择工具
+
+## 核心概念
+
+| 概念 | 含义 |
+| --- | --- |
+| Coding agent | 面向开发任务的 agent，可以理解代码、调用工具、修改文件和执行命令 |
+| 工作目录 | Claude Code 当前可以读取和修改的项目目录 |
+| 工具调用 | 包括读取文件、搜索代码、编辑文件、运行 shell 命令等动作 |
+| 上下文 | 当前对话、已读取文件、项目说明、`CLAUDE.md`、工具结果等信息 |
+| MCP | 给 Claude Code 增加外部工具和数据源的协议，不是模型 API 本身 |
+| `CLAUDE.md` | 项目说明和协作规则文件，Claude Code 会把它当作上下文读取 |
+
+## 推荐工作流
+
+1. 在一个真实项目目录中启动 Claude Code。
+2. 让它先阅读相关文件，而不是直接要求它大范围改代码。
+3. 对复杂任务先进入计划阶段，确认范围后再执行。
+4. 让它修改小批量文件，然后运行最快的相关检查。
+5. 把长期稳定的项目规则写入 `CLAUDE.md`，把一次性要求留在当前对话里。
+
+如果你要通过 API gateway 使用 Claude Code，先确认工具使用的是 Anthropic-compatible endpoint。这个文档站里的 Claude Code 接入页使用 `{{anthropic-base-url}}`，不要把 OpenAI-compatible 的 `{{openai-base-url}}` 填进 Claude Code 的 Anthropic 协议配置里。
+
+## 常见误区
+
+- 把 Claude Code 当作普通聊天网页，以为它不会触碰本地文件。
+- 以为 Claude Code 会自动理解整个仓库；实际上它需要读取相关文件或加载项目说明。
+- 把 MCP 当作模型 API。MCP 是工具和数据源层，不替代 API Key、Base URL 和 Model ID。
+- 把 Claude.ai 订阅、Claude Console API、第三方 API gateway 混在一起。它们是不同的认证和计费路径。
+- 放开所有本地权限，却没有代码审查、测试和命令执行边界。
+
+## BetterToken 在这里的位置
+
+如果 Claude Code 使用自定义 API Key 和 Base URL，它可以通过 Anthropic-compatible API gateway 发送模型请求。BetterToken 在这里属于模型 API 层，可以集中管理 API Key、余额和用量记录。
+
+但 BetterToken 不替代 Claude Code 的本地权限系统、文件访问控制、hooks、MCP 配置或项目规则。你仍然需要在 Claude Code 里设置合理的执行边界。
+
+## Related docs
+
+- [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)
+- [Claude Code 是用 Claude.ai 账号还是 API Key？](/faq/claude-code/claude-account-or-api-key)
+- [如何在 Claude Code 中配置 API Key 和 Base URL？](/faq/claude-code/api-key-base-url)
+- [CLAUDE.md 是什么？应该怎么写？](/faq/claude-code/claude-md)
+
+## References
+
+- [Claude Code overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code quickstart](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [How Claude remembers your project](https://docs.anthropic.com/en/docs/claude-code/memory)

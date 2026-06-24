@@ -1,0 +1,58 @@
+---
+title: "Как переключать Sonnet и Opus в Claude Code"
+sidebarTitle: "Sonnet / Opus"
+description: "Разберите /model, model aliases, full model IDs, provider differences и влияние на cost в Claude Code."
+---
+
+## Короткий ответ
+
+При переключении Sonnet, Opus или другой модели в Claude Code используйте поддерживаемый `/model` или официальный путь model configuration.
+
+Model aliases, full model IDs и provider mappings не всегда одинаковы. Marketing name в web UI не всегда является API-recognized model ID.
+
+Если вы используете сторонний gateway, берите model ID из model plaza или документации этого provider.
+
+## Когда это важно
+
+- Вы хотите переключаться между более дешевой и более сильной моделью
+- Вы видите aliases Sonnet / Opus / Haiku, но не знаете, что вводить
+- Вы используете third-party Base URL или model gateway
+- Вы хотите контролировать token cost Claude Code
+- Вы видите model not found или выбор модели не применяется
+
+## Три слоя model names
+
+| Слой | Значение |
+| --- | --- |
+| Display name | Удобное человеку имя в UI |
+| Alias | Short name или shortcut внутри инструмента |
+| Model ID | Идентификатор, который реально понимает API |
+
+Для успешного запроса важно, распознает ли текущий provider этот Model ID.
+
+## Рекомендуемая практика
+
+1. Проверьте, какие модели поддерживает текущий provider.
+2. Используйте `/model` в Claude Code или официальный model configuration.
+3. Если используете third-party gateway, копируйте доступный model ID из его model plaza.
+4. Рассматривайте model choice вместе со стоимостью.
+5. Не угадывайте model names вручную.
+
+## Где здесь BetterToken
+
+Если Claude Code подключен через BetterToken, копируйте текущий model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>. Модели **группы ключа Claude** и **группы ключа GPT** относятся к разным protocol paths, поэтому не смешивайте их.
+
+Выбор модели влияет на качество, скорость и стоимость. Usage records помогают сравнить реальный расход между моделями.
+
+## Связанные материалы
+
+- [Почему Claude Code расходует много tokens](/ru/faq/token-cost/claude-code-token-usage)
+- [Как настроить API Key и Base URL в Claude Code](/ru/faq/claude-code/api-key-base-url)
+- [Permissions и hooks в Claude Code](/ru/faq/claude-code/permissions-and-hooks)
+- [OpenAI-compatible API и Anthropic-compatible API](/ru/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Claude Code model configuration](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code CLI reference](https://docs.anthropic.com/en/docs/claude-code/cli-reference)
+- [Claude Code costs](https://docs.anthropic.com/en/docs/claude-code/costs)

@@ -1,0 +1,53 @@
+---
+title: "Cursor 如何配置 MCP？"
+sidebarTitle: "Cursor MCP"
+description: "说明 Cursor 中 MCP 的用途、配置位置、项目级与全局配置、tool approval 和模型 API 的区别。"
+---
+
+## 简短答案
+
+Cursor 的 MCP 用来把外部工具和数据源接入编辑器中的 AI 工作流。它不是模型 API 配置，也不替代 OpenAI-compatible Base URL。
+
+在 Cursor 中，MCP 配置通常围绕 `mcp.json`、项目级或全局设置、环境变量和工具审批机制展开。
+
+## 什么时候需要它
+
+- 你想让 Cursor 使用外部工具
+- 你需要给某个项目单独配置 MCP server
+- 你想区分 project MCP 和 global MCP
+- 你想理解 tool approval
+- 你误以为 MCP 可以替代 API Key / Base URL
+
+## MCP 与模型 API 的区别
+
+| 项目 | Cursor MCP | OpenAI-compatible API |
+| --- | --- | --- |
+| 作用 | 接工具、数据源、上下文 | 接模型 provider |
+| 配置重点 | `mcp.json`、server、env、approval | API Key、Base URL、Model ID |
+| 风险重点 | 工具权限和数据访问 | 鉴权、计费、模型可用性 |
+
+## 推荐做法
+
+1. 先确认你要接入的是工具能力，而不是模型 provider。
+2. 根据 Cursor 官方文档选择 global 或 project MCP 配置。
+3. 只给 MCP server 必要的环境变量。
+4. 保持 tool approval，尤其是会写文件或访问外部服务的工具。
+5. 把模型 API 配置和 MCP 配置分开排查。
+
+## BetterToken 在这里的位置
+
+BetterToken 是模型 API 层。Cursor 的 MCP 是工具层。两者可以同时使用，但不能互相替代。
+
+如果你的目标是切换模型出口，请配置 `{{openai-base-url}}` 和 **GPT 分组**模型。如果你的目标是让 Cursor 调用外部工具，请配置 MCP。
+
+## Related docs
+
+- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
+- [Cursor 如何配置自定义 OpenAI API Key 和 Base URL？](/faq/cursor/custom-openai-api)
+- [Cursor Rules、AGENTS.md 和 .cursorignore 是什么？](/faq/cursor/rules-agents-cursorignore)
+- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
+
+## References
+
+- [Cursor MCP documentation](https://cursor.com/docs/mcp)
+- [Cursor MCP markdown documentation](https://cursor.com/docs/mcp.md)

@@ -1,0 +1,66 @@
+---
+title: "Claude Code 和 Claude Desktop 有什么区别？"
+sidebarTitle: "Claude Code vs Desktop"
+description: "对比 Claude Code 与 Claude Desktop 的定位、使用场景、文件访问、MCP 和 API 接入方式。"
+---
+
+## 简短答案
+
+Claude Code 是面向代码库的 coding agent。它可以在终端、IDE、桌面端和浏览器中处理开发任务，重点是读取项目、修改文件、运行命令和验证结果。
+
+Claude Desktop 是 Claude 的桌面应用。它更像一个图形化入口，可以用于日常对话、桌面扩展、本地 MCP server，以及部分面向桌面体验的 Claude Code / Cowork 能力。
+
+两者可能共享一些底层能力，但使用入口、配置方式和权限边界不同。不要把 Claude Desktop 的 MCP 或 Gateway 配置直接等同于 Claude Code 的 CLI 配置。
+
+## 什么时候需要区分它们
+
+- 你不确定应该安装 Claude Code CLI 还是 Claude Desktop
+- 你想让 Claude 直接修改代码库
+- 你正在配置 Claude Desktop Gateway 或 MCP
+- 你想使用 Claude Code 的终端工作流、IDE 插件或桌面 Code 模式
+- 你在排查桌面端和 CLI 配置不一致的问题
+
+## 核心概念
+
+| 项目 | Claude Code | Claude Desktop |
+| --- | --- | --- |
+| 主要定位 | Coding agent | 桌面应用入口 |
+| 常见入口 | 终端、VS Code、JetBrains、桌面端、Web | macOS / Windows 桌面应用 |
+| 本地代码操作 | 面向代码库读写和命令执行 | 取决于桌面端功能、扩展、Cowork 或 Code 模式 |
+| 配置重点 | 项目目录、权限、`CLAUDE.md`、API provider | 登录、桌面扩展、MCP、Gateway |
+| 适合场景 | 改代码、跑测试、做代码审查、自动化开发任务 | 日常对话、桌面连接器、可视化工作流 |
+
+## 推荐选择
+
+如果你的目标是让 agent 直接理解并修改代码库，从 Claude Code 开始。它的工作流围绕项目目录、文件修改、命令执行和验证展开。
+
+如果你的目标是桌面级对话、扩展、文件连接器或 Claude Desktop 的图形界面能力，从 Claude Desktop 开始。需要写代码时，再确认你使用的是 Desktop 内置的 Code 能力、Cowork，还是单独的 Claude Code CLI。
+
+如果你要接入第三方 API，需要分别看当前入口支持什么协议。Claude Code 接入页使用 `{{anthropic-base-url}}`；Claude Desktop Gateway 也要按它自己的开发者配置方式处理，不应把 OpenAI-compatible 的 `{{openai-base-url}}` 直接填入 Anthropic-compatible 场景。
+
+## 常见误区
+
+- 以为安装 Claude Desktop 就等于安装了完整 Claude Code CLI。
+- 把 Claude Desktop 的 MCP 配置复制到 Claude Code，或者反过来复制。
+- 把 Claude.ai 订阅当成 API Key。订阅登录和 API provider 是两条不同路径。
+- 在 Claude Desktop Gateway 中填入 OpenAI-compatible Base URL，导致协议不匹配。
+- 以为桌面端能替代 Claude Code 的项目权限、hooks 和命令执行策略。
+
+## BetterToken 在这里的位置
+
+BetterToken 属于模型 API gateway 层。它可以在支持自定义 API Key 和 Base URL 的场景中提供 Anthropic-compatible 或 OpenAI-compatible endpoint。
+
+它不会改变 Claude Code 和 Claude Desktop 的产品边界。你仍然需要按当前入口支持的协议填写对应 Base URL，并在工具内设置文件访问、MCP、权限和安全策略。
+
+## Related docs
+
+- [Claude Code 是什么？它是如何工作的？](/faq/claude-code/what-is-claude-code)
+- [Claude Code 是用 Claude.ai 账号还是 API Key？](/faq/claude-code/claude-account-or-api-key)
+- [Claude Desktop 如何接入第三方模型？](/faq/claude-desktop-third-party-models)
+- [Claude Desktop 接入 BetterToken API 指南](/faq/claude-desktop-bettertoken-api)
+
+## References
+
+- [Claude Code overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Install Claude Desktop](https://support.anthropic.com/en/articles/10065433-installing-claude-for-desktop)
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)

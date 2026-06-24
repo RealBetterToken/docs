@@ -1,0 +1,83 @@
+---
+title: "How to configure Codex CLI config.toml"
+sidebarTitle: "config.toml"
+description: "Learn where Codex CLI config.toml lives, which fields matter, how custom providers work, and how API Key, Base URL, and model settings differ."
+---
+
+## Short answer
+
+`config.toml` is the main local configuration file for Codex CLI. You can use it to set the default model, model provider, sandbox, approvals, reasoning effort, retry behavior, and other settings.
+
+For a custom OpenAI-compatible provider, the important part is to make `model_provider` point to `[model_providers.<id>]`, then define `base_url`, `wire_api`, and authentication behavior in that provider table.
+
+Do not commit API Keys to a public repository. Keep API Keys in local environment variables, CLI login state, protected local configuration, or a secure store managed by your tool.
+
+## When you need it
+
+- You want Codex CLI to use a third-party OpenAI-compatible provider
+- You need a fixed default model or review model
+- You want to adjust sandbox, approval, or reasoning effort
+- You are fixing wrong `model_provider`, `base_url`, or `wire_api` values
+- You are preparing a reusable Codex CLI config example for a team
+
+## Common locations
+
+| System | Typical path |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
+
+Project-level instructions usually belong in `AGENTS.md` inside the repository. Do not mix them with user-level `config.toml`.
+
+## Recommended config example
+
+The following example follows the Codex setup page in this documentation. Copy the current model ID from the **GPT Key group** in the model plaza before using it.
+
+```toml
+model_provider = "bettertoken"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers]
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+## Common mistakes
+
+- Defining `[model_providers.bettertoken]` but forgetting `model_provider = "bettertoken"`.
+- Putting the Claude Code `{{anthropic-base-url}}` into Codex CLI.
+- Using a marketing model name instead of an API model ID.
+- Committing API Keys, tokens, or login state to a repository.
+- Running untrusted commands with overly broad sandbox or approval settings.
+
+## Where BetterToken fits
+
+In Codex CLI, BetterToken is a custom OpenAI-compatible provider. Use `{{openai-base-url}}` for `base_url` and choose a model ID from the **GPT Key group**.
+
+This only changes where model requests are sent. Codex CLI still controls file access, command execution, sandbox, and approvals.
+
+## Related docs
+
+- [Codex BetterToken setup guide](/en/ai-tools/codex)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)

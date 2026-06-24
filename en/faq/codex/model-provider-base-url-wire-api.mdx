@@ -1,0 +1,77 @@
+---
+title: "What are model_provider, base_url, and wire_api in Codex CLI?"
+sidebarTitle: "provider / base_url / wire_api"
+description: "Understand how Codex CLI relates model_provider, base_url, wire_api, model, and review_model in a custom provider setup."
+---
+
+## Short answer
+
+`model_provider` tells Codex CLI which provider to use. Its value must match a provider id defined under `[model_providers.<id>]`.
+
+`base_url` is the API endpoint where model requests are sent. For an OpenAI-compatible provider, it usually points to a `/v1` style endpoint.
+
+`wire_api` tells Codex which protocol shape to use when talking to that provider. In the Codex configuration reference, `responses` is a supported provider protocol value.
+
+## When this matters
+
+- You are configuring a custom OpenAI-compatible provider
+- Codex says the provider cannot be found or model requests fail
+- You are not sure how `model_provider` differs from `model`
+- You are putting BetterToken, OpenAI, or another provider in one `config.toml`
+- You need to separate Base URL, API Key, and Model ID
+
+## Field relationships
+
+| Field | Purpose |
+| --- | --- |
+| `model_provider` | Selects the active provider id |
+| `[model_providers.<id>]` | Defines one provider's detailed configuration |
+| `name` | Display name for the provider |
+| `base_url` | Root API endpoint |
+| `wire_api` | Provider protocol, commonly `responses` |
+| `model` | Default main model ID |
+| `review_model` | Model used for code review flows such as `/review` |
+
+## Recommended pattern
+
+Keep the provider id consistent:
+
+```toml
+model_provider = "bettertoken"
+model = "gpt-5.5"
+
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = false
+```
+
+This means Codex uses the provider named `bettertoken`, sends model requests to `{{openai-base-url}}`, and communicates through the Responses API shape.
+
+## Common mistakes
+
+- Writing the display name instead of the provider id in `model_provider`.
+- Treating `model` as the provider name.
+- Forgetting that `base_url` and the provider protocol must match.
+- Putting an Anthropic-compatible Base URL into an OpenAI-compatible provider.
+- Using a UI display name instead of an API-recognized model ID.
+
+## Where BetterToken fits
+
+BetterToken can be defined as a custom provider such as `[model_providers.bettertoken]`. Use `{{openai-base-url}}` as the `base_url` and copy the model ID from the **GPT Key group**.
+
+On the LLMEasy regional documentation, the same configuration concept maps to the LLMEasy provider name and regional Base URL.
+
+## Related docs
+
+- [How to configure Codex CLI config.toml](/en/faq/codex/config-toml)
+- [Codex BetterToken setup guide](/en/ai-tools/codex)
+- [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)
+- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)

@@ -1,0 +1,63 @@
+---
+title: "Claude Code 权限和 hooks 是什么？"
+sidebarTitle: "权限和 hooks"
+description: "解释 Claude Code permissions、确认流程、hooks、自动运行测试和安全边界。"
+---
+
+## 简短答案
+
+Claude Code 的 permissions 决定哪些操作可以自动执行，哪些需要你确认。Hooks 可以在特定时机运行脚本或命令，用来做格式化、测试、检查或安全控制。
+
+这两个机制控制的是本地工具行为，不是模型 API provider。即使你把 Claude Code 接入第三方 Base URL，文件访问、命令执行和自动化边界仍由 Claude Code 自己的 permissions 和 hooks 控制。
+
+## 什么时候需要理解它
+
+- Claude Code 每次运行命令都要求确认
+- 你想允许自动运行测试或格式化
+- 你担心 agent 修改敏感文件
+- 你希望在提交前自动检查代码
+- 你需要解释为什么不能为了省事全量放权
+
+## permissions 和 hooks 的区别
+
+| 概念 | 作用 |
+| --- | --- |
+| Permissions | 决定某类操作是否允许、拒绝或需要确认 |
+| Hooks | 在特定事件前后执行自定义命令 |
+| 确认流程 | 高风险操作执行前让用户判断 |
+| 安全边界 | 限制文件、命令、网络和敏感数据风险 |
+
+## 推荐做法
+
+1. 默认保持保守权限。
+2. 只对常见测试、格式化、只读检查做精细放行。
+3. 对删除文件、重置 Git、写敏感路径、联网命令保持确认。
+4. 把团队约定写进 `CLAUDE.md` 或项目配置。
+5. 定期检查 hooks 是否仍然符合当前项目。
+
+## 常见误区
+
+- 把 permissions 当成模型配置。
+- 为了减少确认，把所有命令都自动批准。
+- 把 hooks 当成隐藏后台任务，忘记维护。
+- 没有区分“读文件”和“修改文件”的风险。
+- 接入 API gateway 后，以为本地权限也被 gateway 接管。
+
+## BetterToken 在这里的位置
+
+BetterToken 负责模型 API 接入、模型路由、余额和用量记录。它不改变 Claude Code 本地 permissions 或 hooks。
+
+如果你遇到的是命令确认、文件访问或自动执行问题，应查看 Claude Code 的权限和 hooks 配置，而不是 Base URL。
+
+## Related docs
+
+- [Claude Code 是什么？](/faq/claude-code/what-is-claude-code)
+- [Claude Code 中的 CLAUDE.md 是什么？](/faq/claude-code/claude-md)
+- [如何在 Claude Code 中切换 Sonnet 和 Opus？](/faq/claude-code/switch-sonnet-opus)
+- [Claude Code MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
+
+## References
+
+- [Claude Code security](https://docs.anthropic.com/en/docs/claude-code/security)
+- [Claude Code hooks guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide)
+- [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks)
