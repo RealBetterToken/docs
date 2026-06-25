@@ -501,6 +501,160 @@ async function addContactSections() {
   }
 }
 
+function replaceOnce(text, from, to, label) {
+  if (!text.includes(from)) {
+    throw new Error(`Could not update LLMEasy quickstart section: ${label}`);
+  }
+
+  return text.replace(from, to);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function replaceStepByTitle(text, title, replacement, label) {
+  const pattern = new RegExp(`  <Step title="${escapeRegExp(title)}">[\\s\\S]*?\\n  </Step>`);
+
+  if (!pattern.test(text)) {
+    throw new Error(`Could not update LLMEasy quickstart step: ${label}`);
+  }
+
+  return text.replace(pattern, replacement);
+}
+
+async function updateLlmeasyQuickstartSetup() {
+  const pages = [
+    {
+      page: 'zh/quickstart',
+      apiKeyBlock: {
+        from: `    创建完成后，复制生成的 API Key。
+
+    <Warning>
+      请妥善保存 API Key。建议将其设置为环境变量，而不是直接写入代码或配置文件。
+    </Warning>
+
+    推荐先导出为：
+
+    \`\`\`bash
+    export LLMEASY_API_KEY="你的 API Key"
+    \`\`\``,
+        to: `    创建完成后会弹出 **Setup** 弹窗。在这里可以复制 **API Key** 和 **Base URL**。
+
+    <Frame>
+      <img
+        src="/images/quickstart/api-key-setup.png"
+        alt="LLMEasy API Key 创建后的 Setup 弹窗，包含 API Key、Base URL 和配置方式。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>`,
+      },
+      setupStep: {
+        title: '进入对应工具文档继续配置',
+        replacement: `  <Step title="选择一个配置方式">
+    在 **Setup** 弹窗里选择你要接入的工具，然后选择一种配置方式。
+
+    - **一键脚本配置**：在弹窗中选择工具和系统，复制生成的命令，并在自己的本机终端执行。适合快速配置 Codex、OpenClaw 或 OpenCode。
+    - **CC Switch 集成**：点击 **Import to CC Switch**，把当前 **API Key** 和 **Base URL** 导入 CC Switch。适合统一管理多个工具和 provider。
+    - **手动配置**：复制 **API Key** 和 **Base URL**，再按对应工具文档填入。适合 Cursor、Cline、Roo Code、Zed 等其他客户端。
+
+    <Note>
+      不同工具的认证字段、模型选择和配置文件位置不一样。进入具体工具文档后，请按该工具的步骤继续配置。
+    </Note>
+  </Step>`,
+      },
+    },
+    {
+      page: 'en/quickstart',
+      apiKeyBlock: {
+        from: `    After you create the token, copy the API Key.
+
+    <Warning>
+      Keep your API Key safe. Store it as an environment variable instead of hardcoding it into source code or config files.
+    </Warning>
+
+    Start with:
+
+    \`\`\`bash
+    export LLMEASY_API_KEY="your-api-key-here"
+    \`\`\``,
+        to: `    After you create the key, the **Setup** dialog opens. Copy **API Key** and **Base URL** from this dialog.
+
+    <Frame>
+      <img
+        src="/images/quickstart/api-key-setup.png"
+        alt="The LLMEasy API key setup dialog with API Key, Base URL, and setup methods."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>`,
+      },
+      setupStep: {
+        title: 'Continue with the guide for your tool',
+        replacement: `  <Step title="Choose a setup method">
+    In the **Setup** dialog, choose the tool you want to connect, then choose one setup method.
+
+    - **One-click script**: select the tool and operating system, copy the generated command, and run it in your own local terminal. Use this for quick Codex, OpenClaw, or OpenCode setup.
+    - **CC Switch integration**: click **Import to CC Switch** to import the current **API Key** and **Base URL** into CC Switch. Use this when you manage multiple tools and providers in one app.
+    - **Manual configuration**: copy **API Key** and **Base URL**, then paste them into the target tool's setup flow. Use this for Cursor, Cline, Roo Code, Zed, and other clients.
+
+    <Note>
+      Different tools use different auth fields, model selectors, and config file locations. Continue with the dedicated tool guide before you finish the setup.
+    </Note>
+  </Step>`,
+      },
+    },
+    {
+      page: 'quickstart',
+      apiKeyBlock: {
+        from: `    После создания токена скопируйте API Key.
+
+    <Warning>
+      Берегите API Key. Храните его в переменной окружения, а не в исходном коде или конфигурационных файлах.
+    </Warning>
+
+    Начните с:
+
+    \`\`\`bash
+    export LLMEASY_API_KEY="your-api-key-here"
+    \`\`\``,
+        to: `    После создания ключа откроется окно **Setup**. В нем можно скопировать **API Key** и **Base URL**.
+
+    <Frame>
+      <img
+        src="/images/quickstart/api-key-setup.png"
+        alt="Окно настройки API Key в LLMEasy с API Key, Base URL и способами настройки."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>`,
+      },
+      setupStep: {
+        title: 'Перейдите к инструкции для своего инструмента',
+        replacement: `  <Step title="Выберите способ настройки">
+    В окне **Setup** выберите инструмент, который хотите подключить, а затем один из способов настройки.
+
+    - **One-click script**: выберите инструмент и операционную систему, скопируйте сгенерированную команду и выполните ее в своем локальном терминале. Подходит для быстрой настройки Codex, OpenClaw или OpenCode.
+    - **CC Switch integration**: нажмите **Import to CC Switch**, чтобы импортировать текущие **API Key** и **Base URL** в CC Switch. Подходит, если вы управляете несколькими инструментами и provider-настройками в одном приложении.
+    - **Manual configuration**: скопируйте **API Key** и **Base URL**, затем вставьте их в настройки нужного инструмента. Подходит для Cursor, Cline, Roo Code, Zed и других клиентов.
+
+    <Note>
+      У разных инструментов отличаются поля авторизации, выбор модели и расположение конфигурационных файлов. Продолжайте по отдельной инструкции для нужного инструмента.
+    </Note>
+  </Step>`,
+      },
+    },
+  ];
+
+  for (const page of pages) {
+    const filePath = path.join(outputDir, `${page.page}.mdx`);
+    let text = await readFile(filePath, 'utf8');
+
+    text = replaceOnce(text, page.apiKeyBlock.from, page.apiKeyBlock.to, `${page.page} API Key setup block`);
+    text = replaceStepByTitle(text, page.setupStep.title, page.setupStep.replacement, `${page.page} setup step`);
+
+    await writeFile(filePath, text);
+  }
+}
+
 async function renameRegionalPaths(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
 
@@ -525,6 +679,7 @@ await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
 await promoteRussianDefaultLanguage();
+await updateLlmeasyQuickstartSetup();
 await generateRootFavicon();
 await addContactSections();
 await generateLlmsFull();
