@@ -1,0 +1,152 @@
+---
+title: "Подключение BetterToken в расширении Codex для VS Code"
+sidebarTitle: "Расширение Codex для VS Code"
+description: "Как настроить custom Base URL и API Key для расширения Codex в VS Code."
+icon: "blocks"
+---
+
+Расширение Codex в VS Code не требует отдельного поля `Base URL` и API Key внутри VS Code. Оно читает локальную конфигурацию Codex, поэтому provider BetterToken нужно настроить в `config.toml` Codex.
+
+<Info>
+  Если в настройках VS Code вы не видите поля `Base URL` или API Key, это нормально. Model requests для расширения Codex в VS Code настраиваются через локальную конфигурацию Codex.
+</Info>
+
+## Требования
+
+- Установлен VS Code
+- Установлено расширение **Codex - OpenAI's coding agent**
+- У вас есть BetterToken API Key (<a href={"{{register-url}}"}>зарегистрируйтесь и получите ключ</a>)
+- Вы скопировали доступный model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+<Warning>
+  Не добавляйте API Key в файлы проекта, `AGENTS.md`, примеры `.env` или публичные репозитории. Конфигурация ниже должна храниться только в локальной директории конфигурации Codex.
+</Warning>
+
+## Способы настройки
+
+<Tabs>
+  <Tab title="Рекомендуется: окно Setup">
+    После создания API Key в консоли откроется окно **Setup**. В нем можно скопировать **API Key** и **Base URL**, а затем выбрать способ настройки Codex.
+
+    <Steps>
+      <Step title="Выберите Codex">
+        В разделе **Available tools** выберите **Codex**.
+      </Step>
+
+      <Step title="Выберите способ настройки">
+        Доступные варианты:
+
+        - **One-click Bash Configuration**: скопируйте команду и выполните ее в локальном терминале. Подходит для быстрой настройки.
+        - **CC Switch Integration**: импортируйте provider в CC Switch. Подходит, если вы управляете несколькими инструментами.
+        - **Manual Configuration**: скопируйте API Key и Base URL, затем вручную добавьте их в `config.toml`.
+      </Step>
+
+      <Step title="Перезапустите VS Code">
+        После записи конфигурации перезапустите VS Code или выполните **Developer: Reload Window**, чтобы расширение Codex заново прочитало локальную конфигурацию.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Ручная настройка">
+    <Steps>
+      <Step title="Найдите config.toml">
+        Файл конфигурации Codex обычно расположен здесь:
+
+        | Система | Файл конфигурации |
+        | --- | --- |
+        | macOS / Linux | `~/.codex/config.toml` |
+        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
+        | Windows + WSL | `~/.codex/config.toml` внутри WSL |
+
+        Если файла нет, создайте его вручную.
+      </Step>
+
+      <Step title="Добавьте provider BetterToken">
+        Добавьте конфигурацию ниже в `config.toml`. Если в файле уже есть такие же верхнеуровневые поля, объедините конфигурацию и не создавайте несколько `model_provider`.
+
+        ```toml
+        model_provider = "{{codex-provider-id}}"
+        model = "gpt-5.5"
+        review_model = "gpt-5.4"
+        model_reasoning_effort = "high"
+        model_context_window = 1000000
+        model_auto_compact_token_limit = 900000
+        windows_wsl_setup_acknowledged = true
+
+        [model_providers]
+        [model_providers.{{codex-provider-id}}]
+        name = "{{codex-provider-name}}"
+        base_url = "{{openai-base-url}}"
+        wire_api = "responses"
+        requires_openai_auth = true
+        experimental_bearer_token = "YOUR_API_KEY"
+        request_max_retries = 4
+        stream_max_retries = 8
+        stream_idle_timeout_ms = 300000
+        supports_websockets = false
+        ```
+
+        Замените `YOUR_API_KEY` на ваш BetterToken API Key.
+      </Step>
+
+      <Step title="Проверьте ключевые поля">
+        В первую очередь проверьте:
+
+        | Поле | Значение |
+        | --- | --- |
+        | `base_url` | `{{openai-base-url}}` |
+        | `wire_api` | `responses` |
+        | `model` | Model ID, скопированный из **группы ключа GPT** |
+        | `experimental_bearer_token` | Ваш BetterToken API Key |
+
+        <Warning>
+          Для расширения Codex в VS Code не меняйте `auth.json` на структуру только с API Key. `auth.json` хранит официальный login state Codex; сторонний API Key должен находиться в `experimental_bearer_token`.
+        </Warning>
+      </Step>
+
+      <Step title="Перезапустите VS Code">
+        После редактирования закройте текущую сессию Codex и перезапустите VS Code.
+
+        Также можно выполнить команду из Command Palette:
+
+        ```text
+        Developer: Reload Window
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Почему нужно сохранять официальный login state?
+
+Расширение Codex в VS Code зависит от возможностей приложения Codex: интерфейса расширения, управления сессиями и интеграции с VS Code. Поэтому рекомендуется сохранить официальный login state и при этом отправлять model requests через BetterToken.
+
+В этой конфигурации:
+
+| Настройка | Что делает |
+| --- | --- |
+| `requires_openai_auth = true` | Сохраняет официальный login state Codex |
+| `experimental_bearer_token = "YOUR_API_KEY"` | Использует BetterToken API Key для model requests |
+| `base_url = "{{openai-base-url}}"` | Отправляет model requests на OpenAI-compatible / Responses API endpoint BetterToken |
+
+## Проверка настройки
+
+После настройки откройте расширение Codex в VS Code и отправьте короткое тестовое сообщение.
+
+Если ответ пришел нормально, конфигурация работает.
+
+Если запрос не проходит, проверьте:
+
+1. `base_url` равен `{{openai-base-url}}`
+2. `wire_api` равен `responses`
+3. `experimental_bearer_token` заменен на реальный API Key
+4. `model` взят из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+5. Старые переменные окружения `OPENAI_API_KEY` или `OPENAI_BASE_URL` не перекрывают конфигурацию
+6. VS Code был перезапущен или Reload Window был выполнен
+
+## Связанные документы
+
+- [Инструкция для Codex](/ru/ai-tools/codex)
+- [Как сохранить официальный login state Codex при использовании стороннего API](/ru/faq/codex/official-login-third-party-api)
+- [Как настроить Codex CLI config.toml](/ru/faq/codex/config-toml)
+- [Что такое model_provider, base_url и wire_api в Codex CLI?](/ru/faq/codex/model-provider-base-url-wire-api)
