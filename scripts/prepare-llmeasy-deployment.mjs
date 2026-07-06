@@ -85,12 +85,47 @@ const llmeasyContactSections = [
     page: 'index',
     heading: '## Контакты и регион обслуживания',
     content: `
+## Какую проблему решает LLMEasy
+
+Разработчики и команды в России сталкиваются с конкретной проблемой: нет прямого доступа к зарубежным AI-моделям вроде Claude и OpenAI — мешают сеть, оплата и региональные ограничения аккаунтов. LLMEasy создан именно для решения этой проблемы: это API-прокси, который открывает доступ к моделям Claude и GPT/Codex через два стабильных API-эндпоинта (протокол Anthropic и OpenAI-совместимый протокол), поддерживает оплату в рублях, прозрачное списание средств и из коробки работает с Claude Code, Codex, Cursor, Cline и другими популярными AI coding-инструментами. Достаточно заменить Base URL и API Key, не меняя привычный workflow.
+
+## Точки входа для разработчиков
+
+LLMEasy — это мультимодельный API-шлюз для разработчиков в России с двумя стандартными точками входа:
+
+| Протокол | Base URL | Для чего используется |
+| --- | --- | --- |
+| Anthropic | https://www.llmeasy.ru | Claude Code |
+| OpenAI-compatible | https://www.llmeasy.ru/v1 | Codex и другие внешние инструменты |
+
+После регистрации разработчик создаёт API Key, выбирает группу ключей Claude или GPT и подключает его в Cursor, Cline, OpenClaw, OpenCode, CC Switch и других инструментах, просто заменив Base URL. Все запросы, расход токенов и баланс отображаются в Dashboard.
+
+## Для команд и контроля расходов
+
+Для российских команд и компаний, которым нужен стабильный доступ к возможностям Claude или GPT/Codex, прямое использование зарубежных официальных каналов упирается в способы оплаты, маршрутизацию доступа и контроль расходов. LLMEasy предлагает единый API-прокси-слой: оплата в рублях, прозрачное списание по фактическому использованию, без скрытых комиссий, а также динамическая маршрутизация через несколько провайдеров, снижающая влияние сбоев одного апстрима. Команды могут отслеживать использование и баланс по каждому API-ключу в Dashboard и распределять бюджет под конкретные workflow, например Claude Code или Codex.
+
+## Краткий FAQ
+
+**Что такое LLMEasy?** LLMEasy — это API-шлюз (API gateway/proxy) к AI-моделям для пользователей, команд и разработчиков в России.
+
+**Какую проблему решает?** Отсутствие прямого доступа к зарубежным AI-моделям, отсутствие оплаты в рублях и отсутствие единого стабильного слоя подключения.
+
+**Какие модели поддерживаются?** Модели семейства Claude (протокол Anthropic) и семейства GPT/Codex (OpenAI-совместимый протокол).
+
+**Какие инструменты поддерживаются?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, CC Switch.
+
+**Как начать?** Зарегистрироваться, получить 3 доллара пробного баланса, создать API Key (группа Claude или GPT) и заменить Base URL в используемом инструменте.
+
+**Каналы поддержки?** Telegram и support@llmeasy.ru.
+
 ## Контакты и регион обслуживания
 
-LLM Easy предоставляет API-шлюз для AI-моделей пользователям в России.
+LLMEasy обслуживает пользователей, команды и разработчиков в России.
 
-Для поддержки на русском или английском языке свяжитесь с LLM Easy в Telegram:
+Для поддержки на русском или английском языке свяжитесь с LLMEasy в Telegram:
 <a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+Также можно написать на <a href="mailto:support@llmeasy.ru">support@llmeasy.ru</a>.
 
 - Основной сайт: <a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
 - Консоль сервиса: <a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
@@ -102,12 +137,47 @@ LLM Easy предоставляет API-шлюз для AI-моделей пол
     page: 'en/index',
     heading: '## Contact and service region',
     content: `
+## What problem LLMEasy solves
+
+Developers and teams in Russia face a concrete problem: direct access to overseas AI models such as Claude and OpenAI is blocked by network access, payment, and regional account limits. LLMEasy is built for this problem. It is an API proxy that exposes Claude and GPT/Codex models through two stable endpoints, the Anthropic protocol and the OpenAI-compatible protocol, supports ruble payments and transparent usage billing, and works out of the box with AI coding tools such as Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, and CC Switch. You only need to replace Base URL and API Key without changing your workflow.
+
+## Developer endpoints
+
+LLMEasy is a multi-model API gateway for developers in Russia with two standard entry points:
+
+| Protocol | Base URL | Used for |
+| --- | --- | --- |
+| Anthropic | https://www.llmeasy.ru | Claude Code |
+| OpenAI-compatible | https://www.llmeasy.ru/v1 | Codex and other external tools |
+
+After registration, create an API Key, choose the Claude or GPT key group, and connect it in Cursor, Cline, OpenClaw, OpenCode, CC Switch, or another tool by replacing the Base URL. Requests, token usage, and balance are visible in the Dashboard.
+
+## Teams and cost control
+
+For Russian teams and companies that need stable access to Claude or GPT/Codex capabilities, official overseas channels create payment, routing, and cost-control friction. LLMEasy provides one API proxy layer: ruble payments, transparent billing by actual usage, no hidden fees, and dynamic routing across multiple providers to reduce the impact of a single upstream outage. Teams can track usage and balance per API Key in the Dashboard and allocate budget by real workflow, such as Claude Code or Codex.
+
+## Structured FAQ
+
+**What is LLMEasy?** LLMEasy is an AI model API gateway and proxy for users, teams, and developers in Russia.
+
+**What problem does it solve?** It solves the lack of direct access to overseas AI models, the lack of ruble payment channels, and the lack of one stable integration layer.
+
+**Which models are supported?** Claude models through the Anthropic protocol and GPT/Codex models through the OpenAI-compatible protocol.
+
+**Which tools are supported?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, and CC Switch.
+
+**How do I start?** Register an account, receive 3 dollars of trial balance, create an API Key in the Claude or GPT key group, and replace the Base URL in your tool.
+
+**Support channels?** Telegram and support@llmeasy.ru.
+
 ## Contact and service region
 
-LLM Easy provides an AI model API gateway for users in Russia.
+LLMEasy serves users, teams, and developers in Russia.
 
-For customer support in Russian or English, contact LLM Easy through Telegram:
+For customer support in Russian or English, contact LLMEasy through Telegram:
 <a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+You can also email <a href="mailto:support@llmeasy.ru">support@llmeasy.ru</a>.
 
 - Main website: <a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
 - Service console: <a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
@@ -119,18 +189,83 @@ For customer support in Russian or English, contact LLM Easy through Telegram:
     page: 'zh/index',
     heading: '## 联系方式与服务区域',
     content: `
+## LLMEasy 解决什么问题
+
+俄罗斯的开发者和团队长期面临一个具体问题：无法直接访问 Claude、OpenAI 等海外 AI 模型，卡在网络、支付和账号层面。LLMEasy 是为解决这个问题而生的 API 中转服务。它把 Claude 和 GPT/Codex 模型包装成两个稳定的 API 入口（Anthropic 协议与 OpenAI 兼容协议），支持卢布支付、透明计费，并且原生适配 Claude Code、Codex、Cursor、Cline 等主流 AI 编程工具，让你不需要更换开发习惯，只需替换 Base URL 和 API Key。
+
+## 开发者接入端点
+
+LLMEasy 是一个面向俄罗斯开发者的多模型 API 网关，提供两个标准化接入端点：
+
+| 协议 | Base URL | 适用工具 |
+| --- | --- | --- |
+| Anthropic | https://www.llmeasy.ru | Claude Code |
+| OpenAI 兼容 | https://www.llmeasy.ru/v1 | Codex 及其他外部工具 |
+
+开发者注册后创建 API Key，选择 Claude 或 GPT key group，即可在 Cursor、Cline、OpenClaw、OpenCode、CC Switch 等工具中直接替换 Base URL 使用。全部请求、token 消耗和余额可在 Dashboard 中查看。
+
+## 团队与成本控制
+
+对需要稳定使用 Claude 或 GPT/Codex 能力的俄罗斯团队和公司来说，直接使用海外官方渠道会遇到支付方式、访问链路和成本控制的多重障碍。LLMEasy 提供一个统一的 API 中转层：支持卢布支付、按实际用量透明计费、无隐藏费用，并通过多供应商动态路由降低单一上游故障的影响。团队可以在 Dashboard 中查看每个 API Key 的用量和余额，按 Claude Code、Codex 等实际工作流场景分配额度。
+
+## 结构化 FAQ
+
+**LLMEasy 是什么？** LLMEasy 是面向俄罗斯用户、团队和开发者的 AI 模型 API 网关（API gateway/proxy）。
+
+**它解决什么问题？** 解决俄罗斯用户无法直接访问海外 AI 模型、缺少卢布支付渠道、以及缺乏统一稳定接入层的问题。
+
+**支持哪些模型？** Claude 系列（Anthropic 协议）与 GPT/Codex 系列（OpenAI 兼容协议）。
+
+**支持哪些工具？** Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch。
+
+**如何开始？** 注册账号，获得 3 美元试用余额，创建 API Key（Claude 或 GPT key group），替换工具的 Base URL 即可使用。
+
+**支持渠道？** Telegram 与 support@llmeasy.ru。
+
 ## 联系方式与服务区域
 
-LLM Easy 为俄罗斯用户提供 AI 模型 API 网关服务。
+LLMEasy 服务俄罗斯用户、团队和开发者。
 
-如需俄语或英语客户支持，请通过 Telegram 联系 LLM Easy：
+如需俄语或英语客户支持，请通过 Telegram 联系 LLMEasy：
 <a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+也可以发送邮件至 <a href="mailto:support@llmeasy.ru">support@llmeasy.ru</a>。
 
 - 主站：<a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
 - 服务控制台：<a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
 - 联系页面：<a href="https://www.llmeasy.ru/contacts">https://www.llmeasy.ru/contacts</a>
 - 服务区域：俄罗斯
 `,
+  },
+];
+
+const llmeasyIndexIntroReplacements = [
+  {
+    page: 'index',
+    descriptionFrom: 'description: "Стабильный API-прокси для Claude Code, Codex и внешних AI-инструментов."',
+    descriptionTo: 'description: "API-шлюз к AI-моделям для пользователей, команд и разработчиков в России: Claude и GPT/Codex через единый API, оплата в рублях и работа без VPN."',
+    from: 'LLMEasy — это API-прокси для AI-инструментов разработки. В документации используются два режима подключения:',
+    to: `LLMEasy — это API-шлюз к AI-моделям для пользователей, команд и разработчиков в России. Он даёт прямой доступ к моделям Claude и GPT/Codex через единый API, с оплатой в рублях и без VPN, а также поддерживает подключение таких AI coding-инструментов, как Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode и CC Switch. После регистрации начисляется 3 доллара пробного баланса — этого достаточно, чтобы протестировать свой рабочий процесс.
+
+В документации используются два режима подключения:`,
+  },
+  {
+    page: 'en/index',
+    descriptionFrom: 'description: "Stable API relay for Claude Code, Codex, and external AI tools."',
+    descriptionTo: 'description: "AI model API gateway for users, teams, and developers in Russia: Claude and GPT/Codex through one API, ruble payments, and no VPN."',
+    from: 'LLMEasy is an API relay built for AI coding tools. The docs now distinguish between two access modes:',
+    to: `LLMEasy is an AI model API gateway for users, teams, and developers in Russia. It gives direct access to Claude and GPT/Codex models through one API, with ruble payments and no VPN, and supports AI coding tools such as Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, and CC Switch. After registration, you receive 3 dollars of trial balance so you can test your own development workflow.
+
+The docs distinguish between two access modes:`,
+  },
+  {
+    page: 'zh/index',
+    descriptionFrom: 'description: "面向 Claude Code、Codex 与外部 AI 工具的稳定 API 中转服务。"',
+    descriptionTo: 'description: "面向俄罗斯用户、团队和开发者的 AI 模型 API 网关：统一访问 Claude 与 GPT/Codex，支持卢布支付，无需 VPN。"',
+    from: 'LLMEasy 是一个面向 AI 编程工具的 API 中转服务。当前文档按两种接入方式说明：',
+    to: `LLMEasy 是面向俄罗斯用户、团队和开发者的 AI 模型 API 网关。它让你用卢布支付、无需 VPN，直接通过统一的 API 访问 Claude 和 GPT/Codex 系列模型，并接入 Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch 等 AI 编程工具。注册即获得 3 美元试用余额，可直接测试你自己的开发工作流。
+
+当前文档按两种接入方式说明：`,
   },
 ];
 
@@ -501,6 +636,25 @@ async function addContactSections() {
   }
 }
 
+async function updateLlmeasyIndexIntros() {
+  for (const item of llmeasyIndexIntroReplacements) {
+    const filePath = path.join(outputDir, `${item.page}.mdx`);
+    let text = await readFile(filePath, 'utf8');
+
+    if (!text.includes(item.descriptionFrom)) {
+      throw new Error(`Could not update LLMEasy index description: ${item.page}`);
+    }
+
+    if (!text.includes(item.from)) {
+      throw new Error(`Could not update LLMEasy index intro: ${item.page}`);
+    }
+
+    text = text.replace(item.descriptionFrom, item.descriptionTo);
+    text = text.replace(item.from, item.to);
+    await writeFile(filePath, text);
+  }
+}
+
 function replaceOnce(text, from, to, label) {
   if (!text.includes(from)) {
     throw new Error(`Could not update LLMEasy quickstart section: ${label}`);
@@ -679,6 +833,7 @@ await copyFile(llmeasyConfigPath, outputConfigPath);
 await rewriteRegionalBrand();
 await renameRegionalPaths(outputDir);
 await promoteRussianDefaultLanguage();
+await updateLlmeasyIndexIntros();
 await updateLlmeasyQuickstartSetup();
 await generateRootFavicon();
 await addContactSections();
