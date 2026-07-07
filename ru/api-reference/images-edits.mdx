@@ -1,0 +1,139 @@
+---
+title: "Image to image (редактирование изображений)"
+description: "Генерируйте или редактируйте изображения по референсным изображениям через GPT Image 2 и OpenAI-совместимый API BetterToken."
+openapi: "POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+Endpoint image-to-image использует тело запроса `multipart/form-data`. Загрузите одно или несколько референсных изображений и передайте prompt и параметры как поля формы.
+
+<Note>
+  Используйте `{{openai-base-url}}` как `Base URL`. API Key BetterToken передается через `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+<Tip>
+  В Playground справа можно заполнить поля формы, загрузить референсные изображения и отправить запрос напрямую на `{{images-edits-url}}`.
+</Tip>
+
+<Warning>
+  Не используйте обычное JSON-тело для image-to-image. Передавайте текстовые поля и файлы через `multipart/form-data`.
+</Warning>
+
+## Рекомендуемые значения
+
+Передавайте эти поля явно в каждом запросе:
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+Для одного референсного изображения используйте `image`. Для нескольких референсных изображений используйте повторяющиеся поля `image[]`.
+
+## Одно референсное изображение
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Используй это референсное изображение, чтобы создать более аккуратное квадратное главное изображение продукта, сохранив основной стиль.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## Несколько референсных изображений
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Объедини эти референсные изображения в единый промо-постер с согласованным стилем.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Пример на Python
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Используй это референсное изображение, чтобы создать более аккуратное квадратное главное изображение продукта, сохранив основной стиль.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## Рекомендуемые размеры
+
+| `size` | Соотношение | Сценарий |
+| --- | --- | --- |
+| `auto` | Auto | Автоматический выбор размера |
+| `1024x1024` | `1:1` | Квадратные изображения, аватары, обложки, assets |
+| `1536x1024` | `3:2` | Landscape-постеры, баннеры, сцены |
+| `1024x1536` | `2:3` | Portrait-обложки для мобильных и постеры |
+| `1536x1152` | `4:3` | Стандартные landscape-изображения, product images, content graphics |
+| `1152x1536` | `3:4` | Стандартные portrait-изображения, mobile covers, vertical posters |
+| `2048x2048` | `1:1` | High-resolution квадратные изображения |
+| `2048x1152` | `16:9` | High-resolution landscape-изображения |
+| `3840x2160` | `16:9` | 4K landscape-изображения |
+| `2160x3840` | `9:16` | 4K portrait-изображения |
+
+`size` задает ожидаемое соотношение сторон и уровень размера. Фактические пиксели в ответе могут быть сопоставлены или скорректированы сервером. Используйте размеры декодированного изображения, а не принудительную обрезку до запрошенного значения.
+
+## Сохранение изображения
+
+Успешный ответ следует OpenAI-совместимой форме image response:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Прочитайте `data[0].b64_json` и сохраните его как base64 image content. Всегда задавайте `output_format: "png"`, чтобы сохранить декодированное изображение как `.png`.
+
+## Поток ответа
+
+Endpoint синхронный. После отправки `POST /images/edits` держите текущий HTTP-запрос открытым до ответа сервера. При успешной генерации содержимое изображения возвращается в `data[0].b64_json`.
+
+Endpoint не возвращает `task_id`; отдельного status query или endpoint для скачивания результата нет.
+
+## Смежные документы
+
+- [Text to image](/ru/api-reference/images-generations)
+- [GPT Image 2 доступен](/ru/model-updates/gpt-image-2)
