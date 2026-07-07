@@ -1,0 +1,110 @@
+---
+title: "Что делать, если Claude Desktop показывает SSL certificate has expired или долго загружается?"
+sidebarTitle: "SSL error и local routing"
+description: "Исправьте отсутствие ответа и ошибку SSL certificate has expired в Claude Desktop через CC Switch local routing и Needs model mapping."
+---
+
+Если Claude Desktop уже подключен к API, но не возвращает нормальный ответ или показывает такую ошибку:
+
+```text
+API Error: Unable to connect to API: SSL certificate has expired
+```
+
+Это не всегда означает, что API Key неверный, и не всегда означает, что сертификат сервера действительно истек. По отзывам пользователей, Claude Desktop может не подключаться к third-party API Gateway напрямую в proxy networks, restricted networks или средах со строгой проверкой сертификатов.
+
+Используйте CC Switch Claude Desktop local routing и включите **Needs model mapping**. Claude Desktop сначала подключится к local address, а CC Switch перенаправит запрос в `{{brand-name}}`.
+
+<Frame>
+  <img
+    src="/images/claude-desktop-ssl-local-routing/ssl-certificate-expired-error.png"
+    alt="Claude Desktop показывает API Error: Unable to connect to API: SSL certificate has expired."
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+## Когда использовать этот способ
+
+- Claude Desktop подключен к API, но сообщения не возвращают ответ.
+- Страница показывает `SSL certificate has expired`.
+- Chat page начинает отвечать, но остается в loading state.
+- Вы используете proxy network, restricted network, company network или среду с certificate inspection.
+- Тот же API Key работает в других инструментах.
+
+## Решение
+
+<Steps>
+  <Step title="Проверьте активный provider в CC Switch">
+    Откройте CC Switch, убедитесь, что выбран provider `{{brand-name}}`, и включите верхний routing / proxy toggle.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/cc-switch-provider-routing.png"
+        alt="Provider LLMEasy выбран в CC Switch, верхний routing toggle включен."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Включите Needs model mapping">
+    Откройте страницу редактирования provider и включите **Needs model mapping**.
+
+    Этот переключатель позволяет CC Switch сопоставлять три model roles, которые принимает Claude Desktop, с фактическими моделями, доступными в `{{brand-name}}`:
+
+    - `claude-sonnet-*`
+    - `claude-opus-*`
+    - `claude-haiku-*`
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/needs-model-mapping-settings.png"
+        alt="Страница редактирования provider в CC Switch: Needs model mapping включен, видны API Format и Model mapping."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Выберите API Format">
+    В **API Format** выберите:
+
+    ```text
+    Anthropic Messages (Native)
+    ```
+  </Step>
+
+  <Step title="Заполните Model mapping">
+    Заполните **Model mapping**. Используйте актуальные model IDs из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    | Model role | Menu display name | Requested model |
+    | --- | --- | --- |
+    | Sonnet | `claude-sonnet-5` | `claude-sonnet-5` |
+    | Opus | `claude-opus-4-8` | `claude-opus-4-8` |
+    | Haiku | `claude-haiku-4-5` | `claude-haiku-4-5-20251001` |
+
+    Если модель поддерживает context window 1M, включите **Declare 1M**.
+  </Step>
+
+  <Step title="Сохраните и проверьте снова">
+    Нажмите **Save**. Вернитесь в Claude Desktop, снова выберите модель и отправьте тестовое сообщение.
+
+    Если настройка корректная, Claude Desktop вызывает `{{brand-name}}` через CC Switch local route. Обычно это исправляет SSL error или отсутствие ответа.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/claude-desktop-response-after-routing.png"
+        alt="Claude Desktop возвращает ответ после включения CC Switch local routing и model mapping."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Примечания
+
+- Не копируйте model names со старых скриншотов вслепую. Используйте актуальные model IDs из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Храните API Key в provider CC Switch. Не добавляйте его в публичные документы, screenshots или chat logs.
+- Если проблема остается, проверьте верхний routing toggle в CC Switch, активный provider, полный Model mapping и не блокирует ли local firewall адрес `127.0.0.1`.
+
+## Смежные документы
+
+- [Настройка Claude Desktop](/ru/faq/claude-desktop-bettertoken-api)
+- [Как использовать Codex и другие third-party модели в Claude Desktop?](/ru/faq/claude-desktop/third-party-models)
