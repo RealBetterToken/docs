@@ -76,6 +76,7 @@
 - Before changing wording patterns, search both Chinese and English docs for the same concept and keep usage consistent.
 - For behavior changes in docs, update nearby examples, troubleshooting notes, and FAQ entries if needed.
 - Use linear, monochrome sidebar icons for custom product pages. Custom SVG icons should use `currentColor` strokes and avoid filled brand colors so they match the rest of the navigation.
+- Every page listed in the Coding Agent setup navigation group must include a frontmatter `icon`. Configuration-tool pages under Getting started, such as CC Switch, are not part of this requirement.
 - Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-bettertoken-api.mdx`.
 - Store screenshots and other page-specific images under a dedicated folder in `images/<page-slug>/`. Follow the same pattern as `images/quickstart/`.
 - Use `images/temp/` only as a temporary holding area while collecting assets. Before finishing a docs change, move any referenced image into its final page-specific folder and update the MDX path.
