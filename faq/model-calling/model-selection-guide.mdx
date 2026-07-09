@@ -1,0 +1,80 @@
+---
+title: "如何选择合适的 AI 模型？"
+sidebarTitle: "选择合适模型"
+description: "说明如何根据工具协议、Key group、任务类型、质量、速度、上下文长度和成本选择 AI 模型。"
+---
+
+## 简短答案
+
+不要只按模型名称选择。先确认当前工具需要哪种协议和 Key group，再按任务类型、质量、速度、上下文长度和成本选择模型。
+
+如果你使用 BetterToken，Claude Code 优先使用 **Claude 分组**；Codex、Cursor、Cline、OpenCode、OpenClaw 等外部工具优先使用 **GPT 分组**。Model ID 以<a href={"{{model-plaza-url}}"}>模型广场</a>中可复制的名称为准。
+
+## 什么时候需要它
+
+- 你不知道该用 **Claude 分组**还是 **GPT 分组**
+- 你在 Claude Code、Codex、Cursor、Cline 等工具之间切换
+- 你遇到模型可用但成本太高、速度太慢或上下文不够
+- 你要为批量任务选择更便宜的模型
+- 你想把同一个 API gateway 接入多个 AI 编程工具
+
+## 先看工具，再看模型
+
+模型选择的第一步不是比较模型榜单，而是确认客户端需要哪种协议。
+
+| 使用场景 | 推荐 Key group | 常用 Base URL |
+| --- | --- | --- |
+| Claude Code | Claude 分组 | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Claude 分组或按本地 gateway 配置 | 按对应 Gateway 配置 |
+| Codex CLI | GPT 分组 | `{{openai-base-url}}` |
+| Cursor | GPT 分组 | `{{openai-base-url}}` |
+| Cline | GPT 分组 | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | GPT 分组 | `{{openai-base-url}}` |
+
+协议和 Key group 选错时，即使模型本身存在，也可能出现 `model not found`、认证失败或请求格式错误。
+
+## 按任务类型选择
+
+| 任务类型 | 优先考虑 |
+| --- | --- |
+| 复杂代码、架构设计、长任务 | 推理能力、上下文窗口、工具调用稳定性 |
+| 日常问答、轻量生成 | 响应速度、成本 |
+| 批量翻译、分类、摘要 | 单价、吞吐、稳定性 |
+| 代码审查、技术文档 | 代码理解能力、长上下文、输出稳定性 |
+| 探索型任务 | 先用中等成本模型试跑，再切换到更强模型处理关键步骤 |
+
+不要默认把所有任务都交给最贵模型。很多批量任务对创造性和深度推理要求不高，更适合使用速度快、成本低的模型。
+
+## 推荐做法
+
+1. 先确认工具支持 OpenAI-compatible 还是 Anthropic-compatible API。
+2. 根据工具选择 **Claude 分组**或 **GPT 分组**。
+3. 到<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 Model ID。
+4. 用一个小任务测试输出质量、速度和成本。
+5. 查看 dashboard 中的用量记录，再决定是否长期固定该模型。
+6. 对复杂任务保留一个更强模型作为备用，不要只配置一个模型。
+
+## 常见误区
+
+- 只看展示名称，不确认 Model ID。
+- 把 **Claude 分组**的模型填到 GPT / OpenAI-compatible 工具里。
+- 把 **GPT 分组**的模型填到 Claude Code 的 Anthropic-compatible 配置里。
+- 以为最新模型一定适合所有任务。
+- 只比较输出质量，不看上下文窗口、速度和成本。
+- 不做小任务测试，直接把生产流量切到新模型。
+
+## 关于 BetterToken
+
+BetterToken 提供统一的 API Key、余额和用量记录。你可以在同一个 dashboard 中管理模型调用，但不同工具仍然要使用它支持的协议和 Key group。
+
+简单记法：
+
+- Claude Code 看 **Claude 分组**和 `{{anthropic-base-url}}`
+- Codex、Cursor、Cline、OpenCode、OpenClaw 看 **GPT 分组**和 `{{openai-base-url}}`
+
+## Related docs
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Base URL 怎么填？](/faq/model-calling/base-url-config)
+- [为什么大模型不知道自己的版本号？](/faq/model-calling/model-version-identity)
+- [Claude Code token 为什么消耗很多？](/faq/token-cost/claude-code-token-usage)

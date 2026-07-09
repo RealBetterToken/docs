@@ -1,0 +1,108 @@
+---
+title: "Как заполнять Base URL?"
+sidebarTitle: "Настройка Base URL"
+description: "Как сопоставлять Base URL, путь /v1, API Key и Model ID в Claude Code, Codex CLI, Cursor, Cline и других инструментах."
+---
+
+## Короткий ответ
+
+Base URL должен соответствовать protocol, который ожидает инструмент. Claude Code обычно использует корневой Anthropic-compatible адрес. Codex CLI, Cursor, Cline, OpenCode, OpenClaw и другие внешние инструменты обычно используют OpenAI-compatible адрес с `/v1`.
+
+В BetterToken:
+
+| Сценарий | Base URL |
+| --- | --- |
+| Claude Code / Anthropic-compatible | `{{anthropic-base-url}}` |
+| Codex CLI / OpenAI-compatible | `{{openai-base-url}}` |
+| Cursor, Cline, OpenCode, OpenClaw | `{{openai-base-url}}` |
+
+Не угадывайте путь вручную. API Key, Base URL и Model ID должны относиться к одному provider или gateway.
+
+## Почему Base URL отличаются
+
+Разные SDK по-разному добавляют пути к адресу.
+
+| Protocol или тип инструмента | Частое поведение |
+| --- | --- |
+| OpenAI-compatible SDK | Обычно вызывает chat completions, responses и другие ресурсы внутри `/v1` |
+| Anthropic-compatible SDK | Обычно сам добавляет путь messages endpoint, поэтому не нужно повторно добавлять `/v1` |
+| Встроенный provider в инструменте | Может добавлять путь автоматически или требовать полный Base URL |
+
+Одинаковое имя модели не значит, что везде подойдет один Base URL. Нужно сопоставить protocol инструмента, Base URL, API Key, группу ключа и Model ID.
+
+## Быстрая таблица
+
+| Инструмент | Рекомендуемая настройка |
+| --- | --- |
+| Claude Code | `{{anthropic-base-url}}`, API Key из группы Claude |
+| Claude Desktop Gateway | По инструкции Gateway, включая auth scheme |
+| Codex CLI | `{{openai-base-url}}`, API Key из группы GPT |
+| Cursor | `{{openai-base-url}}`, API Key из группы GPT |
+| Cline | `{{openai-base-url}}`, provider OpenAI Compatible |
+| OpenCode / OpenClaw | `{{openai-base-url}}`, API Key из группы GPT |
+
+## Частые ошибки
+
+| Ошибка или симптом | Возможная причина |
+| --- | --- |
+| `404 Not Found` | Путь в Base URL не совпадает с тем, что ожидает SDK |
+| `model not found` | Model ID не относится к текущей группе ключа или provider |
+| `invalid_api_key` | API Key и Base URL взяты из разных сервисов |
+| Авторизация проходит, но модель недоступна | Группа ключа и Model ID не совпадают |
+| Запросы постоянно падают | Anthropic-compatible адрес указан в OpenAI-compatible инструменте или наоборот |
+
+## Рекомендуемый порядок проверки
+
+1. Проверьте, какой API ожидает инструмент: OpenAI-compatible или Anthropic-compatible.
+2. Проверьте, соответствует ли Base URL этому protocol.
+3. Проверьте, что API Key относится к тому же сервису.
+4. Проверьте, что Model ID взят из <a href={"{{model-plaza-url}}"}>model plaza</a> и относится к текущей группе ключа.
+5. Отправьте минимальный тестовый запрос, например `hello`.
+
+## Примеры кода
+
+OpenAI-compatible инструменты обычно используют адрес с `/v1`:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}"
+)
+
+response = client.chat.completions.create(
+    model="your-model-id",
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+Claude / Anthropic-compatible настройки обычно используют корневой адрес:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key="YOUR_API_KEY",
+    base_url="{{anthropic-base-url}}"
+)
+
+message = client.messages.create(
+    model="your-claude-model-id",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+## О BetterToken
+
+BetterToken поддерживает Anthropic-compatible и OpenAI-compatible доступ. Вы можете управлять API Keys, балансом и usage records в одном dashboard, но каждый клиент должен использовать адрес protocol, который он поддерживает.
+
+Короткое правило: Claude Code использует `{{anthropic-base-url}}`; Codex CLI, Cursor, Cline, OpenCode и OpenClaw используют `{{openai-base-url}}`.
+
+## Связанные материалы
+
+- [Чем отличаются OpenAI-compatible API и Anthropic-compatible API?](/ru/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Как выбрать подходящую AI-модель?](/ru/faq/model-calling/model-selection-guide)
+- [Что такое model_provider, base_url и wire_api в Codex CLI?](/ru/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline?](/ru/faq/cline/openai-compatible-api)

@@ -1,0 +1,80 @@
+---
+title: "How do I choose the right AI model?"
+sidebarTitle: "Choose a model"
+description: "Learn how to choose an AI model by protocol, Key group, task type, quality, speed, context length, and cost."
+---
+
+## Short answer
+
+Do not choose only by model name. First confirm which protocol and Key group your tool needs. Then choose by task type, quality, speed, context length, and cost.
+
+If you use BetterToken, Claude Code should usually use the **Claude group**. Codex CLI, Cursor, Cline, OpenCode, OpenClaw, and other external tools should usually use the **GPT group**. Copy the Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## When you need this
+
+- You are not sure whether to use the **Claude group** or the **GPT group**
+- You switch between Claude Code, Codex CLI, Cursor, Cline, or similar tools
+- A model works, but it is too expensive, too slow, or has too little context
+- You want a cheaper model for batch tasks
+- You want to connect the same API gateway to several AI coding tools
+
+## Start with the tool, then choose the model
+
+The first step is not comparing model rankings. The first step is checking which protocol the client expects.
+
+| Use case | Recommended Key group | Common Base URL |
+| --- | --- | --- |
+| Claude Code | Claude group | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Claude group, or the group required by the local gateway | Follow the gateway configuration |
+| Codex CLI | GPT group | `{{openai-base-url}}` |
+| Cursor | GPT group | `{{openai-base-url}}` |
+| Cline | GPT group | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | GPT group | `{{openai-base-url}}` |
+
+If the protocol or Key group is wrong, the model can still exist but the request may fail with `model not found`, authentication errors, or an invalid request format.
+
+## Choose by task type
+
+| Task type | Prioritize |
+| --- | --- |
+| Complex coding, architecture, long-running tasks | Reasoning quality, context window, tool-call stability |
+| Daily Q&A and light generation | Speed and cost |
+| Batch translation, classification, summaries | Unit price, throughput, stability |
+| Code review and technical documentation | Code understanding, long context, stable output |
+| Exploratory tasks | Start with a mid-cost model, then switch to a stronger model for critical steps |
+
+Do not send every task to the most expensive model by default. Many batch tasks do not need deep reasoning or high creativity. They are often better suited to faster and cheaper models.
+
+## Recommended workflow
+
+1. Confirm whether the tool supports an OpenAI-compatible or Anthropic-compatible API.
+2. Choose the **Claude group** or **GPT group** based on the tool.
+3. Copy the current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. Test quality, speed, and cost with a small task.
+5. Check usage in the dashboard before using that model long term.
+6. Keep a stronger backup model for complex tasks instead of configuring only one model.
+
+## Common mistakes
+
+- Looking only at the display name and not confirming the Model ID.
+- Using a **Claude group** model in a GPT / OpenAI-compatible tool.
+- Using a **GPT group** model in an Anthropic-compatible Claude Code setup.
+- Assuming the newest model is always best for every task.
+- Comparing only output quality while ignoring context length, speed, and cost.
+- Moving production traffic to a new model without a small test first.
+
+## About BetterToken
+
+BetterToken gives you one place to manage API Keys, balance, and usage records. You can manage model calls from the same dashboard, but each tool still needs the protocol and Key group it supports.
+
+Quick rule:
+
+- Claude Code uses the **Claude group** and `{{anthropic-base-url}}`
+- Codex CLI, Cursor, Cline, OpenCode, and OpenClaw use the **GPT group** and `{{openai-base-url}}`
+
+## Related docs
+
+- [What is the difference between OpenAI-compatible API and Anthropic-compatible API?](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [How should I fill in the Base URL?](/en/faq/model-calling/base-url-config)
+- [Why does a model not know its own version?](/en/faq/model-calling/model-version-identity)
+- [Why does Claude Code use so many tokens?](/en/faq/token-cost/claude-code-token-usage)

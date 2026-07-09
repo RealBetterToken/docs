@@ -1,0 +1,76 @@
+---
+title: "Do Russian users need a VPN to use the API?"
+sidebarTitle: "Direct access in Russia"
+description: "Learn how Russian users can access the regional site and API directly, when a VPN is not needed, and how to troubleshoot network issues."
+---
+
+## Short answer
+
+The Russian regional site is built for direct access from Russia. In normal use, you can access the website and API endpoints directly without a VPN.
+
+If you use Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw, or another external tool from Russia, the important part is entering the correct Base URL, API Key, and Model ID. You usually do not need an extra VPN layer.
+
+## Recommended addresses
+
+| Scenario | Recommended address |
+| --- | --- |
+| Website and console | `{{anthropic-base-url}}` |
+| Documentation | `{{site-url}}` |
+| Claude Code / Anthropic-compatible | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline, and other OpenAI-compatible tools | `{{openai-base-url}}` |
+
+The Russian regional site uses the LLMEasy domain. Use LLMEasy links for the Base URL, registration page, console, and model plaza.
+
+## When you do not need a VPN
+
+- Accessing the LLMEasy website and console
+- Creating or managing API Keys
+- Configuring an Anthropic-compatible endpoint in Claude Code
+- Configuring an OpenAI-compatible endpoint in Codex CLI, Cursor, Cline, OpenCode, or OpenClaw
+- Viewing docs, model plaza, and usage records
+
+A VPN can send traffic through an unstable route. This may increase latency, cause TLS verification problems, or trigger risk controls. Unless your company network has special restrictions, do not use a VPN as the default setup.
+
+## If you cannot access the service, check these first
+
+1. Confirm the domain: do not mix up the main site and the docs site.
+2. Use HTTPS: the address should start with `https://`.
+3. Check the system time on your device. Incorrect time can break TLS certificate verification.
+4. Test another network, such as switching from office Wi-Fi to a mobile hotspot.
+5. Check whether a local firewall, proxy tool, or antivirus product is blocking the request.
+6. In the tool configuration, make sure the Base URL does not include an extra path. For example, do not put `/v1` in a Claude Code Anthropic-compatible setup.
+
+## Simple test commands
+
+You can first test whether the site is reachable:
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+To test the OpenAI-compatible endpoint:
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` checks the connection and response headers only. It does not verify whether your API Key works. To test the API Key, send a real model request or use the test function inside your tool.
+
+## Common mistakes
+
+- Assuming “no VPN required” means every network environment will always work.
+- Setting the Claude Code Base URL to `{{openai-base-url}}`.
+- Setting the Codex CLI, Cursor, or Cline Base URL to the root address without `/v1`.
+- Switching repeatedly between VPN, proxy, and local gateway, making the actual request route unclear.
+- Testing only the docs site instead of the API Base URL.
+
+## About BetterToken
+
+The Russian regional service uses the LLMEasy domain. Russian users should use the regional registration links, console, and API Base URLs to reduce uncertainty around payment, access, and network routing.
+
+## Related docs
+
+- [How should I fill in the Base URL?](/en/faq/model-calling/base-url-config)
+- [How do I choose the right AI model?](/en/faq/model-calling/model-selection-guide)
+- [What is the difference between OpenAI-compatible API and Anthropic-compatible API?](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
