@@ -17,7 +17,7 @@ const errors = [];
 const warnings = [];
 const sourceExpectedVariables = {
   'brand-name': 'BetterToken',
-  'codex-provider-id': 'bettertoken',
+  'codex-provider-id': 'custom',
   'codex-provider-name': 'BetterToken',
   'site-url': 'https://docs.bettertoken.ai',
   'anthropic-base-url': 'https://www.bettertoken.ai',
@@ -43,7 +43,7 @@ const regionalExpectedVariables = Object.fromEntries(
   ]),
 );
 regionalExpectedVariables['brand-name'] = 'LLMEasy';
-regionalExpectedVariables['codex-provider-id'] = 'llmeasy';
+regionalExpectedVariables['codex-provider-id'] = 'custom';
 regionalExpectedVariables['codex-provider-name'] = 'LLM Easy';
 
 function readJson(file) {
