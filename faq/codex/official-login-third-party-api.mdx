@@ -1,174 +1,111 @@
 ---
-title: "如何在使用第三方 API 的同时保留 Codex 登录态？"
-sidebarTitle: "Codex 保留登录态"
-description: "在 Codex App 中保留官方登录态，同时让模型请求走 BetterToken 等第三方 API，以继续使用插件、Remote Control 和官方会话同步。"
+title: "使用第三方 API 时，如何保留 Codex 官方登录态和会话历史？"
+sidebarTitle: "保留登录态和会话"
+description: "通过 CC Switch 使用第三方 API 或自定义模型，同时保留 Codex 官方登录态、插件、Remote Control 和统一会话历史。"
 ---
 
-如果你只想在 Codex CLI 或 Codex App 中使用第三方 API，按 [Codex 接入文档](/ai-tools/codex) 配置即可。
+使用第三方 API 或自定义模型时，你仍可以保留 Codex 的官方登录态，并继续使用官方插件、Remote Control 等功能。通过 CC Switch 打开两个 Codex 应用增强开关即可。
 
-如果你还需要继续使用 **插件**、**Remote Control**、手机端联动或官方会话同步，就需要保留 Codex 的官方登录态，同时把模型请求路由到第三方 API。
+## 开始前准备
 
-核心思路是把两件事分开：
-
-| 层级 | 负责内容 | 推荐来源 |
-|------|----------|----------|
-| 认证层 | Codex App 登录态、插件、Remote Control、会话同步 | 官方 ChatGPT / Codex 登录 |
-| 推理层 | 模型请求、模型列表、API Key 消耗 | BetterToken 等第三方 API |
+1. 使用 CC Switch `v3.16.1` 或更新版本。
+2. 在 Codex 中使用官方 ChatGPT / Codex 账号完成一次登录。
+3. 按照 [CC Switch 接入文档中的 Codex CLI 步骤](/ai-tools/cc-switch#codex-cli)，在 CC Switch 中添加并启用你的第三方 API provider 或自定义模型。
 
 <Warning>
-  不要把 `auth.json`、`refresh_token`、`id_token`、`experimental_bearer_token` 或 API Key 发给任何人，也不要贴到公开 Issue、聊天记录或日志里。
+  不要在截图、聊天记录、Issue 或日志中分享 API Key、登录 token 或其他认证信息。
 </Warning>
 
-## 配置方式
+## 打开两个 Codex 应用增强开关
 
-<Tabs>
-  <Tab title="通过 CC Switch 配置">
-    这是推荐方式。CC Switch 已经把“保留官方登录态”和“第三方 API provider”做成图形化开关，适合大多数用户。
+在 CC Switch 中进入 **设置 → 通用 → Codex App Enhancements**，打开以下两个开关：
 
-    <Steps>
-      <Step title="先完成 Codex API provider 配置">
-        按照 [CC Switch 接入文档中的 Codex CLI 步骤](/ai-tools/cc-switch#codex-cli)，安装 CC Switch，并新增 Codex API provider。
+1. **切换第三方时保留官方登录**
+2. **统一 Codex 会话历史**
 
-        Provider 的基础字段按你的 BetterToken 配置填写：
+<Frame>
+  <img
+    src="/images/codex-official-login-state/cc-switch-codex-app-enhancements.png"
+    alt="CC Switch 的 Codex App Enhancements 设置，其中已打开保留官方登录和统一 Codex 会话历史。"
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
 
-        | 字段 | 填写内容 |
-        |------|----------|
-        | **Provider Name** | `BetterToken` 或你习惯的名称 |
-        | **Base URL** | `{{openai-base-url}}` |
-        | **API Key** | 你的 BetterToken API Key |
-        | **API 格式** | `OpenAI Responses API` |
+### 保留官方登录、插件和 Remote Control
 
-        保存后，将该 provider 设为 **In Use**。
+**切换第三方时保留官方登录** 会在你切换到第三方 API provider 或自定义模型后，继续保留 Codex 的官方登录态。
 
-        <Frame>
-          <img
-            src="/images/codex-official-login-state/cc-switch-provider-list.png"
-            alt="CC Switch 中已经添加第三方 Codex API provider，并在左上角标出设置入口。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
+这样，模型请求会按 CC Switch 当前选中的 provider 发送，而 Codex App 仍可使用依赖官方登录态的功能，例如官方插件和 Remote Control。
 
-      <Step title="打开 CC Switch 设置">
-        回到 CC Switch 主界面，点击左上角的 **设置** 图标。
-      </Step>
+详细操作请参考 CC Switch 官方指南：[使用第三方 API 时保留 Codex 远程操作和官方插件](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-official-auth-preservation-guide-zh.md)。
 
-      <Step title="开启 Codex App Enhancements">
-        在 **General** 页签中找到 **Codex App Enhancements**，打开 **Keep official login when switching third-party providers**。
+### 统一查看官方和第三方会话
 
-        这个开关会在切换第三方 provider 时保留 Codex App 的官方登录态。开启后，你可以继续使用 Codex App 的官方插件、Remote Control 和手机端联动，同时模型请求走当前选中的第三方 API provider。
+**统一 Codex 会话历史** 会让官方订阅和第三方 provider 创建的会话显示在同一份历史列表中。
 
-        <Frame>
-          <img
-            src="/images/codex-official-login-state/cc-switch-enhancements-toggle.png"
-            alt="CC Switch 设置页中，Codex App Enhancements 开关已经打开。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
+开启时，你可以选择是否将已有的官方会话一并迁入统一列表。CC Switch 会在迁移前自动备份原有会话。
 
-      <Step title="重启 Codex App 并验证">
-        完全退出并重新打开 Codex App。确认：
+详细操作请参考 CC Switch 官方指南：[统一 Codex 会话历史](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-unified-session-history-guide-zh.md)。
 
-        1. Codex App 仍显示官方账号登录态
-        2. 插件、Remote Control 或手机端联动仍可使用
-        3. 当前 provider 显示为你在 CC Switch 中选中的第三方 API provider
-        4. 发送一条测试消息后，模型请求可以正常返回
-      </Step>
-    </Steps>
-  </Tab>
+## 重启 Codex
 
-  <Tab title="手动配置">
-    手动配置适合熟悉 Codex 本地文件的高级用户。普通用户优先使用 CC Switch。
+打开两个开关后，完全退出并重新启动 Codex。重启后，Codex 才会重新读取 CC Switch 的当前配置，并加载统一后的会话历史。
 
-    <Steps>
-      <Step title="保留官方 Codex 登录态">
-        先在 Codex App 或 Codex CLI 中登录官方 ChatGPT / Codex 账号，并确认 Remote Control 或插件功能可以正常使用。
+## 确认配置已生效
 
-        此时 `~/.codex/auth.json` 应保留官方登录态。它通常是 `auth_mode = chatgpt` 对应的 token 结构，而不是只写 `OPENAI_API_KEY`。
+重启后，确认以下内容：
 
-        `auth.json` 的结构类似下面这样。不要复制示例值，保留你本机由官方登录生成的真实内容：
+1. Codex 仍显示你的官方账号登录态。
+2. 官方插件或 Remote Control 可以正常使用。
+3. CC Switch 中已选中你的第三方 API provider 或自定义模型。
+4. 发送一条测试消息后，模型请求可以正常返回。
 
-        ```json
-        {
-          "auth_mode": "chatgpt",
-          "tokens": {
-            "id_token": "OFFICIAL_ID_TOKEN",
-            "refresh_token": "OFFICIAL_REFRESH_TOKEN",
-            "account_id": "OFFICIAL_ACCOUNT_ID"
-          },
-          "last_refresh": "2026-05-10T14:42:19+08:00"
-        }
-        ```
+<Note>
+  统一会话历史会让你在同一处查看会话，但不保证旧会话能跨 provider 继续对话。需要续聊时，优先使用创建该会话时的原 provider；跨 provider 时建议新建会话。
+</Note>
 
-        <Warning>
-          这里的 token 代表你的官方账号登录态。只在本机保存，不要同步到仓库或发给他人。
-        </Warning>
-      </Step>
+## 手动配置
 
-      <Step title="编辑 config.toml">
-        打开 `~/.codex/config.toml`，添加或合并下面的 provider 配置。
+手动配置适合熟悉 Codex 本地文件的高级用户。大多数用户优先使用 CC Switch。
 
-        ```toml
-        model_provider = "{{codex-provider-id}}"
-        model = "gpt-5.5"
-        review_model = "gpt-5.4"
-        model_reasoning_effort = "high"
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
-        windows_wsl_setup_acknowledged = true
+<Steps>
+  <Step title="保留官方 Codex 登录态">
+    先在 Codex App 或 Codex CLI 中登录官方 ChatGPT / Codex 账号，并确认 Remote Control 或插件功能可以正常使用。
 
-        [model_providers]
-        [model_providers.{{codex-provider-id}}]
-        name = "{{codex-provider-name}}"
-        base_url = "{{openai-base-url}}"
-        wire_api = "responses"
-        requires_openai_auth = true
-        experimental_bearer_token = "YOUR_API_KEY"
-        request_max_retries = 4
-        stream_max_retries = 8
-        stream_idle_timeout_ms = 300000
-        supports_websockets = false
-        ```
+    `~/.codex/auth.json` 应保留本机官方登录生成的内容。不要将其中的 token 复制、同步或发送给他人。
+  </Step>
 
-        将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。
+  <Step title="编辑 config.toml">
+    打开 `~/.codex/config.toml`，添加或合并下面的 provider 配置：
 
-        这里和普通 API Key 模式不同：
+    ```toml
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
 
-        | 配置 | 作用 |
-        |------|------|
-        | `requires_openai_auth = true` | 让 Codex 保留官方登录态，用于插件、Remote Control 和会话同步 |
-        | `experimental_bearer_token = "YOUR_API_KEY"` | 让实际模型请求使用第三方 API Key |
-        | `base_url = "{{openai-base-url}}"` | 让模型请求发送到 BetterToken 的 OpenAI-compatible / Responses API 入口 |
-      </Step>
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
+    experimental_bearer_token = "YOUR_API_KEY"
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
 
-      <Step title="重启并验证">
-        完全退出 Codex App，再重新打开。验证顺序：
+    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。`requires_openai_auth = true` 用于保留官方登录态，`experimental_bearer_token` 用于发送第三方 API 请求。
+  </Step>
 
-        1. 官方登录态仍然存在
-        2. Remote Control 或插件可以打开
-        3. 发送一条测试消息，确认请求走第三方 API provider
-        4. 如果模型不可用，检查 `model` 是否来自 <a href={"{{model-plaza-url}}"}>模型广场</a> 的 **GPT 分组**
-      </Step>
-    </Steps>
-  </Tab>
-</Tabs>
+  <Step title="重启并验证">
+    完全退出并重新启动 Codex。确认官方登录态仍然存在，Remote Control 或插件可以打开，并发送一条测试消息。
 
-## 常见问题
-
-### 这和普通 Codex API 配置有什么区别？
-
-普通配置只关心模型请求能否走第三方 API。这个方案额外保留官方登录态，所以 Codex App 的官方功能仍能工作。
-
-如果你不需要插件、Remote Control 或手机端联动，使用 [Codex 接入文档](/ai-tools/codex) 中的普通配置更简单。
-
-### 为什么不能把 API Key 写到 auth.json？
-
-在这个模式下，`auth.json` 用来保存官方登录态。第三方 API Key 应放在 `config.toml` 的 `experimental_bearer_token` 中。
-
-如果把 `auth.json` 改成普通 `OPENAI_API_KEY` 结构，Codex App 可能无法继续识别官方登录态，插件和 Remote Control 也可能失效。
-
-### 参考来源
-
-- [CC Switch issue #2850](https://github.com/farion1231/cc-switch/issues/2850)
-- [社区手动配置示例](https://linux.do/t/topic/2184352)
+    如果模型不可用，确认 `model` 来自<a href={"{{model-plaza-url}}"}>模型广场</a>的 **Codex 分组**。
+  </Step>
+</Steps>
