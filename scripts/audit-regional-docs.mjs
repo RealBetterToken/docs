@@ -11,6 +11,7 @@ const regionalConfig = readJson('docs.llmeasy.json');
 const generatedConfigPath = path.join(rootDir, '.mintlify-llmeasy', 'docs.json');
 const metricaSpaTemplatePath = path.join(rootDir, 'scripts', 'llmeasy-metrica-spa.js.template');
 const generatedMetricaSpaPath = path.join(rootDir, '.mintlify-llmeasy', 'llmeasy-metrica-spa.js');
+const generatedSitemapPath = path.join(rootDir, '.mintlify-llmeasy', 'sitemap.xml');
 const generatedConfig = fs.existsSync(generatedConfigPath)
   ? JSON.parse(fs.readFileSync(generatedConfigPath, 'utf8'))
   : undefined;
@@ -486,6 +487,20 @@ function checkGeneratedRegionalOutput() {
     ]) {
       if (!generatedMetricaSpa.includes(expectedText)) {
         errors.push(`.mintlify-llmeasy/llmeasy-metrica-spa.js: missing SPA tracking behavior ${expectedText}`);
+      }
+    }
+  }
+
+  if (!fs.existsSync(generatedSitemapPath)) {
+    errors.push('.mintlify-llmeasy/sitemap.xml: missing generated hreflang sitemap');
+  } else {
+    const sitemap = fs.readFileSync(generatedSitemapPath, 'utf8');
+    if (!sitemap.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"')) {
+      errors.push('.mintlify-llmeasy/sitemap.xml: missing xhtml namespace');
+    }
+    for (const hreflang of ['ru', 'en', 'zh-CN', 'x-default']) {
+      if (!sitemap.includes(`hreflang="${hreflang}"`)) {
+        errors.push(`.mintlify-llmeasy/sitemap.xml: missing hreflang ${hreflang}`);
       }
     }
   }

@@ -77,6 +77,7 @@ function assertRedirects(config, prefixes, label) {
       assert(redirect, `${label}: missing redirect ${source}`);
       assert.equal(redirect.destination, destination, `${label}: wrong destination for ${source}`);
       assert.equal(redirect.permanent, true, `${label}: ${source} must be permanent`);
+      assert(!redirectMap.has(destination), `${label}: ${source} must not create a redirect chain`);
     }
   }
 

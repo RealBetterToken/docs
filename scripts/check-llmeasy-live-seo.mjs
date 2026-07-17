@@ -1,0 +1,123 @@
+#!/usr/bin/env node
+
+import assert from 'node:assert/strict';
+
+const siteUrl = 'https://docs.llmeasy.ru';
+const legacyRoutes = [
+  ['faq/claude-desktop-cowork-code-gateway', 'faq/claude-desktop/cowork-code-gateway'],
+  ['faq/claude-desktop-third-party-models', 'faq/claude-desktop/third-party-models'],
+  ['faq/codex-official-login-third-party-api', 'faq/codex/official-login-third-party-api'],
+];
+const localeRoutes = [
+  { oldPrefix: '', newPrefix: '' },
+  { oldPrefix: 'en/', newPrefix: 'en/' },
+  { oldPrefix: 'zh/', newPrefix: 'zh/' },
+  { oldPrefix: 'ru/', newPrefix: '' },
+];
+
+function absoluteUrl(pathname) {
+  return new URL(pathname, siteUrl).href.replace(/\/$/, '');
+}
+
+function canonicalFromHtml(html) {
+  return html.match(/<link[^>]+rel="canonical"[^>]+href="([^"]+)"/i)?.[1];
+}
+
+async function fetchWithoutRedirect(url) {
+  return fetch(url, {
+    redirect: 'manual',
+    headers: { 'user-agent': 'LLMEasy SEO deployment check' },
+  });
+}
+
+async function fetchLocalizedSitemap() {
+  const attempts = Number(process.env.LLMEASY_SEO_CHECK_ATTEMPTS ?? 5);
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const response = await fetchWithoutRedirect(`${siteUrl}/sitemap.xml`);
+    const xml = await response.text();
+    if (response.status === 200 && xml.includes('hreflang="zh-CN"')) return xml;
+    if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 15_000));
+  }
+
+  throw new Error(`Live sitemap did not expose hreflang after ${attempts} attempts`);
+}
+
+const sitemap = await fetchLocalizedSitemap();
+const sitemapBlocks = new Map();
+
+for (const match of sitemap.matchAll(/<url>\s*([\s\S]*?)\s*<\/url>/g)) {
+  const block = match[1];
+  const loc = block.match(/<loc>([^<]+)<\/loc>/)?.[1];
+  if (loc) sitemapBlocks.set(loc.replace(/\/$/, ''), block);
+}
+
+for (const [legacyRoute, destinationRoute] of legacyRoutes) {
+  for (const { oldPrefix, newPrefix } of localeRoutes) {
+    const oldUrl = absoluteUrl(`/${oldPrefix}${legacyRoute}`);
+    const destinationUrl = absoluteUrl(`/${newPrefix}${destinationRoute}`);
+    const redirectResponse = await fetchWithoutRedirect(oldUrl);
+
+    assert(
+      redirectResponse.status === 301 || redirectResponse.status === 308,
+      `${oldUrl} must return a permanent redirect, received ${redirectResponse.status}`,
+    );
+    assert.equal(
+      new URL(redirectResponse.headers.get('location'), oldUrl).href.replace(/\/$/, ''),
+      destinationUrl,
+      `${oldUrl} must redirect directly to its canonical destination`,
+    );
+
+    const destinationResponse = await fetchWithoutRedirect(destinationUrl);
+    assert.equal(destinationResponse.status, 200, `${destinationUrl} must return 200 after one redirect`);
+    assert.equal(destinationResponse.headers.get('location'), null, `${destinationUrl} must not redirect again`);
+
+    const destinationHtml = await destinationResponse.text();
+    assert.equal(canonicalFromHtml(destinationHtml), destinationUrl, `${destinationUrl} must be self-canonical`);
+    assert(sitemapBlocks.has(destinationUrl), `${destinationUrl} must appear in the sitemap`);
+    assert(!sitemap.includes(oldUrl), `${oldUrl} must not appear in the sitemap`);
+  }
+}
+
+const expectedHreflangs = ['ru', 'en', 'zh-CN', 'x-default'];
+for (const [url, block] of sitemapBlocks) {
+  const alternates = new Map(
+    [...block.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)].map((match) => [match[1], match[2]]),
+  );
+  assert.deepEqual([...alternates.keys()], expectedHreflangs, `${url} must declare all hreflang variants`);
+  assert.equal(alternates.get('x-default'), alternates.get('ru'), `${url} x-default must point to Russian`);
+
+  for (const alternateUrl of new Set(alternates.values())) {
+    const alternateBlock = sitemapBlocks.get(alternateUrl);
+    assert(alternateBlock, `${url} references missing alternate ${alternateUrl}`);
+    for (const [language, href] of alternates) {
+      assert(
+        alternateBlock.includes(`hreflang="${language}" href="${href}"`),
+        `${alternateUrl} must reciprocally reference ${language} ${href}`,
+      );
+    }
+  }
+}
+
+const langChecks = [
+  ['/ai-tools/zed', 'ru'],
+  ['/en/ai-tools/zed', 'en'],
+  ['/zh/ai-tools/zed', 'zh-CN'],
+];
+const langLimitations = [];
+
+for (const [pathname, expectedLang] of langChecks) {
+  const response = await fetchWithoutRedirect(`${siteUrl}${pathname}`);
+  const html = await response.text();
+  const actualLang = html.match(/<html[^>]+lang="([^"]+)"/i)?.[1];
+  if (actualLang !== expectedLang) {
+    langLimitations.push(`${pathname}: expected ${expectedLang}, received ${actualLang ?? 'none'}`);
+  }
+}
+
+if (langLimitations.length) {
+  console.warn('Mintlify platform limitation: server-rendered html lang is not route-aware.');
+  for (const limitation of langLimitations) console.warn(`- ${limitation}`);
+}
+
+console.log(`Live LLMEasy SEO check passed (${sitemapBlocks.size} sitemap URLs).`);

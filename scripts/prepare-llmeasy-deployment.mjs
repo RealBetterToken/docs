@@ -3,6 +3,7 @@
 import { copyFile, lstat, mkdir, readdir, readFile, readlink, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { generateLlmeasySitemap } from './generate-llmeasy-sitemap.mjs';
 import { indexNowKey, indexNowKeyFileName } from './indexnow-config.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -842,6 +843,10 @@ await promoteRussianDefaultLanguage();
 await updateLlmeasyIndexIntros();
 await updateLlmeasyQuickstartSetup();
 await generateRootFavicon();
+await generateLlmeasySitemap({
+  configPath: outputConfigPath,
+  outputPath: path.join(outputDir, 'sitemap.xml'),
+});
 await addContactSections();
 await generateMetricaSpaScript();
 await generateLlmsFull();

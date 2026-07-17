@@ -18,7 +18,10 @@ on:
       - "snippets/**"
       - "scripts/audit-regional-docs.mjs"
       - "scripts/check-docs-seo.mjs"
+      - "scripts/check-llmeasy-live-seo.mjs"
       - "scripts/check-llmeasy-metrica-spa.mjs"
+      - "scripts/check-llmeasy-sitemap.mjs"
+      - "scripts/generate-llmeasy-sitemap.mjs"
       - "scripts/indexnow-config.mjs"
       - "scripts/llmeasy-metrica-spa.js.template"
       - "scripts/prepare-llmeasy-deployment.mjs"
@@ -57,7 +60,9 @@ jobs:
         run: node scripts/check-llmeasy-metrica-spa.mjs
 
       - name: Check localized SEO routes
-        run: node scripts/check-docs-seo.mjs
+        run: |
+          node scripts/check-docs-seo.mjs
+          node scripts/check-llmeasy-sitemap.mjs
 
       - name: Audit LLMEasy docs
         run: node scripts/audit-regional-docs.mjs
