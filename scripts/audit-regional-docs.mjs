@@ -9,6 +9,8 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const sourceConfig = readJson('docs.json');
 const regionalConfig = readJson('docs.llmeasy.json');
 const generatedConfigPath = path.join(rootDir, '.mintlify-llmeasy', 'docs.json');
+const metricaSpaTemplatePath = path.join(rootDir, 'scripts', 'llmeasy-metrica-spa.js.template');
+const generatedMetricaSpaPath = path.join(rootDir, '.mintlify-llmeasy', 'llmeasy-metrica-spa.js');
 const generatedConfig = fs.existsSync(generatedConfigPath)
   ? JSON.parse(fs.readFileSync(generatedConfigPath, 'utf8'))
   : undefined;
@@ -462,6 +464,30 @@ function checkGeneratedRegionalOutput() {
     errors.push(`.mintlify-llmeasy/${indexNowKeyFileName}: missing generated IndexNow key file`);
   } else if (fs.readFileSync(indexNowKeyPath, 'utf8').trim() !== indexNowKey) {
     errors.push(`.mintlify-llmeasy/${indexNowKeyFileName}: IndexNow key file content does not match scripts/indexnow-config.mjs`);
+  }
+
+  if (!fs.existsSync(generatedMetricaSpaPath)) {
+    errors.push('.mintlify-llmeasy/llmeasy-metrica-spa.js: missing generated Yandex Metrica SPA script');
+  } else {
+    const sourceMetricaSpa = fs.readFileSync(metricaSpaTemplatePath, 'utf8');
+    const generatedMetricaSpa = fs.readFileSync(generatedMetricaSpaPath, 'utf8');
+
+    if (generatedMetricaSpa !== sourceMetricaSpa) {
+      errors.push('.mintlify-llmeasy/llmeasy-metrica-spa.js: generated script differs from its source template');
+    }
+
+    for (const expectedText of [
+      '110565477',
+      "'hit'",
+      'window.location.href',
+      'title: document.title',
+      "wrapHistoryMethod('pushState')",
+      "window.addEventListener('popstate'",
+    ]) {
+      if (!generatedMetricaSpa.includes(expectedText)) {
+        errors.push(`.mintlify-llmeasy/llmeasy-metrica-spa.js: missing SPA tracking behavior ${expectedText}`);
+      }
+    }
   }
 
   for (const filePath of textFiles) {

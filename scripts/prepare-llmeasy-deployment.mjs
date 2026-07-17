@@ -9,6 +9,8 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const outputDir = path.resolve(rootDir, process.argv[2] ?? '.mintlify-llmeasy');
 const llmeasyConfigPath = path.join(rootDir, 'docs.llmeasy.json');
 const outputConfigPath = path.join(outputDir, 'docs.json');
+const metricaSpaTemplatePath = path.join(rootDir, 'scripts', 'llmeasy-metrica-spa.js.template');
+const metricaSpaOutputPath = path.join(outputDir, 'llmeasy-metrica-spa.js');
 const textExtensions = new Set(['.md', '.mdx', '.json', '.yml', '.yaml']);
 const skippedTopLevelFiles = new Set([
   '.gitignore',
@@ -623,6 +625,10 @@ async function generateIndexNowKeyFile() {
   await writeFile(path.join(outputDir, indexNowKeyFileName), `${indexNowKey}\n`);
 }
 
+async function generateMetricaSpaScript() {
+  await copyFile(metricaSpaTemplatePath, metricaSpaOutputPath);
+}
+
 async function addContactSections() {
   for (const section of llmeasyContactSections) {
     const filePath = path.join(outputDir, `${section.page}.mdx`);
@@ -837,6 +843,7 @@ await updateLlmeasyIndexIntros();
 await updateLlmeasyQuickstartSetup();
 await generateRootFavicon();
 await addContactSections();
+await generateMetricaSpaScript();
 await generateLlmsFull();
 await generateIndexNowKeyFile();
 
