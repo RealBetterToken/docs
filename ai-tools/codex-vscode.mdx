@@ -1,14 +1,16 @@
 ---
-title: "VS Code Codex 插件自定义模型接入 BetterToken 指南"
+title: "VS Code Codex 插件如何配置自定义 Base URL 和 API Key？"
 sidebarTitle: "VS Code Codex 插件"
-description: "在 VS Code 的 Codex 插件中使用自定义 Base URL 和 API Key。"
+description: "在 VS Code Codex 插件中打开共享的 config.toml，配置 BetterToken Base URL、API Key 和 GPT 分组模型，并排查插件未读取配置的问题。"
 icon: "/icons/codex-vscode.svg"
 ---
 
-VS Code 中的 Codex 插件本身不需要单独填写一套 `Base URL` 和 API Key。它会读取本机 Codex 配置，因此你需要在 Codex 的 `config.toml` 中配置 BetterToken provider。
+## 直接答案
+
+VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Codex CLI 共享配置层，因此你需要通过插件右上角的齿轮打开 **Codex Settings → Open config.toml**，再在用户级配置中添加 BetterToken provider。配置完成后执行 **Developer: Reload Window**，让插件读取新地址、密钥和模型。
 
 <Info>
-  如果你在 VS Code 设置里没有看到 `Base URL` 或 API Key 输入框，这是正常的。VS Code Codex 插件的模型请求配置应通过 Codex 本地配置完成。
+  如果你在 VS Code 设置里没有看到 `Base URL` 或 API Key 输入框，这是正常的。不要把自定义 endpoint 填到普通 VS Code 网络代理设置中。
 </Info>
 
 ## 前置条件
@@ -50,7 +52,7 @@ VS Code 中的 Codex 插件本身不需要单独填写一套 `Base URL` 和 API 
   <Tab title="手动配置">
     <Steps>
       <Step title="找到 config.toml">
-        Codex 的配置文件通常位于：
+        在 Codex 插件右上角点击齿轮，选择 **Codex Settings → Open config.toml**。也可以直接打开：
 
         | 系统 | 配置文件 |
         | --- | --- |
@@ -58,7 +60,7 @@ VS Code 中的 Codex 插件本身不需要单独填写一套 `Base URL` 和 API 
         | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
         | Windows + WSL | WSL 内的 `~/.codex/config.toml` |
 
-        如果文件不存在，可以手动新建。
+        Codex CLI 和 IDE 插件会读取同一套配置。Windows 使用 WSL 打开工作区时，应修改 WSL 内的文件，而不是 Windows 用户目录中的另一份配置。
       </Step>
 
       <Step title="写入 BetterToken provider">
@@ -129,20 +131,26 @@ VS Code Codex 插件依赖 Codex 的应用侧能力，例如插件界面、会�
 | `experimental_bearer_token = "YOUR_API_KEY"` | 使用 BetterToken API Key 发起模型请求 |
 | `base_url = "{{openai-base-url}}"` | 将模型请求发送到 BetterToken 的 OpenAI-compatible / Responses API 入口 |
 
-## 验证配置
+<Note>
+  Codex 官方配置参考更推荐普通自定义 provider 通过 `env_key` 读取 API Key。本页使用 `experimental_bearer_token`，是因为目标场景还需要保留 Codex 官方登录态。如果你只使用 Codex CLI，不需要插件、Remote Control 或官方登录态，请使用 [config.toml 普通自定义 provider 配置](/faq/codex/config-toml)。
+</Note>
+
+## 验证插件读取的是哪份配置
 
 完成配置后，在 VS Code 中打开 Codex 插件，发送一条简单测试消息。
 
-如果能正常回复，说明配置已生效。
+如果能正常回复，说明配置已生效。还可以从插件齿轮再次打开 `config.toml`，确认它指向你刚才修改的文件。
 
-如果请求失败，按顺序检查：
+## 常见错误与解决方法
 
-1. `base_url` 是否为 `{{openai-base-url}}`
-2. `wire_api` 是否为 `responses`
-3. `experimental_bearer_token` 是否已替换为你的真实 API Key
-4. `model` 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>的 **GPT 分组**
-5. 是否存在旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量覆盖了配置
-6. VS Code 是否已重启或 Reload Window
+| 现象 | 原因 | 解决方法 |
+| --- | --- | --- |
+| Codex CLI 正常，VS Code 插件失败 | 插件运行在另一环境或仍使用旧窗口 | 从插件齿轮打开实际配置；WSL 项目修改 WSL 内文件；执行 **Developer: Reload Window** |
+| 插件仍要求官方登录 | Codex IDE 扩展需要应用侧登录 | 先完成官方登录，再保留 `requires_openai_auth = true` 和第三方 bearer token |
+| `401` 或 `403` | API Key 错误或 `experimental_bearer_token` 未替换 | 重新复制 Key，不要修改 `auth.json` 中的官方登录内容 |
+| `404` | Base URL 缺少 `/v1` | 使用 `{{openai-base-url}}` |
+| Model not found | 模型 ID 不属于 GPT 分组 | 从<a href={"{{model-plaza-url}}"}>模型广场</a>重新复制当前可用 ID |
+| TOML 解析失败 | 同一字段或表重复声明 | 合并已有配置，只保留一个 `[model_providers.{{codex-provider-id}}]` |
 
 ## 相关文档
 
@@ -150,3 +158,9 @@ VS Code Codex 插件依赖 Codex 的应用侧能力，例如插件界面、会�
 - [如何在使用第三方 API 的同时保留 Codex 登录态？](/faq/codex/official-login-third-party-api)
 - [如何配置 Codex CLI 的 config.toml？](/faq/codex/config-toml)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [Codex IDE extension](https://developers.openai.com/codex/ide)
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)

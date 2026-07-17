@@ -1,63 +1,147 @@
 ---
-title: "Claude Code permissions and hooks explained"
+title: "How to configure permissions and hooks in Claude Code"
 sidebarTitle: "Permissions and hooks"
-description: "Understand Claude Code permissions, confirmation flow, hooks, safe test automation, and local safety boundaries."
+description: "Use /permissions and settings.json to configure allow, ask, and deny rules, then add, verify, and troubleshoot Claude Code hooks."
 ---
 
-## Short answer
+## Direct answer
 
-Claude Code permissions decide which actions can run automatically and which require confirmation. Hooks can run scripts or commands at specific moments, such as formatting, tests, checks, or security controls.
+Run `/permissions` in Claude Code to view and manage permission rules. To persist them, put `allow`, `ask`, and `deny` in `settings.json`. Hooks use the same settings files and run formatting, tests, or safety checks around tool calls. Permission precedence is **deny → ask → allow**, so an allow rule cannot override a deny rule.
 
-These mechanisms control local tool behavior, not the model API provider. Even when Claude Code uses a third-party Base URL, file access, command execution, and automation boundaries still belong to Claude Code.
+These settings control local tools on your computer. BetterToken changes the model API Base URL, API Key, and routing only; it does not bypass local permissions or run hooks for you.
 
-## When this matters
+## Choose permissions or hooks
 
-- Claude Code asks for confirmation before every command
-- You want tests or formatters to run automatically
-- You are worried about sensitive files being modified
-- You want checks before finishing a change
-- You need to avoid broad auto-approval
-
-## Permissions vs hooks
-
-| Concept | Role |
+| Requirement | Use |
 | --- | --- |
-| Permissions | Decide whether an action is allowed, denied, or requires confirmation |
-| Hooks | Run custom commands before or after specific events |
-| Confirmation flow | Lets the user judge higher-risk operations |
-| Safety boundary | Limits file, command, network, and sensitive data risk |
+| Run a specific command without prompting | `permissions.allow` |
+| Ask every time before an operation | `permissions.ask` |
+| Block sensitive file reads or dangerous commands | `permissions.deny` |
+| Format or test after a file change | `PostToolUse` hook |
+| Check or block an action before it runs | `PreToolUse` hook |
+| Explain team conventions to the model | `CLAUDE.md`, not a permission rule |
 
-## Recommended practice
+## Choose the correct scope
 
-1. Keep default permissions conservative.
-2. Allow common tests, formatting, and read-only checks selectively.
-3. Keep confirmation for deletion, Git reset, sensitive paths, and network commands.
-4. Put team expectations in `CLAUDE.md` or project settings.
-5. Review hooks as the project changes.
+| File | Scope | Commit to the repository? |
+| --- | --- | --- |
+| `~/.claude/settings.json` | All projects for the current user | No |
+| `.claude/settings.json` | Current project and team | Yes |
+| `.claude/settings.local.json` | Current project on this machine | No |
 
-## Common mistakes
+<Warning>
+  Put permissions, hooks, and environment variables in `settings.json`, not `~/.claude.json`. The latter stores application state and UI settings.
+</Warning>
 
-- Treating permissions as model configuration.
-- Auto-approving every command to reduce prompts.
-- Letting hooks become unmaintained hidden automation.
-- Ignoring the difference between reading and modifying files.
-- Assuming an API gateway controls local permissions.
+## Configure minimal permission rules
 
-## About BetterToken
+<Steps>
+  <Step title="Inspect existing rules with /permissions">
+    In Claude Code, run:
 
-BetterToken handles model API access, model routing, balance, and usage records. It does not change Claude Code permissions or hooks.
+    ```text
+    /permissions
+    ```
 
-If the issue is command confirmation, file access, or automation, check Claude Code permissions and hooks rather than the Base URL.
+    The UI shows allow, ask, and deny rules with their source files. Check for existing team or managed rules before choosing a user or project setting.
+  </Step>
+  <Step title="Add narrow rules">
+    This project-level example allows common tests and lint, asks before every `git push`, and blocks `.env` reads:
+
+    ```json
+    {
+      "permissions": {
+        "allow": [
+          "Bash(npm run lint *)",
+          "Bash(npm test *)"
+        ],
+        "ask": [
+          "Bash(git push *)"
+        ],
+        "deny": [
+          "Read(./.env)",
+          "Read(./.env.*)"
+        ]
+      }
+    }
+    ```
+
+    Replace the commands with scripts that exist in your project. Do not enable `bypassPermissions` only to remove prompts; the official documentation limits that mode to isolated containers or VMs.
+  </Step>
+  <Step title="Verify in /permissions">
+    Save the file and run `/permissions` again. Confirm each rule appears under the expected source, then trigger one allow, ask, and deny case to verify the behavior.
+  </Step>
+</Steps>
+
+## Add a copyable formatting hook
+
+This example runs the project formatter after Claude Code uses `Edit` or `Write`:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+If the file already has `permissions`, merge `hooks` into the same top-level JSON object. Do not create a standalone `.claude/hooks.json`. Run `npm run format` manually first to confirm it succeeds.
+
+<Warning>
+  Command hooks run with your system user's permissions. Use only scripts you have reviewed, and never print API Keys, tokens, `.env` contents, or other secrets from a hook.
+</Warning>
+
+## Verify the hook
+
+1. Run `/hooks` in Claude Code.
+2. Open **PostToolUse** and confirm it lists `Edit|Write` and `npm run format`.
+3. Ask Claude to modify a test file.
+4. Check the hook output and file format, and confirm the hook ran once without errors.
+
+Claude Code normally reloads settings changes automatically. If it does not, exit the session and restart Claude Code.
+
+## Common errors
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Permission rules never apply | They are in `~/.claude.json` or the wrong directory | Move them to `~/.claude/settings.json`, `.claude/settings.json`, or `.claude/settings.local.json` |
+| An allowed action is still blocked | It matches a deny or managed rule | Check sources in `/permissions`; deny takes precedence over ask and allow |
+| A hook never runs | Event or matcher does not match the tool | Inspect `/hooks`; `PreToolUse` runs before execution, `PostToolUse` after success, and matchers are case-sensitive |
+| The hook runs but the command fails | Wrong script, working directory, or dependency | Run the same command manually from the project directory first |
+| Prompts remain after connecting BetterToken | API provider and local permissions are separate | Keep the BetterToken Base URL and configure narrow Claude Code permissions separately |
+| You need to disable all hooks temporarily | A hook may interfere with debugging | Add `"disableAllHooks": true`, then remove it or set it to `false` after debugging |
+
+## BetterToken boundaries
+
+BetterToken handles Claude Code model API access, model routing, balance, and usage. Claude Code still controls:
+
+- File read and write access
+- Bash confirmation behavior
+- When hooks run and which scripts they execute
+- Sandbox, MCP, and project rules
+
+For `401`, Base URL, or model mapping errors, see the [Claude Code setup guide](/en/ai-tools/claude-code). For command prompts and automation, troubleshoot permissions and hooks here.
 
 ## Related docs
 
-- [What is Claude Code?](/en/faq/claude-code/what-is-claude-code)
+- [Claude Code setup with BetterToken](/en/ai-tools/claude-code)
 - [What is CLAUDE.md in Claude Code?](/en/faq/claude-code/claude-md)
-- [How to switch Sonnet and Opus in Claude Code](/en/faq/claude-code/switch-sonnet-opus)
-- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [Why Claude Code uses many tokens](/en/faq/token-cost/claude-code-token-usage)
+- [Claude Code MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
 
 ## References
 
-- [Claude Code security](https://docs.anthropic.com/en/docs/claude-code/security)
-- [Claude Code hooks guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide)
-- [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Code permissions](https://code.claude.com/docs/en/permissions)
+- [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide)
+- [Claude Code hooks reference](https://code.claude.com/docs/en/hooks)
+- [Debug Claude Code configuration](https://code.claude.com/docs/en/debug-your-config)

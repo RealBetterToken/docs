@@ -1,14 +1,16 @@
 ---
-title: "Настройка кастомной модели в расширении Codex для VS Code через BetterToken"
+title: "Как настроить custom Base URL и API Key в расширении Codex для VS Code"
 sidebarTitle: "Расширение Codex для VS Code"
-description: "Как настроить custom Base URL и API Key для расширения Codex в VS Code."
+description: "Откройте общий config.toml из расширения Codex, настройте Base URL, API Key и модель группы GPT для BetterToken и устраните проблемы чтения конфигурации."
 icon: "/icons/codex-vscode.svg"
 ---
 
-Расширение Codex в VS Code не требует отдельного поля `Base URL` и API Key внутри VS Code. Оно читает локальную конфигурацию Codex, поэтому provider BetterToken нужно настроить в `config.toml` Codex.
+## Короткий ответ
+
+В расширении Codex для VS Code нет отдельных полей Base URL и API Key. Оно использует те же уровни конфигурации, что и Codex CLI. Нажмите шестерёнку, выберите **Codex Settings → Open config.toml** и добавьте provider BetterToken в пользовательский файл. Затем выполните **Developer: Reload Window**, чтобы расширение прочитало новый endpoint, Key и модель.
 
 <Info>
-  Если в настройках VS Code вы не видите поля `Base URL` или API Key, это нормально. Model requests для расширения Codex в VS Code настраиваются через локальную конфигурацию Codex.
+  Если в настройках VS Code нет полей `Base URL` или API Key, это нормально. Не добавляйте custom endpoint в общие proxy settings VS Code.
 </Info>
 
 ## Требования
@@ -50,7 +52,7 @@ icon: "/icons/codex-vscode.svg"
   <Tab title="Ручная настройка">
     <Steps>
       <Step title="Найдите config.toml">
-        Файл конфигурации Codex обычно расположен здесь:
+        Нажмите шестерёнку в расширении Codex и выберите **Codex Settings → Open config.toml**. Также файл можно открыть напрямую:
 
         | Система | Файл конфигурации |
         | --- | --- |
@@ -58,7 +60,7 @@ icon: "/icons/codex-vscode.svg"
         | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
         | Windows + WSL | `~/.codex/config.toml` внутри WSL |
 
-        Если файла нет, создайте его вручную.
+        Codex CLI и IDE extension читают одни и те же уровни конфигурации. Если проект открыт через WSL, изменяйте файл внутри WSL, а не отдельный файл в пользовательской директории Windows.
       </Step>
 
       <Step title="Добавьте provider BetterToken">
@@ -129,20 +131,26 @@ icon: "/icons/codex-vscode.svg"
 | `experimental_bearer_token = "YOUR_API_KEY"` | Использует BetterToken API Key для model requests |
 | `base_url = "{{openai-base-url}}"` | Отправляет model requests на OpenAI-compatible / Responses API endpoint BetterToken |
 
-## Проверка настройки
+<Note>
+  Официальный справочник Codex рекомендует `env_key` для API Key обычного custom provider. На этой странице используется `experimental_bearer_token`, потому что сценарий также сохраняет официальный login state Codex. Если вам нужен только Codex CLI без плагинов, Remote Control и официального входа, используйте [обычную настройку custom provider в config.toml](/ru/faq/codex/config-toml).
+</Note>
+
+## Проверьте, какой config читает расширение
 
 После настройки откройте расширение Codex в VS Code и отправьте короткое тестовое сообщение.
 
-Если ответ пришел нормально, конфигурация работает.
+Если ответ пришёл нормально, конфигурация работает. Ещё раз откройте `config.toml` через шестерёнку расширения и убедитесь, что это изменённый вами файл.
 
-Если запрос не проходит, проверьте:
+## Частые ошибки
 
-1. `base_url` равен `{{openai-base-url}}`
-2. `wire_api` равен `responses`
-3. `experimental_bearer_token` заменен на реальный API Key
-4. `model` взят из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
-5. Старые переменные окружения `OPENAI_API_KEY` или `OPENAI_BASE_URL` не перекрывают конфигурацию
-6. VS Code был перезапущен или Reload Window был выполнен
+| Симптом | Причина | Решение |
+| --- | --- | --- |
+| Codex CLI работает, а расширение VS Code нет | Расширение запущено в другой среде или использует старое состояние | Откройте фактический config через шестерёнку; для WSL измените файл внутри WSL; выполните **Developer: Reload Window** |
+| Расширение по-прежнему просит официальный вход | IDE extension Codex требует login на уровне приложения | Завершите официальный вход, затем сохраните `requires_openai_auth = true` и сторонний bearer token |
+| `401` или `403` | Неверный API Key или не заменён `experimental_bearer_token` | Скопируйте Key заново и не заменяйте официальный login в `auth.json` |
+| `404` | В Base URL отсутствует `/v1` | Используйте `{{openai-base-url}}` |
+| Model not found | Model ID не входит в группу ключа GPT | Скопируйте актуальный ID из <a href={"{{model-plaza-url}}"}>model plaza</a> |
+| Ошибка разбора TOML | Поле или таблица объявлены дважды | Объедините конфигурацию и оставьте одну таблицу `[model_providers.{{codex-provider-id}}]` |
 
 ## Связанные документы
 
@@ -150,3 +158,9 @@ icon: "/icons/codex-vscode.svg"
 - [Как сохранить официальный login state Codex при использовании стороннего API](/ru/faq/codex/official-login-third-party-api)
 - [Как настроить Codex CLI config.toml](/ru/faq/codex/config-toml)
 - [Что такое model_provider, base_url и wire_api в Codex CLI?](/ru/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [Codex IDE extension](https://developers.openai.com/codex/ide)
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)

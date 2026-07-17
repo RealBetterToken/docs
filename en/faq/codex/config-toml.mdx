@@ -1,37 +1,75 @@
 ---
-title: "How to configure Codex CLI config.toml"
+title: "How to configure a custom provider in Codex CLI config.toml"
 sidebarTitle: "config.toml"
-description: "Learn where Codex CLI config.toml lives, which fields matter, how custom providers work, and how API Key, Base URL, and model settings differ."
+description: "Configure a Codex CLI custom provider with the correct file, Base URL, API Key environment variable, config precedence, verification, and troubleshooting."
 ---
 
-## Short answer
+## Direct answer
 
-`config.toml` is the main local configuration file for Codex CLI. You can use it to set the default model, model provider, sandbox, approvals, reasoning effort, retry behavior, and other settings.
+Put user-level settings in `~/.codex/config.toml` and make `model_provider = "custom"` point to `[model_providers.custom]`. For BetterToken, use `{{openai-base-url}}` as `base_url`, `responses` as `wire_api`, and a Model ID from the **GPT Key group**. Use `env_key` to read the API Key from a local environment variable instead of storing it in TOML or a repository.
 
-For a custom OpenAI-compatible provider, the important part is to make `model_provider` point to `[model_providers.<id>]`, then define `base_url`, `wire_api`, and authentication behavior in that provider table.
+## Find the correct config file
 
-Do not commit API Keys to a public repository. Keep API Keys in local environment variables, CLI login state, protected local configuration, or a secure store managed by your tool.
-
-## When you need it
-
-- You want Codex CLI to use a third-party OpenAI-compatible provider
-- You need a fixed default model or review model
-- You want to adjust sandbox, approval, or reasoning effort
-- You are fixing wrong `model_provider`, `base_url`, or `wire_api` values
-- You are preparing a reusable Codex CLI config example for a team
-
-## Common locations
-
-| System | Typical path |
+| Environment | User-level config |
 | --- | --- |
 | macOS / Linux | `~/.codex/config.toml` |
-| Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | `~/.codex/config.toml` inside WSL |
 
-Project-level instructions usually belong in `AGENTS.md` inside the repository. Do not mix them with user-level `config.toml`.
+In the VS Code Codex extension, click the gear icon and choose **Codex Settings → Open config.toml**. The CLI and IDE extension share the same config layers.
 
-## Recommended config example
+<Warning>
+  Provider and authentication settings belong in user-level `~/.codex/config.toml`. Project `.codex/config.toml` files can hold project overrides, but Codex ignores `model_provider` and `model_providers` there. Put project instructions in `AGENTS.md`.
+</Warning>
 
-The following example follows the Codex setup page in this documentation. Copy the current model ID from the **GPT Key group** in the model plaza before using it.
+## Minimum working configuration
+
+<Steps>
+  <Step title="Set the API Key environment variable">
+    macOS, Linux, or WSL:
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell:
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    Replace `YOUR_API_KEY` with your BetterToken API Key. For persistent use, store it in a protected operating-system environment, not the project repository.
+  </Step>
+  <Step title="Edit config.toml">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model` is an example. Copy a currently available Model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+  <Step title="Restart and test">
+    Exit Codex completely, open a new terminal, and run:
+
+    ```bash
+    codex
+    ```
+
+    Send a simple prompt. A normal response confirms the provider, authentication, and Model ID are active.
+  </Step>
+</Steps>
+
+## Recommended full configuration
+
+Use this version when you need a review model and longer stream timeout:
 
 ```toml
 model_provider = "custom"
@@ -42,10 +80,10 @@ model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 windows_wsl_setup_acknowledged = true
 
-[model_providers]
 [model_providers.custom]
-name = "BetterToken"
+name = "{{codex-provider-name}}"
 base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 request_max_retries = 4
@@ -54,30 +92,45 @@ stream_idle_timeout_ms = 300000
 supports_websockets = false
 ```
 
-## Common mistakes
+Merge existing top-level fields and `[model_providers.custom]` content. Do not declare the same TOML table twice.
 
-- Defining `[model_providers.custom]` but forgetting `model_provider = "custom"`.
-- Putting the Claude Code `{{anthropic-base-url}}` into Codex CLI.
-- Using a marketing model name instead of an API model ID.
-- Committing API Keys, tokens, or login state to a repository.
-- Running untrusted commands with overly broad sandbox or approval settings.
+## How the fields fit together
 
-## About BetterToken
+| Field | Purpose | BetterToken value |
+| --- | --- | --- |
+| `model_provider` | Selects a provider ID | `"custom"` |
+| `[model_providers.custom]` | Defines that provider | Must match `model_provider` |
+| `base_url` | Model request endpoint | `{{openai-base-url}}` |
+| `env_key` | Names the environment variable containing the API Key | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | Provider protocol | `"responses"` |
+| `requires_openai_auth` | Uses official OpenAI authentication | `false` for ordinary third-party API setup |
+| `model` | Default Model ID | A current GPT Key group ID |
 
-In Codex CLI, BetterToken is a custom OpenAI-compatible provider. Use `{{openai-base-url}}` for `base_url` and choose a model ID from the **GPT Key group**.
+<Note>
+  To keep the official Codex App login, plugins, and Remote Control while using a third-party API, use the dedicated [official login and unified session setup](/en/faq/codex/official-login-third-party-api) instead of this ordinary authentication example.
+</Note>
 
-This only changes where model requests are sent. Codex CLI still controls file access, command execution, sandbox, and approvals.
+## Common errors
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Provider not found | `model_provider` does not match the table name | Use `custom` in both places |
+| Missing API Key at startup | The environment variable is missing or the terminal has not reloaded it | Set `MODEL_PROVIDER_API_KEY` and open a new terminal |
+| `401` or `403` | Wrong Key or mixed authentication methods | Copy the Key again; keep the `env_key` name aligned and `requires_openai_auth = false` |
+| `404` | The Base URL lacks `/v1` or uses the wrong protocol | Use `{{openai-base-url}}` |
+| Model not found | The Model ID is unavailable or not in the GPT Key group | Copy a current ID from the model plaza |
+| Changes do not apply | Wrong config layer, path, or WSL environment | Edit the user config in the environment that runs Codex, then restart Codex |
+| TOML parse error | Duplicate table, quote, or nesting error | Remove duplicate `[model_providers.custom]` tables and check string quotes |
 
 ## Related docs
 
-- [Codex BetterToken setup guide](/en/ai-tools/codex)
-- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
-- [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
-- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Complete Codex setup guide](/en/ai-tools/codex)
+- [Configure a custom Base URL in the VS Code Codex extension](/en/ai-tools/codex-vscode)
+- [model_provider, base_url, and wire_api explained](/en/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI sandbox and approval mode](/en/faq/codex/sandbox-approval)
+- [What is AGENTS.md?](/en/faq/codex/agents-md)
 
 ## References
 
 - [Codex basic configuration](https://developers.openai.com/codex/config-basic)
-- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
-- [Codex sample config](https://developers.openai.com/codex/config-sample)
