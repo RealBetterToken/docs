@@ -59,7 +59,7 @@ node scripts/generate-bettertoken-redirect-map.mjs \
 2. 进入账号或 Zone 的 **Bulk Redirects**，创建名为 `bettertoken-docs-to-llmeasy` 的列表。
 3. 导入 `.github/migrations/bettertoken-to-llmeasy/cloudflare-bulk-redirects.csv`。CSV 不含表头。
 4. 创建并启用引用该列表的 Bulk Redirect Rule。仅导入列表不会自动启用重定向。
-5. 对三个影刀旧路径通过现有 Cloudflare Worker 或源站返回 `410`。不要增加跳到 LLMEasy 首页的兜底规则。
+5. 对三个影刀旧路径通过 Cloudflare Worker 返回 `410`。使用 `.github/migrations/bettertoken-to-llmeasy/cloudflare-gone-worker.js`，并将 Worker Route 设置为 `docs.bettertoken.ai/*`。Worker 对其他未匹配路径继续请求原站，不增加跳到 LLMEasy 首页的兜底规则。
 6. 确认旧域名的 Search Console 所有权使用 DNS 验证，避免 `410` 影响 HTML 验证文件。
 
 批量检查 LLMEasy 目标页为 `200` 且 canonical 指向自身：

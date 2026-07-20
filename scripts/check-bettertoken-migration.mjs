@@ -46,11 +46,26 @@ function normalizedUrl(value) {
 }
 
 async function fetchPage(url, redirect = 'follow') {
-  return fetch(url, {
-    redirect,
-    headers: { 'user-agent': 'LLMEasy migration validator' },
-    signal: AbortSignal.timeout(20_000),
-  });
+  let lastError;
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      return await fetch(url, {
+        redirect,
+        headers: { 'user-agent': 'LLMEasy migration validator' },
+        signal: AbortSignal.timeout(30_000),
+      });
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+      }
+    }
+  }
+
+  const message = lastError instanceof Error ? lastError.message : String(lastError);
+  throw new Error(`${url}: ${message}`);
 }
 
 async function runPool(items, worker, concurrency = 8) {
