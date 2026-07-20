@@ -24,10 +24,22 @@ function canonicalFromHtml(html) {
 }
 
 async function fetchWithoutRedirect(url) {
-  return fetch(url, {
-    redirect: 'manual',
-    headers: { 'user-agent': 'LLMEasy SEO deployment check' },
-  });
+  const attempts = 3;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        redirect: 'manual',
+        headers: { 'user-agent': 'LLMEasy SEO deployment check' },
+      });
+
+      if (response.status < 500 || attempt === attempts) return response;
+    } catch (error) {
+      if (attempt === attempts) throw error;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));
+  }
 }
 
 async function fetchLocalizedSitemap() {
@@ -98,6 +110,30 @@ for (const [url, block] of sitemapBlocks) {
     }
   }
 }
+
+const sitemapUrls = [...sitemapBlocks.keys()];
+const sitemapFailures = [];
+let nextSitemapUrl = 0;
+
+async function checkSitemapUrlResponses() {
+  while (nextSitemapUrl < sitemapUrls.length) {
+    const url = sitemapUrls[nextSitemapUrl];
+    nextSitemapUrl += 1;
+    const response = await fetchWithoutRedirect(url);
+
+    if (response.status !== 200 || response.headers.get('location')) {
+      const redirect = response.headers.get('location');
+      sitemapFailures.push(`${url}: ${response.status}${redirect ? ` -> ${redirect}` : ''}`);
+    }
+  }
+}
+
+await Promise.all(Array.from({ length: 8 }, () => checkSitemapUrlResponses()));
+assert.equal(
+  sitemapFailures.length,
+  0,
+  `Every sitemap URL must return 200 without redirect:\n${sitemapFailures.join('\n')}`,
+);
 
 const langChecks = [
   ['/ai-tools/zed', 'ru'],
