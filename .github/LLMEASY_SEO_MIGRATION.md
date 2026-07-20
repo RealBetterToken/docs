@@ -62,6 +62,8 @@ node scripts/generate-bettertoken-redirect-map.mjs \
 5. 对三个影刀旧路径通过 Cloudflare Worker 返回 `410`。使用 `.github/migrations/bettertoken-to-llmeasy/cloudflare-gone-worker.js`，并将 Worker Route 设置为 `docs.bettertoken.ai/*`。Worker 对其他未匹配路径继续请求原站，不增加跳到 LLMEasy 首页的兜底规则。
 6. 确认旧域名的 Search Console 所有权使用 DNS 验证，避免 `410` 影响 HTML 验证文件。
 
+2026-07-20 已完成上线验收：87 条 BetterToken URL 均为单跳 `308` 且最终 LLMEasy 页面返回 `200`、使用 self-canonical；3 条无等价内容的影刀旧页面均返回 `410`。
+
 批量检查 LLMEasy 目标页为 `200` 且 canonical 指向自身：
 
 ```bash

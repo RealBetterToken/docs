@@ -91,11 +91,13 @@ async function runPool(items, worker, concurrency = 8) {
 
 const lines = (await readFile(mapPath, 'utf8')).trim().split('\n');
 const header = parseCsvLine(lines.shift());
-const rows = lines
+const allRows = lines
   .map((line) => Object.fromEntries(header.map((key, index) => [key, parseCsvLine(line)[index]])))
-  .filter((row) => row.action === 'redirect');
+  .filter((row) => row.action === 'redirect' || row.action === 'review');
+const redirectRows = allRows.filter((row) => row.action === 'redirect');
+const goneRows = allRows.filter((row) => row.action === 'review');
 
-const targetUrls = [...new Set(rows.map((row) => row.target_url))];
+const targetUrls = [...new Set(redirectRows.map((row) => row.target_url))];
 const targetErrors = await runPool(targetUrls, async (targetUrl) => {
   const response = await fetchPage(targetUrl);
 
@@ -116,9 +118,10 @@ const targetErrors = await runPool(targetUrls, async (targetUrl) => {
 });
 
 let redirectErrors = [];
+let goneErrors = [];
 
 if (expectRedirects) {
-  redirectErrors = await runPool(rows, async (row) => {
+  redirectErrors = await runPool(redirectRows, async (row) => {
     const response = await fetchPage(row.old_url, 'manual');
 
     if (![301, 308].includes(response.status)) {
@@ -131,14 +134,23 @@ if (expectRedirects) {
       throw new Error(`${row.old_url}: redirects to ${location ?? 'no location header'}`);
     }
   });
+
+  goneErrors = await runPool(goneRows, async (row) => {
+    const response = await fetchPage(row.old_url, 'manual');
+
+    if (response.status !== 410) {
+      throw new Error(`${row.old_url}: expected 410, received ${response.status}`);
+    }
+  });
 }
 
-const errors = [...targetErrors, ...redirectErrors];
+const errors = [...targetErrors, ...redirectErrors, ...goneErrors];
 
 console.log(`Validated ${targetUrls.length} unique LLMEasy targets`);
 
 if (expectRedirects) {
-  console.log(`Validated ${rows.length} BetterToken permanent redirects`);
+  console.log(`Validated ${redirectRows.length} BetterToken permanent redirects`);
+  console.log(`Validated ${goneRows.length} BetterToken deleted pages`);
 }
 
 if (errors.length > 0) {
