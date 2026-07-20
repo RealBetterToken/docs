@@ -1,0 +1,116 @@
+---
+title: "How to connect n8n to BetterToken custom models"
+sidebarTitle: "n8n"
+description: "Create an OpenAI credential in n8n with the BetterToken Base URL, API Key, and a GPT Key group model ID, then connect it to OpenAI Chat Model."
+icon: "workflow"
+---
+
+To connect n8n to BetterToken, use the built-in **OpenAI credential** and **OpenAI Chat Model**. Set the Base URL to `{{openai-base-url}}`, use an API Key from the **GPT Key group**, and select the matching model from the model list.
+
+## Prerequisites
+
+- An n8n Cloud or self-hosted instance
+- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
+- A **GPT Key group model ID** copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+| Setting | Value |
+|---|---|
+| Credential type | `OpenAI` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | your BetterToken GPT Key group API Key |
+| Organization ID | leave blank |
+| Custom Header | off |
+
+<Note>
+  Keep `/v1` at the end of the Base URL. Do not add `/chat/completions` or `/responses`; n8n appends the route required by the node.
+</Note>
+
+## Setup
+
+<Steps>
+  <Step title="Add AI Agent and OpenAI Chat Model">
+    Open a workflow and add an **AI Agent** node. At its **Chat Model** connector, add the **OpenAI Chat Model** sub-node.
+
+    This guide uses **OpenAI Chat Model** because it supplies the model connection for n8n AI Agents, chains, and other AI workflows.
+  </Step>
+
+  <Step title="Create an OpenAI credential">
+    In **OpenAI Chat Model**, open **Credential to connect with**, select **Create new credential**, and choose **OpenAI**.
+
+    If your n8n version offers both **OpenAI Account (ChatGPT)** and **API Key**, choose **API Key**. OpenAI Account authentication is for an official account, not a BetterToken custom Base URL.
+  </Step>
+
+  <Step title="Enter the BetterToken credential">
+    Use these values:
+
+    | n8n field | Value |
+    |---|---|
+    | API Key | your BetterToken API Key |
+    | Organization ID (optional) | leave blank |
+    | Base URL | `{{openai-base-url}}` |
+    | Add Custom Header | off |
+
+    Click **Save**. n8n tests this credential against `/models` under the configured Base URL, so the complete test URL is `{{openai-base-url}}/models`.
+  </Step>
+
+  <Step title="Select a model">
+    Return to **OpenAI Chat Model**, open **Model**, and select the GPT Key group model ID shown in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    If the list does not update after you save the credential, reopen the node or credential and load the model list again.
+  </Step>
+
+  <Step title="Choose Chat Completions or Responses">
+    For the first test, keep **Use Responses API** off and complete a plain conversation through the default Chat Completions mode.
+
+    Turn on **Use Responses API** only when your workflow needs it. n8n documents built-in tools such as Web Search, File Search, and Code Interpreter for **OpenAI Chat Model + AI Agent** with Responses enabled. Those OpenAI-hosted tools are not automatically capabilities confirmed for BetterToken, so test them against the selected model and endpoint.
+  </Step>
+
+  <Step title="Run a test">
+    Give the AI Agent a simple input:
+
+    ```text
+    Reply with exactly: Connection successful
+    ```
+
+    Click **Execute step** or run the workflow. The setup is complete when the node returns a model response.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Credential test returns 401
+
+- Make sure the API Key is complete and has no extra spaces
+- Confirm that the key belongs to the **GPT Key group**
+- Check the key status and balance in the BetterToken Dashboard
+
+### Credential test returns 404
+
+- The Base URL must be `{{openai-base-url}}`
+- Do not use `{{openai-base-url}}/models` as the Base URL
+- Do not append `/chat/completions` or `/responses`
+
+### The Model list is empty
+
+- Save the credential again, then reopen **Model**
+- Confirm that the API Key can access `{{openai-base-url}}/models`
+- Copy a current model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>; do not use a retired or misspelled ID
+
+### Plain chat works, but Agent tool calls fail
+
+Turn off **Use Responses API** and all built-in tools, then verify plain Chat Completions. Enable Agent tools one at a time to identify whether the problem is the model capability, tool arguments, or workflow configuration.
+
+### The request times out
+
+Increase **Timeout** under **OpenAI Chat Model > Options** and keep a limited **Max Retries** value. Do not repeatedly retry `400`, `401`, or configuration errors.
+
+## Scope
+
+This guide confirms LLM Chat through the OpenAI-compatible protocol only. Do not configure a GPT chat model as an embedding, rerank, speech, or image model.
+
+## Related docs
+
+- [n8n OpenAI credentials](https://docs.n8n.io/integrations/builtin/credentials/openai/)
+- [n8n OpenAI Chat Model](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [How to choose a model](/en/faq/model-calling/model-selection-guide)

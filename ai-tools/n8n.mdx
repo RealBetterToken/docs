@@ -1,0 +1,116 @@
+---
+title: "n8n 如何接入 BetterToken 自定义模型？"
+sidebarTitle: "n8n"
+description: "在 n8n 中创建 OpenAI credential，填写 BetterToken Base URL、API Key 和 GPT 分组模型 ID，并连接 OpenAI Chat Model。"
+icon: "workflow"
+---
+
+在 n8n 中接入 BetterToken 时，使用内置 **OpenAI credential** 和 **OpenAI Chat Model**。Base URL 填 `{{openai-base-url}}`，API Key 使用 **GPT 分组**密钥，然后从模型列表中选择对应模型。
+
+## 开始前准备
+
+- 可用的 n8n Cloud 或自托管实例
+- BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
+
+| 配置项 | 值 |
+|---|---|
+| Credential 类型 | `OpenAI` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | 你的 BetterToken GPT 分组 API Key |
+| Organization ID | 留空 |
+| Custom Header | 关闭 |
+
+<Note>
+  Base URL 必须保留末尾的 `/v1`。不要填写 `/chat/completions` 或 `/responses`，n8n 会根据节点功能自动拼接具体路径。
+</Note>
+
+## 配置步骤
+
+<Steps>
+  <Step title="添加 AI Agent 和 OpenAI Chat Model">
+    打开一个 workflow，添加 **AI Agent** 节点。然后在它的 **Chat Model** 连接位置添加 **OpenAI Chat Model** 子节点。
+
+    本文使用 **OpenAI Chat Model**，因为它可以作为 n8n AI Agent、Chain 和其他 AI workflow 的模型节点。
+  </Step>
+
+  <Step title="创建 OpenAI credential">
+    在 **OpenAI Chat Model** 中打开 **Credential to connect with**，选择 **Create new credential**，然后选择 **OpenAI**。
+
+    如果当前版本同时提供 **OpenAI Account (ChatGPT)** 和 **API Key**，请选择 **API Key**。OpenAI Account 登录用于官方账号，不用于 BetterToken 自定义 Base URL。
+  </Step>
+
+  <Step title="填写 BetterToken 凭证">
+    按下面填写：
+
+    | n8n 字段 | 填写内容 |
+    |---|---|
+    | API Key | 你的 BetterToken API Key |
+    | Organization ID (optional) | 留空 |
+    | Base URL | `{{openai-base-url}}` |
+    | Add Custom Header | 关闭 |
+
+    点击 **Save**。n8n 会使用当前 Base URL 的 `/models` 路径测试凭证，因此完整测试地址应为 `{{openai-base-url}}/models`。
+  </Step>
+
+  <Step title="选择模型">
+    回到 **OpenAI Chat Model**，打开 **Model** 列表，选择与<a href={"{{model-plaza-url}}"}>模型广场</a>一致的 GPT 分组模型 ID。
+
+    如果刚保存凭证后列表没有刷新，重新打开节点或 credential，再次加载模型列表。
+  </Step>
+
+  <Step title="选择 Chat Completions 或 Responses">
+    首次验证建议关闭 **Use Responses API**，先使用默认的 Chat Completions 模式完成一轮普通对话。
+
+    如果你的 workflow 明确需要 Responses API，再打开 **Use Responses API**。n8n 官方说明中，Web Search、File Search 和 Code Interpreter 等内置工具只在 **OpenAI Chat Model + AI Agent** 且启用 Responses API 时可用；这些 OpenAI 官方内置工具不等同于 BetterToken 已确认支持的能力，请按实际模型和接口测试。
+  </Step>
+
+  <Step title="执行测试">
+    给 AI Agent 添加一个简单输入，例如：
+
+    ```text
+    请只回复：连接成功
+    ```
+
+    点击 **Execute step** 或运行 workflow。节点返回模型回复后，配置即生效。
+  </Step>
+</Steps>
+
+## 常见问题
+
+### Credential test 返回 401
+
+- 确认 API Key 完整，没有多余空格
+- 确认密钥属于 **GPT 分组**
+- 在 BetterToken Dashboard 检查密钥状态和余额
+
+### Credential test 返回 404
+
+- Base URL 必须是 `{{openai-base-url}}`
+- 不要把 Base URL 写成 `{{openai-base-url}}/models`
+- 不要在 Base URL 后追加 `/chat/completions` 或 `/responses`
+
+### Model 列表为空
+
+- 重新保存 credential，再打开 **Model** 列表
+- 确认 `{{openai-base-url}}/models` 可通过当前 API Key 访问
+- 确认模型 ID 来自当前<a href={"{{model-plaza-url}}"}>模型广场</a>，不要使用已经下线或拼写不一致的 ID
+
+### 普通对话可用，但 Agent 工具调用失败
+
+先关闭 **Use Responses API** 和内置工具，验证普通 Chat Completions。随后逐项启用 Agent 工具，以便定位是模型能力、工具参数还是 workflow 配置问题。
+
+### 请求超时
+
+在 **OpenAI Chat Model > Options** 中提高 **Timeout**，并保留有限的 **Max Retries**。不要无限重试 `400`、`401` 或配置错误。
+
+## 使用范围
+
+本指南只确认通过 OpenAI-compatible 协议接入 LLM Chat。不要把 GPT 聊天模型当作 embedding、rerank、语音或图片模型使用。
+
+## 相关文档
+
+- [n8n OpenAI credentials](https://docs.n8n.io/integrations/builtin/credentials/openai/)
+- [n8n OpenAI Chat Model](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [如何选择模型？](/faq/model-calling/model-selection-guide)
