@@ -31,7 +31,7 @@
 3. Google Search Console 有展示、点击或外链的 URL。
 4. 历史重定向和已改名页面。
 
-当前待补充资料：BetterToken 已编入索引 URL 的 `.xlsx`、`.csv` 或纯文本列表。
+2026-07-20 已导入 Search Console 的“有效网页”导出：73 个已编入索引 URL。去重后，完整映射包含 90 个旧 URL，其中 87 个有 LLMEasy 等价目标页，3 个已删除的影刀 AI Power 页面需要返回 `410`。
 
 使用当前 Sitemap 生成基础映射：
 
@@ -39,14 +39,40 @@
 node scripts/generate-bettertoken-redirect-map.mjs
 ```
 
-将 Search Console 导出转换为 CSV 或纯文本后合并：
+重新生成包含 Search Console URL 的映射和 Cloudflare 导入文件：
 
 ```bash
 node scripts/generate-bettertoken-redirect-map.mjs \
-  --additional-urls /path/to/gsc-export.csv
+  --additional-urls .github/migrations/bettertoken-to-llmeasy/gsc-indexed-urls-2026-07-20.txt
 ```
 
-输出文件为 `.github/migrations/bettertoken-to-llmeasy/redirect-map.csv`。`action=review` 的条目不能自动上线，必须确认等价目标页或明确返回 `404/410`。
+输出文件：
+
+- `redirect-map.csv`：完整审计表，包含来源和目标页校验状态。
+- `cloudflare-bulk-redirects.csv`：可直接导入 Cloudflare 的 87 条 `308`，无表头并保留查询参数。
+
+`action=review` 的条目不会进入 Cloudflare 导入文件。当前 3 条均为已经下线且没有等价内容的影刀 AI Power 页面，应返回 `410`，不能跳到首页或不相关的快速接入页。
+
+### Cloudflare 上线步骤
+
+1. 确认 `docs.bettertoken.ai` 在 Cloudflare DNS 中保持代理状态，否则 Bulk Redirects 不会生效。
+2. 进入账号或 Zone 的 **Bulk Redirects**，创建名为 `bettertoken-docs-to-llmeasy` 的列表。
+3. 导入 `.github/migrations/bettertoken-to-llmeasy/cloudflare-bulk-redirects.csv`。CSV 不含表头。
+4. 创建并启用引用该列表的 Bulk Redirect Rule。仅导入列表不会自动启用重定向。
+5. 对三个影刀旧路径通过现有 Cloudflare Worker 或源站返回 `410`。不要增加跳到 LLMEasy 首页的兜底规则。
+6. 确认旧域名的 Search Console 所有权使用 DNS 验证，避免 `410` 影响 HTML 验证文件。
+
+批量检查 LLMEasy 目标页为 `200` 且 canonical 指向自身：
+
+```bash
+node scripts/check-bettertoken-migration.mjs
+```
+
+重定向启用后，检查每个旧 URL 只有一次 `301/308`，并直接到达映射目标：
+
+```bash
+node scripts/check-bettertoken-migration.mjs --expect-redirects
+```
 
 ### 语言映射
 

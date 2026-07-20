@@ -12,6 +12,13 @@ const defaultOutput = path.join(
   'bettertoken-to-llmeasy',
   'redirect-map.csv',
 );
+const defaultCloudflareOutput = path.join(
+  rootDir,
+  '.github',
+  'migrations',
+  'bettertoken-to-llmeasy',
+  'cloudflare-bulk-redirects.csv',
+);
 
 function readArgs(argv) {
   const options = {
@@ -19,6 +26,7 @@ function readArgs(argv) {
     llmeasySitemap: 'https://docs.llmeasy.ru/sitemap.xml',
     additionalUrls: undefined,
     output: defaultOutput,
+    cloudflareOutput: defaultCloudflareOutput,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -37,6 +45,8 @@ function readArgs(argv) {
       options.additionalUrls = value;
     } else if (argument === '--output') {
       options.output = path.resolve(rootDir, value);
+    } else if (argument === '--cloudflare-output') {
+      options.cloudflareOutput = path.resolve(rootDir, value);
     } else {
       throw new Error(`Unknown argument: ${argument}`);
     }
@@ -139,15 +149,24 @@ const internalRedirects = new Map(
   (llmeasyConfig.redirects ?? []).map((redirect) => [redirect.source, redirect.destination]),
 );
 
-const sourcesByUrl = new Map(bettertokenSitemapUrls.map((url) => [url, new Set(['sitemap'])]));
+const sourcesByUrl = new Map();
+
+function addSource(url, source) {
+  const normalizedUrl = new URL(url).href;
+  const sources = sourcesByUrl.get(normalizedUrl) ?? new Set();
+  sources.add(source);
+  sourcesByUrl.set(normalizedUrl, sources);
+}
+
+for (const url of bettertokenSitemapUrls) {
+  addSource(url, 'sitemap');
+}
 
 if (options.additionalUrls) {
   const additionalText = await readText(options.additionalUrls);
 
   for (const url of additionalBettertokenUrls(additionalText)) {
-    const sources = sourcesByUrl.get(url) ?? new Set();
-    sources.add('gsc');
-    sourcesByUrl.set(url, sources);
+    addSource(url, 'gsc');
   }
 }
 
@@ -183,10 +202,23 @@ const csv = [
 await mkdir(path.dirname(options.output), { recursive: true });
 await writeFile(options.output, `${csv}\n`);
 
+const cloudflareCsv = rows
+  .filter((row) => row.action === 'redirect')
+  .map((row) =>
+    [row.oldUrl, row.targetUrl, 308, true, false, false, false].map(csvCell).join(','),
+  )
+  .join('\n');
+
+await mkdir(path.dirname(options.cloudflareOutput), { recursive: true });
+await writeFile(options.cloudflareOutput, `${cloudflareCsv}\n`);
+
 const redirectCount = rows.filter((row) => row.action === 'redirect').length;
 const reviewRows = rows.filter((row) => row.action === 'review');
 
 console.log(`Wrote ${rows.length} rows to ${path.relative(rootDir, options.output)}`);
+console.log(
+  `Wrote ${redirectCount} Cloudflare redirects to ${path.relative(rootDir, options.cloudflareOutput)}`,
+);
 console.log(`Redirect: ${redirectCount}`);
 console.log(`Review: ${reviewRows.length}`);
 
