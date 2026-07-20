@@ -1,0 +1,64 @@
+---
+title: "Connect MonkeyCode to LLMEasy with a custom model"
+sidebarTitle: "MonkeyCode"
+description: "Connect LLMEasy to MonkeyCode with GPT Key group model IDs."
+icon: "monkey"
+---
+
+MonkeyCode is an enterprise AI development platform. When connecting LLMEasy, use the GPT Key group with an OpenAI-style protocol.
+
+## Prerequisites
+
+- MonkeyCode account ([sign up at MonkeyCode](https://monkeycode.ai))
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+
+## Setup
+
+<Steps>
+  <Step title="Log in to MonkeyCode">
+    Visit [MonkeyCode](https://monkeycode.ai) and log in.
+  </Step>
+
+  <Step title="Open system settings">
+    Enter the task page, then click **Settings** in the bottom-right corner.
+  </Step>
+
+  <Step title="Bind an AI model">
+    In the **AI Model** section, click **Bind**.
+  </Step>
+
+  <Step title="Fill in the LLMEasy config">
+
+    | Field | Value |
+    |-------|-------|
+    | Model API URL | `{{openai-base-url}}` |
+    | API Key | your LLMEasy API Key |
+    | API format | `OpenAI` or `OpenAI Compatible` (follow the current UI label) |
+    | Model name | a **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+  </Step>
+
+  <Step title="Only configure extra headers when the official docs explicitly require them">
+    We did not find an official MonkeyCode setup requirement that makes `User-Agent` mandatory for LLMEasy. Start with the `Base URL`, API key, and model ID shown on this page.
+
+    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
+  </Step>
+
+  <Step title="Save and start using it">
+    Click **Save**, then return to the main page and select the model you just configured.
+  </Step>
+
+  <Step title="Restart MonkeyCode">
+    After saving the config, refresh the page or reopen MonkeyCode before using the new model.
+  </Step>
+</Steps>
+
+<Note>
+  If you need extra headers, follow the current MonkeyCode docs or your upstream gateway requirements instead of assuming `User-Agent` is mandatory for LLMEasy.
+</Note>
+
+## Related FAQ
+
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)

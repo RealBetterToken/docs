@@ -1,0 +1,73 @@
+---
+title: "Что такое AGENTS.md в Codex CLI?"
+sidebarTitle: "AGENTS.md"
+description: "Разберите роль AGENTS.md в Codex CLI, hierarchy инструкций, что туда писать и каких ошибок избегать."
+---
+
+## Короткий ответ
+
+`AGENTS.md` — это project instruction file для Codex. Он рассказывает Codex о структуре репозитория, командах, тестах, code style, commit rules и collaboration preferences.
+
+Он подходит для стабильных project rules, а не для разовых задач. Разовые требования оставляйте в текущем диалоге.
+
+## Что стоит включить
+
+- Как установить dependencies, запустить проект и тесты
+- Common validation commands
+- Coding style и naming conventions
+- Директории, которые нельзя менять без необходимости
+- Required checks before finishing
+- Team preferences по communication и output
+
+## Что не стоит включать
+
+- API Keys, tokens, passwords или private credentials
+- Temporary task instructions
+- Длинные product background stories
+- Generic prompts, не связанные с репозиторием
+- Outdated commands и paths
+
+## Рекомендуемая структура
+
+```md
+# Project instructions
+
+## Build and test
+- Run `npm test` before finishing behavior changes.
+- Run `npm run lint` after editing TypeScript files.
+
+## Style
+- Keep diffs small and focused.
+- Match existing component patterns.
+
+## Safety
+- Do not edit files outside this repository.
+- Do not commit secrets.
+```
+
+## Частые ошибки
+
+- Превращать `AGENTS.md` в очень длинный universal prompt.
+- Записывать secrets в файл.
+- Не обновлять его после изменения project commands.
+- Смешивать `AGENTS.md` с user-level `config.toml`.
+- Думать, что rules отменяют необходимость смотреть diff и tests.
+
+## О LLMEasy
+
+Если команда использует LLMEasy для unified model routing, `AGENTS.md` все равно важен. API layer отвечает за model requests и usage records. `AGENTS.md` отвечает за project context и execution norms.
+
+Оба слоя вместе уменьшают configuration confusion и collaboration cost.
+
+## Связанные материалы
+
+- [Что такое Codex CLI?](/faq/codex/what-is-codex-cli)
+- [Как настроить Codex CLI config.toml](/faq/codex/config-toml)
+- [Что такое sandbox и approval mode в Codex CLI?](/faq/codex/sandbox-approval)
+- [Что такое CLAUDE.md в Claude Code?](/faq/claude-code/claude-md)
+
+## References
+
+- [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
+- [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
+- [OpenAI Codex discussions](https://github.com/openai/codex/discussions)

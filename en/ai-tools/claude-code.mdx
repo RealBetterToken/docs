@@ -1,0 +1,261 @@
+---
+title: "Connect Claude Code to LLMEasy with a custom model"
+sidebarTitle: "Claude Code"
+description: "Connect LLMEasy to Claude Code with ANTHROPIC_BASE_URL and no /v1 suffix."
+icon: "terminal"
+---
+
+Connecting LLMEasy to Claude Code only requires `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **Do not** add `/v1` to the Claude Code Base URL.
+
+## Prerequisites
+
+- Claude Code installed (see [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code))
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+
+<Warning>
+  Clear these environment variables before setup so they do not override your config file:
+
+  ```bash
+  unset ANTHROPIC_AUTH_TOKEN
+  unset ANTHROPIC_BASE_URL
+  ```
+</Warning>
+
+## Setup
+
+<Tabs>
+  <Tab title="Automatic setup">
+    You can run the LLMEasy automatic setup script directly. It only writes the LLMEasy provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
+
+    Follow the step for your operating system. You only need one of them.
+
+    <Steps>
+      <Step title="If you use macOS / Linux">
+        ```bash
+        curl -fsSL {{anthropic-base-url}}/install-claudecode-provider.sh | bash
+        ```
+      </Step>
+      <Step title="If you use Windows">
+        ```powershell
+        iwr {{anthropic-base-url}}/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Configure via CC Switch">
+    This setup path is maintained in the [CC Switch guide](/en/ai-tools/cc-switch#claude-code).
+
+    Go straight to [the Claude Code tab in the CC Switch guide](/en/ai-tools/cc-switch#claude-code).
+
+    After you finish in CC Switch, come back to this page for the remaining startup, verification, or activation notes.
+  </Tab>
+
+  <Tab title="Manual setup">
+    <Steps>
+      <Step title="Check your Key group">
+        First confirm which LLMEasy Key group you are using:
+
+        - `Claude`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
+        - `GPT`: set the auth fields and add Claude Code model mappings
+
+        Both groups still use the Anthropic protocol. In both cases, set `ANTHROPIC_BASE_URL` to `{{anthropic-base-url}}` without `/v1`.
+      </Step>
+
+      <Step title="Edit the Claude Code config file">
+        Config file location:
+
+        - macOS / Linux: `~/.claude/settings.json`
+        - Windows: `%USERPROFILE%\.claude\settings.json`
+
+        If you use the **Claude Key group**, replace `YOUR_API_KEY` with your LLMEasy API Key:
+
+        ```json
+        {
+          "env": {
+            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "API_TIMEOUT_MS": "3000000"
+          }
+        }
+        ```
+
+        <Note>
+          With the **Claude Key group**, you do not need `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model variables. Claude Code manages model selection itself.
+        </Note>
+      </Step>
+
+      <Step title="Add model mappings for the GPT Key group">
+        If your API Key belongs to the **GPT Key group**, use this config instead:
+
+        <Tip>
+          If you use the **GPT Key group**, we recommend configuring Claude Code through [CC Switch](/en/ai-tools/cc-switch#claude-code) first. It handles the Claude Code model mappings and proxy toggle more reliably. Only use the manual config below when you explicitly want to maintain the config file yourself.
+        </Tip>
+
+        ```json
+        {
+          "env": {
+            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
+            "API_TIMEOUT_MS": "3000000"
+          },
+          "model": "opus"
+        }
+        ```
+
+        Field reference:
+
+        | Field | Description |
+        | --- | --- |
+        | `ANTHROPIC_AUTH_TOKEN` | Your LLMEasy API Key |
+        | `ANTHROPIC_BASE_URL` | LLMEasy `Base URL` for Claude Code |
+        | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to `1` to reduce background traffic |
+        | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Model used for Haiku-level tasks |
+        | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Model used for Sonnet-level tasks |
+        | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Model used for Opus-level tasks |
+        | `model` | Default Claude Code model tier; `opus` uses `ANTHROPIC_DEFAULT_OPUS_MODEL` |
+
+        <Note>
+          `gpt-5.4` is an example **GPT Key group** model ID. Use the current **GPT Key group** model IDs listed in the <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>. You can map all three tiers to the same model or choose different ones.
+        </Note>
+      </Step>
+
+      <Step title="Restart Claude Code">
+        After updating the config file, fully quit Claude Code and start it again so the new config is loaded.
+      </Step>
+
+      <Step title="Complete first launch">
+        If this is your first time using Claude Code, run `claude` and follow the onboarding prompts.
+      </Step>
+
+      <Step title="Start Claude Code">
+        Open your project directory and run:
+
+        ```bash
+        claude
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Use the VS Code extension
+
+If you use the Claude Code VS Code extension:
+
+<Steps>
+  <Step title="Install the extension">
+    Search for **Claude Code** in the VS Code marketplace and install it.
+  </Step>
+  <Step title="Open settings">
+    Open the extension settings UI.
+  </Step>
+  <Step title="Set environment variables">
+    If you use the **Claude Key group**, click **Edit in settings.json** and update `claudeCode.environmentVariables`:
+
+    ```json
+    {
+      "claudeCode.environmentVariables": [
+        {
+          "name": "ANTHROPIC_BASE_URL",
+          "value": "{{anthropic-base-url}}"
+        },
+        {
+          "name": "ANTHROPIC_AUTH_TOKEN",
+          "value": "YOUR_API_KEY"
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+          "value": "1"
+        },
+        {
+          "name": "API_TIMEOUT_MS",
+          "value": "3000000"
+        }
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="Add model mappings for the GPT Key group">
+    If your API Key belongs to the **GPT Key group**, use:
+
+    ```json
+    {
+      "claudeCode.environmentVariables": [
+        {
+          "name": "ANTHROPIC_BASE_URL",
+          "value": "{{anthropic-base-url}}"
+        },
+        {
+          "name": "ANTHROPIC_AUTH_TOKEN",
+          "value": "YOUR_API_KEY"
+        },
+        {
+          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+          "value": "1"
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+          "value": "gpt-5.4"
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
+          "value": "gpt-5.4"
+        },
+        {
+          "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
+          "value": "gpt-5.4"
+        },
+        {
+          "name": "API_TIMEOUT_MS",
+          "value": "3000000"
+        }
+      ]
+    }
+    ```
+
+    <Note>
+      `gpt-5.4` is only an example **GPT Key group** model ID. Copy the current model ID from the <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>. When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+    </Note>
+  </Step>
+
+  <Step title="Restart the VS Code extension">
+    After editing `settings.json`, restart VS Code or reload the Claude Code extension so the updated settings take effect.
+  </Step>
+</Steps>
+
+## Related FAQ
+
+- Not sure what Claude Code is or what it can do? Read: [What is Claude Code and how does it work?](/en/faq/claude-code/what-is-claude-code)
+- Not sure whether Claude Code uses a Claude.ai account or an API Key? Read: [Does Claude Code use a Claude.ai account or an API Key?](/en/faq/claude-code/claude-account-or-api-key)
+- Not sure how API Key, Base URL, and protocol fit together? Read: [How to configure API Key and Base URL in Claude Code](/en/faq/claude-code/api-key-base-url)
+- Not sure whether to use an OpenAI-compatible or Anthropic-compatible endpoint? Read: [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- Want to control context and token cost? Read: [What is CLAUDE.md in Claude Code?](/en/faq/claude-code/claude-md) and [Why Claude Code uses so many tokens and how to reduce cost](/en/faq/token-cost/claude-code-token-usage)
+- Comparing tools? Read: [Claude Code vs Cursor for local development](/en/faq/claude-code/claude-code-vs-cursor) and [Claude Code vs Codex CLI](/en/faq/concepts/claude-code-vs-codex-cli)
+- Want to understand models, permissions, or MCP? Read: [How to switch Sonnet and Opus in Claude Code](/en/faq/claude-code/switch-sonnet-opus), [Claude Code permissions and hooks](/en/faq/claude-code/permissions-and-hooks), and [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+
+## Verify the setup
+
+Start Claude Code and send a message. A normal reply means the connection is working.
+
+If authentication fails, check:
+1. `ANTHROPIC_AUTH_TOKEN` contains the correct LLMEasy API Key
+2. `ANTHROPIC_BASE_URL` is `{{anthropic-base-url}}`
+3. The **Claude Key group** does not set model variables, while the **GPT Key group** includes the `ANTHROPIC_DEFAULT_*_MODEL` mappings
+4. No old environment variables are overriding your config
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="What should I do if I see API Error: Unable to connect to API (ConnectionRefused)?">
+    This usually means Claude Code cannot reach the LLMEasy API. It is normally a network, proxy, or firewall issue, not an API Key or model mapping problem.
+
+    Check that your local network is working, then confirm your system proxy, company network, router, or security software is not blocking `{{anthropic-base-url}}`. If you use a firewall, allow Claude Code to access that address.
+  </Accordion>
+</AccordionGroup>

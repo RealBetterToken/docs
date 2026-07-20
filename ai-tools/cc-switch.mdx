@@ -1,0 +1,297 @@
+---
+title: "Настройка CC Switch с LLMEasy"
+sidebarTitle: "CC Switch"
+description: "Подключите LLMEasy к CC Switch и управляйте Claude Code, Codex CLI, OpenCode и OpenClaw в одном месте."
+---
+
+CC Switch — кроссплатформенное desktop-приложение для управления providers в Claude Code, Codex, OpenCode и OpenClaw. На этой странице показано, как подключить LLMEasy к CC Switch для четырех путей LLMEasy, уже описанных в этой документации: Claude Code, Codex, OpenCode и OpenClaw.
+
+## Установка CC Switch
+
+<Tabs>
+  <Tab title="macOS">
+    Самый простой вариант — Homebrew. Также можно скачать актуальный `.dmg` или `.zip` из [GitHub Releases](https://github.com/farion1231/cc-switch/releases).
+
+    ```bash
+    brew tap farion1231/ccswitch
+    brew install --cask cc-switch
+    ```
+  </Tab>
+  <Tab title="Windows">
+    Скачайте актуальный installer `CC-Switch-v{version}-Windows.msi` или portable `.zip` build из [GitHub Releases](https://github.com/farion1231/cc-switch/releases).
+  </Tab>
+  <Tab title="Linux">
+    Скачайте актуальный `.deb`, `.rpm` или `.AppImage` build из [GitHub Releases](https://github.com/farion1231/cc-switch/releases).
+  </Tab>
+</Tabs>
+
+## Что подготовить
+
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- Claude Code использует Anthropic-протокол, поэтому его `Base URL` — `{{anthropic-base-url}}`
+- Codex, OpenCode и OpenClaw используют OpenAI-compatible protocol, поэтому их `Base URL` — `{{openai-base-url}}`
+- Подготовьте актуальный ID модели группы **GPT** для Codex, OpenCode и OpenClaw. Его можно скопировать из <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a> или дать CC Switch получить его из `/v1/models`
+
+<Info>
+  При первом запуске CC Switch автоматически импортирует конфигурации, которые уже находит на вашей машине. Можно оставить официальный provider как fallback и добавить LLMEasy рядом с ним.
+</Info>
+
+<Note>
+  LLMEasy использует два режима доступа: Anthropic и OpenAI-compatible. Чтобы не смешивать `{{anthropic-base-url}}` и `{{openai-base-url}}`, лучше создавать providers отдельно для каждого приложения, а не пытаться использовать один универсальный provider для Claude Code и OpenAI-compatible инструментов.
+</Note>
+
+## Добавьте provider LLMEasy
+
+<Tabs>
+  <Tab title="Claude Code" id="claude-code">
+    <Steps>
+      <Step title="Откройте Claude Code в CC Switch и добавьте provider">
+        Откройте CC Switch, переключитесь на **Claude Code** и нажмите **Add Provider**.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-add-provider.png"
+            alt="Страница Claude Code в CC Switch, кнопка добавления provider в правом верхнем углу."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Заполните базовые поля">
+        - **Provider Name**: `LLMEasy`
+        - **Base URL**: `{{anthropic-base-url}}`
+        - **API Key**: ваш API Key LLMEasy
+
+        Нумерованные маркеры на скриншоте соответствуют этим полям:
+
+        1. **Provider Name**
+        2. **API Key**
+        3. **Base URL**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-basic-fields.png"
+            alt="Страница редактирования provider в CC Switch с полями Provider Name, API Key и Base URL."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Настройте model mapping по группе API Key">
+        - Если вы используете группу ключа **Claude**, обычно не нужно менять advanced options или model mapping
+        - Если вы используете группу ключа **GPT**, выполните дополнительную настройку ниже:
+
+        1. Откройте **Advanced Options**
+        2. Установите **API Format** в **OpenAI Responses API**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-api-format.png"
+            alt="Advanced Options в CC Switch, API Format установлен в OpenAI Responses API."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        3. В **Model Mapping** нажмите **Fetch Model List**
+        4. Явно выберите значения в dropdown для **Primary Model**, **Thinking Model**, **Haiku Default Model**, **Sonnet Default Model** и **Opus Default Model**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-model-mapping.png"
+            alt="Раздел model mapping в CC Switch с Fetch Model List и mappings для Primary, Thinking, Haiku, Sonnet и Opus."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+
+        Все эти модели должны использовать актуальные model IDs группы **GPT** из <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>.
+      </Step>
+
+      <Step title="Сохраните, переключитесь и решите, нужен ли proxy">
+        После сохранения вернитесь к списку providers:
+
+        1. Отметьте provider LLMEasy как активный
+        2. Если вы используете группу ключа **Claude**, включать **CC Switch proxy** в левом верхнем углу не нужно
+        3. Если вы используете группу ключа **GPT**, включите **CC Switch proxy**
+
+        Скриншот ниже показывает случай `GPT`, когда proxy нужно включить.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/claude-code-enable-proxy.png"
+            alt="После сохранения provider LLMEasy выбран активным, а proxy toggle CC Switch включен в левом верхнем углу."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Codex" id="codex-cli">
+    <Steps>
+      <Step title="Откройте Codex в CC Switch и добавьте provider">
+        Откройте CC Switch, переключитесь на **Codex** и нажмите **Add Provider**. Если CC Switch сначала просит выбрать preset, предпочитайте **OpenAI Compatible** или **Custom**.
+
+        Нумерованные маркеры на скриншоте соответствуют этим действиям:
+
+        1. Переключитесь на **Codex**
+        2. Нажмите **Add Provider** в правом верхнем углу
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-add-provider.png"
+            alt="Страница Codex в CC Switch, Codex выбран сверху, а кнопка add в правом верхнем углу используется для создания provider."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Заполните базовые поля">
+        - **Provider Name**: `LLMEasy`
+        - **Base URL**: `{{openai-base-url}}`
+        - **API Key**: ваш API Key LLMEasy
+
+        Если вы переключитесь в custom config view, убедитесь, что базовая конфигурация использует `wire_api = "responses"`.
+
+        Нумерованные маркеры на скриншоте соответствуют этим полям:
+
+        1. **Provider Name**
+        2. **API Key**
+        3. **Base URL**
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-basic-fields.png"
+            alt="Страница редактирования Codex provider в CC Switch с полями Provider Name, API Key и Base URL."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Выберите модель по умолчанию">
+        Сначала нажмите **Fetch Models**. CC Switch использует настроенный API key, чтобы вызвать `/v1/models`, а затем показывает доступные модели в grouped dropdowns.
+
+        Если модели не вернулись, вставьте актуальный ID модели группы **GPT** вручную.
+
+        Нумерованные маркеры на скриншоте соответствуют этим действиям:
+
+        1. Нажмите **Fetch Model List**
+        2. Выберите нужную модель из dropdown
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-select-model.png"
+            alt="Страница редактирования Codex provider в CC Switch с кнопкой Fetch Model List и dropdown выбора модели."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Сохраните и переключитесь">
+        Сохраните provider и переключите Codex на LLMEasy. CC Switch сам запишет соответствующие Codex auth и config files.
+
+        После сохранения вернитесь к списку и убедитесь, что запись LLMEasy отмечена как **In Use**.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-activate-provider.png"
+            alt="Список Codex providers в CC Switch, LLMEasy выбран и отмечен как in use."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+
+      <Step title="Опционально: измените provider label в Codex App">
+        Если хотите, чтобы provider label в правом нижнем углу chat box Codex App было проще отличать, измените поле `name` в config на нужное имя, например `llmeasy`.
+
+        Это значение также управляет provider name внутри Codex App.
+
+        <Frame>
+          <img
+            src="/images/cc-switch/codex-cli-provider-name.png"
+            alt="Сгенерированный Codex config с выделенным полем name в model_providers.custom и provider label в правом нижнем углу chat box Codex App."
+            style={{ borderRadius: '0.5rem' }}
+          />
+        </Frame>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="OpenCode" id="opencode">
+    <Steps>
+      <Step title="Откройте OpenCode в CC Switch и добавьте provider">
+        Откройте CC Switch, переключитесь на **OpenCode** и нажмите **Add Provider**. Если CC Switch сначала просит preset, предпочитайте **OpenAI Compatible** или **Custom**.
+      </Step>
+
+      <Step title="Заполните базовые поля">
+        - **Provider Name**: `LLMEasy`
+        - **Base URL**: `{{openai-base-url}}`
+        - **API Key**: ваш API Key LLMEasy
+      </Step>
+
+      <Step title="Выберите модель по умолчанию">
+        Используйте **Fetch Models**, когда это возможно. Если модель нужно ввести вручную, используйте актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>.
+      </Step>
+
+      <Step title="Сохраните и переключитесь">
+        Сохраните provider и переключите OpenCode на LLMEasy.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="OpenClaw" id="openclaw">
+    <Steps>
+      <Step title="Откройте OpenClaw в CC Switch и добавьте provider">
+        Откройте CC Switch, переключитесь на **OpenClaw** и нажмите **Add Provider**. Если CC Switch сначала просит preset, предпочитайте **OpenAI Compatible** или **Custom**.
+      </Step>
+
+      <Step title="Заполните базовые поля">
+        - **Provider Name**: `LLMEasy`
+        - **Base URL**: `{{openai-base-url}}`
+        - **API Key**: ваш API Key LLMEasy
+
+        Если вы редактируете custom OpenClaw provider config, убедитесь, что `api` установлен в `openai-responses`.
+      </Step>
+
+      <Step title="Выберите модель по умолчанию">
+        Используйте **Fetch Models**, когда это возможно. Если модель нужно ввести вручную, используйте актуальный ID модели группы **GPT**.
+      </Step>
+
+      <Step title="Сохраните и переключитесь">
+        Сохраните provider и переключите OpenClaw на LLMEasy.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Как применить сохраненные изменения
+
+После сохранения и переключения providers перезапустите затронутый client или gateway перед проверкой настройки.
+
+- Claude Code: полностью завершите текущую сессию Claude Code, затем запустите ее заново.
+- Codex: перезапустите текущий процесс Codex или откройте новую terminal session.
+- OpenCode: завершите текущую сессию OpenCode и запустите ее снова.
+- OpenClaw: выполните `openclaw gateway restart`, затем используйте `/new`, `/status` и `/model` в Discord.
+
+## Частые проблемы
+
+- Не добавляйте `/v1` к Claude Code `Base URL`
+- Когда Claude Code использует группу ключа **GPT**, установите **API Format** в **OpenAI Responses API** в **Advanced Options**
+- Когда Claude Code использует группу ключа **Claude**, включать **CC Switch proxy** не нужно
+- Codex, OpenCode и OpenClaw должны использовать `{{openai-base-url}}`
+- Используйте ID модели группы **GPT** как default model для Codex, OpenCode и OpenClaw
+- Если **Fetch Models** не работает, проверьте API key и `Base URL`, затем вставьте model ID вручную
+- Если переключение не вступило в силу, убедитесь, что LLMEasy активный provider в CC Switch, и перезапустите затронутый client или gateway, как описано выше
+
+## Смежные страницы
+
+- Подробно про Claude Code: [Claude Code](/ai-tools/claude-code)
+- Подробно про Codex: [Codex](/ai-tools/codex)
+- Подробно про OpenCode: [OpenCode](/ai-tools/opencode)
+- Подробно про OpenClaw: [OpenClaw](/ai-tools/openclaw)
+
+## Связанные FAQ
+
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)

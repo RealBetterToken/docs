@@ -1,0 +1,58 @@
+---
+title: "Настройка кастомной модели Kilo Code через LLMEasy"
+sidebarTitle: "Kilo Code"
+description: "Подключите LLMEasy к Kilo Code с ID моделей группы GPT."
+icon: "puzzle-piece"
+---
+
+Kilo Code — это расширение для VS Code. Для подключения LLMEasy выберите provider `OpenAI Compatible` и используйте ID модели из группы **GPT**.
+
+## Требования
+
+- Установленный VS Code
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+
+## Настройка
+
+<Steps>
+  <Step title="Очистите конфликтующие переменные окружения">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Откройте настройки Kilo Code">
+    Откройте UI настроек Kilo Code.
+  </Step>
+
+  <Step title="Настройте API provider">
+    Заполните:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → ваш API Key LLMEasy
+    - **Model** → ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
+  </Step>
+
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Официальные материалы Kilo Code упоминают optional custom headers для OpenAI-compatible providers, но не считают `User-Agent` обязательным шагом настройки LLMEasy.
+
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
+  </Step>
+
+  <Step title="Перезапустите Kilo Code">
+    После изменения конфигурации перезапустите VS Code или перезагрузите расширение Kilo Code.
+  </Step>
+</Steps>
+
+<Note>
+  Если вам нужны extra headers, следуйте текущей документации Kilo Code или требованиям вашего upstream gateway, а не предполагайте, что `User-Agent` обязателен для LLMEasy.
+</Note>
+
+## Связанные FAQ
+
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)

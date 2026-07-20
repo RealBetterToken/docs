@@ -1,0 +1,85 @@
+---
+title: "API 参考"
+description: "LLMEasy 的接入地址、认证方式与协议区分。"
+---
+
+## 接入地址
+
+LLMEasy 现在按协议区分两个地址：
+
+| 场景 | Base URL | 协议 |
+|------|----------|------|
+| Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Anthropic |
+| Codex / `OPENAI_BASE_URL` / 其他外部工具 | `{{openai-base-url}}` | OpenAI 类协议 / OpenAI Responses |
+
+<Warning>
+  不要继续使用“一个地址适配所有协议”的旧写法。
+</Warning>
+
+## 认证与示例
+
+在请求中传入你的 LLMEasy API Key：
+
+<Tabs>
+  <Tab title="Claude Code / Anthropic">
+    ```python
+    import anthropic
+
+    client = anthropic.Anthropic(
+        base_url="{{anthropic-base-url}}",
+        api_key="YOUR_API_KEY",
+    )
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": "你好"}],
+    )
+    ```
+
+    ```bash
+    curl {{anthropic-base-url}}/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    ```
+  </Tab>
+  <Tab title="Codex / OpenAI Responses">
+    ```python
+    from openai import OpenAI
+
+    client = OpenAI(
+        base_url="{{openai-base-url}}",
+        api_key="YOUR_API_KEY",
+    )
+
+    response = client.responses.create(
+        model="从 {{model-plaza-url}} 复制的 GPT 分组模型 ID",
+        input="你好",
+    )
+    ```
+
+    ```bash
+    curl {{chat-completions-url}}       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    ```
+  </Tab>
+</Tabs>
+
+## 模型选择规则
+
+- **Claude Code + Claude 分组**：不要手动设置模型变量，只配置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`
+- **Claude Code + GPT 分组**：通过 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` 配置模型映射
+- **Codex**：在配置里填入从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组**模型 ID
+- **其他外部工具**：同样统一使用 **GPT 分组**模型 ID，不再沿用 Claude 系列固定模型名
+
+<Note>
+  对于外部工具，通常只需要按该工具官方文档填写 `Base URL`、API Key 和模型。只有当工具本身或你接入的上游网关明确要求额外 headers 时，再单独配置。
+</Note>
+
+## 环境变量速查
+
+| 变量 | 值 | 用途 |
+|------|----|------|
+| `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Claude Code |
+| `ANTHROPIC_AUTH_TOKEN` | 你的 API Key | Claude Code 认证 |
+| `OPENAI_BASE_URL` | `{{openai-base-url}}` | Codex 与其他 OpenAI 类协议工具 |
+| `OPENAI_API_KEY` | 你的 API Key | OpenAI 类协议工具认证 |
+| `API_TIMEOUT_MS` | `3000000` | 建议设置，防止长任务超时 |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code 专用，减少后台请求 |

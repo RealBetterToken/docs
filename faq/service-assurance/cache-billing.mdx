@@ -1,0 +1,74 @@
+---
+title: "Поддерживает ли LLMEasy оплату с учетом cache?"
+sidebarTitle: "Cache billing"
+description: "Что такое prompt caching, где смотреть cached tokens, чем отличаются protocols и как понять, был ли cache hit."
+---
+
+## Короткий ответ
+
+Будет ли скидка за cache, зависит от upstream-модели, API protocol и формата запроса. LLMEasy записывает и показывает usage на основе данных, которые возвращает upstream-модель.
+
+Если upstream-модель поддерживает prompt caching и возвращает cache-поля в ответе, cached tokens можно смотреть в response usage или call logs. Механика cache отличается у разных моделей. Не считайте, что каждая модель автоматически получает cache discount.
+
+## Что такое cache billing
+
+Prompt caching позволяет upstream-модели повторно использовать стабильный префикс, который повторяется в нескольких запросах. Если cache сработал, часть входного контекста может тарифицироваться по более низкой цене cached tokens.
+
+Это полезно для таких сценариев:
+
+- Длинные system prompts
+- Фиксированные инструкции проекта
+- Большой стабильный контекст документации
+- Повторяющиеся инструкции по репозиторию в многошаговых coding-задачах
+- Пакетные задачи с одинаковыми правилами и форматом ответа
+
+Caching не означает, что в prompt нужно помещать всё подряд. Динамические данные, timestamps, random IDs и пользовательский ввод лучше размещать ближе к концу запроса.
+
+## Отличия между protocols
+
+| Сценарий | Частая механика |
+| --- | --- |
+| OpenAI-compatible | Некоторые модели автоматически кэшируют стабильные префиксы, а response usage может содержать cached tokens |
+| Anthropic-compatible / Claude | Для некоторых моделей нужны явные метки `cache_control`, чтобы получить выгоду от cache |
+
+Одна и та же Claude-модель может вести себя по-разному через разные protocols. Если вы активно используете Claude Code или Anthropic-compatible API, сначала ориентируйтесь на Anthropic-native cache-механику.
+
+## Как понять, что cache сработал
+
+Проверьте поле `usage` в ответе или call record в dashboard. Названия полей зависят от API-формата:
+
+| API-формат | Частые cache-поля |
+| --- | --- |
+| OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
+| OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
+| Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
+
+Если значение больше 0, часть запроса обычно попала в cache. Если поля нет, возможны разные причины: модель не поддерживает cache, protocol не возвращает поле, запрос не попал в cache или инструмент скрывает raw usage.
+
+## Как повысить cache hit rate
+
+1. Размещайте стабильный контент в начале prompt.
+2. Данные, которые меняются от запроса к запросу, размещайте позже.
+3. Не помещайте timestamps, random IDs и изменяемые инструкции в стабильный префикс.
+4. Для однотипных задач по возможности используйте одну модель и один protocol.
+5. В Claude-native форматах добавляйте `cache_control` к content blocks, которые нужно кэшировать, по документации модели.
+6. Для пакетных задач сначала запустите небольшую выборку и проверьте usage fields, затем оценивайте общую стоимость.
+
+## Частые ошибки
+
+- Считать, что все модели автоматически поддерживают cache discounts.
+- Думать, что при cache hit весь запрос становится бесплатным.
+- Часто переключать модели и мешать повторному использованию cache.
+- Вызывать Claude через OpenAI-compatible формат и ждать Claude-native cache-поля.
+- Смотреть только на total tokens и не проверять cached tokens, cache read или cache creation.
+
+## О LLMEasy
+
+Billing и usage display в LLMEasy основаны на фактическом запросе, upstream usage information и текущей цене модели. Чтобы понять, сработал ли cache, проверяйте документацию модели, response usage fields и call records в dashboard вместе.
+
+## Связанные материалы
+
+- [Почему Claude Code расходует много tokens?](/faq/token-cost/claude-code-token-usage)
+- [Что такое max_tokens и что будет, если его не задать?](/faq/model-calling/max-tokens)
+- [Как заполнять Base URL?](/faq/model-calling/base-url-config)
+- [Чем отличаются OpenAI-compatible API и Anthropic-compatible API?](/faq/concepts/openai-compatible-vs-anthropic-compatible)

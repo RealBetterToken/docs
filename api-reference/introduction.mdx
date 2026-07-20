@@ -1,0 +1,85 @@
+---
+title: "Справочник API"
+description: "Endpoint, авторизация и настройка LLMEasy по протоколам."
+---
+
+## Endpoint
+
+LLMEasy использует два endpoint в зависимости от протокола:
+
+| Сценарий | Base URL | Протокол |
+|----------|----------|----------|
+| Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Anthropic |
+| Codex / `OPENAI_BASE_URL` / внешние инструменты | `{{openai-base-url}}` | OpenAI-style / OpenAI Responses |
+
+<Warning>
+  Не используйте один общий endpoint для всех протоколов.
+</Warning>
+
+## Авторизация и примеры
+
+Передавайте API Key LLMEasy вместе с запросом:
+
+<Tabs>
+  <Tab title="Claude Code / Anthropic">
+    ```python
+    import anthropic
+
+    client = anthropic.Anthropic(
+        base_url="{{anthropic-base-url}}",
+        api_key="YOUR_API_KEY",
+    )
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": "Hello"}],
+    )
+    ```
+
+    ```bash
+    curl {{anthropic-base-url}}/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    ```
+  </Tab>
+  <Tab title="Codex / OpenAI Responses">
+    ```python
+    from openai import OpenAI
+
+    client = OpenAI(
+        base_url="{{openai-base-url}}",
+        api_key="YOUR_API_KEY",
+    )
+
+    response = client.responses.create(
+        model="ID модели группы GPT из {{model-plaza-url}}",
+        input="Hello",
+    )
+    ```
+
+    ```bash
+    curl {{chat-completions-url}}       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    ```
+  </Tab>
+</Tabs>
+
+## Правила выбора модели
+
+- **Claude Code + Группа ключа Claude**: не задавайте переменные моделей вручную; настройте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
+- **Claude Code + Группа ключа GPT**: добавьте сопоставления через `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` и `ANTHROPIC_DEFAULT_OPUS_MODEL`
+- **Codex**: используйте ID модели из группы **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+- **Внешние инструменты**: также используйте модели группы **GPT**, а не фиксированные имена Claude-моделей
+
+<Note>
+  Для внешних инструментов обычно достаточно `Base URL`, API Key и модели, которые указаны в официальной документации инструмента. Добавляйте дополнительные headers только если сам инструмент или ваш upstream gateway явно требуют этого.
+</Note>
+
+## Справочник переменных окружения
+
+| Переменная | Значение | Где используется |
+|------------|----------|------------------|
+| `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Claude Code |
+| `ANTHROPIC_AUTH_TOKEN` | Ваш API Key | Авторизация Claude Code |
+| `OPENAI_BASE_URL` | `{{openai-base-url}}` | Codex и другие OpenAI-style инструменты |
+| `OPENAI_API_KEY` | Ваш API Key | Авторизация OpenAI-style инструментов |
+| `API_TIMEOUT_MS` | `3000000` | Рекомендуется для длинных задач |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Только Claude Code |

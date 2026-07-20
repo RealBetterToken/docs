@@ -1,0 +1,63 @@
+---
+title: "How to configure a custom OpenAI API Key and Base URL in Cursor"
+sidebarTitle: "Cursor custom API"
+description: "Understand Cursor OpenAI-compatible API Key, Override OpenAI Base URL, custom model, and model ID boundaries."
+---
+
+## Short answer
+
+To configure a custom OpenAI-compatible API in Cursor, keep three fields aligned: API Key, Base URL, and Model ID.
+
+API Key authenticates the request. Base URL decides which provider receives the request. Model ID decides which model to use. All three should come from the same provider or compatible gateway.
+
+## When this matters
+
+- You want Cursor to use a third-party OpenAI-compatible provider
+- You need to set Override OpenAI Base URL
+- You are adding a custom model
+- You see model not found or authentication failures
+- You want Cursor, Codex, and other tools to share one model routing layer
+
+## Field meanings
+
+| Field | Role |
+| --- | --- |
+| API Key | Authentication credential |
+| Base URL | OpenAI-compatible endpoint, usually a `/v1` URL |
+| Model ID | Model identifier recognized by the provider |
+| Custom model | Manually added or selected model inside Cursor |
+
+## Recommended steps
+
+1. Create an API Key in the provider dashboard.
+2. Add the API Key in Cursor model settings.
+3. Enter the provider Base URL in Override OpenAI Base URL.
+4. Add or select a Model ID supported by the provider.
+5. Save and verify with a simple request.
+
+## Common mistakes
+
+- Using an API Key from one provider and Base URL from another.
+- Putting a Claude model name into OpenAI-compatible configuration.
+- Using a UI display name instead of an API model ID.
+- Thinking Cursor Rules affect API authentication.
+- Forgetting that a global override can affect other OpenAI models.
+
+## About LLMEasy
+
+Cursor and similar external tools usually use OpenAI-compatible setup. LLMEasy Base URL is `{{openai-base-url}}`, and model IDs come from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+Do not put the Claude Code `{{anthropic-base-url}}` into Cursor OpenAI-compatible configuration.
+
+## Related docs
+
+- [Cursor Rules, AGENTS.md, and .cursorignore](/en/faq/cursor/rules-agents-cursorignore)
+- [How to configure MCP in Cursor](/en/faq/cursor/mcp)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [Cursor documentation](https://cursor.com/docs)
+- [Cursor forum: custom model API key and base URL](https://forum.cursor.com/t/can-the-api-key-and-base-url-corresponding-to-a-custom-model-be-set-separately-when-adding-a-cursor/137108)
+- [Cursor forum: OpenAI API and Override Base URL](https://forum.cursor.com/t/openai-api-and-override-base-url-values/148140)

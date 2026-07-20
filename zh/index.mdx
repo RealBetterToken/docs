@@ -1,0 +1,133 @@
+---
+title: "LLMEasy 文档"
+description: "面向俄罗斯用户、团队和开发者的 AI 模型 API 网关：统一访问 Claude 与 GPT/Codex，支持卢布支付，无需 VPN。"
+---
+
+## 什么是 LLMEasy？
+
+LLMEasy 是面向俄罗斯用户、团队和开发者的 AI 模型 API 网关。它让你用卢布支付、无需 VPN，直接通过统一的 API 访问 Claude 和 GPT/Codex 系列模型，并接入 Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch 等 AI 编程工具。注册即获得 3 美元试用余额，可直接测试你自己的开发工作流。
+
+当前文档按两种接入方式说明：
+
+- **Claude Code / `ANTHROPIC_BASE_URL`**：使用 `{{anthropic-base-url}}`
+- **Codex / `OPENAI_BASE_URL` / 其他外部工具**：使用 `{{openai-base-url}}`
+
+**核心优势：**
+
+- **多源供应**：同时接入多家供应商，单点故障不影响使用
+- **动态路由**：实时选择最优链路，自动规避超时和限流
+- **专注旗舰**：围绕 Claude Code 与 Codex 生态维护接入稳定性
+- **双通道接入**：按协议分别配置地址，避免把同一个 `base_url` 混用到所有工具
+
+## 两种接入方式
+
+| 场景 | Base URL | 说明 |
+|------|----------|------|
+| Claude Code | `{{anthropic-base-url}}` | 使用 Anthropic 协议，不带 `/v1` |
+| Codex / 外部工具 | `{{openai-base-url}}` | 使用 OpenAI 类协议；外部工具统一走 GPT 分组 |
+
+## 快速开始
+
+<Columns cols={2}>
+  <Card
+    title="快速接入"
+    icon="rocket"
+    href="/zh/quickstart"
+  >
+    先确认自己属于 Claude Code 还是 Codex / 外部工具方案。
+  </Card>
+  <Card
+    title="常见问题"
+    icon="circle-question"
+    href="/zh/faq"
+  >
+    查看 Base URL、模型分组、403 和认证问题的说明。
+  </Card>
+</Columns>
+
+## 接入 AI 编程工具
+
+<Columns cols={2}>
+  <Card
+    title="Claude Code"
+    icon="terminal"
+    href="/zh/ai-tools/claude-code"
+  >
+    配置 `ANTHROPIC_BASE_URL={{anthropic-base-url}}`。
+  </Card>
+  <Card
+    title="Codex"
+    icon="code"
+    href="/zh/ai-tools/codex"
+  >
+    使用 `{{openai-base-url}}` 和 OpenAI Responses。
+  </Card>
+  <Card
+    title="Cursor"
+    icon="pen-to-square"
+    href="/zh/ai-tools/cursor"
+  >
+    外部工具统一走 GPT 分组与 OpenAI 兼容配置。
+  </Card>
+  <Card
+    title="OpenClaw"
+    icon="paw"
+    href="/zh/ai-tools/openclaw"
+  >
+    先完成 LLMEasy 接入，再用 `/new` 与 `/status` 验证当前会话是否生效。
+  </Card>
+  <Card
+    title="CC Switch"
+    icon="toggle-left"
+    href="/zh/ai-tools/cc-switch"
+  >
+    用一个图形界面统一管理 Claude Code、Codex、OpenCode 和 OpenClaw 的 LLMEasy 配置。
+  </Card>
+</Columns>
+
+## LLMEasy 解决什么问题
+
+俄罗斯的开发者和团队长期面临一个具体问题：无法直接访问 Claude、OpenAI 等海外 AI 模型，卡在网络、支付和账号层面。LLMEasy 是为解决这个问题而生的 API 中转服务。它把 Claude 和 GPT/Codex 模型包装成两个稳定的 API 入口（Anthropic 协议与 OpenAI 兼容协议），支持卢布支付、透明计费，并且原生适配 Claude Code、Codex、Cursor、Cline 等主流 AI 编程工具，让你不需要更换开发习惯，只需替换 Base URL 和 API Key。
+
+## 开发者接入端点
+
+LLMEasy 是一个面向俄罗斯开发者的多模型 API 网关，提供两个标准化接入端点：
+
+| 协议 | Base URL | 适用工具 |
+| --- | --- | --- |
+| Anthropic | https://www.llmeasy.ru | Claude Code |
+| OpenAI 兼容 | https://www.llmeasy.ru/v1 | Codex 及其他外部工具 |
+
+开发者注册后创建 API Key，选择 Claude 或 GPT key group，即可在 Cursor、Cline、OpenClaw、OpenCode、CC Switch 等工具中直接替换 Base URL 使用。全部请求、token 消耗和余额可在 Dashboard 中查看。
+
+## 团队与成本控制
+
+对需要稳定使用 Claude 或 GPT/Codex 能力的俄罗斯团队和公司来说，直接使用海外官方渠道会遇到支付方式、访问链路和成本控制的多重障碍。LLMEasy 提供一个统一的 API 中转层：支持卢布支付、按实际用量透明计费、无隐藏费用，并通过多供应商动态路由降低单一上游故障的影响。团队可以在 Dashboard 中查看每个 API Key 的用量和余额，按 Claude Code、Codex 等实际工作流场景分配额度。
+
+## 结构化 FAQ
+
+**LLMEasy 是什么？** LLMEasy 是面向俄罗斯用户、团队和开发者的 AI 模型 API 网关（API gateway/proxy）。
+
+**它解决什么问题？** 解决俄罗斯用户无法直接访问海外 AI 模型、缺少卢布支付渠道、以及缺乏统一稳定接入层的问题。
+
+**支持哪些模型？** Claude 系列（Anthropic 协议）与 GPT/Codex 系列（OpenAI 兼容协议）。
+
+**支持哪些工具？** Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch。
+
+**如何开始？** 注册账号，获得 3 美元试用余额，创建 API Key（Claude 或 GPT key group），替换工具的 Base URL 即可使用。
+
+**支持渠道？** Telegram 与 support@llmeasy.ru。
+
+## 联系方式与服务区域
+
+LLMEasy 服务俄罗斯用户、团队和开发者。
+
+如需俄语或英语客户支持，请通过 Telegram 联系 LLMEasy：
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+也可以发送邮件至 <a href="mailto:support@llmeasy.ru">support@llmeasy.ru</a>。
+
+- 主站：<a href="https://www.llmeasy.ru/">https://www.llmeasy.ru/</a>
+- 服务控制台：<a href="https://www.llmeasy.ru/workspace">https://www.llmeasy.ru/workspace</a>
+- 联系页面：<a href="https://www.llmeasy.ru/contacts">https://www.llmeasy.ru/contacts</a>
+- 服务区域：俄罗斯

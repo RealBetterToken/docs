@@ -1,0 +1,136 @@
+---
+title: "Как настроить custom provider в config.toml Codex CLI"
+sidebarTitle: "config.toml"
+description: "Настройте custom provider Codex CLI: путь к файлу, Base URL, API Key через переменную окружения, уровни конфигурации, проверка и типовые ошибки."
+---
+
+## Короткий ответ
+
+Добавьте пользовательскую конфигурацию в `~/.codex/config.toml` и свяжите `model_provider = "custom"` с `[model_providers.custom]`. Для LLMEasy укажите `{{openai-base-url}}` в `base_url`, `responses` в `wire_api` и Model ID из **группы ключа GPT**. API Key безопаснее читать через `env_key` из локальной переменной окружения, а не хранить в TOML или репозитории.
+
+## Найдите правильный файл конфигурации
+
+| Среда | Пользовательская конфигурация |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | `~/.codex/config.toml` внутри WSL |
+
+В расширении Codex для VS Code нажмите шестерёнку и выберите **Codex Settings → Open config.toml**. CLI и IDE extension используют одни и те же уровни конфигурации.
+
+<Warning>
+  Provider и authentication settings должны находиться в пользовательском `~/.codex/config.toml`. Файл проекта `.codex/config.toml` подходит для project overrides, но Codex игнорирует в нём `model_provider` и `model_providers`. Инструкции проекта храните в `AGENTS.md`.
+</Warning>
+
+## Минимальная рабочая конфигурация
+
+<Steps>
+  <Step title="Задайте переменную окружения с API Key">
+    macOS, Linux или WSL:
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell:
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    Замените `YOUR_API_KEY` на API Key LLMEasy. Для постоянного использования храните переменную в защищённой конфигурации системы, а не в репозитории проекта.
+  </Step>
+  <Step title="Измените config.toml">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model` приведён как пример. Скопируйте актуальный Model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+  <Step title="Перезапустите и проверьте">
+    Полностью завершите Codex, откройте новый терминал и выполните:
+
+    ```bash
+    codex
+    ```
+
+    Отправьте простой запрос. Нормальный ответ подтверждает, что provider, authentication и Model ID применены.
+  </Step>
+</Steps>
+
+## Рекомендуемая полная конфигурация
+
+Используйте этот вариант, если нужен review model и увеличенный тайм-аут stream:
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers.custom]
+name = "{{codex-provider-name}}"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+Объединяйте существующие поля верхнего уровня и содержимое `[model_providers.custom]`. Не объявляйте одну TOML-таблицу дважды.
+
+## Как связаны основные поля
+
+| Поле | Назначение | Значение для LLMEasy |
+| --- | --- | --- |
+| `model_provider` | Выбирает provider ID | `"custom"` |
+| `[model_providers.custom]` | Описывает этот provider | Должен совпадать с `model_provider` |
+| `base_url` | Endpoint запросов модели | `{{openai-base-url}}` |
+| `env_key` | Имя переменной с API Key | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | Протокол provider | `"responses"` |
+| `requires_openai_auth` | Использовать официальную authentication OpenAI | `false` для обычного стороннего API |
+| `model` | Model ID по умолчанию | Актуальный ID из группы ключа GPT |
+
+<Note>
+  Чтобы сохранить официальный login state Codex App, плагины и Remote Control при использовании стороннего API, применяйте отдельную [инструкцию по сохранению входа и общей истории](/faq/codex/official-login-third-party-api), а не этот обычный пример authentication.
+</Note>
+
+## Частые ошибки
+
+| Симптом | Причина | Решение |
+| --- | --- | --- |
+| Provider не найден | `model_provider` не совпадает с именем таблицы | Используйте `custom` в обоих местах |
+| При запуске отсутствует API Key | Переменная не задана или терминал её ещё не прочитал | Задайте `MODEL_PROVIDER_API_KEY` и откройте новый терминал |
+| `401` или `403` | Неверный Key или смешаны способы authentication | Скопируйте Key заново; проверьте имя `env_key` и `requires_openai_auth = false` |
+| `404` | В Base URL нет `/v1` или выбран неверный протокол | Используйте `{{openai-base-url}}` |
+| Model not found | Model ID недоступен или не входит в группу ключа GPT | Скопируйте актуальный ID из model plaza |
+| Изменения не применяются | Неверный уровень, путь или WSL-среда | Измените пользовательский файл в среде, где запущен Codex, затем перезапустите Codex |
+| Ошибка разбора TOML | Дублирующаяся таблица, кавычки или вложенность | Удалите дубликаты `[model_providers.custom]` и проверьте кавычки |
+
+## Связанные документы
+
+- [Полная инструкция по Codex](/ai-tools/codex)
+- [Custom Base URL в расширении Codex для VS Code](/ai-tools/codex-vscode)
+- [Что такое model_provider, base_url и wire_api](/faq/codex/model-provider-base-url-wire-api)
+- [Sandbox и approval mode в Codex CLI](/faq/codex/sandbox-approval)
+- [Что такое AGENTS.md](/faq/codex/agents-md)
+
+## References
+
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)

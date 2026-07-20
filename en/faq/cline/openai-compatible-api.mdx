@@ -1,0 +1,75 @@
+---
+title: "How to configure the LLMEasy OpenAI-compatible API in Cline"
+sidebarTitle: "Cline OpenAI-compatible"
+description: "Enter the correct Cline provider, Base URL, API Key, and Model ID for LLMEasy, then verify the connection and fix common errors."
+---
+
+## Direct answer
+
+In Cline, select **OpenAI Compatible**, set **Base URL** to `{{openai-base-url}}`, paste your LLMEasy API Key, and enter a Model ID from the **GPT Key group**. Do not use the Anthropic-compatible address for Claude Code, and do not select the official **OpenAI** provider.
+
+| Cline field | LLMEasy value |
+| --- | --- |
+| API Provider | `OpenAI Compatible` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | Your LLMEasy API Key |
+| Model ID | A model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+<Info>
+  This FAQ focuses on the values for each field and connection troubleshooting. If you need to start with installation, follow the [complete Cline setup guide](/en/ai-tools/cline).
+</Info>
+
+## Complete setup
+
+<Steps>
+  <Step title="Prepare the API Key and Model ID">
+    Create an API Key, then copy a currently available Model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>. Enter the ID exactly as shown instead of using the marketing display name.
+  </Step>
+  <Step title="Open Cline settings">
+    Open the Cline panel in VS Code and click the gear icon.
+  </Step>
+  <Step title="Select OpenAI Compatible">
+    Under **API Provider**, select **OpenAI Compatible**. This provider connects Cline to a third-party OpenAI-compatible endpoint.
+  </Step>
+  <Step title="Enter the four required values">
+    Fill in Provider, Base URL, API Key, and Model ID using the table above. The Base URL must include `/v1`.
+
+    If **Use Azure Identity Authentication** appears, leave it disabled. LLMEasy authenticates with an API Key, not Azure Identity.
+  </Step>
+  <Step title="Verify the connection">
+    Click **Verify** in Cline. After verification succeeds, create a task and send a simple prompt to confirm that the model responds and tool calls work.
+  </Step>
+</Steps>
+
+## Which advanced fields should you change?
+
+Cline may also show Context Window, Max Output Tokens, Image Support, or Computer Use. Keep the defaults for the first connection. Change a field only when the model plaza or model documentation confirms the relevant capability and limit.
+
+Model prices can change. Do not rely on a fixed price saved in local Cline settings; check the current model and price in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Common errors
+
+| Symptom | Check first | Fix |
+| --- | --- | --- |
+| `Invalid API Key` or `401` | Whether the Key is complete and belongs to the current account | Copy the Key again, remove surrounding spaces, and do not mix it with an official OpenAI Key |
+| `Model Not Found` | Whether the Model ID belongs to the GPT Key group | Copy an available ID from the model plaza without changing its case or suffix |
+| `404` or endpoint not found | Whether `/v1` is missing | Use `{{openai-base-url}}`, not the Anthropic-compatible Claude Code address |
+| Connection timeout | Local network, firewall, or stale proxy settings | Confirm LLMEasy opens in your browser, disable an invalid proxy, and run **Verify** again |
+| Old configuration still applies | The Cline session has not refreshed | Save the settings, reopen Cline, or run **Developer: Reload Window** |
+
+## Where this setup applies
+
+These values connect Cline to **GPT Key group** models through the LLMEasy OpenAI-compatible endpoint. They do not change Cline Rules, Memory Bank, MCP, or local tool permissions.
+
+For Claude Code, use the Anthropic-compatible address without `/v1` and follow the [Claude Code setup guide](/en/ai-tools/claude-code).
+
+## Related docs
+
+- [Complete Cline setup guide](/en/ai-tools/cline)
+- [OpenAI-compatible vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [How Base URL, API Key, and Model ID fit together](/en/faq/model-calling/base-url-config)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+
+## References
+
+- [Cline OpenAI Compatible provider](https://docs.cline.bot/provider-config/openai-compatible)

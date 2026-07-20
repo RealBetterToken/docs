@@ -1,0 +1,168 @@
+---
+title: "OpenCode 自定义模型接入 LLMEasy 指南"
+sidebarTitle: "OpenCode"
+description: "在 OpenCode 中使用 LLMEasy，接入 GPT 分组模型。"
+icon: "brackets-curly"
+---
+
+在 OpenCode 中接入 LLMEasy，建议先用 `/connect` 添加凭证，再在配置文件中声明 LLMEasy 这个 OpenAI-compatible provider，并填入 GPT 分组模型 ID。
+
+## 前置条件
+
+- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+
+## 安装 OpenCode
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## 配置步骤
+
+<Tabs>
+  <Tab title="自动配置">
+    你可以直接运行 LLMEasy 提供的自动配置脚本。它只负责写入 LLMEasy provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
+
+    按你的操作系统执行对应步骤。你只需要执行其中一项。
+
+    <Steps>
+      <Step title="如果你使用 macOS / Linux">
+        ```bash
+        curl -fsSL {{install-opencode-provider-sh-url}} | bash
+        ```
+      </Step>
+      <Step title="如果你使用 Windows">
+        ```powershell
+        iwr {{install-opencode-provider-ps1-url}} -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="通过 CC-Switch 配置">
+    这条接入路径由 [CC Switch 接入文档](/zh/ai-tools/cc-switch#opencode) 统一维护。
+
+    直接查看 [CC Switch 中的 OpenCode 配置步骤](/zh/ai-tools/cc-switch#opencode)。
+
+    通过 CC Switch 完成配置后，再回到本页继续参考启动、验证或生效说明。
+  </Tab>
+
+  <Tab title="手动配置">
+    <Steps>
+      <Step title="清除冲突的环境变量">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
+
+      <Step title="先用 /connect 添加 LLMEasy 凭证">
+        启动 OpenCode 后运行：
+
+        ```bash
+        /connect
+        ```
+
+        在向导里选择 **Other**，然后：
+
+        - **provider id** 填 `llmeasy`
+        - 粘贴你的 LLMEasy API Key
+
+        OpenCode 会将凭证保存到 `~/.local/share/opencode/auth.json`。
+      </Step>
+
+      <Step title="编辑 OpenCode 配置文件">
+        你可以使用全局配置 `~/.config/opencode/opencode.json`，也可以在项目根目录创建 `opencode.json`。项目级配置优先级更高。
+
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "provider": {
+            "llmeasy": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "LLMEasy",
+              "options": {
+                "baseURL": "{{openai-base-url}}"
+              },
+              "models": {
+                "YOUR_GPT_MODEL_ID": {
+                  "name": "YOUR_GPT_MODEL_ID"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
+      </Step>
+
+      <Step title="如需在配置文件里直接写 API Key，可使用备用写法">
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "provider": {
+            "llmeasy": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "LLMEasy",
+              "options": {
+                "baseURL": "{{openai-base-url}}",
+                "apiKey": "YOUR_API_KEY"
+              },
+              "models": {
+                "YOUR_GPT_MODEL_ID": {
+                  "name": "YOUR_GPT_MODEL_ID"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        这是备用方式。更推荐使用上一节的 `/connect`。
+      </Step>
+
+      <Step title="仅在有 provider-specific 需求时再使用 `options.headers`">
+        OpenCode 官方文档支持通过 `provider.<id>.options.headers` 添加自定义 headers，但这是可选能力。接入 LLMEasy 时通常不需要额外设置 `User-Agent`。
+
+        如果你还接了 Helicone、租户路由网关、审计或缓存服务，再按这些上游服务的官方文档补充所需 headers。
+      </Step>
+
+      <Step title="重启 OpenCode">
+        修改配置文件后，请退出当前 OpenCode 会话，再重新启动。
+      </Step>
+
+      <Step title="启动 OpenCode">
+        ```bash
+        cd /path/to/your/project
+        opencode
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## 相关 FAQ
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
+
+## 注意事项
+
+- 默认模型请填写 **GPT 分组模型 ID**，不要再写 Claude 系列固定模型名
+- LLMEasy 这类 OpenAI-compatible provider 当前应优先使用 `@ai-sdk/openai-compatible`
+- 如果你使用 `/connect`，一般不需要再把 API Key 明文写进配置文件
+- OpenCode 官方文档将 `options.headers` 视为可选扩展配置；接入 LLMEasy 时通常不需要额外 headers

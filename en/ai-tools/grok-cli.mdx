@@ -1,0 +1,64 @@
+---
+title: "Connect Grok CLI to LLMEasy with a custom model"
+sidebarTitle: "Grok CLI"
+description: "Connect LLMEasy to Grok CLI with GPT Key group model IDs."
+icon: "g"
+---
+
+Grok CLI uses environment variables for API configuration. When connecting LLMEasy, use `{{openai-base-url}}` and a model ID from the GPT Key group.
+
+<Warning>
+  Grok CLI is better suited to lightweight usage. For full agent workflows, prefer Claude Code, Codex, or OpenClaw.
+</Warning>
+
+## Prerequisites
+
+- Node.js installed
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+
+## Install Grok CLI
+
+```bash
+npm install -g @vibe-kit/grok-cli
+```
+
+## Setup
+
+<Steps>
+  <Step title="Clear conflicting environment variables">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Set LLMEasy environment variables">
+    ```bash
+    export GROK_BASE_URL="{{openai-base-url}}"
+    export GROK_API_KEY="YOUR_API_KEY"
+    ```
+  </Step>
+
+  <Step title="Start Grok CLI with a model">
+    ```bash
+    grok --model YOUR_GPT_MODEL_ID
+    ```
+
+    Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+
+  <Step title="Restart Grok CLI">
+    After changing the environment variables, close the current Grok CLI session and start the tool again.
+  </Step>
+</Steps>
+
+<Note>
+  We did not find an official Grok CLI setup requirement that makes `User-Agent` mandatory for LLMEasy. Check the environment variables, model ID, and tool version first; only add headers when your upstream gateway explicitly requires them.
+</Note>
+
+## Related FAQ
+
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)

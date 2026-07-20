@@ -1,0 +1,85 @@
+---
+title: "API Reference"
+description: "LLMEasy endpoints, authentication, and protocol-specific setup."
+---
+
+## Endpoints
+
+LLMEasy now uses two different endpoints by protocol:
+
+| Scenario | Base URL | Protocol |
+|----------|----------|----------|
+| Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Anthropic |
+| Codex / `OPENAI_BASE_URL` / external tools | `{{openai-base-url}}` | OpenAI-style / OpenAI Responses |
+
+<Warning>
+  Do not keep using one shared endpoint for every protocol.
+</Warning>
+
+## Authentication and examples
+
+Pass your LLMEasy API Key with the request:
+
+<Tabs>
+  <Tab title="Claude Code / Anthropic">
+    ```python
+    import anthropic
+
+    client = anthropic.Anthropic(
+        base_url="{{anthropic-base-url}}",
+        api_key="YOUR_API_KEY",
+    )
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": "Hello"}],
+    )
+    ```
+
+    ```bash
+    curl {{anthropic-base-url}}/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    ```
+  </Tab>
+  <Tab title="Codex / OpenAI Responses">
+    ```python
+    from openai import OpenAI
+
+    client = OpenAI(
+        base_url="{{openai-base-url}}",
+        api_key="YOUR_API_KEY",
+    )
+
+    response = client.responses.create(
+        model="model ID copied from the GPT Key group in {{model-plaza-url}}",
+        input="Hello",
+    )
+    ```
+
+    ```bash
+    curl {{chat-completions-url}}       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    ```
+  </Tab>
+</Tabs>
+
+## Model selection rules
+
+- **Claude Code + Claude Key group**: do not set model variables manually; only configure `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
+- **Claude Code + GPT Key group**: add model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`
+- **Codex**: use a model ID copied from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>
+- **External tools**: also use **GPT Key group** model IDs instead of fixed Claude model names
+
+<Note>
+  For external tools, you usually only need the `Base URL`, API key, and model specified by that tool's official docs. Only add extra headers when the tool itself or your upstream gateway explicitly requires them.
+</Note>
+
+## Environment variable reference
+
+| Variable | Value | Usage |
+|----------|-------|-------|
+| `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Claude Code |
+| `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code auth |
+| `OPENAI_BASE_URL` | `{{openai-base-url}}` | Codex and other OpenAI-style tools |
+| `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
+| `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |

@@ -1,0 +1,63 @@
+---
+title: "Как настроить custom OpenAI API Key и Base URL в Cursor"
+sidebarTitle: "Cursor custom API"
+description: "Разберите Cursor OpenAI-compatible API Key, Override OpenAI Base URL, custom model и границы Model ID."
+---
+
+## Короткий ответ
+
+Для custom OpenAI-compatible API в Cursor держите согласованными три поля: API Key, Base URL и Model ID.
+
+API Key авторизует запрос. Base URL определяет provider, куда уходит запрос. Model ID определяет модель. Все три значения должны относиться к одному provider или compatible gateway.
+
+## Когда это важно
+
+- Вы хотите использовать third-party OpenAI-compatible provider в Cursor
+- Нужно задать Override OpenAI Base URL
+- Вы добавляете custom model
+- Видите model not found или authentication failures
+- Хотите, чтобы Cursor, Codex и другие tools использовали один model routing layer
+
+## Значение полей
+
+| Поле | Роль |
+| --- | --- |
+| API Key | Authentication credential |
+| Base URL | OpenAI-compatible endpoint, обычно `/v1` URL |
+| Model ID | Model identifier, который распознает provider |
+| Custom model | Модель, вручную добавленная или выбранная в Cursor |
+
+## Рекомендуемые шаги
+
+1. Создайте API Key в provider dashboard.
+2. Добавьте API Key в Cursor model settings.
+3. Введите provider Base URL в Override OpenAI Base URL.
+4. Добавьте или выберите Model ID, который поддерживает provider.
+5. Сохраните и проверьте простым запросом.
+
+## Частые ошибки
+
+- API Key от одного provider, а Base URL от другого.
+- Claude model name в OpenAI-compatible configuration.
+- UI display name вместо API model ID.
+- Думать, что Cursor Rules влияют на API authentication.
+- Забывать, что global override может влиять на другие OpenAI models.
+
+## О LLMEasy
+
+Cursor и похожие external tools обычно используют OpenAI-compatible setup. Base URL LLMEasy — `{{openai-base-url}}`, а model IDs берутся из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+Не вставляйте Claude Code `{{anthropic-base-url}}` в Cursor OpenAI-compatible configuration.
+
+## Связанные материалы
+
+- [Cursor Rules, AGENTS.md и .cursorignore](/faq/cursor/rules-agents-cursorignore)
+- [Как настроить MCP в Cursor](/faq/cursor/mcp)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [Cursor documentation](https://cursor.com/docs)
+- [Cursor forum: custom model API key and base URL](https://forum.cursor.com/t/can-the-api-key-and-base-url-corresponding-to-a-custom-model-be-set-separately-when-adding-a-cursor/137108)
+- [Cursor forum: OpenAI API and Override Base URL](https://forum.cursor.com/t/openai-api-and-override-base-url-values/148140)

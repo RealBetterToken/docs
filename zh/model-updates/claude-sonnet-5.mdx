@@ -1,0 +1,46 @@
+---
+title: "Claude Sonnet 5 上线"
+description: "LLMEasy 于 2026-07-01 更新 Claude Sonnet 5，适合 Claude Code、编码 Agent、长上下文任务和需要更高 Sonnet 能力的工作流。"
+tag: "NEW"
+---
+
+发布日期：2026-07-01
+
+LLMEasy 已更新 `Claude Sonnet 5` 相关模型入口。你可以在<a href={"{{model-plaza-url}}"}>模型广场</a>查看当前可用模型 ID 和实时价格，并按 Claude Code 或外部工具的接入文档配置。
+
+`Claude Sonnet 5` 是 Sonnet 系列的新一代模型。Anthropic 将它定位为 `Claude Sonnet 4.6` 的升级版本，重点提升编码、Agent 类任务和专业工作场景。
+
+## 更新亮点
+
+- **更适合编码与 Agent 任务**：Anthropic 表示 Sonnet 5 相比 Sonnet 4.6 的主要提升集中在编码和 Agent 类任务
+- **上下文窗口更大**：Sonnet 5 默认支持 `1M tokens` 上下文窗口，最大输出为 `128K tokens`
+- **自适应思考默认开启**：不传 `thinking` 字段时，Sonnet 5 会默认使用 adaptive thinking
+- **迁移改动较少**：如果你已经在使用 Sonnet 4.6，大多数请求可以直接把模型 ID 换成 `claude-sonnet-5`
+- **安全保护更明确**：涉及高风险网络安全内容时，模型可能以 `stop_reason: "refusal"` 返回拒答结果，而不是 HTTP 错误
+
+## 迁移注意点
+
+如果你从 Sonnet 4.6 迁移到 Sonnet 5，请重点检查以下配置：
+
+- **重新评估 `max_tokens`**：Sonnet 5 的思考过程和最终回答共享输出上限，原来贴近上限的任务需要重新留出空间
+- **删除手动思考预算**：`thinking: { "type": "enabled", "budget_tokens": ... }` 在 Sonnet 5 上不再支持，请改用 adaptive thinking
+- **不要设置非默认采样参数**：`temperature`、`top_p`、`top_k` 使用非默认值时可能返回 `400` 错误
+- **重新测量 token 数**：Sonnet 5 使用新的 tokenizer，同一段文本的 token 数可能比 Sonnet 4.6 更高
+
+## 配置建议
+
+如果你使用 Claude Code，请优先按 [Claude Code 接入文档](/zh/ai-tools/claude-code) 配置。不同 API Key 分组对应的协议和模型配置方式不同：
+
+- **Claude 分组**：使用 `{{anthropic-base-url}}`
+- **GPT 分组**或外部工具：按对应工具文档使用 `{{openai-base-url}}`
+
+模型名称请以<a href={"{{model-plaza-url}}"}>模型广场</a>当前显示为准。不要手写不在模型广场中的模型名。
+
+<Tip>
+  如果你正在跑长上下文代码任务、自动修复、代码审查或多步骤 Agent 工作流，可以优先测试 `claude-sonnet-5`。如果你的任务对价格更敏感，请先用模型广场价格估算成本。
+</Tip>
+
+## 参考资料
+
+- [What's new in Claude Sonnet 5](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5)
+- [Claude Sonnet 5 - Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5.html)

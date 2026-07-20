@@ -1,0 +1,74 @@
+---
+title: "Does LLMEasy support cache billing?"
+sidebarTitle: "Cache billing"
+description: "Understand prompt caching, cache hit fields, protocol differences, and how to check whether a request used cached tokens."
+---
+
+## Short answer
+
+Whether a request gets a cache discount depends on the upstream model, API protocol, and request format. LLMEasy records and displays usage based on the usage information returned by the upstream model.
+
+If the upstream model supports prompt caching and returns cache fields in the response, you can check cached tokens in response usage or call logs. Cache behavior differs across models. Do not assume every model automatically receives a cache discount.
+
+## What cache billing means
+
+Prompt caching lets an upstream model reuse a stable, repeated prefix across requests. When it works, part of the input context can be billed at a lower cached-token rate.
+
+It is useful for:
+
+- Long system prompts
+- Fixed project instructions
+- Large stable documentation context
+- Repeated repository instructions in multi-turn coding tasks
+- Batch tasks that share the same rules and output format
+
+Caching does not mean you should put everything into the prompt. Dynamic content, timestamps, random IDs, and user-specific input should usually appear later in the request.
+
+## Protocol differences
+
+| Scenario | Common mechanism |
+| --- | --- |
+| OpenAI-compatible | Some models automatically cache stable prefixes, and response usage may include cached tokens |
+| Anthropic-compatible / Claude | Some models require explicit `cache_control` markers to receive caching benefits |
+
+The same Claude model may behave differently when called through different protocols. If you use Claude Code or Anthropic-compatible API heavily, understand caching through the Anthropic-native mechanism first.
+
+## How to check whether caching worked
+
+Check the `usage` field in the response or the dashboard call record. Field names vary by API format:
+
+| API format | Common cache fields |
+| --- | --- |
+| OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
+| OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
+| Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
+
+When the value is greater than 0, part of the request usually used cache. If the field is missing, the model may not support it, the protocol may not return it, the request may not have hit cache, or the tool may hide raw usage.
+
+## How to improve cache hit rate
+
+1. Put stable content near the beginning of the prompt.
+2. Put user-specific and frequently changing input later.
+3. Do not place timestamps, random IDs, or changing instructions inside the stable prefix.
+4. Use the same model and protocol for the same type of task when possible.
+5. In Claude-native formats, add `cache_control` to the content blocks that should be cached, following the model documentation.
+6. For batch tasks, run a small sample first and inspect usage fields before estimating total cost.
+
+## Common mistakes
+
+- Assuming every model automatically supports cache discounts.
+- Assuming the entire request becomes free after a cache hit.
+- Switching models frequently, preventing cache reuse.
+- Calling Claude through an OpenAI-compatible format and expecting Claude-native cache fields.
+- Looking only at total tokens and ignoring cached tokens, cache read, or cache creation fields.
+
+## About LLMEasy
+
+LLMEasy billing and usage display are based on the actual request, upstream usage information, and current model price. To confirm whether caching took effect, check the model documentation, response usage fields, and dashboard call records together.
+
+## Related docs
+
+- [Why does Claude Code use so many tokens?](/en/faq/token-cost/claude-code-token-usage)
+- [What is max_tokens? What happens if I do not set it?](/en/faq/model-calling/max-tokens)
+- [How should I fill in the Base URL?](/en/faq/model-calling/base-url-config)
+- [What is the difference between OpenAI-compatible API and Anthropic-compatible API?](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)

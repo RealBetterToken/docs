@@ -1,0 +1,73 @@
+---
+title: "Codex CLI 中的 AGENTS.md 是什么？应该怎么写？"
+sidebarTitle: "AGENTS.md"
+description: "解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入的规则和常见误区。"
+---
+
+## 简短答案
+
+`AGENTS.md` 是给 Codex 读取的项目说明文件。它可以告诉 Codex 这个仓库的结构、命令、测试方式、代码风格、提交规范和协作约定。
+
+它适合写长期稳定的项目规则，不适合写一次性任务。一次性需求应留在当前对话里。
+
+## 适合写什么
+
+- 项目如何安装依赖、启动和测试
+- 常用检查命令
+- 代码风格和命名约定
+- 哪些目录不要随意修改
+- 提交前必须做什么
+- 团队偏好的沟通和输出格式
+
+## 不适合写什么
+
+- API Key、token、密码或私有凭证
+- 临时任务说明
+- 过长的产品背景故事
+- 与仓库无关的通用提示词
+- 已经过期的命令和路径
+
+## 推荐结构
+
+```md
+# Project instructions
+
+## Build and test
+- Run `npm test` before finishing behavior changes.
+- Run `npm run lint` after editing TypeScript files.
+
+## Style
+- Keep diffs small and focused.
+- Match existing component patterns.
+
+## Safety
+- Do not edit files outside this repository.
+- Do not commit secrets.
+```
+
+## 常见误区
+
+- 把 `AGENTS.md` 写成很长的万能 prompt。
+- 写入密钥或内部凭证。
+- 忘记随着项目命令变化更新它。
+- 把 `AGENTS.md` 和用户级 `config.toml` 混在一起。
+- 以为写了规则就不需要审查 diff 和测试。
+
+## 关于 LLMEasy
+
+如果团队通过 LLMEasy 统一模型出口，`AGENTS.md` 仍然很重要。API 层解决模型请求和用量记录；`AGENTS.md` 解决项目上下文和执行规范。
+
+两者配合使用，才能同时减少配置混乱和项目协作成本。
+
+## Related docs
+
+- [Codex CLI 是什么？](/zh/faq/codex/what-is-codex-cli)
+- [如何配置 Codex CLI 的 config.toml？](/zh/faq/codex/config-toml)
+- [Codex CLI sandbox 和 approval mode 是什么？](/zh/faq/codex/sandbox-approval)
+- [Claude Code 中的 CLAUDE.md 是什么？](/zh/faq/claude-code/claude-md)
+
+## References
+
+- [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
+- [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
+- [OpenAI Codex discussions](https://github.com/openai/codex/discussions)

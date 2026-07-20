@@ -1,0 +1,64 @@
+---
+title: "How to connect Zed to the LLMEasy OpenAI-compatible API"
+sidebarTitle: "Zed"
+description: "Configure Zed with the LLMEasy API URL, API Key, and a GPT Key group model ID through an OpenAI-compatible provider."
+icon: "z"
+---
+
+Zed supports custom LLM providers. When using LLMEasy, choose the OpenAI route and paste a model ID from the GPT Key group.
+
+## Prerequisites
+
+- Zed installed (see [Zed docs](https://zed.dev/docs))
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+
+## Setup
+
+<Steps>
+  <Step title="Open the AI panel">
+    Click the ✨ icon in the bottom-right corner of Zed.
+  </Step>
+
+  <Step title="Open settings">
+    Open the menu in the panel and choose **Settings**.
+  </Step>
+
+  <Step title="Add a provider">
+    In **LLM Provider**, click **+ Add Provider** and choose **OpenAI**.
+  </Step>
+
+  <Step title="Fill in the LLMEasy config">
+
+    | Field | Value |
+    |-------|-------|
+    | Provider Name | `LLMEasy` |
+    | API URL | `{{openai-base-url}}` |
+    | API Key | your LLMEasy API Key |
+    | Model Name | a **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+  </Step>
+
+  <Step title="Only configure extra headers when the official docs explicitly require them">
+    The official Zed OpenAI-compatible and custom provider docs focus on `api_url`, `available_models`, and the API key. They do not list an extra `User-Agent` as a required LLMEasy setup step.
+
+    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
+  </Step>
+
+  <Step title="Save the provider">
+    Click **Save Provider**, then select the model you configured.
+  </Step>
+
+  <Step title="Restart Zed">
+    After saving the provider, restart Zed before selecting the configured model.
+  </Step>
+</Steps>
+
+<Note>
+  Check the `API URL`, API key, model ID, and tool version first. Do not assume `User-Agent` is a required LLMEasy setting.
+</Note>
+
+## Related FAQ
+
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)

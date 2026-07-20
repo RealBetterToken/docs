@@ -1,0 +1,101 @@
+---
+title: "最佳实践"
+description: "让 LLMEasy 发挥最大效用的使用技巧。"
+---
+
+## API Key 安全管理
+
+**使用环境变量，不要硬编码。** 将 API Key 写入代码或配置文件容易被意外提交到代码仓库。推荐的方式：
+
+```bash
+# 写入 ~/.zshrc 或 ~/.bashrc，每次启动终端自动生效
+export LLMEASY_API_KEY="你的 API Key"
+```
+
+对于 Claude Code，使用 `settings.json` 中的 `env` 字段管理密钥，而不是直接暴露在 shell 配置中：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "你的 API Key"
+  }
+}
+```
+
+**定期轮换 API Key。** 若怀疑 Key 泄露，立即在控制台删除并重新生成。
+
+---
+
+## 超时配置
+
+AI 模型的响应时间有时较长，建议将工具的超时时间设置得宽松一些，避免因超时提前断开连接：
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` 毫秒 = 50 分钟，适合需要深度推理的长任务。
+
+---
+
+## 清除冲突的环境变量
+
+如果你同时使用过 Anthropic 官方 API、OpenAI 官方 API 或其他中转服务，旧的环境变量可能会覆盖你的配置，导致请求发送到错误的地址。
+
+在配置 LLMEasy 前，检查并清除以下变量：
+
+```bash
+# 检查是否存在
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# 清除
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code 专项建议
+
+**先看 API Key 分组。** 如果你使用 **Claude 分组**，`ANTHROPIC_MODEL`、`ANTHROPIC_SMALL_FAST_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等模型变量都**不需要设置**。如果你使用 **GPT 分组**，则需要通过 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` 做模型映射。
+
+不要把两种分组的配置混用，否则容易把请求路由到错误的模型。
+
+**禁用非必要流量。** 设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 可以减少 Claude Code 发出的后台请求，让你的 API 额度用在真正的编码任务上。
+
+**Claude Code 的地址不要带 `/v1`。** `ANTHROPIC_BASE_URL` 应填写为 `{{anthropic-base-url}}`。
+
+---
+
+## 在多个工具中使用
+
+同一个 API Key 可以同时在 Claude Code、Codex 和其他外部工具中使用。额度共享，方便统一管理。
+
+但 `base_url` 必须按协议分别配置：
+
+- Claude Code / `ANTHROPIC_BASE_URL`：`{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / 其他外部工具：`{{openai-base-url}}`
+
+如果你有多个项目需要隔离追踪用量，可以在控制台创建多个 API Key，分别用于不同的工具或项目。
+
+对于外部工具，模型统一从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**的模型 ID。
+
+---
+
+## 遇到问题时的排查顺序
+
+1. **确认 API Key 正确** — 登录控制台，确认 Key 未被删除，粘贴时无多余空格
+2. **确认协议对应的地址** — Claude Code 用 `{{anthropic-base-url}}`；Codex / 外部工具用 `{{openai-base-url}}`
+3. **检查环境变量冲突** — 运行 `echo $ANTHROPIC_AUTH_TOKEN`、`echo $OPENAI_BASE_URL` 等确认没有旧变量覆盖
+4. **检查工具官方接入要求** — 对外部工具，优先核对 `Base URL`、API Key、模型 ID 和工具版本；只有当工具官方文档或你接入的上游网关明确要求额外 headers 时，再单独配置
+5. **检查账户余额** — 余额不足时请求会被拒绝
+6. **联系客服** — 如以上步骤都没有解决问题，联系 LLMEasy 客服

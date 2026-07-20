@@ -1,0 +1,68 @@
+---
+title: "What are Codex CLI sandbox and approval modes?"
+sidebarTitle: "sandbox / approval"
+description: "Understand Codex CLI sandboxing, approval modes, automatic review, local command boundaries, and how they differ from API provider settings."
+---
+
+## Short answer
+
+Sandbox controls which files Codex CLI can access, whether commands can use the network, and where local execution is allowed. Approval mode controls which actions require confirmation.
+
+These are local safety mechanisms, not model provider settings. Even if you route model requests through a third-party API gateway, Codex CLI still controls file access and command execution through sandbox and approval settings.
+
+Good sandbox and approval settings balance speed and safety: routine work can proceed with fewer interruptions, while higher-risk operations still require confirmation.
+
+## When this matters
+
+- Codex asks for confirmation before every command
+- You want tests to run automatically without allowing risky commands
+- You need Codex to edit files outside the current workspace
+- You work on a shared machine, company repository, or sensitive project
+- You need to explain why API provider choice is not the same as local permissions
+
+## Core concepts
+
+| Concept | Meaning |
+| --- | --- |
+| Sandbox | Filesystem, network, and command access boundary |
+| Approval | Whether certain actions need user confirmation |
+| Auto review | An extra review mechanism for eligible risky actions |
+| Workspace | The current project directory and allowed path boundary |
+| Network access | Whether Codex can run commands that reach external services |
+
+## Recommended practice
+
+1. Start with conservative settings in ordinary projects.
+2. Allow writes only in the current workspace.
+3. Let common tests, formatting, and read-only commands run smoothly.
+4. Keep confirmation for deleting files, resetting Git state, writing outside the workspace, and network access.
+5. Document allowed commands and pre-commit checks in `AGENTS.md`.
+
+Do not use broad permissions only to avoid a few prompts. Real efficiency comes from clear tasks, stable project rules, and small verification steps.
+
+## Common mistakes
+
+- Thinking an API provider switch changes local sandbox permissions.
+- Disabling approvals while letting Codex operate on an untrusted repository.
+- Allowing network commands without defining which services are acceptable.
+- Treating Git reset, file deletion, and dependency installation as low-risk commands.
+- Finishing without checking the diff and test results.
+
+## About LLMEasy
+
+LLMEasy only handles the model API request layer, such as API Key, Base URL, model routing, and usage records. It does not change Codex CLI sandbox or approval mode.
+
+If your problem is file access, command confirmation, or network permission, check the local Codex CLI configuration instead of the API gateway.
+
+## Related docs
+
+- [Codex LLMEasy setup guide](/en/ai-tools/codex)
+- [How to configure Codex CLI config.toml](/en/faq/codex/config-toml)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [What is Codex CLI?](/en/faq/codex/what-is-codex-cli)
+
+## References
+
+- [Codex approvals and security](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex sandboxing](https://developers.openai.com/codex/concepts/sandboxing)
+- [Codex sandboxing auto review](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

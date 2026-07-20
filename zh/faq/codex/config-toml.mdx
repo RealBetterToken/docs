@@ -1,0 +1,138 @@
+---
+title: "Codex CLI config.toml 如何配置自定义 provider？"
+sidebarTitle: "config.toml"
+description: "配置 Codex CLI 自定义 provider：文件位置、最小可用示例、API Key 环境变量、配置层级、验证与常见错误。"
+---
+
+## 直接答案
+
+把用户级配置写入 `~/.codex/config.toml`，让 `model_provider = "custom"` 对应 `[model_providers.custom]`。使用 LLMEasy 时，`base_url` 填 `{{openai-base-url}}`，`wire_api` 填 `responses`，模型从 **GPT 分组**复制。API Key 推荐通过 `env_key` 指向本机环境变量，不要直接写进 TOML 或提交到仓库。
+
+## 先确认配置文件位置
+
+| 环境 | 用户级配置文件 |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | WSL 内的 `~/.codex/config.toml` |
+
+在 VS Code Codex 插件中，也可以点击右上角齿轮，选择 **Codex Settings → Open config.toml**。Codex CLI 与 IDE 插件共享配置层。
+
+<Warning>
+  Provider 和认证配置应放在用户级 `~/.codex/config.toml`。项目里的 `.codex/config.toml` 适合项目级覆盖，但 Codex 会忽略其中的 `model_provider` 和 `model_providers`；项目说明则应写在 `AGENTS.md`。
+</Warning>
+
+## 最小可用配置
+
+<Steps>
+  <Step title="设置 API Key 环境变量">
+    macOS / Linux 或 WSL：
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell：
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    将 `YOUR_API_KEY` 替换为你的 LLMEasy API Key。长期使用时，把变量保存在你操作系统的安全环境配置中，不要写入项目仓库。
+  </Step>
+
+  <Step title="写入 config.toml">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model` 只是示例。实际值请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**中当前可用的模型 ID。
+  </Step>
+
+  <Step title="重启并测试">
+    完全退出当前 Codex 进程，打开新终端后运行：
+
+    ```bash
+    codex
+    ```
+
+    发送一条简单消息。能正常返回内容，说明 provider、鉴权与模型 ID 已生效。
+  </Step>
+</Steps>
+
+## 推荐的完整配置
+
+需要更长的流式超时或固定 review model 时，可以使用下面的完整示例：
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers.custom]
+name = "{{codex-provider-name}}"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+如果文件里已经存在顶层字段或 `[model_providers.custom]`，请合并内容，不要重复声明同一个 TOML 表。
+
+## 关键字段怎么对应？
+
+| 字段 | 作用 | LLMEasy 建议 |
+| --- | --- | --- |
+| `model_provider` | 选择 provider id | 固定为 `"custom"` |
+| `[model_providers.custom]` | 定义同名 provider | 必须与 `model_provider` 一致 |
+| `base_url` | 模型请求地址 | `{{openai-base-url}}` |
+| `env_key` | 指定从哪个环境变量读取 API Key | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | Provider 协议 | `"responses"` |
+| `requires_openai_auth` | 是否使用 OpenAI 官方认证 | 普通第三方 API 配置为 `false` |
+| `model` | 默认模型 ID | GPT 分组中的当前可用 ID |
+
+<Note>
+  如果你的目标是在使用第三方 API 时继续保留 Codex App 官方登录态、插件和 Remote Control，不要直接套用普通鉴权配置。请改用 [保留 Codex 官方登录态和会话历史](/zh/faq/codex/official-login-third-party-api) 的专用方案。
+</Note>
+
+## 常见错误与解决方法
+
+| 现象 | 原因 | 解决方法 |
+| --- | --- | --- |
+| Provider 未找到 | `model_provider` 与表名不一致 | 两处都使用 `custom` |
+| 启动时提示缺少 API Key | 环境变量未设置或新终端未读取 | 重新设置 `MODEL_PROVIDER_API_KEY`，再打开新终端 |
+| `401` 或 `403` | API Key 错误，或认证方式混用 | 重新复制 Key，确认 `env_key` 名称一致且 `requires_openai_auth = false` |
+| `404` | Base URL 缺少 `/v1` 或协议地址填错 | 使用 `{{openai-base-url}}` |
+| Model not found | 模型 ID 不属于 GPT 分组或已下线 | 从模型广场重新复制当前 Model ID |
+| 修改后没有生效 | 改错配置层、文件路径或 WSL 环境 | 确认编辑的是运行 Codex 所在环境的用户级配置，并重启 Codex |
+| TOML 解析失败 | 重复表、引号或层级错误 | 删除重复的 `[model_providers.custom]`，检查字符串引号 |
+
+## 相关文档
+
+- [Codex 完整接入 LLMEasy 指南](/zh/ai-tools/codex)
+- [VS Code Codex 插件如何配置自定义 Base URL 和 API Key？](/zh/ai-tools/codex-vscode)
+- [model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI sandbox 和 approval mode 是什么？](/zh/faq/codex/sandbox-approval)
+- [AGENTS.md 是什么？应该怎么写？](/zh/faq/codex/agents-md)
+
+## References
+
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)

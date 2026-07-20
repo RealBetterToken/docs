@@ -1,0 +1,78 @@
+---
+title: "Как настроить API Key и Base URL в Claude Code"
+sidebarTitle: "API Key и Base URL"
+description: "Как связаны API Key, Base URL, Anthropic-compatible endpoint и группы ключей Claude/GPT при настройке Claude Code."
+---
+
+## Короткий ответ
+
+При настройке third-party API в Claude Code сначала убедитесь, что endpoint Anthropic-compatible. В этой документации Claude Code использует `{{anthropic-base-url}}`. Не добавляйте `/v1`.
+
+API Key подтверждает запрос. Base URL говорит Claude Code, куда отправлять model requests. Оба значения должны относиться к одному provider и одному protocol.
+
+С группой **Claude** обычно нужны `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. С группой **GPT** дополнительно нужны model mappings Claude Code из инструкции по настройке.
+
+## Когда это важно
+
+- Вы хотите использовать Claude Code с custom API gateway
+- У вас есть API Key, но непонятно, какой Base URL указать
+- Claude Code показывает auth или endpoint error
+- Вы выбираете между `{{anthropic-base-url}}` и `{{openai-base-url}}`
+- Нужно понять группы ключей Claude и GPT
+
+## Ключевые понятия
+
+| Поле | Что означает |
+| --- | --- |
+| API Key | Credential для model API requests |
+| Base URL | API address, куда отправляются requests |
+| Anthropic-compatible API | Endpoint, следующий Anthropic / Claude request conventions |
+| OpenAI-compatible API | Endpoint, следующий OpenAI-style conventions, часто для Codex, Cursor и Cline |
+| Model ID | Имя модели или mapping value, который запрашивает инструмент |
+
+## Рекомендуемая настройка
+
+Выберите путь по группе API Key.
+
+Группа Claude:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+Группа GPT требует дополнительных Claude Code model mappings. Используйте полную [инструкцию Claude Code](/ai-tools/claude-code), а не только короткий пример с этой страницы.
+
+После редактирования config перезапустите Claude Code и отправьте короткое тестовое сообщение. Если оно не проходит, сначала проверьте, не был ли Base URL случайно заменен на `{{openai-base-url}}`.
+
+## Частые ошибки
+
+- Добавлять `/v1` к Base URL Claude Code.
+- Менять API Key, но оставлять requests на default endpoint.
+- Использовать Model ID группы GPT как модель группы Claude.
+- Вставлять OpenAI-compatible endpoint в Anthropic-compatible поля Claude Code.
+- Оставлять старые environment variables в shell profile, которые перекрывают новую config.
+
+## О LLMEasy
+
+LLMEasy предоставляет два типа endpoint: Anthropic-compatible `{{anthropic-base-url}}` для Claude Code и OpenAI-compatible `{{openai-base-url}}` для Codex и внешних инструментов.
+
+Это позволяет управлять API Keys, балансом и usage history в одном dashboard, но не меняет требование Claude Code к Anthropic-compatible request format.
+
+## Related docs
+
+- [Настройка Claude Code](/ai-tools/claude-code)
+- [Claude Code использует Claude.ai account или API Key?](/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Почему Claude Code расходует много tokens и как снизить cost](/faq/token-cost/claude-code-token-usage)
+
+## References
+
+- [Claude Code LLM gateway configuration](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Claude Code model configuration](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Настройка Claude Code](/ai-tools/claude-code)

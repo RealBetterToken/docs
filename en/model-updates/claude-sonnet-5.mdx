@@ -1,0 +1,46 @@
+---
+title: "Claude Sonnet 5 is live"
+description: "LLMEasy updated Claude Sonnet 5 on July 1, 2026 for Claude Code, coding agents, long-context work, and workflows that need a stronger Sonnet model."
+tag: "NEW"
+---
+
+Release date: July 1, 2026
+
+LLMEasy has updated the `Claude Sonnet 5` model entry. Check the <a href={"{{model-plaza-url}}"}>model plaza</a> for the currently available model ID and live pricing, then configure it through the Claude Code or external-tool setup guide that matches your client.
+
+`Claude Sonnet 5` is the next generation of the Sonnet family. Anthropic positions it as an upgrade from `Claude Sonnet 4.6`, with the largest improvements in coding, agentic tasks, and professional work.
+
+## Highlights
+
+- **Better fit for coding and agent work**: Anthropic says Sonnet 5's largest gains over Sonnet 4.6 are in coding and agentic tasks
+- **Larger context window**: Sonnet 5 supports a `1M tokens` context window by default and up to `128K tokens` of output
+- **Adaptive thinking is on by default**: Requests without a `thinking` field run with adaptive thinking
+- **Low migration effort**: If you already use Sonnet 4.6, most requests can move by changing the model ID to `claude-sonnet-5`
+- **Clearer safety behavior**: For high-risk cybersecurity content, the model may return a refusal with `stop_reason: "refusal"` instead of an HTTP error
+
+## Migration notes
+
+If you are moving from Sonnet 4.6 to Sonnet 5, review these settings first:
+
+- **Revisit `max_tokens`**: The thinking trace and final answer share the same output limit, so tasks close to the limit may need more room
+- **Remove manual thinking budgets**: `thinking: { "type": "enabled", "budget_tokens": ... }` is no longer supported on Sonnet 5; use adaptive thinking instead
+- **Do not set non-default sampling parameters**: Non-default `temperature`, `top_p`, or `top_k` can return a `400` error
+- **Recount tokens**: Sonnet 5 uses a new tokenizer, so the same text can produce more tokens than on Sonnet 4.6
+
+## Setup guidance
+
+If you use Claude Code, start with the [Claude Code setup guide](/en/ai-tools/claude-code). Different Key groups use different protocols and model configuration patterns:
+
+- `Claude` group: use `{{anthropic-base-url}}`
+- `GPT` group or external tools: follow the relevant tool guide with `{{openai-base-url}}`
+
+Use the model name currently shown in the <a href={"{{model-plaza-url}}"}>model plaza</a>. Do not hardcode a model name that is not shown there.
+
+<Tip>
+  If you run long-context coding tasks, automatic fixes, code review, or multi-step agent workflows, test `claude-sonnet-5` first. If your workload is cost-sensitive, estimate cost from the model plaza pricing before switching.
+</Tip>
+
+## References
+
+- [What's new in Claude Sonnet 5](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5)
+- [Claude Sonnet 5 - Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5.html)

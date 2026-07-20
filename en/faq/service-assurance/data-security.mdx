@@ -1,0 +1,73 @@
+---
+title: "How does LLMEasy protect data security?"
+sidebarTitle: "Data security"
+description: "Understand the data security boundary, HTTPS transport, logs, usage records, and user-side security practices for LLMEasy API calls."
+---
+
+## Short answer
+
+LLMEasy is an API gateway. Its main role is to forward your request to the selected upstream model and record the billing, usage, and troubleshooting information needed to operate the service.
+
+When you use the API, follow data minimization. Do not put unnecessary personal data, secrets, payment information, or business-sensitive content in prompts, files, or tool output. Store API Keys in environment variables, secret managers, or CI secrets. Do not commit them to public repositories.
+
+## Data security boundary
+
+| Type | Description |
+| --- | --- |
+| API Key | Authenticates your requests and should be protected by you |
+| Request content | Prompts, context, file snippets, or tool results sent to the model |
+| Response content | Text, code, or structured output returned by the model |
+| Usage information | Model, tokens, cost, status code, request time, and other billing or troubleshooting metadata |
+| Upstream model | The model service or provider that processes the inference request |
+
+LLMEasy helps you manage API Keys, balance, and usage records in one place. It does not replace your own data masking, access control, or project security process.
+
+## Transport security
+
+All API calls should use HTTPS. When you configure a Base URL, use the `https://` address shown in the docs.
+
+Do not send API Keys or request content over plaintext HTTP. If a client, proxy, or local tool asks you to disable TLS verification, confirm why before using that setup. Do not make it the default.
+
+## Logs and usage records
+
+To support billing, balance deduction, error troubleshooting, and risk control, an API gateway usually needs to record request metadata such as:
+
+- Request time
+- API Key or key group used
+- Requested model
+- Token usage
+- Whether the request succeeded
+- Error status
+
+This information is mainly used for billing, usage analysis, and issue diagnosis. When you report a problem, provide the request time, model, error code, and request id. Do not send the full API Key or sensitive prompt content.
+
+## User-side recommendations
+
+1. Do not commit API Keys to code repositories.
+2. Do not expose a full API Key in screenshots, logs, or support tickets.
+3. Use separate API Keys for production and test environments.
+4. Check usage records in the dashboard regularly.
+5. Disable old keys when a member leaves, a project ends, or a leak is suspected.
+6. Avoid sending identity documents, bank cards, passwords, private keys, or other highly sensitive data in prompts.
+7. If you need to process sensitive business data, mask and minimize it before sending it to the model.
+
+## What to do if usage looks abnormal
+
+If an API Key shows abnormal calls:
+
+1. Disable or delete the suspicious API Key in the console.
+2. Check recent call records for model, time, and request source.
+3. Check code repositories, CI logs, local config, and third-party tool settings for key leaks.
+4. Create a new API Key and distribute it only to the required environments.
+5. If you cannot find the cause, contact support with the time range, model, and abnormal amount.
+
+## About LLMEasy
+
+LLMEasy handles model request access, forwarding, billing, and usage display. Security is shared: the platform handles service-side access control and billing flow, while you protect API Keys, assign permissions, minimize prompt data, and configure tools safely.
+
+## Related docs
+
+- [How do I configure API Key and Base URL in Claude Code?](/en/faq/claude-code/api-key-base-url)
+- [What is the difference between MCP and API Key / Base URL?](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [How should I troubleshoot API Key, Base URL, and Model ID?](/en/faq/model-calling/base-url-config)
+- [What are Claude Code permissions and hooks?](/en/faq/claude-code/permissions-and-hooks)

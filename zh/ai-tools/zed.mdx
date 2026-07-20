@@ -1,0 +1,64 @@
+---
+title: "Zed 如何配置 LLMEasy OpenAI-compatible API？"
+sidebarTitle: "Zed"
+description: "在 Zed 中填写 LLMEasy API URL、API Key 和 GPT 分组模型 ID，完成 OpenAI-compatible provider 配置。"
+icon: "z"
+---
+
+Zed 支持添加自定义 LLM Provider。通过 LLMEasy 接入时，请使用 OpenAI 方案，并粘贴 GPT 分组模型 ID。
+
+## 前置条件
+
+- 已安装 Zed（参考 [Zed 官方文档](https://zed.dev/docs) 安装）
+- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+
+## 配置步骤
+
+<Steps>
+  <Step title="打开 AI 面板">
+    点击 Zed 右下角的 ✨ 图标。
+  </Step>
+
+  <Step title="进入配置页面">
+    点击右上角菜单，选择 **Settings**。
+  </Step>
+
+  <Step title="添加 Provider">
+    在 **LLM Provider** 中点击 **+ Add Provider**，并选择 **OpenAI**。
+  </Step>
+
+  <Step title="填写 LLMEasy 配置">
+
+    | 配置项 | 值 |
+    |--------|-----|
+    | Provider Name | `LLMEasy` |
+    | API URL | `{{openai-base-url}}` |
+    | API Key | 你的 LLMEasy API Key |
+    | Model Name | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID** |
+  </Step>
+
+  <Step title="仅在官方文档明确要求时再配置额外 headers">
+    我们查到的 Zed 官方 OpenAI Compatible / 自定义 provider 文档默认聚焦 `api_url`、`available_models` 和 API Key，没有把额外 `User-Agent` 列为 LLMEasy 接入的必填项。
+
+    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+  </Step>
+
+  <Step title="保存配置">
+    点击 **Save Provider** 保存，然后在模型列表中选择刚配置的模型。
+  </Step>
+
+  <Step title="重启 Zed">
+    修改配置后，请重启 Zed，再从模型列表中选择刚配置的模型。
+  </Step>
+</Steps>
+
+<Note>
+  优先检查 `API URL`、API Key、模型 ID 和工具版本；不要默认把 `User-Agent` 当作 LLMEasy 必填项。
+</Note>
+
+## 相关 FAQ
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)

@@ -1,0 +1,90 @@
+---
+title: "max_tokens 是什么？不设置会怎样？"
+sidebarTitle: "max_tokens"
+description: "解释 max_tokens、max_completion_tokens、max_output_tokens 的区别，以及如何设置模型输出 token 上限。"
+---
+
+## 简短答案
+
+`max_tokens` 用来限制模型单次最多输出多少 token。不同 API 和模型对这个字段的名称、必填要求和默认行为不同。
+
+为了获得稳定输出，建议在长回复、代码生成、文档生成等任务中显式设置输出上限。对于 Claude / Anthropic-compatible API，通常需要显式传入 `max_tokens`。
+
+## 核心概念
+
+| 概念 | 说明 |
+| --- | --- |
+| Input tokens | 你的消息、上下文、文件内容、工具结果等输入 |
+| Output tokens | 模型生成的可见回复 |
+| Reasoning tokens | 部分推理模型内部使用的隐藏推理 token |
+| Context window | 输入、输出和部分内部 token 可共同占用的上下文窗口 |
+| Output limit | 单次响应最多生成多少输出 token |
+
+`max_tokens` 设置得太小，回复可能被截断。设置得很大，不代表模型一定会输出那么多内容，但可能让长输出任务消耗更多费用。
+
+## 不同参数名
+
+| 参数 | 常见场景 |
+| --- | --- |
+| `max_tokens` | Claude / Anthropic Messages API，以及部分 Chat Completions 场景 |
+| `max_completion_tokens` | 部分 OpenAI 推理模型的 Chat Completions 参数 |
+| `max_output_tokens` | OpenAI Responses API 常见输出上限字段 |
+
+如果你使用的是 Codex CLI 或其他基于 Responses API 的工具，要以工具或 provider 当前支持的字段为准。不要把所有模型都固定写成同一个参数名。
+
+## 不设置会怎样
+
+不同厂商和 API 的行为不完全一样：
+
+| 场景 | 可能结果 |
+| --- | --- |
+| Claude / Anthropic-compatible API | 可能要求显式设置 `max_tokens` |
+| OpenAI-compatible Chat Completions | 可能使用模型默认行为 |
+| OpenAI Responses API | 可能使用 `max_output_tokens` 或工具默认值 |
+| 其他模型 | 可能有自己的默认输出上限 |
+
+因此，同一段代码换模型后，输出长度可能发生变化。为了减少不确定性，生产调用里建议显式设置输出上限。
+
+## 推荐设置
+
+| 任务 | 建议范围 |
+| --- | --- |
+| 普通问答 | `1024` - `4096` |
+| 代码解释 / 小型修改 | `4096` - `8192` |
+| 长文生成 / 复杂代码任务 | `8192` 以上，按模型上限调整 |
+| 批量任务 | 尽量设置较小上限，避免单条请求意外生成过长 |
+
+实际最大值请以<a href={"{{model-plaza-url}}"}>模型广场</a>和上游模型文档为准。不同模型的最大输出 token 数会随版本变化。
+
+## 输出被截断怎么办
+
+如果响应里出现 `finish_reason: "length"`，通常表示模型达到输出上限。
+
+可以按这个顺序排查：
+
+1. 提高当前 API 支持的输出上限字段。
+2. 检查是否使用了正确的参数名。
+3. 让 prompt 更聚焦，减少不必要的输出。
+4. 换用支持更大输出窗口的模型。
+5. 把长任务拆成多个步骤。
+
+## 常见误区
+
+- 以为 `max_tokens` 越大，模型就一定输出越长。
+- 输出被截断后只重试，不检查 `finish_reason`。
+- 对推理模型仍使用旧字段名。
+- 忽略 hidden reasoning tokens 对上下文和成本的影响。
+- 不看模型自身最大输出上限。
+
+## 关于 LLMEasy
+
+LLMEasy 会记录 API Key 和模型请求层面的用量。你可以通过 dashboard 观察不同模型、不同任务的 token 消耗。
+
+但输出上限字段仍由你使用的 API 格式和模型决定。配置时要同时确认模型、Base URL、API 格式和参数名。
+
+## Related docs
+
+- [Claude Code token 为什么消耗很多？](/zh/faq/token-cost/claude-code-token-usage)
+- [如何选择合适的 AI 模型？](/zh/faq/model-calling/model-selection-guide)
+- [Base URL 怎么填？](/zh/faq/model-calling/base-url-config)
+- [Codex CLI 中 review_model 和 reasoning_effort 是什么？](/zh/faq/codex/review-model-reasoning-effort)

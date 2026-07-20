@@ -1,0 +1,101 @@
+---
+title: "Best practices"
+description: "Tips for getting the most out of LLMEasy."
+---
+
+## Keep your API Key secure
+
+**Use environment variables — never hardcode.** Writing your API Key directly into source code or config files risks accidental exposure in version control. Recommended approach:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export LLMEASY_API_KEY="your-api-key-here"
+```
+
+For Claude Code, manage secrets through the `env` field in `settings.json` rather than exposing them in your shell config:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**Rotate your API Key periodically.** If you suspect exposure, delete the key immediately from the dashboard and generate a new one.
+
+---
+
+## Set a generous timeout
+
+AI model responses can take time, especially for complex reasoning tasks. Set the timeout high enough to avoid premature disconnects:
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50 minutes. This is appropriate for deep reasoning or long agentic tasks.
+
+---
+
+## Clear conflicting environment variables
+
+If you've previously used the official Anthropic or OpenAI APIs — or another relay service — stale environment variables may override your LLMEasy config and silently send requests to the wrong endpoint.
+
+Before configuring LLMEasy, check and clear these:
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code: check the Key group first
+
+With the **Claude Key group**, **do not set** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, or other model-specific variables. With the **GPT Key group**, add model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+
+Do not mix the two setups, or requests may be routed to the wrong model.
+
+**Disable non-essential traffic.** Setting `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduces background requests from Claude Code, reserving your API quota for actual coding tasks.
+
+**Do not add `/v1` to Claude Code.** `ANTHROPIC_BASE_URL` should be `{{anthropic-base-url}}`.
+
+---
+
+## Use one API Key across multiple tools
+
+The same API Key works in Claude Code, Codex, and external tools. Quota is shared, which makes central management simpler.
+
+But the endpoint must match the protocol:
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / external tools: `{{openai-base-url}}`
+
+If you need to track usage separately per project or team, create multiple API Keys in the dashboard and assign one to each tool or project.
+
+For external tools, copy the model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+---
+
+## Troubleshooting checklist
+
+1. **Confirm the API Key is correct** — check the dashboard, paste carefully with no extra spaces
+2. **Confirm the endpoint for the protocol** — Claude Code uses `{{anthropic-base-url}}`; Codex / external tools use `{{openai-base-url}}`
+3. **Check for conflicting env vars** — run `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL`, and related commands
+4. **Check the tool's official setup requirements** — for external tools, verify the `Base URL`, API key, model ID, and tool version first; only add extra headers when the tool's official docs or your upstream gateway explicitly requires them
+5. **Check your balance** — requests are rejected when the balance is depleted
+6. **Contact support** — if the above steps don't resolve the issue

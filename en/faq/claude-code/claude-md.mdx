@@ -1,0 +1,71 @@
+---
+title: "What Is CLAUDE.md in Claude Code and How Should You Write It?"
+sidebarTitle: "CLAUDE.md"
+description: "Understand what CLAUDE.md does in Claude Code, what to include, what to avoid, and how it differs from hooks and MCP."
+---
+
+## Quick answer
+
+`CLAUDE.md` is a project instruction file that Claude Code can load as context. It is a good place for project structure, commands, coding conventions, testing expectations, security boundaries, and collaboration rules.
+
+It is not an enforcement mechanism. Claude Code reads it as guidance. If a rule must run at a specific time, use hooks or tool configuration instead of relying only on `CLAUDE.md`.
+
+A useful `CLAUDE.md` is short, specific, and maintained. Use it for project facts you would otherwise repeat in every session.
+
+## When this matters
+
+- Claude Code repeatedly asks about the same project structure or commands
+- Your team wants shared testing, style, or safety rules
+- You want to reduce repeated context and token usage
+- Claude Code keeps missing repository-specific conventions
+- You want other agents or teammates to onboard faster
+
+## Key concepts
+
+| Concept | Meaning |
+| --- | --- |
+| Project `CLAUDE.md` | Shared project instructions, usually committed with the repository |
+| Personal rules | User-specific preferences that should not always be committed |
+| Local rules | Machine-specific notes or temporary preferences |
+| Hooks | Commands triggered around tool use; better for enforced behavior |
+| MCP | External tools and data sources; not a project rule file |
+
+## Recommended content
+
+Write `CLAUDE.md` as a compact project handbook:
+
+- What the project is and where important directories live
+- Common build, test, and formatting commands
+- Architecture boundaries to respect before editing
+- The fastest checks to run before finishing
+- Secrets, logs, or private config that must not be exposed
+- Documentation, test, naming, and error-handling conventions
+
+Avoid long tutorials, temporary plans, and one-off task notes. If a rule only applies to one area, scope it more narrowly. If a behavior must be enforced, use hooks.
+
+## Common mistakes
+
+- Treating `CLAUDE.md` as a system prompt or hard permission layer.
+- Making it too long, which increases context cost and makes it harder to follow.
+- Appending old deployment notes, temporary TODOs, and outdated decisions forever.
+- Putting API Keys, tokens, cookies, or private config in the file.
+- Maintaining `CLAUDE.md`, `AGENTS.md`, and Cursor Rules with conflicting instructions.
+
+## About LLMEasy
+
+If a project uses LLMEasy, `CLAUDE.md` can remind Claude Code that Claude Code uses the Anthropic-compatible `{{anthropic-base-url}}`, while Codex and external tools use the OpenAI-compatible `{{openai-base-url}}`.
+
+Do not put real API Keys in `CLAUDE.md`. Store them in local environment variables, local config files, or a protected secret system.
+
+## Related docs
+
+- [What is Claude Code and how does it work?](/en/faq/claude-code/what-is-claude-code)
+- [How to configure API Key and Base URL in Claude Code](/en/faq/claude-code/api-key-base-url)
+- [Why Claude Code uses so many tokens and how to reduce cost](/en/faq/token-cost/claude-code-token-usage)
+- [Claude Code setup guide](/en/ai-tools/claude-code)
+
+## References
+
+- [How Claude remembers your project](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Code costs](https://docs.anthropic.com/en/docs/claude-code/costs)

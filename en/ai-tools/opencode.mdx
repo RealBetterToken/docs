@@ -1,0 +1,168 @@
+---
+title: "Connect OpenCode to LLMEasy with a custom model"
+sidebarTitle: "OpenCode"
+description: "Connect LLMEasy to OpenCode with GPT Key group model IDs."
+icon: "brackets-curly"
+---
+
+You can connect LLMEasy to OpenCode by first adding credentials with `/connect`, then declaring LLMEasy as an OpenAI-compatible provider in the config file and selecting a model ID from the GPT Key group.
+
+## Prerequisites
+
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+
+## Install OpenCode
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## Setup
+
+<Tabs>
+  <Tab title="Automatic setup">
+    You can run the LLMEasy automatic setup script directly. It only writes the LLMEasy provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
+
+    Follow the step for your operating system. You only need one of them.
+
+    <Steps>
+      <Step title="If you use macOS / Linux">
+        ```bash
+        curl -fsSL {{install-opencode-provider-sh-url}} | bash
+        ```
+      </Step>
+      <Step title="If you use Windows">
+        ```powershell
+        iwr {{install-opencode-provider-ps1-url}} -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Configure via CC Switch">
+    This setup path is maintained in the [CC Switch guide](/en/ai-tools/cc-switch#opencode).
+
+    Go straight to [the OpenCode tab in the CC Switch guide](/en/ai-tools/cc-switch#opencode).
+
+    After you finish in CC Switch, come back to this page for the remaining startup, verification, or activation notes.
+  </Tab>
+
+  <Tab title="Manual setup">
+    <Steps>
+      <Step title="Clear conflicting environment variables">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
+
+      <Step title="Add the LLMEasy credential with /connect first">
+        Start OpenCode and run:
+
+        ```bash
+        /connect
+        ```
+
+        In the wizard, choose **Other** and then:
+
+        - set the **provider id** to `llmeasy`
+        - paste your LLMEasy API Key
+
+        OpenCode stores the credential in `~/.local/share/opencode/auth.json`.
+      </Step>
+
+      <Step title="Edit the OpenCode config file">
+        You can use the global config at `~/.config/opencode/opencode.json` or create `opencode.json` in your project root. The project config has higher precedence.
+
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "provider": {
+            "llmeasy": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "LLMEasy",
+              "options": {
+                "baseURL": "{{openai-base-url}}"
+              },
+              "models": {
+                "YOUR_GPT_MODEL_ID": {
+                  "name": "YOUR_GPT_MODEL_ID"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+      </Step>
+
+      <Step title="If you want to inline the API key, use this fallback format">
+        ```json
+        {
+          "$schema": "https://opencode.ai/config.json",
+          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "provider": {
+            "llmeasy": {
+              "npm": "@ai-sdk/openai-compatible",
+              "name": "LLMEasy",
+              "options": {
+                "baseURL": "{{openai-base-url}}",
+                "apiKey": "YOUR_API_KEY"
+              },
+              "models": {
+                "YOUR_GPT_MODEL_ID": {
+                  "name": "YOUR_GPT_MODEL_ID"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        This is a fallback. The `/connect` flow above is the preferred setup.
+      </Step>
+
+      <Step title="Only use `options.headers` for provider-specific needs">
+        OpenCode's official docs support custom headers through `provider.<id>.options.headers`, but this is optional. You usually do not need an extra `User-Agent` when connecting LLMEasy.
+
+        If you are also using Helicone, tenant routing, observability, or caching services, add the required headers based on those upstream services' official docs.
+      </Step>
+
+      <Step title="Restart OpenCode">
+        After updating the config file, quit the current OpenCode session and start it again.
+      </Step>
+
+      <Step title="Start OpenCode">
+        ```bash
+        cd /path/to/your/project
+        opencode
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Related FAQ
+
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
+
+## Notes
+
+- Use a **GPT Key group** model ID as the default model instead of fixed Claude model names
+- LLMEasy should currently use `@ai-sdk/openai-compatible` as the OpenAI-compatible provider adapter
+- If you use `/connect`, you usually do not need to store the API key directly in the config file
+- OpenCode's official docs treat `options.headers` as optional extended configuration; LLMEasy usually does not need extra headers

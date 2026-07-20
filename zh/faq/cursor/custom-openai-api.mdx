@@ -1,0 +1,63 @@
+---
+title: "Cursor 如何配置自定义 OpenAI API Key 和 Base URL？"
+sidebarTitle: "Cursor 自定义 API"
+description: "说明 Cursor 中 OpenAI-compatible API Key、Override OpenAI Base URL、custom model 和模型 ID 的配置边界。"
+---
+
+## 简短答案
+
+在 Cursor 中配置自定义 OpenAI-compatible API，核心是三项：API Key、Base URL、Model ID。
+
+API Key 用于鉴权，Base URL 决定请求发往哪个 provider，Model ID 决定使用哪个模型。三者必须来自同一个 provider 或兼容网关。
+
+## 什么时候需要它
+
+- 你想在 Cursor 中使用第三方 OpenAI-compatible provider
+- 你需要填写 Override OpenAI Base URL
+- 你要添加 custom model
+- 你遇到模型不存在或认证失败
+- 你想让 Cursor、Codex 等工具共用同一个模型出口
+
+## 字段说明
+
+| 字段 | 作用 |
+| --- | --- |
+| API Key | 鉴权凭证 |
+| Base URL | OpenAI-compatible endpoint，通常是 `/v1` 地址 |
+| Model ID | 当前 provider 可识别的模型 ID |
+| Custom model | Cursor 中手动添加或选择的模型 |
+
+## 推荐做法
+
+1. 在 provider 后台创建 API Key。
+2. 在 Cursor 的模型设置中填写 API Key。
+3. 在 Override OpenAI Base URL 中填写 provider 的 Base URL。
+4. 添加或选择当前 provider 支持的 Model ID。
+5. 保存后用一个简单请求验证。
+
+## 常见误区
+
+- API Key 来自 A provider，Base URL 却填 B provider。
+- 把 Claude 模型名填进 OpenAI-compatible 配置。
+- 使用网页展示名，而不是 API model ID。
+- 以为 Cursor Rules 会影响 API 鉴权。
+- 全局 override 后忘记其他 OpenAI 模型也会受影响。
+
+## 关于 LLMEasy
+
+Cursor 这类外部工具通常走 OpenAI-compatible 接入。LLMEasy 的 Base URL 是 `{{openai-base-url}}`，模型 ID 从<a href={"{{model-plaza-url}}"}>模型广场</a>的 **GPT 分组**复制。
+
+不要把 Claude Code 使用的 `{{anthropic-base-url}}` 填进 Cursor 的 OpenAI-compatible 配置。
+
+## Related docs
+
+- [Cursor Rules、AGENTS.md 和 .cursorignore 是什么？](/zh/faq/cursor/rules-agents-cursorignore)
+- [Cursor 如何配置 MCP？](/zh/faq/cursor/mcp)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [Cursor documentation](https://cursor.com/docs)
+- [Cursor forum: custom model API key and base URL](https://forum.cursor.com/t/can-the-api-key-and-base-url-corresponding-to-a-custom-model-be-set-separately-when-adding-a-cursor/137108)
+- [Cursor forum: OpenAI API and Override Base URL](https://forum.cursor.com/t/openai-api-and-override-base-url-values/148140)

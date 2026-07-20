@@ -1,0 +1,125 @@
+---
+title: "Connect Kodacode to LLMEasy with a custom model"
+sidebarTitle: "Kodacode"
+description: "Configure a custom OpenAI-compatible model in the Kodacode / Koda VS Code extension."
+icon: "/icons/kodacode.svg"
+---
+
+The Kodacode VS Code extension can use models in chat, agent, and edit workflows. To connect LLMEasy, add an **Any OpenAI-compatible API** model and use a GPT Key group API Key.
+
+<Info>
+  This guide uses the VS Code extension as the example. The Kodacode installation docs list VS Code `1.75` or newer as the minimum version, and the extension ID is `Koda.koda`.
+</Info>
+
+## Prerequisites
+
+- VS Code is installed
+- The Kodacode / Koda extension is installed
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+- The API Key belongs to the **GPT Key group**
+- A GPT Key group model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>, for example `gpt-5.5`
+
+## Setup
+
+<Steps>
+  <Step title="Open the Koda panel and add a model">
+    Open the **KODA** panel in the VS Code sidebar, click the model selector below the input box, and choose **Добавить модель: Agent** / **Add model: Agent**.
+
+    <Frame>
+      <img
+        src="/images/kodacode/select-model-menu.png"
+        alt="Choose Add model: Agent from the model selector in the Koda panel."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Fill in the OpenAI-compatible model settings">
+    In the add model dialog, use these values:
+
+    | Field | Recommended value |
+    | --- | --- |
+    | Provider | `Any OpenAI-compatible API` |
+    | API Base | `{{openai-base-url}}/` |
+    | Model ID | A GPT Key group model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, for example `gpt-5.5` |
+    | API Key | Your LLMEasy API Key |
+
+    Click **Подключить** / **Connect** after filling in the fields.
+
+    <Frame>
+      <img
+        src="/images/kodacode/add-openai-compatible-model.png"
+        alt="Select Any OpenAI-compatible API in the Kodacode add model dialog and fill in API Base, Model ID, and API Key."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Confirm that the model is active">
+    After the connection succeeds, select the new model, such as `gpt-5.5`, from the model selector under the Koda input box. Send a short message to confirm that it returns a response.
+  </Step>
+
+  <Step title="Check config.yaml">
+    Kodacode writes the configuration to `~/.koda/config.yaml`. Open this file to confirm that the model was added.
+
+    <Frame>
+      <img
+        src="/images/kodacode/config-yaml-result.png"
+        alt="Kodacode config.yaml with the OpenAI-compatible model configuration added."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## config.yaml example
+
+Use this full structure as a reference. Replace `YOUR_API_KEY` with your LLMEasy API Key, and do not commit a real API Key to your repository.
+
+```yaml
+name: Koda
+version: 0.0.1
+schema: v1
+models:
+  - name: Koda Models
+    provider: koda-chat-models
+    model: AUTODETECT
+    roles:
+      - agent
+      - chat
+      - edit
+  - name: gpt-5.5
+    provider: openai
+    model: gpt-5.5
+    apiKey: YOUR_API_KEY
+    apiBase: {{openai-base-url}}/
+    roles:
+      - agent
+      - chat
+      - edit
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+```
+
+<Note>
+  If you use a model other than `gpt-5.5`, update both `name` and `model` so they match the GPT Key group model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+</Note>
+
+## Troubleshooting
+
+- If the connection fails, confirm that **API Base** is `{{openai-base-url}}/` and keep the trailing `/`.
+- If the model is unavailable, confirm that **Model ID** comes from the GPT Key group.
+- If authentication fails, copy the API Key again and avoid extra spaces or line breaks.
+- If `config.yaml` changes do not apply, restart VS Code or run **Developer: Reload Window**.
+- LLMEasy usually does not require an extra `User-Agent` or custom headers.
+
+## References
+
+- [Kodacode plugin overview](https://docs.kodacode.ru/plugin/overview.html)
+- [Kodacode plugin installation guide](https://docs.kodacode.ru/plugin/install.html)

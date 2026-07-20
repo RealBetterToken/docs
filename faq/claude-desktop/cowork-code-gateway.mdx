@@ -1,0 +1,75 @@
+---
+title: "Что делать, если Claude Desktop Cowork или Code mode не работает с Gateway?"
+sidebarTitle: "Ошибки Claude Desktop Cowork / Code"
+description: "Исправьте сбои Cowork и ошибки Code mode после подключения LLMEasy как Gateway."
+---
+
+После настройки LLMEasy Gateway в Claude Desktop следующие симптомы обычно не означают, что сам API Key недействителен:
+
+- Cowork mode не работает
+- Code mode показывает `Claude Code process exited with code 1`
+- Тот же API Key работает в Claude Code CLI из терминала
+
+Обычно у этих проблем две разные причины: desktop Gateway auth scheme не соответствует группе API Key, или bundled Claude Code version внутри Claude Desktop еще не завершила обновление.
+
+Если Gateway еще не настроен, начните с [использования LLMEasy API в Claude Desktop](/faq/claude-desktop-llmeasy-api).
+
+## Сначала исправьте Cowork mode
+
+**Причина**: **Gateway auth scheme** не соответствует группе API Key.
+
+В настройках Claude Desktop Gateway выберите auth scheme по группе API Key:
+
+- Если в поле **Группа ключа** выбрано **Claude**, установите **Gateway auth scheme** в `x-api-key`
+- Если в поле **Группа ключа** выбрано **GPT**, установите **Gateway auth scheme** в `bearer`
+
+После выбора правильной scheme Claude Desktop автоматически получает доступные модели для этой группы. Если auth scheme неверная, Cowork mode может не пройти Gateway authentication.
+
+<Steps>
+  <Step title="Откройте настройки third-party inference">
+    В macOS menu bar выберите **Developer** → **Configure Third-Party Inference...**.
+  </Step>
+
+  <Step title="Измените auth scheme">
+    Выберите **Gateway auth scheme** по группе API Key: `x-api-key` для группы **Claude** и `bearer` для группы **GPT**.
+  </Step>
+
+  <Step title="Сохраните config">
+    Нажмите **Apply locally**, чтобы сохранить local Gateway config.
+  </Step>
+</Steps>
+
+После этого Cowork mode обычно снова работает.
+
+## Затем исправьте ошибки выхода Code mode
+
+Если Cowork работает, но Code mode, вкладка `</>`, все еще показывает `Claude Code process exited with code 1`, проверьте, не использует ли Claude Desktop старую bundled Claude Code version.
+
+**Причина**: Claude Desktop может скачивать новую Claude Code version в фоне. До завершения скачивания Code mode может fallback на старую установленную версию Claude Code. Эта старая версия может быть несовместима с third-party Gateway usage в Code mode, поэтому процесс сразу завершается.
+
+**Как исправить**:
+
+<Steps>
+  <Step title="Подождите завершения скачивания новой Claude Code version">
+    Оставьте Claude Desktop открытым на некоторое время, чтобы background update Claude Code завершился.
+  </Step>
+
+  <Step title="Полностью закройте Claude Desktop">
+    Используйте **Cmd+Q**, чтобы полностью закрыть приложение. Не закрывайте только окно.
+  </Step>
+
+  <Step title="Откройте снова и начните новую Code session">
+    Откройте Claude Desktop снова, затем перейдите в Code mode и начните новую сессию.
+  </Step>
+</Steps>
+
+<Note>
+  Если logs показывают, что Claude Desktop fallback на старую версию Claude Code, например `2.1.111`, пока новая версия, например `2.1.119`, еще не готова, дождитесь завершения скачивания новой версии и затем перезапустите приложение.
+</Note>
+
+## Краткая памятка
+
+| Симптом | Частая причина | Исправление |
+|---------|----------------|-------------|
+| Cowork mode не работает | **Gateway auth scheme** не соответствует группе API Key | Используйте `x-api-key` для группы **Claude** или `bearer` для группы **GPT**, затем нажмите **Apply locally** |
+| Code mode показывает `Claude Code process exited with code 1` | Claude Desktop fallback на старую Claude Code version | Дождитесь скачивания новой версии, полностью закройте через **Cmd+Q**, затем откройте снова |

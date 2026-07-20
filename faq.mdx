@@ -1,0 +1,151 @@
+---
+title: "Вопросы и ответы"
+description: "Частые вопросы об аккаунтах LLMEasy, оплате, использовании и настройке."
+---
+
+## FAQ по AI coding tools
+
+Эти страницы предназначены для разработчиков, которые ищут информацию о Claude Code, Codex, Cursor, Cline и других AI coding tools. Сначала они объясняют сам инструмент, затем показывают, где API Key, Base URL, protocol choice и usage visibility связаны с LLMEasy.
+
+- [Что такое Claude Code и как он работает?](/faq/claude-code/what-is-claude-code)
+- [Claude Code и Claude Desktop: в чем разница?](/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code или Cursor для локальной разработки](/faq/claude-code/claude-code-vs-cursor)
+- [Claude Code использует Claude.ai account или API Key?](/faq/claude-code/claude-account-or-api-key)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Что такое CLAUDE.md в Claude Code?](/faq/claude-code/claude-md)
+- [Как переключать Sonnet и Opus в Claude Code](/faq/claude-code/switch-sonnet-opus)
+- [Permissions и hooks в Claude Code](/faq/claude-code/permissions-and-hooks)
+- [Почему Claude Code расходует много tokens и как снизить cost](/faq/token-cost/claude-code-token-usage)
+- [Как настроить MCP в Claude Desktop](/faq/claude-desktop/mcp)
+- [Может ли Claude Desktop использовать third-party models?](/faq/claude-desktop/third-party-models)
+- [Claude Desktop Cowork и Code Gateway: в чем разница?](/faq/claude-desktop/cowork-code-gateway)
+- [Что такое Codex CLI?](/faq/codex/what-is-codex-cli)
+- [Codex CLI, Codex App и Codex Web: в чем разница?](/faq/codex/codex-cli-vs-app-vs-web)
+- [Как настроить Codex CLI config.toml](/faq/codex/config-toml)
+- [Что такое model_provider, base_url и wire_api в Codex CLI?](/faq/codex/model-provider-base-url-wire-api)
+- [Что означают review_model и reasoning_effort в Codex CLI?](/faq/codex/review-model-reasoning-effort)
+- [Что такое AGENTS.md в Codex CLI?](/faq/codex/agents-md)
+- [Что такое sandbox и approval mode в Codex CLI?](/faq/codex/sandbox-approval)
+- [Почему Codex не может использовать GPT-5.5 в API mode?](/faq/codex/gpt-5.5-api-mode)
+- [Как сохранить официальный login state Codex при использовании стороннего API](/faq/codex/official-login-third-party-api)
+- [Как настроить custom OpenAI API Key и Base URL в Cursor](/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md и .cursorignore](/faq/cursor/rules-agents-cursorignore)
+- [Как настроить MCP в Cursor](/faq/cursor/mcp)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code и Codex CLI: в чем разница?](/faq/concepts/claude-code-vs-codex-cli)
+- [MCP и API Key / Base URL: в чем разница?](/faq/concepts/mcp-vs-api-key-base-url)
+
+## Аккаунт и оплата
+
+<AccordionGroup>
+  <Accordion title="Как LLMEasy считает стоимость использования?">
+    LLMEasy списывает баланс по фактическому расходу токенов и следует тарифам Anthropic / OpenAI без дополнительной наценки. Каждый новый аккаунт получает $3 пробного баланса.
+
+    Подробнее смотрите на <a href={"{{pricing-url}}"}>странице тарифов</a>.
+  </Accordion>
+
+  <Accordion title="Можно ли вернуть деньги после регистрации?">
+    Платные пополнения можно вернуть. Пробный баланс не возвращается. Если нужен возврат, обратитесь в поддержку.
+  </Accordion>
+
+  <Accordion title="Можно ли использовать один API Key в нескольких инструментах?">
+    Да. Один API Key можно одновременно использовать в Claude Code, Codex, Cursor и других инструментах. Расход будет общим.
+  </Accordion>
+
+  <Accordion title="Где посмотреть расход?">
+    Войдите в панель управления, чтобы увидеть текущий расход и историю списаний.
+  </Accordion>
+</AccordionGroup>
+
+## Настройка
+
+<AccordionGroup>
+  <Accordion title="Какой base_url у LLMEasy?">
+    LLMEasy использует два endpoint в зависимости от протокола:
+
+    | Сценарий | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` |
+    | Codex / `OPENAI_BASE_URL` / внешние инструменты | `{{openai-base-url}}` |
+
+    Не используйте один адрес во всех инструментах.
+  </Accordion>
+
+  <Accordion title="Нужно ли указывать модель для Claude Code?">
+    Это зависит от группы вашего API Key.
+
+    С группой ключа **Claude** задайте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. Переменные модели не нужны.
+
+    С группой ключа **GPT** добавьте сопоставления моделей через `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` и `ANTHROPIC_DEFAULT_OPUS_MODEL`. ID модели копируйте из текущей группы **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Accordion>
+
+  <Accordion title="Нужно ли указывать модель для Codex?">
+    Да. Укажите ID модели из группы **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Подробнее смотрите в [инструкции для Codex](/ai-tools/codex).
+  </Accordion>
+
+  <Accordion title="Нужно ли указывать модель в Cursor и других инструментах?">
+    Да. Внешние инструменты, например Cursor, Cline, Zed и OpenClaw, используют группу **GPT**. Копируйте актуальный ID модели из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Не используйте в этих инструментах жестко заданные имена Claude-моделей.
+
+    Подробнее смотрите в [инструкции для Cursor](/ai-tools/cursor).
+  </Accordion>
+
+  <Accordion title="Нужны ли OpenClaw и другим внешним инструментам дополнительные headers?">
+    Обычно нет.
+
+    По официальным инструкциям, которые мы проверяли, Cursor, Cline, Zed и похожие инструменты в основном требуют `Base URL`, API Key и ID модели. OpenCode и OpenClaw поддерживают необязательные `headers`, но в их документации это описано как настройка для нестандартной авторизации, а не как обязательный шаг LLMEasy.
+
+    Добавляйте дополнительные headers только если это явно требуется документацией инструмента или вашим upstream gateway, tenant routing, observability-слоем либо кеширующей прослойкой.
+  </Accordion>
+
+  <Accordion title="Что делать, если после настройки не проходит авторизация?">
+    Проверьте:
+
+    1. API Key введен правильно и без лишних пробелов
+    2. Claude Code использует `{{anthropic-base-url}}`, а Codex / внешние инструменты используют `{{openai-base-url}}`
+    3. Старые переменные `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY` или `OPENAI_BASE_URL` не переопределяют конфигурацию
+    4. Для внешних инструментов нет дополнительных требований: версии клиента, allowlist моделей или обязательных headers вашего upstream gateway
+
+    Если проблема остается, обратитесь в поддержку.
+  </Accordion>
+</AccordionGroup>
+
+## Надежность и лимиты
+
+<AccordionGroup>
+  <Accordion title="За счет чего LLMEasy остается стабильным?">
+    LLMEasy подключается к нескольким поставщикам и использует несколько механизмов:
+
+    - **Несколько источников**: сбой одного поставщика не останавливает все запросы
+    - **Динамическая маршрутизация**: LLMEasy в реальном времени выбирает самый быстрый и стабильный путь
+    - **Фокус на ключевых сценариях**: надежность в первую очередь оптимизирована для Claude Code и экосистемы Codex
+  </Accordion>
+
+  <Accordion title="Что делать при rate limit или timeout?">
+    LLMEasy автоматически обрабатывает лимиты и timeout отдельных поставщиков. Если проблемы продолжаются:
+
+    1. Проверьте, что на балансе достаточно средств
+    2. Увеличьте timeout в инструменте, рекомендуется `API_TIMEOUT_MS=3000000`
+    3. Обратитесь в поддержку, чтобы уточнить текущий статус квот
+  </Accordion>
+
+  <Accordion title="Подходит ли LLMEasy для production?">
+    LLMEasy в первую очередь сделан для индивидуальных разработчиков, которые используют AI-инструменты вроде Claude Code и Codex. Для крупных production-нагрузок оцените сервис по собственным требованиям.
+  </Accordion>
+</AccordionGroup>
+
+## Конфиденциальность и безопасность
+
+<AccordionGroup>
+  <Accordion title="Хранит ли LLMEasy содержимое моих запросов?">
+    LLMEasy работает как прокси и не сохраняет содержимое диалогов на постоянной основе. Подробнее смотрите в <a href={"{{privacy-url}}"}>Privacy Policy</a>.
+  </Accordion>
+
+  <Accordion title="Что делать, если API Key утек?">
+    Сразу войдите в панель управления, удалите старый ключ и создайте новый. Затем обновите каждый инструмент, где использовался этот ключ.
+  </Accordion>
+</AccordionGroup>

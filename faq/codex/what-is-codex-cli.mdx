@@ -1,0 +1,69 @@
+---
+title: "Что такое Codex CLI?"
+sidebarTitle: "Что такое Codex CLI"
+description: "Разберите, что такое Codex CLI, как он работает, когда его использовать и чем он отличается от Codex App и Codex Web."
+---
+
+## Короткий ответ
+
+Codex CLI — это локальный command-line coding agent от OpenAI. Он запускается в терминале, читает выбранный workspace, редактирует файлы, выполняет команды и следует вашим настройкам sandbox и approval.
+
+Он полезен, когда вы хотите, чтобы агент помогал с правками кода, code review, исправлением тестов, скриптами и многошаговыми инженерными задачами внутри локального репозитория.
+
+Codex CLI отличается от обычного диалога в ChatGPT. Он не только предлагает код, но и работает с текущей директорией, инструкциями проекта, результатами инструментов и локальными разрешениями.
+
+## Когда это важно
+
+- Вы впервые устанавливаете `@openai/codex`
+- Вы сравниваете Codex CLI, Codex App и Codex Web
+- Вы хотите, чтобы агент редактировал файлы в локальном проекте
+- Вам нужно настроить custom API provider, Base URL или модель
+- Вы хотите понять sandbox, approval и `AGENTS.md`
+
+## Основные понятия
+
+| Понятие | Значение |
+| --- | --- |
+| Codex CLI | Codex coding agent в локальном терминале |
+| Workspace | Директория, которую Codex может читать, искать и изменять |
+| `config.toml` | Локальный конфиг Codex для моделей, providers, sandbox, approvals и другого поведения |
+| `AGENTS.md` | Проектный файл инструкций с правилами репозитория и договоренностями по работе |
+| Sandbox | Локальная граница безопасности для файловой системы, сети и команд |
+| Approval | Политика, которая определяет, какие действия требуют подтверждения |
+
+## Рекомендуемый workflow
+
+1. Запускайте Codex CLI в директории проекта, который хотите изменить.
+2. Сначала попросите его прочитать релевантные файлы или инструкции, а не сразу делать широкие правки.
+3. Для сложной задачи попросите план перед изменением файлов.
+4. Выбирайте sandbox и approval по риску задачи.
+5. Постоянные правила проекта храните в `AGENTS.md`, а разовые требования оставляйте в текущем диалоге.
+
+Если вы используете сторонний API provider, важны поля `model_provider`, `base_url`, `wire_api` и model в `config.toml`. Codex и другие OpenAI-compatible tools обычно используют OpenAI-compatible endpoint, в этой документации это `{{openai-base-url}}`.
+
+## Частые ошибки
+
+- Воспринимать Codex CLI как обычный chat-only assistant.
+- Считать, что Codex CLI, Codex App и Codex Web работают в одной среде.
+- Менять только `model`, но не настраивать соответствующий provider и Base URL.
+- Ослаблять sandbox и approval без тестов, code review или границ команд.
+- Смешивать OpenAI-compatible и Anthropic-compatible Base URL.
+
+## О LLMEasy
+
+Если вы используете custom OpenAI-compatible provider, LLMEasy может быть model API layer для Codex CLI. Он отвечает за API Key, Base URL, model routing, баланс и записи расхода.
+
+LLMEasy не заменяет локальный sandbox Codex CLI, approvals, `AGENTS.md` или политику выполнения команд.
+
+## Связанные материалы
+
+- [Настройка Codex с LLMEasy](/ai-tools/codex)
+- [Codex CLI, Codex App и Codex Web: в чем разница?](/faq/codex/codex-cli-vs-app-vs-web)
+- [Как настроить Codex CLI config.toml](/faq/codex/config-toml)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Codex CLI documentation](https://developers.openai.com/codex/cli)
+- [OpenAI Codex GitHub repository](https://github.com/openai/codex)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)

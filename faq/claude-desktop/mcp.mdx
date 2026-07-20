@@ -1,0 +1,61 @@
+---
+title: "Как настроить MCP в Claude Desktop"
+sidebarTitle: "Claude Desktop MCP"
+description: "Разберите local MCP, remote MCP, connection status и отличие MCP от model APIs в Claude Desktop."
+---
+
+## Короткий ответ
+
+Claude Desktop может подключаться к local tools и data sources через MCP servers. Нужно объявить server в MCP configuration Claude Desktop, перезапустить или обновить соединение и проверить connection status в приложении.
+
+MCP — это не model API. Он дает Claude Desktop доступ к tools или context. Model requests по-прежнему зависят от модели и account path, которые использует Claude Desktop.
+
+## Когда это нужно
+
+- Вы хотите, чтобы Claude Desktop обращался к local files, databases или development tools
+- Вы видите MCP server config, но не знаете, куда его добавить
+- Вы сравниваете local MCP и remote MCP
+- Вы думаете, что MCP заменяет API Key / Base URL
+- Вы хотите проверить, подключен ли MCP
+
+## Local MCP vs remote MCP
+
+| Тип | Значение |
+| --- | --- |
+| Local MCP | Server запускается на вашем компьютере, часто для local tools, files или development environments |
+| Remote MCP | Подключается к remote service, часто для cloud tools или team services |
+| Desktop extension | Более desktop-oriented способ установки и распространения |
+
+## Рекомендуемая настройка
+
+1. Убедитесь, что подключаете MCP server, а не model provider.
+2. Добавьте local или remote MCP config по документации Claude Desktop.
+3. Перезапустите или обновите Claude Desktop.
+4. Проверьте MCP connection status в Claude Desktop.
+5. Дайте MCP server только нужные permissions и environment variables.
+
+## Частые ошибки
+
+- Считать MCP server Base URL.
+- Вставлять model API Key в MCP configuration.
+- Думать, что MCP меняет model cost.
+- Забывать, что MCP server может обращаться к sensitive local data.
+- Проверять только UI Claude Desktop, когда local server не запущен.
+
+## О LLMEasy
+
+LLMEasy отвечает за model API access, а не MCP servers. MCP в Claude Desktop подключает tools. API layers вроде LLMEasy обрабатывают model requests, balance и usage.
+
+Если нужны и tool access, и unified model routing, настраивайте MCP и API access отдельно.
+
+## Связанные материалы
+
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Claude Code и Claude Desktop: в чем разница?](/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code использует Claude.ai account или API Key?](/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Getting started with local MCP servers on Claude Desktop](https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
+- [Getting started with custom connectors using remote MCP](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)

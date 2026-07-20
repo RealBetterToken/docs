@@ -1,0 +1,110 @@
+---
+title: "Why does Claude Desktop show SSL certificate has expired or keep loading?"
+sidebarTitle: "SSL error and local routing"
+description: "Fix Claude Desktop no-response and SSL certificate has expired errors with CC Switch local routing and Needs model mapping."
+---
+
+If Claude Desktop is already connected to the API but does not return a normal response, or shows an error like this:
+
+```text
+API Error: Unable to connect to API: SSL certificate has expired
+```
+
+This does not always mean the API Key is invalid, and it does not always mean the server certificate has actually expired. Based on user reports, Claude Desktop may fail when it connects to a third-party API Gateway directly in proxy networks, restricted networks, or environments with strict certificate inspection.
+
+Use CC Switch Claude Desktop local routing and enable **Needs model mapping**. Claude Desktop will connect to a local address first, and CC Switch will forward the request to `{{brand-name}}`.
+
+<Frame>
+  <img
+    src="/images/claude-desktop-ssl-local-routing/ssl-certificate-expired-error.png"
+    alt="Claude Desktop showing API Error: Unable to connect to API: SSL certificate has expired."
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+## When to use this
+
+- Claude Desktop is connected to the API, but messages do not return a response.
+- The page shows `SSL certificate has expired`.
+- The Chat page appears to start responding, but stays in a loading state.
+- You are using a proxy network, restricted network, company network, or certificate inspection environment.
+- The same API Key works in other tools.
+
+## Fix
+
+<Steps>
+  <Step title="Confirm the CC Switch provider is active">
+    Open CC Switch, confirm that your `{{brand-name}}` provider is selected, and enable the top routing / proxy toggle.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/cc-switch-provider-routing.png"
+        alt="The LLMEasy provider is selected in CC Switch and the top routing toggle is enabled."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Enable Needs model mapping">
+    Open the provider edit page and enable **Needs model mapping**.
+
+    This lets CC Switch map the three model roles accepted by Claude Desktop to the actual models available in `{{brand-name}}`:
+
+    - `claude-sonnet-*`
+    - `claude-opus-*`
+    - `claude-haiku-*`
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/needs-model-mapping-settings.png"
+        alt="The CC Switch provider edit page with Needs model mapping enabled, plus API Format and Model mapping settings."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Choose the API Format">
+    In **API Format**, choose:
+
+    ```text
+    Anthropic Messages (Native)
+    ```
+  </Step>
+
+  <Step title="Fill in Model mapping">
+    Fill in **Model mapping**. Use the currently available model IDs from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    | Model role | Menu display name | Requested model |
+    | --- | --- | --- |
+    | Sonnet | `claude-sonnet-5` | `claude-sonnet-5` |
+    | Opus | `claude-opus-4-8` | `claude-opus-4-8` |
+    | Haiku | `claude-haiku-4-5` | `claude-haiku-4-5-20251001` |
+
+    If the model supports a 1M context window, enable **Declare 1M**.
+  </Step>
+
+  <Step title="Save and test again">
+    Click **Save**. Return to Claude Desktop, select the model again, and send a test message.
+
+    When the setup is correct, Claude Desktop calls `{{brand-name}}` through the CC Switch local route. This usually fixes the SSL error or no-response issue.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/claude-desktop-response-after-routing.png"
+        alt="Claude Desktop returns a response after CC Switch local routing and model mapping are enabled."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Notes
+
+- Do not copy model names from old screenshots blindly. Use the currently available model IDs from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Store the API Key in the CC Switch provider. Do not put it in public docs, screenshots, or chat logs.
+- If it still fails, check the top CC Switch routing toggle, active provider, complete Model mapping, and whether a local firewall blocks `127.0.0.1`.
+
+## Related docs
+
+- [Claude Desktop setup guide](/en/faq/claude-desktop-llmeasy-api)
+- [How can I use Codex and other third-party models in Claude Desktop?](/en/faq/claude-desktop/third-party-models)

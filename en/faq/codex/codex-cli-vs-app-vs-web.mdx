@@ -1,0 +1,65 @@
+---
+title: "Codex CLI vs Codex App vs Codex Web"
+sidebarTitle: "CLI vs App vs Web"
+description: "Compare Codex CLI, Codex App, and Codex Web / Cloud by runtime location, setup model, local permissions, and provider configuration."
+---
+
+## Short answer
+
+Codex CLI is the local terminal coding agent. It focuses on local projects, command execution, file edits, and `config.toml` configuration.
+
+Codex App is the desktop application entry point. It is better suited to graphical workflows, session management, plugins, Remote Control, and companion app features.
+
+Codex Web / Cloud is closer to a remote or browser-based agent workflow. It is not the same runtime as the local CLI and does not necessarily share the same local file access, sandbox, approval policy, or config file.
+
+## When you need to distinguish them
+
+- You are deciding whether to install CLI or use App / Web
+- You want to keep the Codex App official login state while routing model calls through a third-party API
+- You changed local `config.toml`, but Web behavior did not change
+- You need to know where file access, command execution, and approvals happen
+- You are writing team rules for Codex usage
+
+## Key differences
+
+| Dimension | Codex CLI | Codex App | Codex Web / Cloud |
+| --- | --- | --- | --- |
+| Main entry point | Local terminal | Desktop app | Browser or remote environment |
+| Configuration focus | `~/.codex/config.toml`, `AGENTS.md`, sandbox, approval | Login state, desktop features, provider switching | Cloud tasks, remote environments, repository authorization |
+| File access | Local workspace | Depends on the current app workspace and features | Depends on the remote environment and authorization |
+| Best fit | Local development, fast commands, scripts, code edits | Desktop sessions, plugins, Remote Control | Remote tasks and cloud development workflows |
+
+## How to choose
+
+Use Codex CLI when your main workflow is local code editing and terminal execution.
+
+Use Codex App when your main need is desktop workflow, plugins, or Remote Control. If you want to keep the official login state while using a third-party API, separate the authentication layer from the model request layer.
+
+Use Codex Web / Cloud when your work belongs in a remote environment or browser-based task flow. Do not assume local `config.toml` controls cloud runtime behavior.
+
+## Common mistakes
+
+- Assuming local CLI `config.toml` changes affect Codex Web / Cloud automatically.
+- Treating Codex App official login and a third-party API Key as the same layer.
+- Assuming all three surfaces have identical filesystem permissions.
+- Forgetting that sandbox and approval settings apply to a specific runtime.
+- Treating plugins, Remote Control, and model provider settings as one configuration layer.
+
+## About LLMEasy
+
+LLMEasy belongs to the model request layer: which API provider receives model calls. In Codex CLI, ordinary custom provider setup usually lives in `config.toml`. In Codex App scenarios that preserve the official login state, authentication and inference routing need separate handling.
+
+LLMEasy does not change the runtime boundary between CLI, App, and Web / Cloud.
+
+## Related docs
+
+- [Codex LLMEasy setup guide](/en/ai-tools/codex)
+- [How to keep the official Codex login state with a third-party API](/en/faq/codex/official-login-third-party-api)
+- [How to configure Codex CLI config.toml](/en/faq/codex/config-toml)
+- [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
+
+## References
+
+- [Codex CLI documentation](https://developers.openai.com/codex/cli)
+- [Codex App documentation](https://developers.openai.com/codex/app)
+- [Codex Cloud documentation](https://developers.openai.com/codex/cloud)

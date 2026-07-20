@@ -1,0 +1,195 @@
+---
+title: "Настройка кастомной модели GitHub Copilot через LLMEasy"
+sidebarTitle: "GitHub Copilot"
+description: "Настройте LLMEasy API Key и Base URL в GitHub Copilot Chat через Custom Endpoint в VS Code."
+icon: "github"
+---
+
+GitHub Copilot Chat поддерживает пользовательские модели через **Custom Endpoint**. Для подключения LLMEasy используйте API Key из группы **GPT** и выберите **Chat Completions**.
+
+<Info>
+  Эта инструкция настраивает пользовательскую языковую модель для GitHub Copilot Chat в VS Code. Она не заменяет inline code completion в GitHub Copilot.
+</Info>
+
+## Перед началом
+
+- Установлена актуальная версия VS Code
+- Установлен GitHub Copilot / Copilot Chat, выполнен вход в аккаунт
+- Получен LLMEasy API Key (<a href={"{{register-url}}"}>зарегистрироваться и получить</a>)
+- API Key относится к группе **GPT**
+- Вы знаете ID модели, например `gpt-5.5`
+
+<Warning>
+  Не записывайте реальный API Key вручную в `chatLanguageModels.json`. Вставьте ключ в окно ввода VS Code. VS Code сам создаст локальную secret-ссылку вида `${input:chat.lm.secret...}`.
+</Warning>
+
+## Шаги настройки
+
+<Steps>
+  <Step title="Откройте управление моделями">
+    В области ввода Copilot Chat нажмите на выбор модели, затем выберите **Manage Models...**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/manage-models-entry.png"
+        alt="Открытие Manage Models из выбора модели в Copilot Chat."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Добавьте Custom Endpoint">
+    В окне **Language Models** нажмите **Add Models**, затем выберите **Custom Endpoint**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/add-custom-endpoint.png"
+        alt="Кнопка Add Models в Language Models и выбор Custom Endpoint."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Введите название группы">
+    В поле **Group Name** введите:
+
+    ```text
+    LLMEasy
+    ```
+
+    Затем нажмите **Enter**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/group-name.png"
+        alt="Ввод LLMEasy в поле Group Name."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Введите API Key">
+    VS Code попросит ввести API Key. Вставьте LLMEasy API Key и нажмите **Enter**.
+
+    Значение ключа не будет напрямую показано в конфигурационном файле. VS Code сохранит его как локальный secret и создаст ссылку вида:
+
+    ```json
+    "apiKey": "${input:chat.lm.secret.xxxxx}"
+    ```
+
+    <Warning>
+      Не заменяйте `${input:chat.lm.secret...}` на реальный API Key. Оставьте secret-ссылку, которую сгенерировал VS Code.
+    </Warning>
+  </Step>
+
+  <Step title="Выберите тип API">
+    В **Custom Endpoint: API Type** выберите **Chat Completions**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/select-chat-completions.png"
+        alt="Выбор Chat Completions в Custom Endpoint API Type."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Отредактируйте JSON-конфигурацию">
+    VS Code откроет `chatLanguageModels.json`. Проверьте или измените конфигурацию:
+
+    <Frame>
+      <img
+        src="/images/github-copilot/chat-language-models-json.png"
+        alt="Настройка URL модели LLMEasy, toolCalling, vision и лимитов токенов в chatLanguageModels.json."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    ```json
+    [
+      {
+        "name": "LLMEasy",
+        "vendor": "customendpoint",
+        "apiKey": "${input:chat.lm.secret.xxxxx}",
+        "apiType": "chat-completions",
+        "models": [
+          {
+            "id": "gpt-5.5",
+            "name": "gpt-5.5",
+            "url": "{{chat-completions-url}}",
+            "toolCalling": true,
+            "vision": true,
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 64000
+          }
+        ]
+      }
+    ]
+    ```
+
+    Проверьте ключевые поля:
+
+    | Поле | Рекомендуемое значение |
+    | --- | --- |
+    | `name` | `LLMEasy` |
+    | `apiType` | `chat-completions` |
+    | `id` | `gpt-5.5` или другой ID модели из группы GPT в <a href={"{{model-plaza-url}}"}>model plaza</a> |
+    | `name` | Совпадает с ID модели |
+    | `url` | `{{chat-completions-url}}` |
+    | `toolCalling` | `true` |
+    | `vision` | `true` |
+    | `maxInputTokens` | `1000000` |
+    | `maxOutputTokens` | `64000` |
+  </Step>
+
+  <Step title="Сохраните и перезагрузите VS Code">
+    Сохраните `chatLanguageModels.json`, затем выполните команду:
+
+    ```text
+    Developer: Reload Window
+    ```
+
+    После перезагрузки вернитесь к выбору модели в Copilot Chat и выберите `gpt-5.5`.
+  </Step>
+
+  <Step title="Отправьте тестовое сообщение">
+    Отправьте простое сообщение в Copilot Chat:
+
+    ```text
+    Опиши в одном предложении, какую модель ты используешь.
+    ```
+
+    Если Copilot Chat отвечает нормально, LLMEasy Custom Endpoint настроен успешно.
+  </Step>
+</Steps>
+
+## FAQ
+
+### Почему API Key нужно вводить во всплывающем окне?
+
+VS Code сохраняет API Key в локальном secret storage и использует в JSON ссылку `${input:chat.lm.secret...}`. Это безопаснее, чем записывать реальный API Key в JSON-файл.
+
+### Почему нужно выбрать Chat Completions?
+
+Проверенная рабочая конфигурация использует **Chat Completions**. URL:
+
+```text
+{{chat-completions-url}}
+```
+
+Не используйте `/v1/responses` и не оставляйте только `/v1`.
+
+### Эта настройка заменяет inline completion в GitHub Copilot?
+
+Нет. Custom Endpoint в основном используется для запросов языковой модели в Copilot Chat. Inline completion в GitHub Copilot по-прежнему работает через сервис GitHub Copilot.
+
+### Что делать при ошибке Invalid token?
+
+Проверьте по порядку:
+
+1. API Key был введён во всплывающем окне VS Code
+2. В JSON сохранена ссылка `${input:chat.lm.secret...}`
+3. API Key относится к группе **GPT**
+4. `url` равен `{{chat-completions-url}}`
+5. `apiType` равен `chat-completions`
+6. ID модели взят из группы GPT в <a href={"{{model-plaza-url}}"}>model plaza</a>

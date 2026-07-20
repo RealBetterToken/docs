@@ -1,0 +1,68 @@
+---
+title: "Claude Code использует Claude.ai account или API Key?"
+sidebarTitle: "Account или API Key"
+description: "Разница между Claude.ai login, Claude Console API, cloud providers и third-party API gateway в Claude Code."
+---
+
+## Короткий ответ
+
+Claude Code может использовать разные способы authentication. Индивидуальные пользователи часто входят через Claude.ai account. API users или команды могут использовать Claude Console, cloud providers или поддерживаемый third-party provider путь.
+
+Claude.ai account и API Key — не одно и то же. Claude.ai login относится к официальному product experience. API Key используется для model API requests и обычно идет вместе с Base URL и provider configuration.
+
+Если вы используете third-party API gateway, главные поля — API Key и Base URL. Также нужно понять, ожидает инструмент Anthropic-compatible или OpenAI-compatible protocol.
+
+## Когда это важно
+
+- Во время настройки Claude Code появляется login prompt
+- Вы не уверены, дает ли Claude Pro или Max API Key
+- Вы хотите направить Claude Code через custom API gateway
+- Нужно выбрать между official login и third-party provider
+- Команда хочет единый способ authentication
+
+## Ключевые понятия
+
+| Понятие | Что означает |
+| --- | --- |
+| Claude.ai account | Официальный login для Claude product experiences |
+| Claude Console API | Developer API access и usage management |
+| API Key | Credential для model API requests |
+| Base URL | Endpoint, куда отправляются requests |
+| Provider | Источник authentication и model requests для Claude Code |
+| Third-party API gateway | Compatibility, routing, billing или observability layer между инструментом и model providers |
+
+## Как выбрать
+
+1. Если нужен официальный Claude Code experience и у вас есть Claude.ai plan, начните с official login.
+2. Если нужен API billing или team-managed API access, смотрите Claude Console или командный provider.
+3. Если нужен custom API gateway, проверьте, поддерживает ли Claude Code этот provider path, затем настройте API Key и Base URL.
+4. Если нужны official app features и third-party inference provider, решите, нужно ли сохранять official login state.
+
+В этой документации Anthropic-compatible Base URL для Claude Code — `{{anthropic-base-url}}`.
+
+## Частые ошибки
+
+- Считать Claude.ai subscription API Key.
+- Вставлять ChatGPT Plus или другой subscription credential в Claude Code.
+- Копировать только API Key и забывать поменять Base URL.
+- Вставлять OpenAI-compatible Base URL в Anthropic-compatible configuration Claude Code.
+- Передавать `auth.json`, refresh tokens или session credentials как будто это API Keys.
+
+## О LLMEasy
+
+Если вы выбираете путь API Key + Base URL, LLMEasy может предоставить compatible endpoint и dashboard для API Keys, баланса и usage history.
+
+LLMEasy не заменяет Claude.ai login и не превращает Claude.ai subscription в API Key. Он работает только на model API layer.
+
+## Related docs
+
+- [Настройка Claude Code](/ai-tools/claude-code)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Как сохранить login state Codex при использовании стороннего API?](/faq/codex/official-login-third-party-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Using Claude Code with your Pro or Max plan](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
+- [Claude Code LLM gateway configuration](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)

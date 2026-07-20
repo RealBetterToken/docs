@@ -1,0 +1,68 @@
+---
+title: "Что такое sandbox и approval mode в Codex CLI?"
+sidebarTitle: "sandbox / approval"
+description: "Разберите sandbox, approval modes, automatic review, локальные границы команд и отличие этих настроек от API provider в Codex CLI."
+---
+
+## Короткий ответ
+
+Sandbox управляет тем, к каким файлам Codex CLI может обращаться, могут ли команды использовать сеть и где разрешено локальное выполнение. Approval mode управляет тем, какие действия требуют подтверждения.
+
+Это локальные safety mechanisms, а не model provider settings. Даже если вы отправляете model requests через сторонний API gateway, file access и command execution остаются под контролем sandbox и approval в Codex CLI.
+
+Хорошая настройка sandbox и approval балансирует скорость и безопасность: рутинные действия проходят с меньшим количеством прерываний, а рискованные операции требуют подтверждения.
+
+## Когда это важно
+
+- Codex запрашивает подтверждение перед каждой командой
+- Вы хотите автоматически запускать тесты, но не разрешать рискованные команды
+- Вам нужно, чтобы Codex менял файлы вне текущего workspace
+- Вы работаете на shared machine, в company repository или sensitive project
+- Нужно объяснить, почему API provider не равен локальным разрешениям
+
+## Основные понятия
+
+| Понятие | Значение |
+| --- | --- |
+| Sandbox | Граница доступа к filesystem, network и commands |
+| Approval | Нужно ли подтверждать отдельные действия |
+| Auto review | Дополнительная проверка для eligible risky actions |
+| Workspace | Текущая директория проекта и разрешенная граница путей |
+| Network access | Может ли Codex запускать команды, обращающиеся к external services |
+
+## Рекомендуемая практика
+
+1. Начинайте с консервативных настроек в обычных проектах.
+2. Разрешайте запись только в текущий workspace.
+3. Позвольте тестам, форматированию и read-only commands выполняться без лишних пауз.
+4. Оставьте подтверждение для удаления файлов, reset состояния Git, записи вне workspace и network access.
+5. Опишите разрешенные команды и pre-commit checks в `AGENTS.md`.
+
+Не используйте слишком широкие permissions только ради меньшего числа prompts. Настоящая эффективность приходит из ясных задач, стабильных правил проекта и небольших шагов проверки.
+
+## Частые ошибки
+
+- Думать, что смена API provider меняет локальные sandbox permissions.
+- Отключить approvals и дать Codex работать с untrusted repository.
+- Разрешить network commands, не определив допустимые сервисы.
+- Считать Git reset, удаление файлов и установку зависимостей low-risk commands.
+- Завершать задачу без проверки diff и результатов тестов.
+
+## О LLMEasy
+
+LLMEasy обрабатывает только model API request layer: API Key, Base URL, model routing и usage records. Он не меняет sandbox или approval mode в Codex CLI.
+
+Если проблема связана с file access, command confirmation или network permission, проверяйте локальный Codex CLI config, а не API gateway.
+
+## Связанные материалы
+
+- [Настройка Codex с LLMEasy](/ai-tools/codex)
+- [Как настроить Codex CLI config.toml](/faq/codex/config-toml)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Что такое Codex CLI?](/faq/codex/what-is-codex-cli)
+
+## References
+
+- [Codex approvals and security](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex sandboxing](https://developers.openai.com/codex/concepts/sandboxing)
+- [Codex sandboxing auto review](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

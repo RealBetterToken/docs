@@ -1,0 +1,245 @@
+---
+title: "How can I use Codex and other third-party models in Claude Desktop?"
+sidebarTitle: "Claude Desktop third-party models"
+description: "Use a CC Switch local route to run GPT Key group models in Claude Desktop."
+---
+
+Recent Claude Desktop versions changed how third-party API gateways are configured. In Gateway mode, Claude Desktop validates model IDs more strictly, so non-official model IDs such as GPT, DeepSeek, or GLM can be blocked.
+
+A common symptom is this warning at the top of the page: `Your provider setup needs a fix Some required fields are missing or malformed. Open Setup to finish configuring it.` At the same time, the third-party model selector in the lower-left area is empty, and Claude Desktop only shows a **Legacy Model** state.
+
+<Frame>
+  <img
+    src="/images/claude-desktop-third-party-models/provider-setup-needs-fix.png"
+    alt="Claude Desktop showing Your provider setup needs a fix while the third-party model selector is empty."
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+If you want to keep using Codex or other third-party models in Claude Desktop, route the requests through CC Switch: configure LLMEasy under **Claude Code** in CC Switch, then enter the CC Switch local service address in Claude Desktop Gateway.
+
+<Info>
+  This path is for API keys from the **GPT Key group**. Do not enter `{{openai-base-url}}` directly in Claude Desktop Gateway.
+</Info>
+
+## Setup steps
+
+<Steps>
+  <Step title="Download Claude Desktop">
+    Download the latest Claude Desktop app from the official link:
+
+    [Download Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
+
+    After installation, do not sign in to a Claude account. Continue to the next step and enable developer mode.
+  </Step>
+
+  <Step title="Enable developer mode">
+    Open Claude Desktop, then choose **Help** → **Troubleshooting** → **Enable Developer Mode** from the macOS menu bar.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/enable-developer-mode-menu.png"
+        alt="Select Enable Developer Mode from the Claude Desktop Help menu."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    In the confirmation window, click **Enable**, then restart Claude Desktop.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/developer-mode-confirm.png"
+        alt="Confirm developer mode in Claude Desktop."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Open third-party inference settings">
+    After restarting, the macOS menu bar shows a **Developer** menu.
+
+    Choose **Developer** → **Configure Third-Party Inference...**.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/configure-third-party-inference.png"
+        alt="Choose Configure Third-Party Inference from the Developer menu."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Open Claude Code in CC Switch and add a provider">
+    Open CC Switch, switch to **Claude Code**, and click **Add Provider**.
+
+    <Frame>
+      <img
+        src="/images/cc-switch/claude-code-add-provider.png"
+        alt="The Claude Code page in CC Switch, with the add button in the top-right corner used to create a new provider."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Fill in the basic fields">
+    - **Provider Name**: `LLMEasy`
+    - **Base URL**: `{{anthropic-base-url}}`
+    - **API Key**: your LLMEasy API Key
+
+    The screenshot labels map to:
+
+    1. **Provider Name**
+    2. **API Key**
+    3. **Base URL**
+
+    <Frame>
+      <img
+        src="/images/cc-switch/claude-code-basic-fields.png"
+        alt="The provider edit page in CC Switch, showing where to enter Provider Name, API Key, and Base URL."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Set the API format and model mappings">
+    Open **Advanced Options** and set **API Format** to **OpenAI Responses API**.
+
+    <Frame>
+      <img
+        src="/images/cc-switch/claude-code-api-format.png"
+        alt="The advanced options section in CC Switch, with API Format set to OpenAI Responses API."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    In **Model Mapping**, click **Fetch Model List**. Explicitly select dropdown values for **Primary Model**, **Thinking Model**, **Haiku Default Model**, **Sonnet Default Model**, and **Opus Default Model**.
+
+    <Frame>
+      <img
+        src="/images/cc-switch/claude-code-model-mapping.png"
+        alt="The model mapping section in CC Switch, showing Fetch Model List and the mappings for Primary, Thinking, Haiku, Sonnet, and Opus models."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    Use model IDs from the current **GPT Key group** models in the <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>.
+  </Step>
+
+  <Step title="Save, switch, and enable the proxy">
+    After saving, return to the provider list:
+
+    1. Set the LLMEasy provider you just saved as **In use**
+    2. Enable the **CC Switch proxy** from the top-left corner
+
+    <Frame>
+      <img
+        src="/images/cc-switch/claude-code-enable-proxy.png"
+        alt="After saving, return to the provider list, set LLMEasy as active, and enable the CC Switch proxy toggle in the top-left corner."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Open CC Switch settings">
+    Return to the CC Switch home screen, then click **Settings** in the top-left corner.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/cc-switch-settings-entry.png"
+        alt="The CC Switch home screen with the Settings button highlighted in the top-left corner."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Confirm routing is enabled and copy the service address">
+    Open **Routing** settings. Confirm that the highlighted main routing switch and **Claude** route switch are both on. Then copy the **Service address** shown below.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/cc-switch-route-service.png"
+        alt="The CC Switch routing settings page, with the main route switch, Claude route switch, and service address copy button highlighted."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Enter the Gateway base URL in Claude Desktop">
+    Return to the Claude Desktop third-party inference settings window and select **Gateway**. Paste the CC Switch **Service address** into **Gateway base URL**, then enter your LLMEasy API Key.
+
+    Set **Gateway auth scheme** to `bearer`.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/claude-gateway-local-route.png"
+        alt="The Claude Desktop Gateway settings page with the CC Switch local service address entered."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Add the model list and apply locally">
+    Add the models you want to show in **Model list**. Each model entry needs both **Model ID** and **Display name**.
+
+    For example:
+
+    | Model ID | Display name |
+    |----------|--------------|
+    | `claude-opus-4` | `Claude Opus 4` |
+
+    After filling in the list, click **Apply locally**.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/claude-model-list-codex-group.png"
+        alt="The Claude Desktop Model list with Model ID and Display name filled in, and Apply locally available."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Confirm the app relaunch">
+    After Claude writes the local configuration, it asks you to save and restart. Click **Save & Restart** so the new gateway configuration takes effect.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/relaunch-claude.png"
+        alt="Claude Desktop asks to save and restart, with the Save & Restart button highlighted."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Sign in with Gateway">
+    After restarting, wait about 3 seconds for the sign-in choice to appear.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/continue-with-gateway.png"
+        alt="Claude Desktop shows the Continue with Gateway sign-in option."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    Choose **Continue with Gateway**. After Claude opens, **Cowork 3P | Gateway** appears in the lower-left corner and you can start using it.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/gateway-ready.png"
+        alt="Claude Desktop is ready after signing in with Gateway."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+If you still see **Your provider setup needs a fix**, check these items first:
+
+1. The LLMEasy provider in CC Switch is set as **In use**
+2. **API Format** is set to **OpenAI Responses API**
+3. **Model Mapping** explicitly selects GPT Key group models for Primary, Thinking, Haiku, Sonnet, and Opus
+4. **CC Switch proxy**, the main routing switch, and the **Claude** route switch are all enabled
+5. Claude Desktop **Gateway base URL** uses the local service address copied from CC Switch
+6. **Model list** includes both **Model ID** and **Display name** for each model

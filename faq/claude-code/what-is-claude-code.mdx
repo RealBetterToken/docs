@@ -1,0 +1,69 @@
+---
+title: "Что такое Claude Code и как он работает?"
+sidebarTitle: "Что такое Claude Code"
+description: "Объяснение Claude Code как coding agent: работа с кодовой базой, контекстом, инструментами, правами доступа, MCP и API provider."
+---
+
+## Короткий ответ
+
+Claude Code — это coding agent для разработки. Это не просто чат. Он может читать кодовую базу, редактировать файлы, запускать команды и помогать с задачами разработки из терминала, IDE, desktop app или браузера.
+
+Обычный workflow такой: Claude Code читает контекст проекта, планирует задачу, вызывает инструменты, меняет файлы и при необходимости запускает проверки. Он подходит для изменений в нескольких файлах, исправления тестов, code review, скриптов и длинных инженерных задач.
+
+Model API отвечает только за inference. Локальные права, доступ к файлам, выполнение команд, hooks и MCP tools по-прежнему контролируются Claude Code и настройками проекта.
+
+## Когда это важно
+
+- Вы впервые устанавливаете Claude Code
+- Вы хотите, чтобы Claude Code менял локальный репозиторий
+- Вы не понимаете, почему он читает файлы или расходует много tokens
+- Вы планируете подключить custom API Key и Base URL
+- Вы выбираете между Claude Code, Claude Desktop, Cursor и Codex CLI
+
+## Ключевые понятия
+
+| Понятие | Что означает |
+| --- | --- |
+| Coding agent | Agent для разработки, который может читать код, использовать инструменты, редактировать файлы и запускать команды |
+| Working directory | Каталог проекта, который Claude Code может читать и изменять |
+| Tool use | Чтение файлов, поиск по коду, редактирование файлов, shell commands и похожие действия |
+| Context | История диалога, файлы, правила проекта, `CLAUDE.md` и результаты инструментов |
+| MCP | Протокол для добавления инструментов и источников данных; это не model API |
+| `CLAUDE.md` | Файл project instructions, который Claude Code может загрузить как контекст |
+
+## Рекомендуемый workflow
+
+1. Запускайте Claude Code из реального каталога проекта.
+2. Сначала попросите его прочитать релевантные файлы, а не менять весь проект сразу.
+3. Для сложных задач сначала запросите план.
+4. Давайте менять небольшой набор файлов и запускать быстрые проверки.
+5. Стабильные правила проекта храните в `CLAUDE.md`; одноразовые инструкции оставляйте в текущем диалоге.
+
+Если вы подключаете Claude Code через API gateway, убедитесь, что endpoint Anthropic-compatible. В этой документации для Claude Code используется `{{anthropic-base-url}}`. Не используйте OpenAI-compatible `{{openai-base-url}}` в Anthropic-настройке Claude Code.
+
+## Частые ошибки
+
+- Считать Claude Code обычным чатом и забывать, что он может работать с локальными файлами.
+- Ожидать, что он автоматически знает весь репозиторий без чтения файлов и project instructions.
+- Считать MCP model API. MCP добавляет tools; API Key, Base URL и Model ID настраивают inference.
+- Смешивать Claude.ai login, Claude Console API и third-party API gateway.
+- Разрешать широкое выполнение локальных команд без review, tests и ограничений.
+
+## О LLMEasy
+
+Когда Claude Code использует custom API Key и Base URL, model requests можно отправлять через Anthropic-compatible API gateway. LLMEasy находится на этом model API layer и помогает управлять API Keys, балансом и usage history.
+
+LLMEasy не заменяет permissions Claude Code, file access controls, hooks, MCP config или project rules.
+
+## Related docs
+
+- [Настройка Claude Code](/ai-tools/claude-code)
+- [Claude Code использует Claude.ai account или API Key?](/faq/claude-code/claude-account-or-api-key)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Что такое CLAUDE.md в Claude Code?](/faq/claude-code/claude-md)
+
+## References
+
+- [Claude Code overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code quickstart](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [How Claude remembers your project](https://docs.anthropic.com/en/docs/claude-code/memory)

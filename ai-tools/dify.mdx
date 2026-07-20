@@ -1,0 +1,130 @@
+---
+title: "Как подключить custom-модели LLMEasy к Dify"
+sidebarTitle: "Dify"
+description: "Добавьте модель группы GPT через официальный плагин Dify OpenAI-API-compatible, указав API Base URL LLMEasy, API Key и ID модели."
+icon: "layer-group"
+---
+
+Чтобы подключить LLMEasy к Dify, установите официальный плагин **OpenAI-API-compatible** и добавьте отдельную конфигурацию LLM для каждой нужной модели группы GPT. В поле API Base URL укажите `{{openai-base-url}}`.
+
+## Что потребуется
+
+- Dify Cloud или собственный экземпляр Dify с включёнными плагинами
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
+- Права на установку model plugins и управление моделями workspace
+
+<Note>
+  Инструкция относится только к **LLM Chat**. Не добавляйте GPT chat model как Text Embedding, Rerank, Speech-to-Text или Text-to-Speech.
+</Note>
+
+## Установка OpenAI-compatible model plugin
+
+<Steps>
+  <Step title="Откройте Model Providers">
+    В workspace Dify перейдите в **Integrations > Model Providers**.
+  </Step>
+
+  <Step title="Установите официальный плагин">
+    Нажмите **Install model providers**, найдите **OpenAI-API-compatible** и установите его.
+
+    Dify управляет model providers как плагинами уровня workspace. После установки приложения с нужными правами смогут выбирать модели этого provider.
+  </Step>
+
+  <Step title="Добавьте custom model">
+    На карточке **OpenAI-API-compatible** нажмите **Add Model**. Если сначала отображается **Setup** или **Configure**, откройте этот раздел и выберите добавление модели.
+  </Step>
+</Steps>
+
+## Конфигурация модели
+
+Для первой модели заполните поля так:
+
+| Поле Dify | Рекомендуемое значение |
+|---|---|
+| Model Type | `LLM` |
+| Model Name | ID модели группы GPT из model plaza |
+| Model display name | можно повторить Model Name |
+| API Key | API Key LLMEasy из группы GPT |
+| API Base URL | `{{openai-base-url}}` |
+| model name for API endpoint | тот же ID, что и в Model Name |
+| Completion mode | `Chat` |
+| Model context size | по возможностям модели; если не уверены, оставьте значение плагина |
+| Upper bound for max tokens | не выше лимита модели; для первого теста оставьте значение плагина |
+| Compatibility mode | `OpenAI compatible` / strict |
+| Token parameter name | `Auto` |
+| Function Call Type | `Not Support` для первого теста |
+
+<Warning>
+  В API Base URL укажите только `{{openai-base-url}}`. Не добавляйте `/chat/completions`: плагин Dify сам вызывает нужный endpoint.
+</Warning>
+
+Для остальных возможностей сначала выберите консервативные значения:
+
+- **Thinking Mode Support**: включайте только после проверки поддержки моделью
+- **Stream function calling**: для первого теста выберите `Not Support`
+- **Vision Support**: включайте, только если модель и endpoint принимают изображения
+- **Structured Output**: сначала выключите и проверьте обычный чат
+
+Нажмите **Save**. Dify проверит API Key, Base URL и ID модели.
+
+## Использование модели в приложении
+
+<Steps>
+  <Step title="Создайте или откройте приложение Dify">
+    Откройте Chatbot, Agent, Chatflow или Workflow.
+  </Step>
+
+  <Step title="Выберите модель">
+    В model selector приложения или в узле **LLM** выберите модель, добавленную в **OpenAI-API-compatible**.
+  </Step>
+
+  <Step title="Сначала проверьте обычный чат">
+    Выполните первый запрос с коротким текстом, без инструментов и изображений:
+
+    ```text
+    Ответь только: Подключение работает
+    ```
+  </Step>
+
+  <Step title="Затем включите возможности Agent">
+    Когда обычный чат заработает, при необходимости измените конфигурацию модели. Укажите в **Function Call Type** режим, который поддерживает модель. В OpenAI-compatible API обычно используется `Tool Call`, но поддержку нужно проверять для выбранных модели и endpoint.
+  </Step>
+</Steps>
+
+## Добавление других моделей
+
+Dify хранит отдельную custom-конфигурацию для каждого model ID. Чтобы добавить ещё одну модель группы GPT, снова нажмите **Add Model** в том же provider. Укажите новый ID в **Model Name** и **model name for API endpoint**. Base URL и API Key можно использовать повторно.
+
+## Решение проблем
+
+### При сохранении возвращается 401
+
+- Проверьте API Key
+- Убедитесь, что ключ относится к группе **GPT**
+- Проверьте статус ключа и баланс в Dashboard LLMEasy
+
+### При сохранении возвращается 404
+
+- API Base URL должен быть `{{openai-base-url}}`
+- Не добавляйте `/chat/completions`
+- Проверьте, что **model name for API endpoint** полностью совпадает с ID в model plaza
+
+### Dify сообщает model not found
+
+**Model Name** влияет на отображение и выбор модели в Dify. В запрос отправляется значение **model name for API endpoint**. Укажите в обоих полях один и тот же ID модели группы GPT.
+
+### Обычный чат работает, а инструменты Agent — нет
+
+Верните **Function Call Type** в `Not Support` и проверьте базовый узел LLM. Выбирайте `Tool Call`, только если модель поддерживает вызов инструментов, а затем повторно проверьте их параметры.
+
+### Knowledge не позволяет выбрать эту модель как Embedding Model
+
+Это ожидаемо: chat LLM не заменяет embedding model. Инструкция не подтверждает наличие у LLMEasy embedding или rerank endpoints для Dify. Подключите для Knowledge отдельный поддерживаемый embedding provider.
+
+## Связанные документы
+
+- [Dify Model Providers](https://docs.dify.ai/en/cloud/use-dify/workspace/model-providers)
+- [Официальный плагин Dify OpenAI-API-compatible](https://github.com/langgenius/dify-official-plugins/tree/main/models/openai_api_compatible)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Как выбрать модель](/faq/model-calling/model-selection-guide)

@@ -1,0 +1,151 @@
+---
+title: "FAQ"
+description: "Common questions about LLMEasy accounts, billing, usage, and setup."
+---
+
+## AI coding tools FAQ
+
+These pages are for developers searching for Claude Code, Codex, Cursor, Cline, and other AI coding tool concepts. They explain the tool first, then show where API Key, Base URL, protocol choice, and usage visibility connect to LLMEasy.
+
+- [What is Claude Code and how does it work?](/en/faq/claude-code/what-is-claude-code)
+- [Claude Code vs Claude Desktop](/en/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code vs Cursor for local development](/en/faq/claude-code/claude-code-vs-cursor)
+- [Does Claude Code use a Claude.ai account or an API Key?](/en/faq/claude-code/claude-account-or-api-key)
+- [How to configure API Key and Base URL in Claude Code](/en/faq/claude-code/api-key-base-url)
+- [What is CLAUDE.md in Claude Code?](/en/faq/claude-code/claude-md)
+- [How to switch Sonnet and Opus in Claude Code](/en/faq/claude-code/switch-sonnet-opus)
+- [Claude Code permissions and hooks explained](/en/faq/claude-code/permissions-and-hooks)
+- [Why Claude Code uses so many tokens and how to reduce cost](/en/faq/token-cost/claude-code-token-usage)
+- [How to configure MCP in Claude Desktop](/en/faq/claude-desktop/mcp)
+- [Can Claude Desktop use third-party models?](/en/faq/claude-desktop/third-party-models)
+- [Claude Desktop Cowork vs Code Gateway](/en/faq/claude-desktop/cowork-code-gateway)
+- [What is Codex CLI?](/en/faq/codex/what-is-codex-cli)
+- [Codex CLI vs Codex App vs Codex Web](/en/faq/codex/codex-cli-vs-app-vs-web)
+- [How to configure Codex CLI config.toml](/en/faq/codex/config-toml)
+- [What are model_provider, base_url, and wire_api in Codex CLI?](/en/faq/codex/model-provider-base-url-wire-api)
+- [What do review_model and reasoning_effort mean in Codex CLI?](/en/faq/codex/review-model-reasoning-effort)
+- [What is AGENTS.md in Codex CLI?](/en/faq/codex/agents-md)
+- [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
+- [Why can't Codex use GPT-5.5 in API mode?](/en/faq/codex/gpt-5.5-api-mode)
+- [How to keep the official Codex login state with a third-party API](/en/faq/codex/official-login-third-party-api)
+- [How to configure a custom OpenAI API Key and Base URL in Cursor](/en/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md, and .cursorignore explained](/en/faq/cursor/rules-agents-cursorignore)
+- [How to configure MCP in Cursor](/en/faq/cursor/mcp)
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code vs Codex CLI](/en/faq/concepts/claude-code-vs-codex-cli)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+
+## Account and billing
+
+<AccordionGroup>
+  <Accordion title="How does LLMEasy charge usage?">
+    LLMEasy charges by actual token usage and follows Anthropic / OpenAI pricing without adding an extra markup. Every new account gets a $3 trial credit.
+
+    See the <a href={"{{pricing-url}}"}>pricing page</a> for details.
+  </Accordion>
+
+  <Accordion title="Can I get a refund after signup?">
+    Paid top-ups are refundable. Trial credit is not refundable. Contact support if you need a refund.
+  </Accordion>
+
+  <Accordion title="Can I use the same API Key in multiple tools?">
+    Yes. The same API Key can be used in Claude Code, Codex, Cursor, and other tools at the same time. Usage is shared.
+  </Accordion>
+
+  <Accordion title="Where can I check my usage?">
+    Log in to the dashboard to view current usage and billing records.
+  </Accordion>
+</AccordionGroup>
+
+## Setup and configuration
+
+<AccordionGroup>
+  <Accordion title="What is LLMEasy's base_url?">
+    LLMEasy now uses two different endpoints by protocol:
+
+    | Scenario | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` |
+    | Codex / `OPENAI_BASE_URL` / external tools | `{{openai-base-url}}` |
+
+    Do not reuse one address across every tool.
+  </Accordion>
+
+  <Accordion title="Do I need to specify a model when using Claude Code?">
+    It depends on your Key group.
+
+    With the **Claude Key group**, only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. You do **not** need model variables.
+
+    With the **GPT Key group**, add Claude Code model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`. Copy the model ID from the current **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Accordion>
+
+  <Accordion title="Do I need to specify a model when using Codex?">
+    Yes. Fill in a model ID copied from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    See the [Codex setup guide](/en/ai-tools/codex) for details.
+  </Accordion>
+
+  <Accordion title="Do I need to specify a model when using other tools like Cursor?">
+    Yes. External tools such as Cursor, Cline, Zed, and OpenClaw now use the **GPT Key group**. Copy the current model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Do not keep using hardcoded Claude model names in these tools.
+
+    See the [Cursor setup guide](/en/ai-tools/cursor) for details.
+  </Accordion>
+
+  <Accordion title="Do OpenClaw and other external tools need extra headers?">
+    Usually not.
+
+    Based on the official docs we checked, common external tools like Cursor, Cline, and Zed focus on the `Base URL`, API key, and model ID. OpenCode and OpenClaw do support optional `headers`, but their official docs describe that as custom headers or custom auth needs, not as a required LLMEasy setup step.
+
+    Only add extra headers when the tool's official docs, or your own upstream gateway, tenant routing, observability, or caching layer explicitly requires them.
+  </Accordion>
+
+  <Accordion title="What should I do if authentication fails after setup?">
+    Check the following:
+
+    1. Make sure the API Key is correct and has no extra spaces
+    2. Confirm Claude Code uses `{{anthropic-base-url}}`, while Codex / external tools use `{{openai-base-url}}`
+    3. Check whether old `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY`, or `OPENAI_BASE_URL` variables are overriding the config
+    4. For external tools, check whether there are additional official requirements such as version limits, model allowlists, or extra headers explicitly required by your upstream gateway
+
+    If the issue remains, contact support.
+  </Accordion>
+</AccordionGroup>
+
+## Reliability and rate limits
+
+<AccordionGroup>
+  <Accordion title="How does LLMEasy stay reliable?">
+    LLMEasy connects to multiple suppliers and uses the following mechanisms:
+
+    - **Multi-source supply**: one supplier outage does not take down your requests
+    - **Dynamic routing**: LLMEasy picks the fastest and most stable path in real time
+    - **Flagship focus**: reliability work is concentrated on Claude Code and the Codex ecosystem
+  </Accordion>
+
+  <Accordion title="What should I do if I hit rate limits or timeouts?">
+    LLMEasy automatically handles individual supplier rate limits and timeouts. If issues continue:
+
+    1. Check that your balance is sufficient
+    2. Increase the timeout for your tool (`API_TIMEOUT_MS=3000000` is recommended)
+    3. Contact support to confirm the current quota status
+  </Accordion>
+
+  <Accordion title="Is LLMEasy suitable for production?">
+    LLMEasy is primarily built for individual developers using AI coding tools such as Claude Code and Codex. For large-scale production API workloads, evaluate it against your own requirements.
+  </Accordion>
+</AccordionGroup>
+
+## Privacy and security
+
+<AccordionGroup>
+  <Accordion title="Does LLMEasy store my request content?">
+    LLMEasy acts as a relay and does not persist conversation content. See the <a href={"{{privacy-url}}"}>Privacy Policy</a> for details.
+  </Accordion>
+
+  <Accordion title="What should I do if my API Key leaks?">
+    Log in to the dashboard immediately, delete the old key, and generate a new one. Then update every tool that uses that key.
+  </Accordion>
+</AccordionGroup>

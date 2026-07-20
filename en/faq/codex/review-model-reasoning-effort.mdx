@@ -1,0 +1,58 @@
+---
+title: "What do review_model and reasoning_effort mean in Codex CLI?"
+sidebarTitle: "review_model / reasoning"
+description: "Understand review_model, model_reasoning_effort, /review, /model, and how these settings affect cost and quality in Codex CLI."
+---
+
+## Short answer
+
+`review_model` is the model Codex uses for code review workflows. `model_reasoning_effort` controls reasoning strength for models that support the Responses API.
+
+Both fields can affect quality, speed, and usage cost. Higher reasoning settings are better for complex tasks, but they can consume more.
+
+## Field relationships
+
+| Field | Role |
+| --- | --- |
+| `model` | Default model for ordinary work |
+| `review_model` | Model used for review workflows such as `/review` |
+| `model_reasoning_effort` | Reasoning strength for the main model |
+| `/model` | In-session entry point for model or reasoning changes |
+| `/review` | Entry point for asking Codex to review current changes |
+
+## Recommended config
+
+```toml
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+```
+
+For small quick edits, you can lower reasoning effort. For cross-file refactors, difficult debugging, or long-context tasks, higher reasoning effort is more appropriate.
+
+## Common mistakes
+
+- Thinking `review_model` replaces the main model for all tasks.
+- Treating reasoning effort as a temperature setting.
+- Using a model ID unsupported by the current provider.
+- Using the highest reasoning effort for every task.
+- Looking only at model names without checking actual usage and result quality.
+
+## About LLMEasy
+
+Different models and reasoning settings affect usage. LLMEasy usage records help you compare input, output, and cost across real tasks.
+
+Copy model IDs from the **GPT Key group** so the current provider can recognize them.
+
+## Related docs
+
+- [How to configure Codex CLI config.toml](/en/faq/codex/config-toml)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+- [Codex LLMEasy setup guide](/en/ai-tools/codex)
+- [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
+
+## References
+
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)
+- [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)

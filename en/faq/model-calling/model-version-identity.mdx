@@ -1,0 +1,86 @@
+---
+title: "Why does a model not know its own version?"
+sidebarTitle: "Model self-identification"
+description: "Learn why a model may answer its own version incorrectly through an API call, and how to verify which model was actually used."
+---
+
+## Short answer
+
+It is normal for a model to answer its own version incorrectly. This does not prove that you called the wrong model.
+
+The `model` parameter is mainly used by the API server for routing. The model may not see that field, and it may not know the final release name if the name was assigned after training. Official web products often answer correctly because the product layer injects a system prompt that tells the model its identity.
+
+When you call a model through an API without adding identity information in the system message, the model may guess an older name from its training data.
+
+## When this happens
+
+- You call a new model, but it says it is an older version
+- The official website answers the version correctly, but the API call does not
+- The same model introduces itself differently in different tools
+- You want to check whether the API gateway called the model you requested
+- A user treats “What model are you?” as the verification method
+
+## Why it happens
+
+Model names are often finalized after training. During training, the model learns language, code, and knowledge patterns. It may not learn the final product name used after release.
+
+In an API request, the `model` field tells the server which model to route to. It is not normal chat content, and the model may not receive it as identity information.
+
+Official web products can add hidden instructions such as “You are this model.” API calls usually do not add that identity prompt automatically.
+
+## How to verify the model that was actually used
+
+Do not rely only on asking the model “What version are you?” Check the request path and response fields instead.
+
+| Verification method | What to check |
+| --- | --- |
+| Call logs | The model used for each request in the dashboard |
+| API response fields | The `model` field in the response JSON |
+| Model ID | The Model ID in your request came from the current provider or model plaza |
+| Key group | The API Key, Base URL, and Model ID belong to the same group |
+
+Example response:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+The exact response shape depends on the API format. The important check is the model field returned by the server and the dashboard record, not the model’s self-introduction.
+
+## How to make the model answer with a specific identity
+
+If your product needs the model to describe itself in a specific way, put that identity in the system message:
+
+```text
+You are Claude Sonnet 5, called through the LLMEasy API.
+```
+
+This works like the official web product: the application layer tells the model who it should say it is.
+
+<Warning>
+  A system message only changes the model’s self-description and behavior style. It does not change the model that is actually routed. The real routing is still determined by Base URL, API Key, Key group, and Model ID.
+</Warning>
+
+## Common mistakes
+
+- Using “What model are you?” as the only verification method.
+- Assuming the provider swapped the model because the self-description is wrong.
+- Assuming the `model` parameter always enters the model context.
+- Ignoring dashboard logs and the response `model` field.
+- Adding model identity to the system message and assuming the actual model changed.
+
+## About LLMEasy
+
+LLMEasy’s dashboard helps you check API Key, Model ID, request records, and balance usage. When you need to confirm whether the model is correct, check the call log and response fields first.
+
+If the self-description conflicts with the logs, trust the logs and response fields.
+
+## Related docs
+
+- [How do I choose the right AI model?](/en/faq/model-calling/model-selection-guide)
+- [How should I fill in the Base URL?](/en/faq/model-calling/base-url-config)
+- [What is the difference between OpenAI-compatible API and Anthropic-compatible API?](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [How do I switch between Sonnet and Opus in Claude Code?](/en/faq/claude-code/switch-sonnet-opus)

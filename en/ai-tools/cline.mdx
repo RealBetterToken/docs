@@ -1,0 +1,66 @@
+---
+title: "Connect Cline to LLMEasy with a custom model"
+sidebarTitle: "Cline"
+description: "Connect LLMEasy to Cline with GPT Key group model IDs."
+icon: "c"
+---
+
+Cline is a VS Code AI coding extension. To connect LLMEasy, choose the OpenAI Compatible provider and use a model ID from the GPT Key group.
+
+## Prerequisites
+
+- VS Code installed
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
+
+## Install Cline
+
+Open VS Code, search for **Cline** in the extensions marketplace, and install it.
+
+## Setup
+
+<Steps>
+  <Step title="Clear conflicting environment variables">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Open the Cline config UI">
+    Click **Use your own API key** in the Cline sidebar.
+  </Step>
+
+  <Step title="Configure the API provider">
+    Fill in:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → your LLMEasy API Key
+    - **Model** → a **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+  </Step>
+
+  <Step title="Only configure extra headers when the official docs explicitly require them">
+    The official Cline OpenAI-compatible setup docs focus on the `Base URL`, API key, and model ID. You usually do not need an extra `User-Agent` when connecting LLMEasy.
+
+    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
+  </Step>
+
+  <Step title="Save the config">
+    Click **Done**.
+  </Step>
+
+  <Step title="Restart Cline">
+    After saving the config, restart VS Code or reload the Cline extension so the new settings take effect.
+  </Step>
+</Steps>
+
+## Related FAQ
+
+- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+- [How to configure a custom OpenAI API in Cursor](/en/faq/cursor/custom-openai-api)
+
+<Note>
+  Check the `Base URL`, API key, model ID, and tool version first. Do not assume `User-Agent` is a required LLMEasy setting.
+</Note>
