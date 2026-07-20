@@ -42,7 +42,11 @@ View your local preview at `http://localhost:3000`.
 
 ## LLMEasy regional deployment
 
-This repository keeps the shared documentation source for BetterToken and LLMEasy. The default `docs.json` publishes the BetterToken documentation. The regional `docs.llmeasy.json` publishes the LLMEasy documentation with the `LLMEasy` name, logo, canonical documentation URL for `https://docs.llmeasy.ru`, and product/API Base URL values for `https://www.llmeasy.ru`.
+LLMEasy is now the only SEO and acquisition version of this documentation. During migration stage one, this repository temporarily keeps the existing shared source and generated deployment architecture: `main` remains the source branch, and `llmeasy-docs` remains the generated LLMEasy Mintlify deployment branch. BetterToken publishing and Sitemap submission are retired.
+
+The full migration plan, URL language mapping, verification gates, and stage-two branch consolidation are recorded in [`.github/LLMEASY_SEO_MIGRATION.md`](.github/LLMEASY_SEO_MIGRATION.md).
+
+The regional `docs.llmeasy.json` publishes the LLMEasy documentation with the `LLMEasy` name, logo, canonical documentation URL for `https://docs.llmeasy.ru`, and product/API Base URL values for `https://www.llmeasy.ru`.
 
 Prepare the LLMEasy deployment root before publishing or validating that regional site:
 
@@ -114,34 +118,21 @@ Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/sett
 
 Google does not provide an official API to automatically request indexing for ordinary documentation pages one URL at a time. For this docs site, use the supported flow instead:
 
-1. Publish the docs update.
-2. Let Mintlify update `https://docs.bettertoken.ai/sitemap.xml`.
-3. Keep `https://docs.bettertoken.ai/robots.txt` pointing to that sitemap.
-4. Submit the sitemap to Google Search Console after production deploys.
+1. Publish the LLMEasy docs update.
+2. Verify that production serves the expected canonical URLs and Sitemap.
+3. Keep `https://docs.llmeasy.ru/robots.txt` pointing to the LLMEasy Sitemap.
+4. Submit only the LLMEasy Sitemap to Google Search Console after production deploys.
 
-The production site already exposes:
-
-```txt
-https://docs.bettertoken.ai/sitemap.xml
-https://docs.bettertoken.ai/robots.txt
-```
-
-The LLMEasy documentation site exposes:
+The production documentation site exposes:
 
 ```txt
 https://docs.llmeasy.ru/sitemap.xml
 https://docs.llmeasy.ru/robots.txt
 ```
 
-Before enabling automation:
+Verify the domain property `llmeasy.ru` in Google Search Console and submit `https://docs.llmeasy.ru/sitemap.xml` with `SITE_URL=sc-domain:llmeasy.ru`. The workflow `.github/workflows/submit-llmeasy-sitemap.yml` handles that submission with OAuth credentials stored in `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN` secrets.
 
-1. Add and verify the URL-prefix property `https://docs.bettertoken.ai/` in Google Search Console.
-2. Enable the Google Search Console API in the Google Cloud project.
-3. Create an OAuth client for CI.
-4. Authorize the OAuth client with a Google account that is a verified owner of `https://docs.bettertoken.ai/`.
-5. Store the OAuth credentials in GitHub Actions secrets as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`.
-
-For LLMEasy, verify the domain property `llmeasy.ru` in Google Search Console and submit `https://docs.llmeasy.ru/sitemap.xml` with `SITE_URL=sc-domain:llmeasy.ru`. The workflow `.github/workflows/submit-llmeasy-sitemap.yml` handles that submission with the same OAuth secrets.
+Do not submit the BetterToken Sitemap again. Keep the BetterToken Search Console property and domain available while its historical URLs permanently redirect to LLMEasy. After all redirects pass validation, use Search Console Change of Address as described in [the migration plan](.github/LLMEASY_SEO_MIGRATION.md).
 
 For Yandex, add the LLMEasy site in Yandex Webmaster and submit `https://docs.llmeasy.ru/sitemap.xml` once in the dashboard. After that, `.github/workflows/submit-llmeasy-sitemap.yml` also runs `node scripts/submit-indexnow.mjs` after each successful LLMEasy publish, reads the live sitemap, and attempts a best-effort IndexNow notification. The workflow keeps Google sitemap submission green even if IndexNow rejects the key file; switch off `INDEXNOW_BEST_EFFORT` only after the custom domain can serve a root-level `.txt` key file. To test the script without notifying search engines, run:
 
@@ -157,88 +148,7 @@ curl -I https://docs.llmeasy.ru/sitemap.xml
 curl -A "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)" -I https://docs.llmeasy.ru/
 ```
 
-Use this workflow as `.github/workflows/submit-google-sitemap.yml`:
-
-```yaml
-name: Submit Google sitemap
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "**/*.mdx"
-      - "docs.json"
-      - "images/**"
-      - "snippets/**"
-  schedule:
-    - cron: "15 2 * * 1"
-
-permissions:
-  contents: read
-
-jobs:
-  submit-sitemap:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Wait for production docs deployment
-        run: sleep 120
-
-      - name: Submit sitemap
-        env:
-          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
-          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
-          GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
-          SITE_URL: https://docs.bettertoken.ai/
-          SITEMAP_URL: https://docs.bettertoken.ai/sitemap.xml
-        run: |
-          set -euo pipefail
-
-          python3 - <<'PY'
-          import json
-          import os
-          import urllib.parse
-          import urllib.request
-
-          token_payload = urllib.parse.urlencode(
-              {
-                  "client_id": os.environ["GOOGLE_OAUTH_CLIENT_ID"],
-                  "client_secret": os.environ["GOOGLE_OAUTH_CLIENT_SECRET"],
-                  "refresh_token": os.environ["GOOGLE_OAUTH_REFRESH_TOKEN"],
-                  "grant_type": "refresh_token",
-              }
-          ).encode()
-          token_request = urllib.request.Request(
-              "https://oauth2.googleapis.com/token",
-              data=token_payload,
-              method="POST",
-          )
-          with urllib.request.urlopen(token_request) as response:
-              token_response = json.loads(response.read())
-
-          access_token = token_response["access_token"]
-
-          encoded_site_url = urllib.parse.quote(os.environ["SITE_URL"], safe="")
-          encoded_sitemap_url = urllib.parse.quote(os.environ["SITEMAP_URL"], safe="")
-          endpoint = (
-              "https://www.googleapis.com/webmasters/v3/sites/"
-              f"{encoded_site_url}/sitemaps/{encoded_sitemap_url}"
-          )
-
-          request = urllib.request.Request(
-              endpoint,
-              method="PUT",
-              headers={"Authorization": f"Bearer {access_token}"},
-          )
-
-          with urllib.request.urlopen(request) as response:
-              response.read()
-          PY
-```
-
-If the deployment platform exposes a reliable deploy-success trigger, run this workflow after that event instead of relying on the fixed wait.
+The LLMEasy Sitemap workflow runs after a successful LLMEasy publish and also supports a scheduled refresh. Keep its live SEO verification step enabled so a deployment with broken redirects or canonical URLs cannot silently submit an invalid Sitemap.
 
 ## Need help?
 

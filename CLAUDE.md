@@ -115,12 +115,13 @@ docs/
 
 ### Google 收录与 sitemap 自动提交
 
-- 普通文档页不要使用 Google Indexing API。该 API 不适用于 BetterToken 文档站这类普通页面。
+- 普通文档页不要使用 Google Indexing API。该 API 不适用于 LLMEasy 文档站这类普通页面。
 - 不要用 Playwright、Selenium 或浏览器自动化去点击 Search Console 的 **Request indexing**。
-- 正规自动化路径是：发布文档后更新 `https://docs.bettertoken.ai/sitemap.xml`，并通过 Google Search Console Sitemaps API 重新提交 sitemap。
-- `https://docs.bettertoken.ai/robots.txt` 必须保留 `Sitemap: https://docs.bettertoken.ai/sitemap.xml`。
+- LLMEasy 是唯一参与 SEO 和承接新用户的文档版本。正规自动化路径是：发布文档后更新 `https://docs.llmeasy.ru/sitemap.xml`，并通过 Google Search Console Sitemaps API 重新提交 Sitemap。
+- 不再发布 BetterToken 文档，也不再提交 `https://docs.bettertoken.ai/sitemap.xml`。旧域名只用于逐 URL 永久重定向。
+- `https://docs.llmeasy.ru/robots.txt` 必须保留 `Sitemap: https://docs.llmeasy.ru/sitemap.xml`。
 - GitHub Actions 中使用 `GOOGLE_OAUTH_CLIENT_ID`、`GOOGLE_OAUTH_CLIENT_SECRET` 和 `GOOGLE_OAUTH_REFRESH_TOKEN` 保存 OAuth 配置。不要把 client secret、refresh token 或 access token 写入仓库和日志。
-- 推荐 workflow 文件路径：`.github/workflows/submit-google-sitemap.yml`。可参考 `README.md` 的示例配置。
+- 使用 `.github/workflows/submit-llmeasy-sitemap.yml`。两阶段迁移事项和验收标准记录在 `.github/LLMEASY_SEO_MIGRATION.md`。
 
 ---
 

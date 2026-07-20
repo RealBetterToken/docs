@@ -57,14 +57,16 @@
 
 - Do not use Google Indexing API for ordinary documentation pages. It is not the supported path for this docs site.
 - Do not automate browser clicks on Google Search Console **Request indexing**. Use sitemap submission instead.
-- Keep the production sitemap at `https://docs.bettertoken.ai/sitemap.xml`.
-- Keep `https://docs.bettertoken.ai/robots.txt` pointing to that sitemap.
-- For post-deploy automation, submit the sitemap through Google Search Console Sitemaps API after the production site is updated.
+- LLMEasy is the only SEO and acquisition version of the documentation. Keep the production sitemap at `https://docs.llmeasy.ru/sitemap.xml` and keep `https://docs.llmeasy.ru/robots.txt` pointing to it.
+- Do not publish new BetterToken documentation or submit `https://docs.bettertoken.ai/sitemap.xml`. The BetterToken documentation host is being retired and must remain available only for permanent, route-specific redirects during the migration.
+- Follow `.github/LLMEASY_SEO_MIGRATION.md` for the two-stage migration, URL language mapping, verification gates, and Search Console steps.
+- For post-deploy automation, submit only the LLMEasy sitemap through Google Search Console Sitemaps API after the production site is updated.
 - Store Google credentials only in CI secrets such as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`. Never commit client secrets, refresh tokens, or access tokens.
 
 ## LLMEasy regional operations
 
 - LLMEasy is generated from the shared source by `scripts/prepare-llmeasy-deployment.mjs`, then published from the `llmeasy-docs` branch. Do not treat `.mintlify-llmeasy` as source content.
+- During the first SEO migration stage, keep `main` as the source branch and `llmeasy-docs` as the generated deployment branch. Do not restore the retired BetterToken publishing workflows. Moving LLMEasy directly to `main` belongs to migration stage two.
 - The prepare script promotes Russian to the default language, rewrites the regional favicon to root-level `/favicon.ico` from `favicon-llmeasy.ico`, creates the custom `llms-full.txt`, and writes the IndexNow verification key file. After touching these paths, run `node scripts/prepare-llmeasy-deployment.mjs` and `node scripts/audit-regional-docs.mjs`.
 - LLMEasy search automation uses `.github/workflows/submit-llmeasy-sitemap.yml`: Google Search Console sitemap submission plus best-effort IndexNow after the LLMEasy publish workflow succeeds. Yandex Webmaster still needs the site and sitemap to be added in the dashboard first.
 - Mintlify permanent redirects intentionally return HTTP 308. Treat 301 and 308 as permanent redirects; do not add an Nginx layer only to change 308 into 301. Keep each old URL to one redirect hop, and verify the destination is `200` and self-canonical.
