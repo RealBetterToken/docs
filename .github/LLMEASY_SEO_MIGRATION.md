@@ -1,6 +1,6 @@
 # LLMEasy 文档 SEO 迁移计划
 
-状态：第一阶段执行中  
+状态：第一阶段已完成，进入监测期  
 开始日期：2026-07-20
 
 ## 迁移决策
@@ -103,6 +103,8 @@ BetterToken 默认语言是中文，LLMEasy 默认语言是俄语，不能直接
 
 ### Search Console 操作
 
+2026-07-20 已从 `https://docs.bettertoken.ai/` 提交 Change of Address 至 `https://docs.llmeasy.ru/`，Search Console 显示迁移进行中。
+
 重定向上线并通过批量验证后：
 
 1. 确认 `docs.bettertoken.ai` 和 `docs.llmeasy.ru` 的 Search Console 所有权仍有效。
@@ -119,6 +121,8 @@ BetterToken 默认语言是中文，LLMEasy 默认语言是俄语，不能直接
 - BetterToken 域名开始提供永久重定向。
 - Search Console Change of Address 已提交。
 - LLMEasy Sitemap 提交保持成功。
+
+第一阶段已于 2026-07-20 完成。后续至少 180 天监测 Google Search Console 中旧域名索引下降、新域名索引与展示增长、404/soft 404 和 Google 选择的 canonical；永久重定向至少保留一年。
 
 ## 第二阶段：简化为单一 LLMEasy 分支
 
