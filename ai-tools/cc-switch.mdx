@@ -58,7 +58,7 @@ CC Switch — кроссплатформенное desktop-приложение 
       </Step>
 
       <Step title="Заполните базовые поля">
-        - **Provider Name**: `BetterToken`
+        - **Provider Name**: `BetterToken-claude` (или другое понятное имя для различения provider)
         - **Base URL**: `{{anthropic-base-url}}`
         - **API Key**: ваш API Key BetterToken
 
@@ -71,7 +71,7 @@ CC Switch — кроссплатформенное desktop-приложение 
         <Frame>
           <img
             src="/images/cc-switch/claude-code-basic-fields.png"
-            alt="Страница редактирования provider в CC Switch с полями Provider Name, API Key и Base URL."
+            alt="Страница редактирования Claude Code provider в CC Switch с полями Provider Name, API Key и API Endpoint."
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -113,12 +113,12 @@ CC Switch — кроссплатформенное desktop-приложение 
         2. Если вы используете группу ключа **Claude**, включать **CC Switch proxy** в левом верхнем углу не нужно
         3. Если вы используете группу ключа **GPT**, включите **CC Switch proxy**
 
-        Скриншот ниже показывает случай `GPT`, когда proxy нужно включить.
+        На скриншоте ниже BetterToken-claude уже включен в списке providers. Включайте **CC Switch proxy** в левом верхнем углу только при использовании группы ключа **GPT**.
 
         <Frame>
           <img
             src="/images/cc-switch/claude-code-enable-proxy.png"
-            alt="После сохранения provider BetterToken выбран активным, а proxy toggle CC Switch включен в левом верхнем углу."
+            alt="Список providers CC Switch, где BetterToken-claude выбран и отмечен как In Use."
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -167,25 +167,6 @@ CC Switch — кроссплатформенное desktop-приложение 
         </Frame>
       </Step>
 
-      <Step title="Выберите модель по умолчанию">
-        Сначала нажмите **Fetch Models**. CC Switch использует настроенный API key, чтобы вызвать `/v1/models`, а затем показывает доступные модели в grouped dropdowns.
-
-        Если модели не вернулись, вставьте актуальный ID модели группы **GPT** вручную.
-
-        Нумерованные маркеры на скриншоте соответствуют этим действиям:
-
-        1. Нажмите **Fetch Model List**
-        2. Выберите нужную модель из dropdown
-
-        <Frame>
-          <img
-            src="/images/cc-switch/codex-cli-select-model.png"
-            alt="Страница редактирования Codex provider в CC Switch с кнопкой Fetch Model List и dropdown выбора модели."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
       <Step title="Сохраните и переключитесь">
         Сохраните provider и переключите Codex на BetterToken. CC Switch сам запишет соответствующие Codex auth и config files.
 
@@ -200,19 +181,6 @@ CC Switch — кроссплатформенное desktop-приложение 
         </Frame>
       </Step>
 
-      <Step title="Опционально: измените provider label в Codex App">
-        Если хотите, чтобы provider label в правом нижнем углу chat box Codex App было проще отличать, измените поле `name` в config на нужное имя, например `bettertoken`.
-
-        Это значение также управляет provider name внутри Codex App.
-
-        <Frame>
-          <img
-            src="/images/cc-switch/codex-cli-provider-name.png"
-            alt="Сгенерированный Codex config с выделенным полем name в model_providers.custom и provider label в правом нижнем углу chat box Codex App."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
     </Steps>
   </Tab>
 
@@ -278,7 +246,7 @@ CC Switch — кроссплатформенное desktop-приложение 
 - Когда Claude Code использует группу ключа **GPT**, установите **API Format** в **OpenAI Responses API** в **Advanced Options**
 - Когда Claude Code использует группу ключа **Claude**, включать **CC Switch proxy** не нужно
 - Codex, OpenCode и OpenClaw должны использовать `{{openai-base-url}}`
-- Используйте ID модели группы **GPT** как default model для Codex, OpenCode и OpenClaw
+- Когда Codex, OpenCode или OpenClaw запрашивает модель, используйте ID модели группы **GPT**
 - Если **Fetch Models** не работает, проверьте API key и `Base URL`, затем вставьте model ID вручную
 - Если переключение не вступило в силу, убедитесь, что BetterToken активный provider в CC Switch, и перезапустите затронутый client или gateway, как описано выше
 

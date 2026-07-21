@@ -58,7 +58,7 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
       </Step>
 
       <Step title="Fill the basic fields">
-        - **Provider Name**: `BetterToken`
+        - **Provider Name**: `BetterToken-claude` (or another name that makes the provider easy to identify)
         - **Base URL**: `{{anthropic-base-url}}`
         - **API Key**: your BetterToken API Key
 
@@ -71,7 +71,7 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
         <Frame>
           <img
             src="/images/cc-switch/claude-code-basic-fields.png"
-            alt="The provider edit page in CC Switch, showing where to enter Provider Name, API Key, and Base URL."
+            alt="The Claude Code provider edit page in CC Switch, showing where to enter Provider Name, API Key, and API Endpoint."
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -113,12 +113,12 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
         2. If you use the **Claude Key group**, you do not need to enable the **CC Switch proxy** from the top-left corner
         3. If you use the **GPT Key group**, enable the **CC Switch proxy**
 
-        The screenshot below shows the `GPT` case where the proxy needs to be enabled.
+        The screenshot below shows BetterToken-claude enabled in the provider list. Enable the **CC Switch proxy** from the top-left corner only when you use the **GPT Key group**.
 
         <Frame>
           <img
             src="/images/cc-switch/claude-code-enable-proxy.png"
-            alt="After saving, return to the provider list, set BetterToken as active, and enable the CC Switch proxy toggle in the top-left corner."
+            alt="The CC Switch provider list with BetterToken-claude selected and marked as In Use."
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -167,25 +167,6 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
         </Frame>
       </Step>
 
-      <Step title="Choose the default model">
-        Click **Fetch Models** first. CC Switch uses your configured API key to call `/v1/models`, then shows the available models in grouped dropdowns.
-
-        If no models are returned, paste a current **GPT Key group** model ID manually.
-
-        The numbered markers in the screenshot match these actions:
-
-        1. Click **Fetch Model List**
-        2. Choose the model you want from the dropdown
-
-        <Frame>
-          <img
-            src="/images/cc-switch/codex-cli-select-model.png"
-            alt="The Codex provider edit page in CC Switch, showing the Fetch Model List button and the model dropdown selector."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
       <Step title="Save and switch">
         Save the provider and switch Codex to BetterToken. CC Switch writes the corresponding Codex auth and config files for you.
 
@@ -200,19 +181,6 @@ CC Switch is a cross-platform desktop app for managing providers across Claude C
         </Frame>
       </Step>
 
-      <Step title="Optional: change the provider label shown in Codex App">
-        If you want the provider label in the bottom-right corner of the Codex App chat box to be easier to distinguish, change the `name` field in the config to the label you want to show, for example `bettertoken`.
-
-        This value also controls the provider name shown inside Codex App.
-
-        <Frame>
-          <img
-            src="/images/cc-switch/codex-cli-provider-name.png"
-            alt="The generated Codex config with the name field under model_providers.custom highlighted, alongside the provider label highlighted in the bottom-right corner of the Codex App chat box."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
     </Steps>
   </Tab>
 
@@ -278,7 +246,7 @@ After saving and switching providers, restart the affected client or gateway bef
 - When Claude Code uses the **GPT Key group**, set **API Format** to **OpenAI Responses API** under **Advanced Options**
 - When Claude Code uses the **Claude Key group**, you do not need to enable the **CC Switch proxy**
 - Codex, OpenCode, and OpenClaw should use `{{openai-base-url}}`
-- Use a **GPT Key group** model ID as the default model for Codex, OpenCode, and OpenClaw
+- When Codex, OpenCode, or OpenClaw asks for a model, use a **GPT Key group** model ID
 - If **Fetch Models** fails, check the API key and `Base URL`, then paste the model ID manually
 - If switching does not take effect, confirm that BetterToken is the active provider in CC Switch and restart the affected client or gateway as described above
 

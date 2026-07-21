@@ -58,7 +58,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
       </Step>
 
       <Step title="填写基础字段">
-        - **Provider Name**：`BetterToken`
+        - **Provider Name**：`BetterToken-claude`（也可使用便于区分的名称）
         - **Base URL**：`{{anthropic-base-url}}`
         - **API Key**：你的 BetterToken API Key
 
@@ -71,7 +71,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         <Frame>
           <img
             src="/images/cc-switch/claude-code-basic-fields.png"
-            alt="CC Switch 的 provider 编辑页面，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+            alt="CC Switch 的 Claude Code provider 编辑页面，标出了 Provider Name、API Key 和 API Endpoint 的填写位置。"
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -113,12 +113,12 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         2. 如果你使用 **Claude 分组**，不需要打开左上角的 **CC Switch 代理功能**
         3. 如果你使用 **GPT 分组**，再打开左上角的 **CC Switch 代理功能**
 
-        下图示例对应需要开启代理的 **GPT 分组**场景。
+        下图展示保存后在 provider 列表中确认 BetterToken-claude 已启用。只有使用 **GPT 分组**时，才需要额外打开左上角的 **CC Switch 代理功能**。
 
         <Frame>
           <img
             src="/images/cc-switch/claude-code-enable-proxy.png"
-            alt="保存后回到渠道列表页，将 BetterToken 设为使用中，并打开左上角的 CC Switch 代理开关。"
+            alt="CC Switch provider 列表中，BetterToken-claude 已被选中并显示为 In Use。"
             style={{ borderRadius: '0.5rem' }}
           />
         </Frame>
@@ -167,25 +167,6 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         </Frame>
       </Step>
 
-      <Step title="选择默认模型">
-        先点击 **获取模型**。CC Switch 会使用你填写的 API Key 去请求 `/v1/models`，然后把可用模型按分组列出来。
-
-        如果没有返回模型列表，就手动填入一个当前可用的 **GPT 分组**模型 ID。
-
-        图中标注对应：
-
-        1. 点击 **获取模型列表**
-        2. 从下拉列表中选择要使用的模型
-
-        <Frame>
-          <img
-            src="/images/cc-switch/codex-cli-select-model.png"
-            alt="CC Switch 的 Codex provider 编辑页，展示了获取模型列表按钮以及模型下拉选择框。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
       <Step title="保存并切换">
         保存后将 BetterToken 设为当前 provider。CC Switch 会把对应配置写入 Codex 的认证和配置文件。
 
@@ -200,19 +181,6 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
         </Frame>
       </Step>
 
-      <Step title="可选：调整 Codex App 里的 provider 显示名">
-        如果你想让 Codex App 对话框右下角的 provider 标签更好区分，可以把配置项里的 `name` 改成你希望显示的名字，例如 `bettertoken`。
-
-        这个值会同步影响 Codex App 中展示的 provider 名称。
-
-        <Frame>
-          <img
-            src="/images/cc-switch/codex-cli-provider-name.png"
-            alt="CC Switch 写入的 Codex 配置中，model_providers.custom 下的 name 字段被高亮，同时左侧 Codex App 对话框右下角的 provider 标签也被高亮。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
     </Steps>
   </Tab>
 
@@ -278,7 +246,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 - Claude Code 使用 **GPT 分组**时，要在 **高级选项** 里把 **API 格式** 切到 **OpenAI Responses API**
 - Claude Code 使用 **Claude 分组**时，不需要打开 **CC Switch 代理功能**
 - Codex、OpenCode、OpenClaw 的 `Base URL` 要写 `{{openai-base-url}}`
-- Codex、OpenCode、OpenClaw 默认模型请使用 **GPT 分组**模型 ID，不要沿用 Claude 风格模型名
+- Codex、OpenCode、OpenClaw 在工具要求填写模型时，请使用 **GPT 分组**模型 ID，不要沿用 Claude 风格模型名
 - 如果 **获取模型** 失败，先检查 API Key 和 `Base URL`，再改为手动粘贴模型 ID
 - 如果切换后没有生效，先确认 BetterToken provider 已被设为当前 provider，再按上面的方式重启对应客户端或网关
 
