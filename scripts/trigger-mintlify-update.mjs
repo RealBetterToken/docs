@@ -24,11 +24,6 @@ function requireEnv(name, value) {
   }
 }
 
-function isPlanRestrictedError(error) {
-  const message = error instanceof Error ? error.message : String(error);
-  return message.includes('Mintlify API 401 Unauthorized: Please upgrade to access the API.');
-}
-
 async function request(path, options = {}) {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...options,
@@ -106,13 +101,4 @@ async function main() {
   }
 }
 
-try {
-  await main();
-} catch (error) {
-  if (isPlanRestrictedError(error)) {
-    console.warn('Mintlify API update skipped: current Mintlify plan does not allow Admin API deployment triggers.');
-    process.exit(0);
-  }
-
-  throw error;
-}
+await main();

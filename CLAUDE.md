@@ -123,7 +123,7 @@ docs/
 - 不再发布 `docs.llmeasy.ru` 文档，也不再提交其 Sitemap。旧域名只用于逐 URL 永久重定向。
 - `https://docs.bettertoken.ai/robots.txt` 必须指向 `https://docs.bettertoken.ai/sitemap.xml`。
 - GitHub Actions 中使用 `GOOGLE_OAUTH_CLIENT_ID`、`GOOGLE_OAUTH_CLIENT_SECRET` 和 `GOOGLE_OAUTH_REFRESH_TOKEN` 保存 OAuth 配置。不要把 client secret、refresh token 或 access token 写入仓库和日志。
-- 使用 `.github/workflows/publish-bettertoken-docs.yml` 和 `.github/workflows/submit-bettertoken-sitemap.yml`。迁移事项记录在 `.github/BETTERTOKEN_SEO_MIGRATION.md`。
+- 使用 `.github/workflows/publish-bettertoken-docs.yml` 完成校验和产物生成，由 Mintlify GitHub App 部署 `main`；`.github/workflows/submit-bettertoken-sitemap.yml` 只在线上版本通过检查后提交 Sitemap。迁移事项记录在 `.github/BETTERTOKEN_SEO_MIGRATION.md`。
 
 ---
 

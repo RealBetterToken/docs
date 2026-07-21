@@ -19,7 +19,6 @@ on:
       - "scripts/indexnow-config.mjs"
       - "scripts/llmeasy-metrica-spa.js.template"
       - "scripts/prepare-bettertoken-artifacts.mjs"
-      - "scripts/trigger-mintlify-update.mjs"
       - ".github/workflows/publish-bettertoken-docs.yml"
       - ".github/workflows/submit-bettertoken-sitemap.yml"
 
@@ -77,17 +76,3 @@ jobs:
             -m "chore(docs): 刷新 BetterToken 发布产物" \
             -m "同步多语言 Sitemap、llms-full、Metrica SPA 脚本与 IndexNow 验证文件。"
           git push origin HEAD:main
-
-      - name: Trigger Mintlify update
-        env:
-          MINTLIFY_API_KEY: ${{ secrets.BETTERTOKEN_MINTLIFY_API_KEY }}
-          MINTLIFY_PROJECT_ID: ${{ secrets.BETTERTOKEN_MINTLIFY_PROJECT_ID }}
-        run: |
-          set -euo pipefail
-
-          if [ -z "${MINTLIFY_API_KEY:-}" ] || [ -z "${MINTLIFY_PROJECT_ID:-}" ]; then
-            echo "::error::BETTERTOKEN_MINTLIFY_API_KEY or BETTERTOKEN_MINTLIFY_PROJECT_ID is not configured."
-            exit 1
-          fi
-
-          node scripts/trigger-mintlify-update.mjs

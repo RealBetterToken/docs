@@ -68,7 +68,8 @@
 - `main` is the only content and production branch. Russian pages live at the root, English pages under `/en`, and Chinese pages under `/zh`.
 - The published product name, LLMEasy visual design, content, and navigation are preserved while the canonical documentation and product URLs use `bettertoken.ai`.
 - Run `node scripts/prepare-bettertoken-artifacts.mjs` after content or navigation changes. It refreshes the hreflang Sitemap, `llms-full.txt`, Metrica SPA script, and IndexNow key file.
-- BetterToken publishing uses `.github/workflows/publish-bettertoken-docs.yml`; search submission uses `.github/workflows/submit-bettertoken-sitemap.yml`.
+- BetterToken validation and artifact generation use `.github/workflows/publish-bettertoken-docs.yml`; the Mintlify GitHub App deploys `main`. Search submission uses `.github/workflows/submit-bettertoken-sitemap.yml` and must wait for the live Sitemap to match the new deployment.
+- The current Mintlify plan does not allow Admin API deployment triggers. Do not treat that restriction as a successful publish; verify the `Mintlify Deployment` Check and the live site.
 - Mintlify permanent redirects intentionally return HTTP 308. Treat 301 and 308 as permanent redirects; do not add an Nginx layer only to change 308 into 301. Keep each old URL to one redirect hop, and verify the destination is `200` and self-canonical.
 - `scripts/prepare-bettertoken-artifacts.mjs` generates a custom root `sitemap.xml` with reciprocal `ru`, `en`, `zh-CN`, and `x-default` alternates. Mintlify serves this file instead of its automatic Sitemap.
 - Mintlify currently renders `lang="en"` in the server HTML for all routes and does not expose route-level `html lang` or `hreflang` configuration in `docs.json`. Record this as a platform limitation; do not add Nginx solely to rewrite HTML.

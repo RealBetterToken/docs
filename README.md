@@ -36,12 +36,11 @@ mint dev
 
 ## Publishing
 
-`.github/workflows/publish-bettertoken-docs.yml` validates `main`, refreshes generated artifacts when necessary, and triggers the BetterToken Mintlify project through:
-
-- `BETTERTOKEN_MINTLIFY_API_KEY`
-- `BETTERTOKEN_MINTLIFY_PROJECT_ID`
+`.github/workflows/publish-bettertoken-docs.yml` validates `main` and refreshes generated artifacts when necessary. The Mintlify GitHub App deploys the same `main` push to production.
 
 The Mintlify project must use repository `RealBetterToken/docs`, branch `main`, project root `/`, and custom domain `docs.bettertoken.ai`.
+
+The current Mintlify plan does not allow Admin API deployment triggers. Keep the GitHub App connected to the BetterToken Mintlify account and repository; do not treat an API plan restriction as a successful deployment.
 
 ## Search submission
 
