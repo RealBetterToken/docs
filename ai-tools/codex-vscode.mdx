@@ -1,70 +1,70 @@
 ---
-title: "VS Code Codex 插件如何配置自定义 Base URL 和 API Key？"
-sidebarTitle: "VS Code Codex 插件"
-description: "在 VS Code Codex 插件中打开共享的 config.toml，配置 BetterToken Base URL、API Key 和 GPT 分组模型，并排查插件未读取配置的问题。"
+title: "Как настроить custom Base URL и API Key в расширении Codex для VS Code"
+sidebarTitle: "Расширение Codex для VS Code"
+description: "Откройте общий config.toml из расширения Codex, настройте Base URL, API Key и модель группы GPT для LLMEasy и устраните проблемы чтения конфигурации."
 icon: "/icons/codex-vscode.svg"
 ---
 
-## 直接答案
+## Короткий ответ
 
-VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Codex CLI 共享配置层，因此你需要通过插件右上角的齿轮打开 **Codex Settings → Open config.toml**，再在用户级配置中添加 BetterToken provider。配置完成后执行 **Developer: Reload Window**，让插件读取新地址、密钥和模型。
+В расширении Codex для VS Code нет отдельных полей Base URL и API Key. Оно использует те же уровни конфигурации, что и Codex CLI. Нажмите шестерёнку, выберите **Codex Settings → Open config.toml** и добавьте provider LLMEasy в пользовательский файл. Затем выполните **Developer: Reload Window**, чтобы расширение прочитало новый endpoint, Key и модель.
 
 <Info>
-  如果你在 VS Code 设置里没有看到 `Base URL` 或 API Key 输入框，这是正常的。不要把自定义 endpoint 填到普通 VS Code 网络代理设置中。
+  Если в настройках VS Code нет полей `Base URL` или API Key, это нормально. Не добавляйте custom endpoint в общие proxy settings VS Code.
 </Info>
 
-## 前置条件
+## Требования
 
-- 已安装 VS Code
-- 已安装 **Codex - OpenAI's coding agent** 插件
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**下可用的模型 ID
+- Установлен VS Code
+- Установлено расширение **Codex - OpenAI's coding agent**
+- У вас есть LLMEasy API Key (<a href={"{{register-url}}"}>зарегистрируйтесь и получите ключ</a>)
+- Вы скопировали доступный model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
 
 <Warning>
-  不要把 API Key 写进项目文件、`AGENTS.md`、`.env` 示例文件或公开仓库。下面的配置只应保存在你本机的 Codex 配置目录中。
+  Не добавляйте API Key в файлы проекта, `AGENTS.md`, примеры `.env` или публичные репозитории. Конфигурация ниже должна храниться только в локальной директории конфигурации Codex.
 </Warning>
 
-## 配置方式
+## Способы настройки
 
 <Tabs>
-  <Tab title="推荐：使用 Setup 弹窗">
-    创建 API Key 后，控制台会弹出 **Setup** 弹窗。你可以在弹窗中复制 **API Key** 和 **Base URL**，并选择 Codex 相关配置方式。
+  <Tab title="Рекомендуется: окно Setup">
+    После создания API Key в консоли откроется окно **Setup**. В нем можно скопировать **API Key** и **Base URL**, а затем выбрать способ настройки Codex.
 
     <Steps>
-      <Step title="选择 Codex">
-        在 **Available tools** 中选择 **Codex**。
+      <Step title="Выберите Codex">
+        В разделе **Available tools** выберите **Codex**.
       </Step>
 
-      <Step title="选择配置方式">
-        你可以选择：
+      <Step title="Выберите способ настройки">
+        Доступные варианты:
 
-        - **One-click Bash Configuration**：复制命令到本机终端执行，适合快速配置。
-        - **CC Switch Integration**：导入到 CC Switch，适合统一管理多个工具。
-        - **Manual Configuration**：复制 API Key 和 Base URL，手动写入 `config.toml`。
+        - **One-click Bash Configuration**: скопируйте команду и выполните ее в локальном терминале. Подходит для быстрой настройки.
+        - **CC Switch Integration**: импортируйте provider в CC Switch. Подходит, если вы управляете несколькими инструментами.
+        - **Manual Configuration**: скопируйте API Key и Base URL, затем вручную добавьте их в `config.toml`.
       </Step>
 
-      <Step title="重启 VS Code">
-        配置写入后，重启 VS Code，或执行 **Developer: Reload Window**，让 Codex 插件重新读取本机配置。
+      <Step title="Перезапустите VS Code">
+        После записи конфигурации перезапустите VS Code или выполните **Developer: Reload Window**, чтобы расширение Codex заново прочитало локальную конфигурацию.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="手动配置">
+  <Tab title="Ручная настройка">
     <Steps>
-      <Step title="找到 config.toml">
-        在 Codex 插件右上角点击齿轮，选择 **Codex Settings → Open config.toml**。也可以直接打开：
+      <Step title="Найдите config.toml">
+        Нажмите шестерёнку в расширении Codex и выберите **Codex Settings → Open config.toml**. Также файл можно открыть напрямую:
 
-        | 系统 | 配置文件 |
+        | Система | Файл конфигурации |
         | --- | --- |
         | macOS / Linux | `~/.codex/config.toml` |
         | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
-        | Windows + WSL | WSL 内的 `~/.codex/config.toml` |
+        | Windows + WSL | `~/.codex/config.toml` внутри WSL |
 
-        Codex CLI 和 IDE 插件会读取同一套配置。Windows 使用 WSL 打开工作区时，应修改 WSL 内的文件，而不是 Windows 用户目录中的另一份配置。
+        Codex CLI и IDE extension читают одни и те же уровни конфигурации. Если проект открыт через WSL, изменяйте файл внутри WSL, а не отдельный файл в пользовательской директории Windows.
       </Step>
 
-      <Step title="写入 BetterToken provider">
-        将下面配置添加到 `config.toml`。如果文件中已经有同名字段，请合并配置，不要重复写多个 `model_provider`。
+      <Step title="Добавьте provider LLMEasy">
+        Добавьте конфигурацию ниже в `config.toml`. Если в файле уже есть такие же верхнеуровневые поля, объедините конфигурацию и не создавайте несколько `model_provider`.
 
         ```toml
         model_provider = "{{codex-provider-id}}"
@@ -88,28 +88,28 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
         supports_websockets = false
         ```
 
-        将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。
+        Замените `YOUR_API_KEY` на ваш LLMEasy API Key.
       </Step>
 
-      <Step title="确认关键字段">
-        重点检查这几项：
+      <Step title="Проверьте ключевые поля">
+        В первую очередь проверьте:
 
-        | 字段 | 应填写 |
+        | Поле | Значение |
         | --- | --- |
         | `base_url` | `{{openai-base-url}}` |
         | `wire_api` | `responses` |
-        | `model` | 从 **GPT 分组**复制的模型 ID |
-        | `experimental_bearer_token` | 你的 BetterToken API Key |
+        | `model` | Model ID, скопированный из **группы ключа GPT** |
+        | `experimental_bearer_token` | Ваш LLMEasy API Key |
 
         <Warning>
-          VS Code Codex 插件场景下，不建议把 `auth.json` 改成 API Key 结构。`auth.json` 用于保留 Codex 官方登录态；第三方 API Key 应放在 `experimental_bearer_token` 中。
+          Для расширения Codex в VS Code не меняйте `auth.json` на структуру только с API Key. `auth.json` хранит официальный login state Codex; сторонний API Key должен находиться в `experimental_bearer_token`.
         </Warning>
       </Step>
 
-      <Step title="重启 VS Code">
-        修改完成后，关闭当前 Codex 会话，并重启 VS Code。
+      <Step title="Перезапустите VS Code">
+        После редактирования закройте текущую сессию Codex и перезапустите VS Code.
 
-        也可以在命令面板执行：
+        Также можно выполнить команду из Command Palette:
 
         ```text
         Developer: Reload Window
@@ -119,45 +119,45 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
   </Tab>
 </Tabs>
 
-## 为什么这里要保留官方登录态？
+## Почему нужно сохранять официальный login state?
 
-VS Code Codex 插件依赖 Codex 的应用侧能力，例如插件界面、会话管理和 VS Code 集成。因此推荐保留官方登录态，同时让模型请求走 BetterToken。
+Расширение Codex в VS Code зависит от возможностей приложения Codex: интерфейса расширения, управления сессиями и интеграции с VS Code. Поэтому рекомендуется сохранить официальный login state и при этом отправлять model requests через LLMEasy.
 
-这组配置中：
+В этой конфигурации:
 
-| 配置 | 作用 |
+| Настройка | Что делает |
 | --- | --- |
-| `requires_openai_auth = true` | 保留 Codex 官方登录态 |
-| `experimental_bearer_token = "YOUR_API_KEY"` | 使用 BetterToken API Key 发起模型请求 |
-| `base_url = "{{openai-base-url}}"` | 将模型请求发送到 BetterToken 的 OpenAI-compatible / Responses API 入口 |
+| `requires_openai_auth = true` | Сохраняет официальный login state Codex |
+| `experimental_bearer_token = "YOUR_API_KEY"` | Использует LLMEasy API Key для model requests |
+| `base_url = "{{openai-base-url}}"` | Отправляет model requests на OpenAI-compatible / Responses API endpoint LLMEasy |
 
 <Note>
-  Codex 官方配置参考更推荐普通自定义 provider 通过 `env_key` 读取 API Key。本页使用 `experimental_bearer_token`，是因为目标场景还需要保留 Codex 官方登录态。如果你只使用 Codex CLI，不需要插件、Remote Control 或官方登录态，请使用 [config.toml 普通自定义 provider 配置](/faq/codex/config-toml)。
+  Официальный справочник Codex рекомендует `env_key` для API Key обычного custom provider. На этой странице используется `experimental_bearer_token`, потому что сценарий также сохраняет официальный login state Codex. Если вам нужен только Codex CLI без плагинов, Remote Control и официального входа, используйте [обычную настройку custom provider в config.toml](/faq/codex/config-toml).
 </Note>
 
-## 验证插件读取的是哪份配置
+## Проверьте, какой config читает расширение
 
-完成配置后，在 VS Code 中打开 Codex 插件，发送一条简单测试消息。
+После настройки откройте расширение Codex в VS Code и отправьте короткое тестовое сообщение.
 
-如果能正常回复，说明配置已生效。还可以从插件齿轮再次打开 `config.toml`，确认它指向你刚才修改的文件。
+Если ответ пришёл нормально, конфигурация работает. Ещё раз откройте `config.toml` через шестерёнку расширения и убедитесь, что это изменённый вами файл.
 
-## 常见错误与解决方法
+## Частые ошибки
 
-| 现象 | 原因 | 解决方法 |
+| Симптом | Причина | Решение |
 | --- | --- | --- |
-| Codex CLI 正常，VS Code 插件失败 | 插件运行在另一环境或仍使用旧窗口 | 从插件齿轮打开实际配置；WSL 项目修改 WSL 内文件；执行 **Developer: Reload Window** |
-| 插件仍要求官方登录 | Codex IDE 扩展需要应用侧登录 | 先完成官方登录，再保留 `requires_openai_auth = true` 和第三方 bearer token |
-| `401` 或 `403` | API Key 错误或 `experimental_bearer_token` 未替换 | 重新复制 Key，不要修改 `auth.json` 中的官方登录内容 |
-| `404` | Base URL 缺少 `/v1` | 使用 `{{openai-base-url}}` |
-| Model not found | 模型 ID 不属于 GPT 分组 | 从<a href={"{{model-plaza-url}}"}>模型广场</a>重新复制当前可用 ID |
-| TOML 解析失败 | 同一字段或表重复声明 | 合并已有配置，只保留一个 `[model_providers.{{codex-provider-id}}]` |
+| Codex CLI работает, а расширение VS Code нет | Расширение запущено в другой среде или использует старое состояние | Откройте фактический config через шестерёнку; для WSL измените файл внутри WSL; выполните **Developer: Reload Window** |
+| Расширение по-прежнему просит официальный вход | IDE extension Codex требует login на уровне приложения | Завершите официальный вход, затем сохраните `requires_openai_auth = true` и сторонний bearer token |
+| `401` или `403` | Неверный API Key или не заменён `experimental_bearer_token` | Скопируйте Key заново и не заменяйте официальный login в `auth.json` |
+| `404` | В Base URL отсутствует `/v1` | Используйте `{{openai-base-url}}` |
+| Model not found | Model ID не входит в группу ключа GPT | Скопируйте актуальный ID из <a href={"{{model-plaza-url}}"}>model plaza</a> |
+| Ошибка разбора TOML | Поле или таблица объявлены дважды | Объедините конфигурацию и оставьте одну таблицу `[model_providers.{{codex-provider-id}}]` |
 
-## 相关文档
+## Связанные документы
 
-- [Codex 接入 BetterToken 指南](/ai-tools/codex)
-- [如何在使用第三方 API 的同时保留 Codex 登录态？](/faq/codex/official-login-third-party-api)
-- [如何配置 Codex CLI 的 config.toml？](/faq/codex/config-toml)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
+- [Инструкция для Codex](/ai-tools/codex)
+- [Как сохранить официальный login state Codex при использовании стороннего API](/faq/codex/official-login-third-party-api)
+- [Как настроить Codex CLI config.toml](/faq/codex/config-toml)
+- [Что такое model_provider, base_url и wire_api в Codex CLI?](/faq/codex/model-provider-base-url-wire-api)
 
 ## References
 

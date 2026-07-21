@@ -1,80 +1,80 @@
 ---
-title: "Kodacode 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Kodacode через LLMEasy"
 sidebarTitle: "Kodacode"
-description: "在 Kodacode / Koda VS Code 插件中配置自定义 OpenAI-compatible 模型。"
+description: "Настройте кастомную OpenAI-compatible модель в расширении Kodacode / Koda для VS Code."
 icon: "/icons/kodacode.svg"
 ---
 
-Kodacode 的 VS Code 插件可以在聊天、Agent 和编辑场景中使用模型。接入 BetterToken 时，请添加一个 **Any OpenAI-compatible API** 模型，并使用 GPT 分组 API Key。
+Расширение Kodacode для VS Code может использовать модели в chat, agent и edit workflows. Для подключения LLMEasy добавьте модель **Any OpenAI-compatible API** и используйте API Key из группы GPT.
 
 <Info>
-  本文以 VS Code 插件为例。Kodacode 官方安装文档说明，VS Code 版本需要 `1.75` 或更新版本，扩展 ID 为 `Koda.koda`。
+  В этом руководстве показан пример для расширения VS Code. В документации Kodacode указано, что нужна версия VS Code `1.75` или новее, а ID расширения — `Koda.koda`.
 </Info>
 
-## 前置条件
+## Требования
 
-- 已安装 VS Code
-- 已安装 Kodacode / Koda 插件
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- API Key 属于 **GPT 分组**
-- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制要使用的 GPT 分组模型 ID，例如 `gpt-5.5`
+- Установлен VS Code
+- Установлено расширение Kodacode / Koda
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- API Key относится к группе **GPT**
+- ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>, например `gpt-5.5`
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="打开 Koda 面板并添加模型">
-    打开 VS Code 左侧的 **KODA** 面板，点击输入框下方的模型下拉菜单，然后选择 **Добавить модель: Agent** / **Add model: Agent**。
+  <Step title="Откройте панель Koda и добавьте модель">
+    Откройте панель **KODA** в боковой панели VS Code, нажмите на selector модели под полем ввода и выберите **Добавить модель: Agent** / **Add model: Agent**.
 
     <Frame>
       <img
         src="/images/kodacode/select-model-menu.png"
-        alt="在 Koda 面板的模型下拉菜单中选择 Add model: Agent。"
+        alt="Выбор Add model: Agent в selector модели на панели Koda."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="填写 OpenAI-compatible 模型配置">
-    在添加模型窗口中，按下面方式填写：
+  <Step title="Заполните настройки OpenAI-compatible модели">
+    В окне добавления модели заполните поля так:
 
-    | 配置项 | 推荐值 |
+    | Поле | Рекомендуемое значение |
     | --- | --- |
     | Provider | `Any OpenAI-compatible API` |
     | API Base | `{{openai-base-url}}/` |
-    | Model ID | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 GPT 分组模型 ID，例如 `gpt-5.5` |
-    | API Key | 你的 BetterToken API Key |
+    | Model ID | ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>, например `gpt-5.5` |
+    | API Key | Ваш API Key LLMEasy |
 
-    填写完成后，点击 **Подключить** / **Connect**。
+    После заполнения нажмите **Подключить** / **Connect**.
 
     <Frame>
       <img
         src="/images/kodacode/add-openai-compatible-model.png"
-        alt="在 Kodacode 添加模型窗口中选择 Any OpenAI-compatible API，并填写 API Base、Model ID 和 API Key。"
+        alt="В окне добавления модели Kodacode выбран Any OpenAI-compatible API и заполнены API Base, Model ID и API Key."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="确认模型已生效">
-    连接完成后，在 Koda 输入框下方的模型选择器中选择刚添加的模型，例如 `gpt-5.5`。发送一条简单消息，确认能够正常返回结果。
+  <Step title="Проверьте, что модель активна">
+    После успешного подключения выберите новую модель, например `gpt-5.5`, в selector модели под полем ввода Koda. Отправьте короткое сообщение и проверьте, что ответ приходит.
   </Step>
 
-  <Step title="检查 config.yaml">
-    Kodacode 会把配置写入本机的 `~/.koda/config.yaml`。你可以打开该文件确认模型已经写入。
+  <Step title="Проверьте config.yaml">
+    Kodacode записывает конфигурацию в `~/.koda/config.yaml`. Откройте этот файл и проверьте, что модель добавлена.
 
     <Frame>
       <img
         src="/images/kodacode/config-yaml-result.png"
-        alt="Kodacode config.yaml 中已经写入 OpenAI-compatible 模型配置。"
+        alt="Файл config.yaml Kodacode с добавленной OpenAI-compatible моделью."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 </Steps>
 
-## config.yaml 示例
+## Пример config.yaml
 
-下面是可以对照检查的完整结构。请把 `YOUR_API_KEY` 替换为你的 BetterToken API Key，不要把真实 API Key 提交到仓库。
+Ниже полная структура для проверки. Замените `YOUR_API_KEY` на ваш API Key LLMEasy и не коммитьте реальный API Key в репозиторий.
 
 ```yaml
 name: Koda
@@ -108,18 +108,18 @@ context:
 ```
 
 <Note>
-  如果你使用的模型不是 `gpt-5.5`，请同时修改 `name` 和 `model`，保持它们与<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组模型 ID 一致。
+  Если вы используете не `gpt-5.5`, измените и `name`, и `model`, чтобы они совпадали с ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 </Note>
 
-## 排障提示
+## Troubleshooting
 
-- 如果连接失败，先确认 **API Base** 是否为 `{{openai-base-url}}/`，并保留末尾 `/`。
-- 如果模型不可用，确认 **Model ID** 是否来自 GPT 分组。
-- 如果鉴权失败，重新复制 API Key，避免多复制空格或换行。
-- 如果修改 `config.yaml` 后没有生效，重启 VS Code 或执行 **Developer: Reload Window**。
-- 接入 BetterToken 时通常不需要额外设置 `User-Agent` 或其他 headers。
+- Если подключение не работает, проверьте, что **API Base** равен `{{openai-base-url}}/`, включая завершающий `/`.
+- Если модель недоступна, проверьте, что **Model ID** относится к группе GPT.
+- Если возникает ошибка авторизации, скопируйте API Key заново и проверьте, что нет лишних пробелов или переносов строки.
+- Если изменения в `config.yaml` не применились, перезапустите VS Code или выполните **Developer: Reload Window**.
+- LLMEasy обычно не требует дополнительного `User-Agent` или custom headers.
 
-## 参考资料
+## Ссылки
 
-- [Kodacode 插件概览](https://docs.kodacode.ru/plugin/overview.html)
-- [Kodacode 插件安装文档](https://docs.kodacode.ru/plugin/install.html)
+- [Обзор расширения Kodacode](https://docs.kodacode.ru/plugin/overview.html)
+- [Установка расширения Kodacode](https://docs.kodacode.ru/plugin/install.html)

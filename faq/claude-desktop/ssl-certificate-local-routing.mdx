@@ -1,54 +1,54 @@
 ---
-title: "Claude Desktop 提示 SSL certificate has expired 或一直无响应怎么办？"
-sidebarTitle: "SSL 报错与本地路由"
-description: "Claude Desktop 已连接 API 但无响应，或提示 SSL certificate has expired 时，通过 CC Switch 本地路由和 Needs model mapping 排查。"
+title: "Что делать, если Claude Desktop показывает SSL certificate has expired или долго загружается?"
+sidebarTitle: "SSL error и local routing"
+description: "Исправьте отсутствие ответа и ошибку SSL certificate has expired в Claude Desktop через CC Switch local routing и Needs model mapping."
 ---
 
-如果 Claude Desktop 已经成功接入 API，但发送消息后没有正常返回，或者出现下面这类报错：
+Если Claude Desktop уже подключен к API, но не возвращает нормальный ответ или показывает такую ошибку:
 
 ```text
 API Error: Unable to connect to API: SSL certificate has expired
 ```
 
-这不一定表示 API Key 无效，也不一定表示服务端证书真的过期。根据用户反馈，在代理网络、受限网络或某些网络环境下，Claude Desktop 直接访问第三方 API Gateway 时可能会出现连接异常。
+Это не всегда означает, что API Key неверный, и не всегда означает, что сертификат сервера действительно истек. По отзывам пользователей, Claude Desktop может не подключаться к third-party API Gateway напрямую в proxy networks, restricted networks или средах со строгой проверкой сертификатов.
 
-推荐使用 CC Switch 的 Claude Desktop 本地路由，并开启 **Needs model mapping**。这样 Claude Desktop 会先连接本地地址，再由 CC Switch 转发到 `{{brand-name}}`。
+Используйте CC Switch Claude Desktop local routing и включите **Needs model mapping**. Claude Desktop сначала подключится к local address, а CC Switch перенаправит запрос в `{{brand-name}}`.
 
 <Frame>
   <img
     src="/images/claude-desktop-ssl-local-routing/ssl-certificate-expired-error.png"
-    alt="Claude Desktop 显示 API Error: Unable to connect to API: SSL certificate has expired。"
+    alt="Claude Desktop показывает API Error: Unable to connect to API: SSL certificate has expired."
     style={{ borderRadius: '0.5rem' }}
   />
 </Frame>
 
-## 适用场景
+## Когда использовать этот способ
 
-- Claude Desktop 已经接入 API，但发送消息后没有响应。
-- 页面提示 `SSL certificate has expired`。
-- Chat 页面看起来开始响应，但仍然卡在 loading 状态。
-- 使用代理网络、受限网络、公司网络或网络证书检查环境。
-- 同一个 API Key 在其他工具里可以正常使用。
+- Claude Desktop подключен к API, но сообщения не возвращают ответ.
+- Страница показывает `SSL certificate has expired`.
+- Chat page начинает отвечать, но остается в loading state.
+- Вы используете proxy network, restricted network, company network или среду с certificate inspection.
+- Тот же API Key работает в других инструментах.
 
-## 解决步骤
+## Решение
 
 <Steps>
-  <Step title="确认 CC Switch provider 已启用">
-    打开 CC Switch，确认已选中 `{{brand-name}}` provider，并打开顶部的路由 / 代理开关。
+  <Step title="Проверьте активный provider в CC Switch">
+    Откройте CC Switch, убедитесь, что выбран provider `{{brand-name}}`, и включите верхний routing / proxy toggle.
 
     <Frame>
       <img
         src="/images/claude-desktop-ssl-local-routing/cc-switch-provider-routing.png"
-        alt="CC Switch 中选中 LLMEasy provider，并打开顶部路由开关。"
+        alt="Provider LLMEasy выбран в CC Switch, верхний routing toggle включен."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="开启 Needs model mapping">
-    进入 provider 编辑页，开启 **Needs model mapping**。
+  <Step title="Включите Needs model mapping">
+    Откройте страницу редактирования provider и включите **Needs model mapping**.
 
-    这个开关会让 CC Switch 将 Claude Desktop 只接受的三个模型角色映射到 `{{brand-name}}` 中实际可用的模型：
+    Этот переключатель позволяет CC Switch сопоставлять три model roles, которые принимает Claude Desktop, с фактическими моделями, доступными в `{{brand-name}}`:
 
     - `claude-sonnet-*`
     - `claude-opus-*`
@@ -57,22 +57,22 @@ API Error: Unable to connect to API: SSL certificate has expired
     <Frame>
       <img
         src="/images/claude-desktop-ssl-local-routing/needs-model-mapping-settings.png"
-        alt="CC Switch provider 编辑页中 Needs model mapping 已开启，并展示 API Format 和 Model mapping 配置。"
+        alt="Страница редактирования provider в CC Switch: Needs model mapping включен, видны API Format и Model mapping."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="选择 API Format">
-    在 **API Format** 中选择：
+  <Step title="Выберите API Format">
+    В **API Format** выберите:
 
     ```text
     Anthropic Messages (Native)
     ```
   </Step>
 
-  <Step title="填写 Model mapping">
-    在 **Model mapping** 里填写模型映射。模型 ID 请以<a href={"{{model-plaza-url}}"}>模型广场</a>当前可用模型为准。
+  <Step title="Заполните Model mapping">
+    Заполните **Model mapping**. Используйте актуальные model IDs из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
     | Model role | Menu display name | Requested model |
     | --- | --- | --- |
@@ -80,31 +80,31 @@ API Error: Unable to connect to API: SSL certificate has expired
     | Opus | `claude-opus-4-8` | `claude-opus-4-8` |
     | Haiku | `claude-haiku-4-5` | `claude-haiku-4-5-20251001` |
 
-    如果模型支持 1M 上下文，可以勾选 **Declare 1M**。
+    Если модель поддерживает context window 1M, включите **Declare 1M**.
   </Step>
 
-  <Step title="保存并重新测试">
-    点击 **Save** 保存配置。回到 Claude Desktop，重新选择模型并发送测试消息。
+  <Step title="Сохраните и проверьте снова">
+    Нажмите **Save**. Вернитесь в Claude Desktop, снова выберите модель и отправьте тестовое сообщение.
 
-    如果配置正确，Claude Desktop 会通过 CC Switch 的本地路由调用 `{{brand-name}}`，通常可以解决 SSL 报错或无响应问题。
+    Если настройка корректная, Claude Desktop вызывает `{{brand-name}}` через CC Switch local route. Обычно это исправляет SSL error или отсутствие ответа.
 
     <Frame>
       <img
         src="/images/claude-desktop-ssl-local-routing/claude-desktop-response-after-routing.png"
-        alt="Claude Desktop 在启用 CC Switch 本地路由和模型映射后成功返回响应。"
+        alt="Claude Desktop возвращает ответ после включения CC Switch local routing и model mapping."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 </Steps>
 
-## 注意事项
+## Примечания
 
-- 模型名称不要照抄旧截图，应该以<a href={"{{model-plaza-url}}"}>模型广场</a>当前可用模型 ID 为准。
-- API Key 应保存在 CC Switch provider 中，不要写入公开文档、截图或聊天记录。
-- 如果仍然失败，检查 CC Switch 顶部路由开关、provider 是否启用、Model mapping 是否完整，以及本地防火墙是否拦截 `127.0.0.1`。
+- Не копируйте model names со старых скриншотов вслепую. Используйте актуальные model IDs из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Храните API Key в provider CC Switch. Не добавляйте его в публичные документы, screenshots или chat logs.
+- Если проблема остается, проверьте верхний routing toggle в CC Switch, активный provider, полный Model mapping и не блокирует ли local firewall адрес `127.0.0.1`.
 
-## 相关文档
+## Смежные документы
 
-- [Claude Desktop 接入指南](/faq/claude-desktop-bettertoken-api)
-- [如何在 Claude Desktop 里使用 Codex 等第三方模型？](/faq/claude-desktop/third-party-models)
+- [Настройка Claude Desktop](/faq/claude-desktop-llmeasy-api)
+- [Как использовать Codex и другие third-party модели в Claude Desktop?](/faq/claude-desktop/third-party-models)

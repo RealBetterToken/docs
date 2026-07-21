@@ -1,60 +1,60 @@
 ---
-title: "Cursor 如何配置自定义 OpenAI API Key 和 Base URL？"
-sidebarTitle: "Cursor 自定义 API"
-description: "说明 Cursor 中 OpenAI-compatible API Key、Override OpenAI Base URL、custom model 和模型 ID 的配置边界。"
+title: "Как настроить custom OpenAI API Key и Base URL в Cursor"
+sidebarTitle: "Cursor custom API"
+description: "Разберите Cursor OpenAI-compatible API Key, Override OpenAI Base URL, custom model и границы Model ID."
 ---
 
-## 简短答案
+## Короткий ответ
 
-在 Cursor 中配置自定义 OpenAI-compatible API，核心是三项：API Key、Base URL、Model ID。
+Для custom OpenAI-compatible API в Cursor держите согласованными три поля: API Key, Base URL и Model ID.
 
-API Key 用于鉴权，Base URL 决定请求发往哪个 provider，Model ID 决定使用哪个模型。三者必须来自同一个 provider 或兼容网关。
+API Key авторизует запрос. Base URL определяет provider, куда уходит запрос. Model ID определяет модель. Все три значения должны относиться к одному provider или compatible gateway.
 
-## 什么时候需要它
+## Когда это важно
 
-- 你想在 Cursor 中使用第三方 OpenAI-compatible provider
-- 你需要填写 Override OpenAI Base URL
-- 你要添加 custom model
-- 你遇到模型不存在或认证失败
-- 你想让 Cursor、Codex 等工具共用同一个模型出口
+- Вы хотите использовать third-party OpenAI-compatible provider в Cursor
+- Нужно задать Override OpenAI Base URL
+- Вы добавляете custom model
+- Видите model not found или authentication failures
+- Хотите, чтобы Cursor, Codex и другие tools использовали один model routing layer
 
-## 字段说明
+## Значение полей
 
-| 字段 | 作用 |
+| Поле | Роль |
 | --- | --- |
-| API Key | 鉴权凭证 |
-| Base URL | OpenAI-compatible endpoint，通常是 `/v1` 地址 |
-| Model ID | 当前 provider 可识别的模型 ID |
-| Custom model | Cursor 中手动添加或选择的模型 |
+| API Key | Authentication credential |
+| Base URL | OpenAI-compatible endpoint, обычно `/v1` URL |
+| Model ID | Model identifier, который распознает provider |
+| Custom model | Модель, вручную добавленная или выбранная в Cursor |
 
-## 推荐做法
+## Рекомендуемые шаги
 
-1. 在 provider 后台创建 API Key。
-2. 在 Cursor 的模型设置中填写 API Key。
-3. 在 Override OpenAI Base URL 中填写 provider 的 Base URL。
-4. 添加或选择当前 provider 支持的 Model ID。
-5. 保存后用一个简单请求验证。
+1. Создайте API Key в provider dashboard.
+2. Добавьте API Key в Cursor model settings.
+3. Введите provider Base URL в Override OpenAI Base URL.
+4. Добавьте или выберите Model ID, который поддерживает provider.
+5. Сохраните и проверьте простым запросом.
 
-## 常见误区
+## Частые ошибки
 
-- API Key 来自 A provider，Base URL 却填 B provider。
-- 把 Claude 模型名填进 OpenAI-compatible 配置。
-- 使用网页展示名，而不是 API model ID。
-- 以为 Cursor Rules 会影响 API 鉴权。
-- 全局 override 后忘记其他 OpenAI 模型也会受影响。
+- API Key от одного provider, а Base URL от другого.
+- Claude model name в OpenAI-compatible configuration.
+- UI display name вместо API model ID.
+- Думать, что Cursor Rules влияют на API authentication.
+- Забывать, что global override может влиять на другие OpenAI models.
 
-## 关于 BetterToken
+## О LLMEasy
 
-Cursor 这类外部工具通常走 OpenAI-compatible 接入。BetterToken 的 Base URL 是 `{{openai-base-url}}`，模型 ID 从<a href={"{{model-plaza-url}}"}>模型广场</a>的 **GPT 分组**复制。
+Cursor и похожие external tools обычно используют OpenAI-compatible setup. Base URL LLMEasy — `{{openai-base-url}}`, а model IDs берутся из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-不要把 Claude Code 使用的 `{{anthropic-base-url}}` 填进 Cursor 的 OpenAI-compatible 配置。
+Не вставляйте Claude Code `{{anthropic-base-url}}` в Cursor OpenAI-compatible configuration.
 
-## Related docs
+## Связанные материалы
 
-- [Cursor Rules、AGENTS.md 和 .cursorignore 是什么？](/faq/cursor/rules-agents-cursorignore)
-- [Cursor 如何配置 MCP？](/faq/cursor/mcp)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
+- [Cursor Rules, AGENTS.md и .cursorignore](/faq/cursor/rules-agents-cursorignore)
+- [Как настроить MCP в Cursor](/faq/cursor/mcp)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
 
 ## References
 

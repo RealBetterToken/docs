@@ -1,0 +1,75 @@
+---
+title: "Claude 桌面端 Cowork 不可用或 Code 模式退出怎么办？"
+sidebarTitle: "Claude 桌面端 Cowork / Code 报错"
+description: "解决 Claude 桌面端接入 LLMEasy Gateway 后 Cowork 模式不可用、Code 模式提示 Claude Code process exited with code 1 的问题。"
+---
+
+在 Claude 桌面端配置 LLMEasy Gateway 后，如果出现以下现象，通常不是 API Key 本身不可用：
+
+- Cowork 模式无法使用
+- Code 模式提示 `Claude Code process exited with code 1`
+- 同一套 API Key 在 Claude Code CLI 中可以正常使用
+
+这类问题通常由两个独立原因引起：桌面端 Gateway 认证方式与 API Key 分组不匹配，或桌面端内置 Claude Code 版本尚未更新完成。
+
+如果你还没有完成 Gateway 配置，请先参考 [Claude 桌面端使用 LLMEasy API](/zh/faq/claude-desktop-llmeasy-api)。
+
+## 先修复 Cowork 模式
+
+**根因**：**Gateway auth scheme** 与 API Key 对应的分组不匹配。
+
+在 Claude 桌面端的 Gateway 配置中，认证方式需要按 API Key 分组选择：
+
+- 如果 API Key 对应 **Claude 分组**，**Gateway auth scheme** 选择 `x-api-key`
+- 如果 API Key 对应 **GPT 分组**，**Gateway auth scheme** 选择 `bearer`
+
+选择正确后，Claude 桌面端会自动获取该分组下可用的模型。如果认证方式选错，Cowork 模式可能无法通过 Gateway 认证。
+
+<Steps>
+  <Step title="打开第三方推理配置">
+    在 macOS 菜单栏选择 **Developer** → **Configure Third-Party Inference...**。
+  </Step>
+
+  <Step title="切换认证方式">
+    按 API Key 分组选择 **Gateway auth scheme**：**Claude 分组** 使用 `x-api-key`，**GPT 分组** 使用 `bearer`。
+  </Step>
+
+  <Step title="保存配置">
+    点击 **Apply locally** 保存本地配置。
+  </Step>
+</Steps>
+
+完成后，Cowork 模式通常会恢复正常。
+
+## 再处理 Code 模式退出
+
+如果 Cowork 恢复后，Code 模式（`</>` 标签页）仍提示 `Claude Code process exited with code 1`，重点检查 Claude 桌面端内置 Claude Code 是否还停留在旧版本。
+
+**根因**：Claude 桌面端可能正在后台下载新版 Claude Code。下载完成前，Code 模式会回退到已安装的旧版 Claude Code。旧版可能不兼容第三方 Gateway 的 Code 模式，导致进程启动后立即退出。
+
+**解决方式**：
+
+<Steps>
+  <Step title="等待新版 Claude Code 下载完成">
+    保持 Claude 桌面端打开一段时间，让后台的 Claude Code 版本更新完成。
+  </Step>
+
+  <Step title="完全退出 Claude 桌面端">
+    使用 **Cmd+Q** 完全退出应用，不只是关闭窗口。
+  </Step>
+
+  <Step title="重新打开并新建 Code session">
+    重新打开 Claude 桌面端，再进入 Code 模式新建 session。
+  </Step>
+</Steps>
+
+<Note>
+  如果你在日志中看到桌面端回退到旧版 Claude Code（例如 `2.1.111`），而新版（例如 `2.1.119`）尚未准备好，先等待新版下载完成后再重启客户端。
+</Note>
+
+## 快速对照
+
+| 现象 | 常见根因 | 解决方式 |
+|------|----------|----------|
+| Cowork 模式不可用 | **Gateway auth scheme** 与 API Key 分组不匹配 | **Claude 分组** 选择 `x-api-key`，**GPT 分组** 选择 `bearer`，并点击 **Apply locally** |
+| Code 模式提示 `Claude Code process exited with code 1` | 桌面端回退使用旧版 Claude Code | 等待新版下载完成，使用 **Cmd+Q** 完全退出后重新打开 |

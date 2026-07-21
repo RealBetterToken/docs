@@ -1,17 +1,17 @@
 ---
-title: "Droid 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Droid через LLMEasy"
 sidebarTitle: "Droid"
-description: "在 Droid 中使用 BetterToken，接入 GPT 分组模型。"
+description: "Подключите LLMEasy к Droid с ID моделей группы GPT."
 icon: "robot"
 ---
 
-Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 BetterToken 作为自定义 OpenAI 兼容提供商接入。
+Droid — CLI coding assistant от Factory AI. Через BYOK можно подключить LLMEasy как custom OpenAI-compatible provider.
 
-## 前置条件
+## Требования
 
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## 安装 Droid
+## Установка Droid
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -26,33 +26,33 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
   </Tab>
 </Tabs>
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="清除冲突的环境变量">
+  <Step title="Очистите конфликтующие переменные окружения">
     ```bash
     unset OPENAI_API_KEY
     unset OPENAI_BASE_URL
     ```
   </Step>
 
-  <Step title="设置 BetterToken API Key">
+  <Step title="Задайте API Key LLMEasy">
     ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    export LLMEASY_API_KEY="YOUR_API_KEY"
     ```
   </Step>
 
-  <Step title="编辑 Droid 配置文件">
-    配置文件路径：`~/.factory/settings.json`
+  <Step title="Отредактируйте конфиг Droid">
+    Путь к конфигу: `~/.factory/settings.json`
 
     ```json
     {
       "customModels": [
         {
-          "displayName": "BetterToken Codex",
+          "displayName": "LLMEasy Codex",
           "model": "YOUR_GPT_MODEL_ID",
           "baseUrl": "{{openai-base-url}}",
-          "apiKey": "${BETTERTOKEN_API_KEY}",
+          "apiKey": "${LLMEASY_API_KEY}",
           "provider": "openai",
           "maxOutputTokens": 64000
         }
@@ -60,20 +60,20 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
     }
     ```
 
-    将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
+    Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    当前我们没有查到 Droid 官方接入说明要求 BetterToken 额外配置 `User-Agent`。默认先按页面中的 `Base URL`、API Key 和模型 ID 完成接入即可。
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Мы не нашли официального требования Droid, по которому `User-Agent` обязателен для LLMEasy. Начните с `Base URL`, API key и model ID на этой странице.
 
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
   </Step>
 
-  <Step title="重启 Droid">
-    修改配置文件或环境变量后，请退出当前 Droid 进程，再重新启动。
+  <Step title="Перезапустите Droid">
+    После обновления конфигурации или переменных окружения остановите текущий процесс Droid и запустите его снова.
   </Step>
 
-  <Step title="启动 Droid">
+  <Step title="Запустите Droid">
     ```bash
     cd /path/to/your/project
     droid
@@ -82,12 +82,12 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
 </Steps>
 
 <Note>
-  如果当前版本把 provider 文案显示为 `OpenAI Compatible`，以当前界面显示为准。如需额外 headers，请以 Droid 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项。
+  Если ваша версия называет provider `OpenAI Compatible` вместо `openai`, следуйте текущему названию в UI. Extra headers добавляйте только по документации Droid или требованиям вашего upstream gateway.
 </Note>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)

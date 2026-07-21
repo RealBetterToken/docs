@@ -1,0 +1,93 @@
+---
+title: "Droid 自定义模型接入 LLMEasy 指南"
+sidebarTitle: "Droid"
+description: "在 Droid 中使用 LLMEasy，接入 GPT 分组模型。"
+icon: "robot"
+---
+
+Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 LLMEasy 作为自定义 OpenAI 兼容提供商接入。
+
+## 前置条件
+
+- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+
+## 安装 Droid
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://app.factory.ai/cli | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    irm https://app.factory.ai/cli/windows | iex
+    ```
+  </Tab>
+</Tabs>
+
+## 配置步骤
+
+<Steps>
+  <Step title="清除冲突的环境变量">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="设置 LLMEasy API Key">
+    ```bash
+    export LLMEASY_API_KEY="YOUR_API_KEY"
+    ```
+  </Step>
+
+  <Step title="编辑 Droid 配置文件">
+    配置文件路径：`~/.factory/settings.json`
+
+    ```json
+    {
+      "customModels": [
+        {
+          "displayName": "LLMEasy Codex",
+          "model": "YOUR_GPT_MODEL_ID",
+          "baseUrl": "{{openai-base-url}}",
+          "apiKey": "${LLMEASY_API_KEY}",
+          "provider": "openai",
+          "maxOutputTokens": 64000
+        }
+      ]
+    }
+    ```
+
+    将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
+  </Step>
+
+  <Step title="仅在官方文档明确要求时再配置额外 headers">
+    当前我们没有查到 Droid 官方接入说明要求 LLMEasy 额外配置 `User-Agent`。默认先按页面中的 `Base URL`、API Key 和模型 ID 完成接入即可。
+
+    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+  </Step>
+
+  <Step title="重启 Droid">
+    修改配置文件或环境变量后，请退出当前 Droid 进程，再重新启动。
+  </Step>
+
+  <Step title="启动 Droid">
+    ```bash
+    cd /path/to/your/project
+    droid
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  如果当前版本把 provider 文案显示为 `OpenAI Compatible`，以当前界面显示为准。如需额外 headers，请以 Droid 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 LLMEasy 必填项。
+</Note>
+
+## 相关 FAQ
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)

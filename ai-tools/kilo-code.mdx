@@ -1,58 +1,58 @@
 ---
-title: "Kilo Code 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Kilo Code через LLMEasy"
 sidebarTitle: "Kilo Code"
-description: "在 Kilo Code 中使用 BetterToken，接入 GPT 分组模型。"
+description: "Подключите LLMEasy к Kilo Code с ID моделей группы GPT."
 icon: "puzzle-piece"
 ---
 
-Kilo Code 是 VS Code 插件。接入 BetterToken 时，请选择 OpenAI Compatible 提供商，并使用 GPT 分组模型 ID。
+Kilo Code — это расширение для VS Code. Для подключения LLMEasy выберите provider `OpenAI Compatible` и используйте ID модели из группы **GPT**.
 
-## 前置条件
+## Требования
 
-- 已安装 VS Code
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- Установленный VS Code
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="清除冲突的环境变量">
+  <Step title="Очистите конфликтующие переменные окружения">
     ```bash
     unset OPENAI_API_KEY
     unset OPENAI_BASE_URL
     ```
   </Step>
 
-  <Step title="打开 Kilo Code 设置">
-    打开 Kilo Code 的设置界面。
+  <Step title="Откройте настройки Kilo Code">
+    Откройте UI настроек Kilo Code.
   </Step>
 
-  <Step title="配置 API 提供商">
-    按以下方式填写：
+  <Step title="Настройте API provider">
+    Заполните:
 
     - **API Provider** → `OpenAI Compatible`
     - **Base URL** → `{{openai-base-url}}`
-    - **API Key** → 你的 BetterToken API Key
-    - **Model** → 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
+    - **API Key** → ваш API Key LLMEasy
+    - **Model** → ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    我们查到的 Kilo Code 官方资料提到 OpenAI-compatible provider 支持可选自定义 headers，但没有把 `User-Agent` 列为 BetterToken 默认接入的必填项。
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Официальные материалы Kilo Code упоминают optional custom headers для OpenAI-compatible providers, но не считают `User-Agent` обязательным шагом настройки LLMEasy.
 
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
   </Step>
 
-  <Step title="重启 Kilo Code">
-    修改配置后，请重启 VS Code 或重新加载 Kilo Code 插件，使新配置生效。
+  <Step title="Перезапустите Kilo Code">
+    После изменения конфигурации перезапустите VS Code или перезагрузите расширение Kilo Code.
   </Step>
 </Steps>
 
 <Note>
-  如需额外 headers，请以 Kilo Code 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项。
+  Если вам нужны extra headers, следуйте текущей документации Kilo Code или требованиям вашего upstream gateway, а не предполагайте, что `User-Agent` обязателен для LLMEasy.
 </Note>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)

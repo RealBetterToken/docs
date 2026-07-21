@@ -1,11 +1,11 @@
 ---
-title: "Connect OpenClaw to BetterToken with a custom model"
+title: "Connect OpenClaw to LLMEasy with a custom model"
 sidebarTitle: "OpenClaw"
-description: "Connect BetterToken to OpenClaw, a multi-platform AI agent gateway."
+description: "Connect LLMEasy to OpenClaw, a multi-platform AI agent gateway."
 icon: "paw"
 ---
 
-OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo, and more. This page shows you how to connect BetterToken to OpenClaw and do a basic verification.
+OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo, and more. This page shows you how to connect LLMEasy to OpenClaw and do a basic verification.
 
 ## Install OpenClaw
 
@@ -26,7 +26,7 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
 
 <Tabs>
   <Tab title="Automatic setup">
-    You can run the BetterToken automatic setup script directly. Have your BetterToken API Key ready before you start. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input. After the script finishes, continue to “Make it take effect” below.
+    You can run the LLMEasy automatic setup script directly. Have your LLMEasy API Key ready before you start. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input. After the script finishes, continue to “Make it take effect” below.
 
     Follow the step for your operating system. You only need one of them.
 
@@ -69,18 +69,18 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
         ```
       </Step>
 
-      <Step title="Add the BetterToken credential through the auth flow">
+      <Step title="Add the LLMEasy credential through the auth flow">
         ```bash
         openclaw models auth add
         ```
       </Step>
 
-      <Step title="Add or confirm the BetterToken provider">
+      <Step title="Add or confirm the LLMEasy provider">
         In the wizard or provider editor, fill in or confirm:
 
         - **Base URL**: `{{openai-base-url}}`
         - **API**: `openai-responses`
-        - **API Key**: your BetterToken API Key
+        - **API Key**: your LLMEasy API Key
         - **Model**: a currently available model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
 
         A minimal provider config snippet looks like this:
@@ -90,9 +90,9 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
           "models": {
             "mode": "merge",
             "providers": {
-              "bettertoken": {
+              "llmeasy": {
                 "baseUrl": "{{openai-base-url}}",
-                "apiKey": "YOUR_BETTERTOKEN_API_KEY",
+                "apiKey": "YOUR_LLMEASY_API_KEY",
                 "api": "openai-responses",
                 "models": [
                   {
@@ -108,7 +108,7 @@ OpenClaw is a cross-platform AI agent gateway for Discord, Google Chat, iMessage
       </Step>
 
       <Step title="You usually do not need extra `headers`">
-        You usually do not need an extra `User-Agent` when connecting BetterToken.
+        You usually do not need an extra `User-Agent` when connecting LLMEasy.
 
         Only add headers when you are also using a custom gateway, tenant routing, or another upstream service that explicitly requires them.
       </Step>
@@ -145,31 +145,31 @@ The effective model priority in OpenClaw is usually:
 This means:
 
 - If an agent explicitly defines `model` in `agents.list`, it does not inherit the global default model.
-- If you set BetterToken as the global default model but `main` still pins an older model, Discord DM flows that use `main` still keep using the older model.
+- If you set LLMEasy as the global default model but `main` still pins an older model, Discord DM flows that use `main` still keep using the older model.
 - If a previous session still has `providerOverride`, `modelOverride`, or `authProfileOverride`, the current session may keep using the old route even after you update the default model.
 
 Recommended workflow:
 
-1. If you want `main` to follow the global default, do not set a separate `model` for `main`, or change it to BetterToken.
+1. If you want `main` to follow the global default, do not set a separate `model` for `main`, or change it to LLMEasy.
 2. Run `openclaw gateway restart` after changing the config.
 3. Run `/new` in Discord to start a fresh session.
 4. Use `/status` and `/model` to verify the active model.
 
 ### Minimal config example
 
-Use the provider id shown by `openclaw models list`. The example below uses `bettertoken/gpt-5.4`; replace it if your provider id is different.
+Use the provider id shown by `openclaw models list`. The example below uses `llmeasy/gpt-5.4`; replace it if your provider id is different.
 
 ```json
 {
   "agents": {
     "defaults": {
       "model": {
-        "primary": "bettertoken/gpt-5.4",
+        "primary": "llmeasy/gpt-5.4",
         "fallbacks": []
       },
       "models": {
-        "bettertoken/gpt-5.4": {
-          "alias": "bettertoken"
+        "llmeasy/gpt-5.4": {
+          "alias": "llmeasy"
         }
       }
     },
@@ -183,7 +183,7 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
       {
         "id": "trade-recorder",
         "model": {
-          "primary": "bettertoken/gpt-5.4",
+          "primary": "llmeasy/gpt-5.4",
           "fallbacks": []
         }
       }
@@ -192,7 +192,7 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
 }
 ```
 
-- `main` does not define `model`, so it inherits the global BetterToken default.
+- `main` does not define `model`, so it inherits the global LLMEasy default.
 - `trade-recorder` defines `model`, so it does not follow later changes to the global default.
 
 ## Make it take effect
@@ -210,7 +210,7 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
     openclaw models status
     ```
 
-    Confirm the BetterToken provider exists and the default model points to BetterToken.
+    Confirm the LLMEasy provider exists and the default model points to LLMEasy.
   </Step>
 
   <Step title="Reload the gateway">
@@ -224,13 +224,13 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
   </Step>
 
   <Step title="Verify the model used by the current session">
-    Run `/status` in Discord and confirm the current agent and current session are using BetterToken.
+    Run `/status` in Discord and confirm the current agent and current session are using LLMEasy.
   </Step>
 
   <Step title="Check the available model picker if needed">
     Run `/model` in Discord.
 
-    If BetterToken does not appear there, check:
+    If LLMEasy does not appear there, check:
 
     - whether the current model is listed in `agents.defaults.models`
     - whether the provider model has a readable display name and, if needed, an `alias` in `agents.defaults.models`
@@ -242,7 +242,7 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
 ## Troubleshooting shortcuts
 
 - If you changed the default model but runtime still uses the old one, check `agents.list.main.model` first
-- If BetterToken does not appear in `/model`, check whether it is listed in `agents.defaults.models`
+- If LLMEasy does not appear in `/model`, check whether it is listed in `agents.defaults.models`
 - If Discord still shows the old route after a config change, run `openclaw gateway restart` and then `/new`
 - If the model picker or hot reload still looks stale, upgrade OpenClaw first and test again
 
@@ -251,23 +251,23 @@ Use the provider id shown by `openclaw models list`. The example below uses `bet
 If you do not want to edit the config manually, set the API Key as an environment variable and start Codex:
 
 ```bash
-export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+export LLMEASY_API_KEY="YOUR_API_KEY"
 codex
 ```
 
 Then send this prompt to Codex:
 
 ```text
-Please inspect and fix my local OpenClaw BetterToken setup. Requirements:
+Please inspect and fix my local OpenClaw LLMEasy setup. Requirements:
 1. Read the current OpenClaw config first and identify the provider id, the default model, and which agents in agents.list explicitly define model.
-2. If the BetterToken provider does not exist, add one that uses the Base URL `{{openai-base-url}}` and sets `api: "openai-responses"`.
-3. Reuse any credential already saved by OpenClaw. Only configure extra headers when the current version or your upstream gateway explicitly requires them; do not assume `User-Agent` is mandatory for BetterToken.
-4. Switch the default model to BetterToken and check whether `main` is still pinned to an older model. If I want `main` to follow the global default, remove the explicit model from `main`.
-5. Make sure the active BetterToken model is present in `agents.defaults.models` and add an easy-to-recognize `alias`.
+2. If the LLMEasy provider does not exist, add one that uses the Base URL `{{openai-base-url}}` and sets `api: "openai-responses"`.
+3. Reuse any credential already saved by OpenClaw. Only configure extra headers when the current version or your upstream gateway explicitly requires them; do not assume `User-Agent` is mandatory for LLMEasy.
+4. Switch the default model to LLMEasy and check whether `main` is still pinned to an older model. If I want `main` to follow the global default, remove the explicit model from `main`.
+5. Make sure the active LLMEasy model is present in `agents.defaults.models` and add an easy-to-recognize `alias`.
 6. Back up the original config, make the smallest possible diff, and tell me which fields you plan to change before editing.
 7. After editing, run `openclaw gateway restart` and remind me to validate with `/new`, `/status`, and `/model` in Discord.
 
 Constraints:
-- If you need the API Key, read it from the `BETTERTOKEN_API_KEY` environment variable and do not print the secret in chat or logs.
-- If the current config does not include a BetterToken model yet, ask me for a Codex-group model ID from the BetterToken model plaza.
+- If you need the API Key, read it from the `LLMEASY_API_KEY` environment variable and do not print the secret in chat or logs.
+- If the current config does not include a LLMEasy model yet, ask me for a Codex-group model ID from the LLMEasy model plaza.
 ```

@@ -1,64 +1,64 @@
 ---
-title: "Claude Code 和 Codex CLI 有什么区别？"
+title: "Claude Code и Codex CLI: в чем разница?"
 sidebarTitle: "Claude Code vs Codex"
-description: "对比 Claude Code 与 Codex CLI 的运行方式、配置文件、模型协议、权限边界和项目规则文件。"
+description: "Сравните Claude Code и Codex CLI по среде запуска, конфигам, model protocol, permissions и проектным instruction files."
 ---
 
-## 简短答案
+## Короткий ответ
 
-Claude Code 和 Codex CLI 都是面向本地开发的 coding agent，但它们来自不同生态，配置方式和协议边界不同。
+Claude Code и Codex CLI — локальные coding agents для разработки, но они относятся к разным экосистемам и имеют разные границы конфигурации.
 
-Claude Code 更贴近 Anthropic / Claude 生态，常见配置围绕 `ANTHROPIC_BASE_URL`、`ANTHROPIC_AUTH_TOKEN`、`CLAUDE.md`、permissions、hooks 和 MCP。
+Claude Code ближе к Anthropic / Claude ecosystem. Частые настройки связаны с `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE.md`, permissions, hooks и MCP.
 
-Codex CLI 更贴近 OpenAI / Codex 生态，常见配置围绕 `~/.codex/config.toml`、`model_provider`、`wire_api = "responses"`、`AGENTS.md`、sandbox 和 approval。
+Codex CLI ближе к OpenAI / Codex ecosystem. Частые настройки связаны с `~/.codex/config.toml`, `model_provider`, `wire_api = "responses"`, `AGENTS.md`, sandbox и approval.
 
-## 什么时候需要区分
+## Когда это важно
 
-- 你正在选择终端型 AI coding agent
-- 你需要统一配置 Base URL、API Key 和模型
-- 你想把项目规则写进长期生效的文件
-- 你关心自动执行命令时的权限边界
-- 你想让不同工具共用同一套模型 API 接入层
+- Вы выбираете terminal-based AI coding agent
+- Нужно унифицировать Base URL, API Key и model configuration
+- Вы хотите хранить постоянные project instructions
+- Важны command execution и approval boundaries
+- Вы хотите, чтобы несколько инструментов использовали один model API layer
 
-## 核心对比
+## Ключевые различия
 
-| 维度 | Claude Code | Codex CLI |
+| Измерение | Claude Code | Codex CLI |
 | --- | --- | --- |
-| 主要生态 | Anthropic / Claude | OpenAI / Codex |
-| 常见模型协议 | Anthropic-compatible | OpenAI-compatible / Responses |
-| 主要配置 | 环境变量、settings、permissions、hooks | `config.toml`、sandbox、approval、rules |
-| 项目规则文件 | `CLAUDE.md` | `AGENTS.md` |
-| 模型字段 | Claude 模型名、别名或 provider 映射 | `model`、`review_model`、provider id |
-| 工具扩展 | MCP、hooks、permissions | MCP、plugins、rules、sandbox |
+| Основная экосистема | Anthropic / Claude | OpenAI / Codex |
+| Частый model protocol | Anthropic-compatible | OpenAI-compatible / Responses |
+| Основная конфигурация | Environment variables, settings, permissions, hooks | `config.toml`, sandbox, approval, rules |
+| Project instruction file | `CLAUDE.md` | `AGENTS.md` |
+| Поля модели | Claude model names, aliases или provider mappings | `model`, `review_model`, provider id |
+| Расширение инструментов | MCP, hooks, permissions | MCP, plugins, rules, sandbox |
 
-## 选择建议
+## Как выбрать
 
-如果你已经在 Claude 生态中工作，并且更关心 `CLAUDE.md`、Claude 模型、hooks 与 MCP，优先理解 Claude Code。
+Выбирайте Claude Code, если вы уже работаете в Claude ecosystem и вам важны `CLAUDE.md`, Claude models, hooks и MCP.
 
-如果你更希望通过 `config.toml` 管理 provider、模型、review model、sandbox 和 approval，优先理解 Codex CLI。
+Выбирайте Codex CLI, если хотите управлять provider, model, review model, sandbox и approval через `config.toml`.
 
-如果团队同时使用两者，应把“工具前端”和“模型 API 层”分开看。工具决定如何读写代码、执行命令、审批风险；API 层决定请求发往哪个 provider、使用哪个模型、如何记录用量。
+Если команда использует оба инструмента, разделяйте tool frontend и model API layer. Инструмент решает, как читать и менять код, запускать команды и подтверждать риск. API layer решает, какой provider получает запросы, какая модель используется и как учитывается расход.
 
-## 常见误区
+## Частые ошибки
 
-- 以为 Claude Code 和 Codex CLI 只差模型名称。
-- 把 `CLAUDE.md` 和 `AGENTS.md` 当成同一个文件。
-- 把 Anthropic-compatible Base URL 填到 Codex CLI。
-- 把 OpenAI-compatible `/v1` endpoint 填到 Claude Code 的 Anthropic 协议位置。
-- 以为换 API provider 会改变工具自身的权限和沙箱策略。
+- Думать, что Claude Code и Codex CLI отличаются только model name.
+- Считать `CLAUDE.md` и `AGENTS.md` одним и тем же файлом.
+- Вставлять Anthropic-compatible Base URL в Codex CLI.
+- Вставлять OpenAI-compatible `/v1` endpoint в Anthropic protocol setting для Claude Code.
+- Думать, что смена API provider меняет local permissions инструмента.
 
-## 关于 BetterToken
+## О LLMEasy
 
-BetterToken 可以作为模型 API 接入层。Claude Code 场景通常使用 `{{anthropic-base-url}}`，Codex CLI 和其他 OpenAI-compatible 工具通常使用 `{{openai-base-url}}`。
+LLMEasy может быть model API layer. Claude Code обычно использует `{{anthropic-base-url}}`, а Codex CLI и другие OpenAI-compatible tools обычно используют `{{openai-base-url}}`.
 
-它不替代 `CLAUDE.md`、`AGENTS.md`、permissions、hooks、sandbox 或 approval。这些仍由各自工具控制。
+Он не заменяет `CLAUDE.md`, `AGENTS.md`, permissions, hooks, sandbox или approval. Эти настройки остаются внутри соответствующего инструмента.
 
-## Related docs
+## Связанные материалы
 
-- [Claude Code 是什么？](/faq/claude-code/what-is-claude-code)
-- [Codex CLI 是什么？](/faq/codex/what-is-codex-cli)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [Codex CLI sandbox 和 approval mode 是什么？](/faq/codex/sandbox-approval)
+- [Что такое Claude Code?](/faq/claude-code/what-is-claude-code)
+- [Что такое Codex CLI?](/faq/codex/what-is-codex-cli)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Что такое sandbox и approval mode в Codex CLI?](/faq/codex/sandbox-approval)
 
 ## References
 

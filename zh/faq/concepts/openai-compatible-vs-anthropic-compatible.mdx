@@ -1,0 +1,75 @@
+---
+title: "OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？"
+sidebarTitle: "两类兼容 API"
+description: "解释 OpenAI-compatible API、Anthropic-compatible API、Base URL、API Key 和 Model ID 的区别，以及在 Claude Code、Codex、Cursor、Cline 中如何选择。"
+---
+
+## 简短答案
+
+OpenAI-compatible API 和 Anthropic-compatible API 是两套不同的接口兼容层。它们都可以用于模型请求，但请求格式、字段、工具协议和客户端预期不同。
+
+一般来说，Codex CLI、Cursor、Cline、OpenCode、OpenClaw 等工具常走 OpenAI-compatible endpoint；Claude Code 和部分 Claude Desktop Gateway 场景走 Anthropic-compatible endpoint。
+
+不要只看模型名字。配置时要同时确认工具需要哪种协议、Base URL 是哪个、API Key 属于哪个 provider、Model ID 是否属于当前分组。
+
+## 什么时候需要区分它们
+
+- 你看到两个 Base URL，不知道该填哪一个
+- Claude Code 能用，但 Codex 或 Cursor 不能用
+- Codex 能用，但 Claude Code 报 endpoint 或认证错误
+- 你把同一个 API Key 同时用于多个工具
+- 你在配置 API gateway、模型路由或本地代理
+
+## 核心概念
+
+| 概念 | 说明 |
+| --- | --- |
+| OpenAI-compatible API | 按 OpenAI 风格 endpoint 和请求格式工作的兼容接口 |
+| Anthropic-compatible API | 按 Anthropic / Claude 风格请求格式工作的兼容接口 |
+| Base URL | 客户端请求发往的 API 根地址 |
+| API Key | 当前 provider 的认证凭证 |
+| Model ID | 当前协议和 provider 下可用的模型标识 |
+| Gateway | 在客户端和上游模型之间进行兼容、路由、计费或观测的一层 |
+
+## 推荐判断方式
+
+先看工具，而不是先看模型：
+
+| 工具 | 常见协议方向 | 本仓库中的 Base URL |
+| --- | --- | --- |
+| Claude Code | Anthropic-compatible | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Anthropic-compatible 或通过本地路由 | 按对应 Gateway 配置 |
+| Codex CLI | OpenAI-compatible / Responses | `{{openai-base-url}}` |
+| Cursor | OpenAI-compatible | `{{openai-base-url}}` |
+| Cline | OpenAI-compatible provider | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | OpenAI-compatible | `{{openai-base-url}}` |
+
+如果工具文档要求 OpenAI-style API，就不要填 Claude Code 的 Anthropic Base URL。如果工具文档要求 Anthropic-style API，就不要填 OpenAI-compatible 的 `/v1` 地址。
+
+## 常见误区
+
+- 以为同一个模型名可以在所有协议里直接复用。
+- 把 OpenAI-compatible Base URL 填进 Claude Code。
+- 把 Anthropic-compatible Base URL 填进 Codex、Cursor 或 Cline。
+- 把 Claude.ai / ChatGPT 订阅当成 API Key。
+- 只改 API Key，不改 Base URL 和 Model ID。
+
+## 关于 LLMEasy
+
+LLMEasy 同时提供 Anthropic-compatible 和 OpenAI-compatible 的接入方式。你可以在同一个 dashboard 管理 API Key、余额和用量记录，但每个客户端仍然要填写它实际支持的协议地址。
+
+简单记法：Claude Code 看 Anthropic-compatible；Codex、Cursor、Cline、OpenCode、OpenClaw 这类外部工具优先看 OpenAI-compatible。
+
+## Related docs
+
+- [Claude Code 接入 LLMEasy 指南](/zh/ai-tools/claude-code)
+- [Codex 接入 LLMEasy 指南](/zh/ai-tools/codex)
+- [Cursor 接入 LLMEasy 指南](/zh/ai-tools/cursor)
+- [如何在 Claude Code 中配置 API Key 和 Base URL？](/zh/faq/claude-code/api-key-base-url)
+
+## References
+
+- [Anthropic OpenAI SDK compatibility](https://docs.anthropic.com/en/api/openai-sdk)
+- [Anthropic API versioning](https://docs.anthropic.com/en/api/versioning)
+- [OpenAI Responses API reference](https://developers.openai.com/api/reference/responses/overview/)
+- [Anthropic-compatible API explanation](https://bentoml.com/llm/model-interaction/anthropic-compatible-api)

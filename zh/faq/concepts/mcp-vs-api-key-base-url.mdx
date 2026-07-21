@@ -1,0 +1,57 @@
+---
+title: "MCP 和 API Key / Base URL 有什么区别？"
+sidebarTitle: "MCP vs API"
+description: "解释 MCP、API Key、Base URL、模型协议和工具协议的区别，避免把工具接入和模型接入混为一谈。"
+---
+
+## 简短答案
+
+MCP 是给 AI 工具连接外部工具、数据源和上下文的协议。API Key 和 Base URL 是模型请求的认证和地址配置。
+
+换句话说，MCP 解决“agent 能用哪些工具和数据”。API Key / Base URL 解决“模型请求发到哪里、用什么凭证鉴权”。
+
+配置了 MCP，并不等于配置了模型 API。配置了模型 API，也不等于工具自动拥有外部系统能力。
+
+## 对比表
+
+| 项目 | MCP | API Key / Base URL |
+| --- | --- | --- |
+| 解决问题 | 工具、数据源、上下文接入 | 模型请求、鉴权、路由 |
+| 常见对象 | 本地服务、数据库、文件、浏览器、业务系统 | OpenAI-compatible 或 Anthropic-compatible endpoint |
+| 风险重点 | 工具权限、数据访问、执行副作用 | 认证泄露、协议误配、模型成本 |
+| 是否决定模型 | 不决定 | 通常决定 provider 和可用模型 |
+
+## 什么时候会混淆
+
+- 你以为接了 MCP 就能换模型。
+- 你以为换 Base URL 就能连接本地工具。
+- 你把 MCP server 当成模型 provider。
+- 你把模型 API Key 填进 MCP 配置。
+- 你不知道某个工具要 OpenAI-compatible 还是 Anthropic-compatible。
+
+## 推荐判断方式
+
+如果你要让 agent 访问数据库、浏览器、文件系统、内部系统或额外工具，先看 MCP。
+
+如果你要切换模型、网关、计费账号或 provider，先看 API Key、Base URL 和协议。
+
+如果一个任务同时需要“换模型”和“接工具”，两层都要配置，并分别检查权限和安全边界。
+
+## 关于 LLMEasy
+
+LLMEasy 是模型 API 层，不是 MCP server。它负责 API Key、Base URL、模型路由和用量记录。
+
+你可以同时使用 LLMEasy 和 MCP：LLMEasy 处理模型请求，MCP 处理工具与上下文扩展。
+
+## Related docs
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Desktop 如何配置 MCP？](/zh/faq/claude-desktop/mcp)
+- [Cursor 如何配置 MCP？](/zh/faq/cursor/mcp)
+- [Claude Code 权限和 hooks 是什么？](/zh/faq/claude-code/permissions-and-hooks)
+
+## References
+
+- [Claude Code MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Model Context Protocol introduction](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [Anthropic MCP overview](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)

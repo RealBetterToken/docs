@@ -1,54 +1,54 @@
 ---
-title: "MCP 和 API Key / Base URL 有什么区别？"
+title: "MCP и API Key / Base URL: в чем разница?"
 sidebarTitle: "MCP vs API"
-description: "解释 MCP、API Key、Base URL、模型协议和工具协议的区别，避免把工具接入和模型接入混为一谈。"
+description: "Разберите разницу между MCP, API Key, Base URL, model protocols и tool protocols."
 ---
 
-## 简短答案
+## Короткий ответ
 
-MCP 是给 AI 工具连接外部工具、数据源和上下文的协议。API Key 和 Base URL 是模型请求的认证和地址配置。
+MCP — это protocol для подключения AI tools к внешним инструментам, data sources и context. API Key и Base URL — это настройки authentication и routing для model requests.
 
-换句话说，MCP 解决“agent 能用哪些工具和数据”。API Key / Base URL 解决“模型请求发到哪里、用什么凭证鉴权”。
+MCP отвечает на вопрос: какие tools и data может использовать agent? API Key / Base URL отвечают: куда уходят model requests и как они авторизуются?
 
-配置了 MCP，并不等于配置了模型 API。配置了模型 API，也不等于工具自动拥有外部系统能力。
+Настройка MCP не настраивает model API. Настройка model API не дает инструменту автоматический доступ к внешним системам.
 
-## 对比表
+## Сравнение
 
-| 项目 | MCP | API Key / Base URL |
+| Пункт | MCP | API Key / Base URL |
 | --- | --- | --- |
-| 解决问题 | 工具、数据源、上下文接入 | 模型请求、鉴权、路由 |
-| 常见对象 | 本地服务、数据库、文件、浏览器、业务系统 | OpenAI-compatible 或 Anthropic-compatible endpoint |
-| 风险重点 | 工具权限、数据访问、执行副作用 | 认证泄露、协议误配、模型成本 |
-| 是否决定模型 | 不决定 | 通常决定 provider 和可用模型 |
+| Основная задача | Tool, data source и context integration | Model requests, authentication, routing |
+| Частые цели | Local services, databases, files, browsers, business systems | OpenAI-compatible или Anthropic-compatible endpoints |
+| Главный риск | Tool permissions, data access, side effects | Secret leakage, protocol mismatch, model cost |
+| Определяет модель | Нет | Обычно да |
 
-## 什么时候会混淆
+## Когда их путают
 
-- 你以为接了 MCP 就能换模型。
-- 你以为换 Base URL 就能连接本地工具。
-- 你把 MCP server 当成模型 provider。
-- 你把模型 API Key 填进 MCP 配置。
-- 你不知道某个工具要 OpenAI-compatible 还是 Anthropic-compatible。
+- Думают, что MCP меняет модель.
+- Думают, что смена Base URL подключает local tools.
+- Считают MCP server model provider.
+- Вставляют model API Key в MCP configuration.
+- Не знают, какой API ожидает инструмент: OpenAI-compatible или Anthropic-compatible.
 
-## 推荐判断方式
+## Как отличать
 
-如果你要让 agent 访问数据库、浏览器、文件系统、内部系统或额外工具，先看 MCP。
+Если agent должен обращаться к database, browser, filesystem, internal system или extra tool, смотрите MCP.
 
-如果你要切换模型、网关、计费账号或 provider，先看 API Key、Base URL 和协议。
+Если нужно сменить model, gateway, billing account или provider, смотрите API Key, Base URL и protocol.
 
-如果一个任务同时需要“换模型”和“接工具”，两层都要配置，并分别检查权限和安全边界。
+Если workflow требует и смены модели, и внешних tools, настраивайте оба слоя и отдельно проверяйте permissions.
 
-## 关于 BetterToken
+## О LLMEasy
 
-BetterToken 是模型 API 层，不是 MCP server。它负责 API Key、Base URL、模型路由和用量记录。
+LLMEasy — это model API layer, а не MCP server. Он обрабатывает API Key, Base URL, model routing и usage records.
 
-你可以同时使用 BetterToken 和 MCP：BetterToken 处理模型请求，MCP 处理工具与上下文扩展。
+LLMEasy и MCP можно использовать вместе: LLMEasy обрабатывает model requests, MCP расширяет tools и context.
 
-## Related docs
+## Связанные материалы
 
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [Claude Desktop 如何配置 MCP？](/faq/claude-desktop/mcp)
-- [Cursor 如何配置 MCP？](/faq/cursor/mcp)
-- [Claude Code 权限和 hooks 是什么？](/faq/claude-code/permissions-and-hooks)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Как настроить MCP в Claude Desktop](/faq/claude-desktop/mcp)
+- [Как настроить MCP в Cursor](/faq/cursor/mcp)
+- [Permissions и hooks в Claude Code](/faq/claude-code/permissions-and-hooks)
 
 ## References
 

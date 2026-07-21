@@ -8,7 +8,7 @@ description: "Use /permissions and settings.json to configure allow, ask, and de
 
 Run `/permissions` in Claude Code to view and manage permission rules. To persist them, put `allow`, `ask`, and `deny` in `settings.json`. Hooks use the same settings files and run formatting, tests, or safety checks around tool calls. Permission precedence is **deny → ask → allow**, so an allow rule cannot override a deny rule.
 
-These settings control local tools on your computer. BetterToken changes the model API Base URL, API Key, and routing only; it does not bypass local permissions or run hooks for you.
+These settings control local tools on your computer. LLMEasy changes the model API Base URL, API Key, and routing only; it does not bypass local permissions or run hooks for you.
 
 ## Choose permissions or hooks
 
@@ -118,12 +118,12 @@ Claude Code normally reloads settings changes automatically. If it does not, exi
 | An allowed action is still blocked | It matches a deny or managed rule | Check sources in `/permissions`; deny takes precedence over ask and allow |
 | A hook never runs | Event or matcher does not match the tool | Inspect `/hooks`; `PreToolUse` runs before execution, `PostToolUse` after success, and matchers are case-sensitive |
 | The hook runs but the command fails | Wrong script, working directory, or dependency | Run the same command manually from the project directory first |
-| Prompts remain after connecting BetterToken | API provider and local permissions are separate | Keep the BetterToken Base URL and configure narrow Claude Code permissions separately |
+| Prompts remain after connecting LLMEasy | API provider and local permissions are separate | Keep the LLMEasy Base URL and configure narrow Claude Code permissions separately |
 | You need to disable all hooks temporarily | A hook may interfere with debugging | Add `"disableAllHooks": true`, then remove it or set it to `false` after debugging |
 
-## BetterToken boundaries
+## LLMEasy boundaries
 
-BetterToken handles Claude Code model API access, model routing, balance, and usage. Claude Code still controls:
+LLMEasy handles Claude Code model API access, model routing, balance, and usage. Claude Code still controls:
 
 - File read and write access
 - Bash confirmation behavior
@@ -134,7 +134,7 @@ For `401`, Base URL, or model mapping errors, see the [Claude Code setup guide](
 
 ## Related docs
 
-- [Claude Code setup with BetterToken](/en/ai-tools/claude-code)
+- [Claude Code setup with LLMEasy](/en/ai-tools/claude-code)
 - [What is CLAUDE.md in Claude Code?](/en/faq/claude-code/claude-md)
 - [Why Claude Code uses many tokens](/en/faq/token-cost/claude-code-token-usage)
 - [Claude Code MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)

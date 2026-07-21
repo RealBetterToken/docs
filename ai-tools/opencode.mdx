@@ -1,17 +1,17 @@
 ---
-title: "OpenCode 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели OpenCode через LLMEasy"
 sidebarTitle: "OpenCode"
-description: "在 OpenCode 中使用 BetterToken，接入 GPT 分组模型。"
+description: "Подключите LLMEasy к OpenCode с ID моделей группы GPT."
 icon: "brackets-curly"
 ---
 
-在 OpenCode 中接入 BetterToken，建议先用 `/connect` 添加凭证，再在配置文件中声明 BetterToken 这个 OpenAI-compatible provider，并填入 GPT 分组模型 ID。
+OpenCode можно подключить к LLMEasy так: сначала добавьте credentials через `/connect`, затем объявите LLMEasy как OpenAI-compatible provider в конфиге и выберите ID модели из группы **GPT**.
 
-## 前置条件
+## Требования
 
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## 安装 OpenCode
+## Установка OpenCode
 
 <Tabs>
   <Tab title="curl">
@@ -26,21 +26,21 @@ icon: "brackets-curly"
   </Tab>
 </Tabs>
 
-## 配置步骤
+## Настройка
 
 <Tabs>
-  <Tab title="自动配置">
-    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
+  <Tab title="Автоматическая настройка">
+    Можно запустить автоматический скрипт LLMEasy. Он записывает только provider-конфигурацию LLMEasy и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
 
-    按你的操作系统执行对应步骤。你只需要执行其中一项。
+    Выберите шаг для своей ОС. Нужен только один вариант.
 
     <Steps>
-      <Step title="如果你使用 macOS / Linux">
+      <Step title="macOS / Linux">
         ```bash
         curl -fsSL {{install-opencode-provider-sh-url}} | bash
         ```
       </Step>
-      <Step title="如果你使用 Windows">
+      <Step title="Windows">
         ```powershell
         iwr {{install-opencode-provider-ps1-url}} -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
         ```
@@ -48,49 +48,49 @@ icon: "brackets-curly"
     </Steps>
   </Tab>
 
-  <Tab title="通过 CC-Switch 配置">
-    这条接入路径由 [CC Switch 接入文档](/ai-tools/cc-switch#opencode) 统一维护。
+  <Tab title="Настройка через CC Switch">
+    Этот путь описан в [инструкции CC Switch](/ai-tools/cc-switch#opencode).
 
-    直接查看 [CC Switch 中的 OpenCode 配置步骤](/ai-tools/cc-switch#opencode)。
+    Перейдите сразу к [вкладке OpenCode в инструкции CC Switch](/ai-tools/cc-switch#opencode).
 
-    通过 CC Switch 完成配置后，再回到本页继续参考启动、验证或生效说明。
+    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить запуск и остальные примечания.
   </Tab>
 
-  <Tab title="手动配置">
+  <Tab title="Ручная настройка">
     <Steps>
-      <Step title="清除冲突的环境变量">
+      <Step title="Очистите конфликтующие переменные окружения">
         ```bash
         unset OPENAI_API_KEY
         unset OPENAI_BASE_URL
         ```
       </Step>
 
-      <Step title="先用 /connect 添加 BetterToken 凭证">
-        启动 OpenCode 后运行：
+      <Step title="Сначала добавьте credential LLMEasy через /connect">
+        Запустите OpenCode и выполните:
 
         ```bash
         /connect
         ```
 
-        在向导里选择 **Other**，然后：
+        В мастере выберите **Other**, затем:
 
-        - **provider id** 填 `bettertoken`
-        - 粘贴你的 BetterToken API Key
+        - задайте **provider id** как `llmeasy`
+        - вставьте API Key LLMEasy
 
-        OpenCode 会将凭证保存到 `~/.local/share/opencode/auth.json`。
+        OpenCode сохранит credential в `~/.local/share/opencode/auth.json`.
       </Step>
 
-      <Step title="编辑 OpenCode 配置文件">
-        你可以使用全局配置 `~/.config/opencode/opencode.json`，也可以在项目根目录创建 `opencode.json`。项目级配置优先级更高。
+      <Step title="Отредактируйте конфиг OpenCode">
+        Можно использовать глобальный конфиг `~/.config/opencode/opencode.json` или создать `opencode.json` в корне проекта. Project config имеет более высокий приоритет.
 
         ```json
         {
           "$schema": "https://opencode.ai/config.json",
-          "model": "bettertoken/YOUR_GPT_MODEL_ID",
+          "model": "llmeasy/YOUR_GPT_MODEL_ID",
           "provider": {
-            "bettertoken": {
+            "llmeasy": {
               "npm": "@ai-sdk/openai-compatible",
-              "name": "BetterToken",
+              "name": "LLMEasy",
               "options": {
                 "baseURL": "{{openai-base-url}}"
               },
@@ -104,18 +104,18 @@ icon: "brackets-curly"
         }
         ```
 
-        将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
+        Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
       </Step>
 
-      <Step title="如需在配置文件里直接写 API Key，可使用备用写法">
+      <Step title="Если нужно inline API key, используйте fallback-формат">
         ```json
         {
           "$schema": "https://opencode.ai/config.json",
-          "model": "bettertoken/YOUR_GPT_MODEL_ID",
+          "model": "llmeasy/YOUR_GPT_MODEL_ID",
           "provider": {
-            "bettertoken": {
+            "llmeasy": {
               "npm": "@ai-sdk/openai-compatible",
-              "name": "BetterToken",
+              "name": "LLMEasy",
               "options": {
                 "baseURL": "{{openai-base-url}}",
                 "apiKey": "YOUR_API_KEY"
@@ -130,20 +130,20 @@ icon: "brackets-curly"
         }
         ```
 
-        这是备用方式。更推荐使用上一节的 `/connect`。
+        Это fallback. Предпочтительный путь — `/connect` выше.
       </Step>
 
-      <Step title="仅在有 provider-specific 需求时再使用 `options.headers`">
-        OpenCode 官方文档支持通过 `provider.<id>.options.headers` 添加自定义 headers，但这是可选能力。接入 BetterToken 时通常不需要额外设置 `User-Agent`。
+      <Step title="Используйте `options.headers` только для provider-specific задач">
+        Официальная документация OpenCode поддерживает custom headers через `provider.<id>.options.headers`, но это optional. При подключении LLMEasy обычно не нужен дополнительный `User-Agent`.
 
-        如果你还接了 Helicone、租户路由网关、审计或缓存服务，再按这些上游服务的官方文档补充所需 headers。
+        Если вы также используете Helicone, tenant routing, observability или кеширующие сервисы, добавляйте нужные headers по официальной документации этих upstream-сервисов.
       </Step>
 
-      <Step title="重启 OpenCode">
-        修改配置文件后，请退出当前 OpenCode 会话，再重新启动。
+      <Step title="Перезапустите OpenCode">
+        После обновления конфига завершите текущую сессию OpenCode и запустите ее снова.
       </Step>
 
-      <Step title="启动 OpenCode">
+      <Step title="Запустите OpenCode">
         ```bash
         cd /path/to/your/project
         opencode
@@ -153,16 +153,16 @@ icon: "brackets-curly"
   </Tab>
 </Tabs>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 
-## 注意事项
+## Примечания
 
-- 默认模型请填写 **GPT 分组模型 ID**，不要再写 Claude 系列固定模型名
-- BetterToken 这类 OpenAI-compatible provider 当前应优先使用 `@ai-sdk/openai-compatible`
-- 如果你使用 `/connect`，一般不需要再把 API Key 明文写进配置文件
-- OpenCode 官方文档将 `options.headers` 视为可选扩展配置；接入 BetterToken 时通常不需要额外 headers
+- Используйте ID модели группы **GPT** по умолчанию вместо фиксированных имен Claude-моделей
+- Для LLMEasy сейчас следует использовать `@ai-sdk/openai-compatible` как OpenAI-compatible provider adapter
+- Если вы используете `/connect`, обычно не нужно хранить API key прямо в конфиге
+- Официальная документация OpenCode трактует `options.headers` как optional extended configuration; LLMEasy обычно не требует extra headers

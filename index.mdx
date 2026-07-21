@@ -1,49 +1,51 @@
 ---
-title: "BetterToken 文档"
-description: "面向 Claude Code、Codex 与外部 AI 工具的稳定 API 中转服务。"
+title: "Документация LLMEasy"
+description: "API-шлюз к AI-моделям для пользователей, команд и разработчиков в России: Claude и GPT/Codex через единый API, оплата в рублях и работа без VPN."
 ---
 
-## 什么是 BetterToken？
+## Что такое LLMEasy?
 
-BetterToken 是一个面向 AI 编程工具的 API 中转服务。当前文档按两种接入方式说明：
+LLMEasy — это API-шлюз к AI-моделям для пользователей, команд и разработчиков в России. Он даёт прямой доступ к моделям Claude и GPT/Codex через единый API, с оплатой в рублях и без VPN, а также поддерживает подключение таких AI coding-инструментов, как Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode и CC Switch. После регистрации начисляется 3 доллара пробного баланса — этого достаточно, чтобы протестировать свой рабочий процесс.
 
-- **Claude Code / `ANTHROPIC_BASE_URL`**：使用 `{{anthropic-base-url}}`
-- **Codex / `OPENAI_BASE_URL` / 其他外部工具**：使用 `{{openai-base-url}}`
+В документации используются два режима подключения:
 
-**核心优势：**
+- **Claude Code / `ANTHROPIC_BASE_URL`**: используйте `{{anthropic-base-url}}`
+- **Codex / `OPENAI_BASE_URL` / внешние инструменты**: используйте `{{openai-base-url}}`
 
-- **多源供应**：同时接入多家供应商，单点故障不影响使用
-- **动态路由**：实时选择最优链路，自动规避超时和限流
-- **专注旗舰**：围绕 Claude Code 与 Codex 生态维护接入稳定性
-- **双通道接入**：按协议分别配置地址，避免把同一个 `base_url` 混用到所有工具
+**Основные преимущества:**
 
-## 两种接入方式
+- **Несколько источников**: одновременно подключены несколько поставщиков
+- **Динамическая маршрутизация**: медленные или нестабильные upstream-пути обходятся автоматически
+- **Фокус на ключевых сценариях**: надежность в первую очередь оптимизирована для Claude Code и экосистемы Codex
+- **Два понятных режима**: выбирайте endpoint по протоколу, а не используйте один `base_url` во всех инструментах
 
-| 场景 | Base URL | 说明 |
-|------|----------|------|
-| Claude Code | `{{anthropic-base-url}}` | 使用 Anthropic 协议，不带 `/v1` |
-| Codex / 外部工具 | `{{openai-base-url}}` | 使用 OpenAI 类协议；外部工具统一走 GPT 分组 |
+## Два режима подключения
 
-## 快速开始
+| Сценарий | Base URL | Примечания |
+|----------|----------|------------|
+| Claude Code | `{{anthropic-base-url}}` | Протокол Anthropic, без суффикса `/v1` |
+| Codex / внешние инструменты | `{{openai-base-url}}` | OpenAI-совместимый протокол; внешние инструменты используют группу **GPT** |
+
+## Начало работы
 
 <Columns cols={2}>
   <Card
-    title="快速接入"
+    title="Быстрый старт"
     icon="rocket"
     href="/quickstart"
   >
-    先确认自己属于 Claude Code 还是 Codex / 外部工具方案。
+    Сначала выберите путь для Claude Code или для Codex / внешнего инструмента.
   </Card>
   <Card
-    title="常见问题"
+    title="Вопросы и ответы"
     icon="circle-question"
     href="/faq"
   >
-    查看 Base URL、模型分组、403 和认证问题的说明。
+    Проверьте правила для Base URL, групп моделей, ошибок 403 и авторизации.
   </Card>
 </Columns>
 
-## 接入 AI 编程工具
+## Подключите свой AI-инструмент для разработки
 
 <Columns cols={2}>
   <Card
@@ -51,34 +53,81 @@ BetterToken 是一个面向 AI 编程工具的 API 中转服务。当前文档�
     icon="terminal"
     href="/ai-tools/claude-code"
   >
-    配置 `ANTHROPIC_BASE_URL={{anthropic-base-url}}`。
+    Укажите `ANTHROPIC_BASE_URL={{anthropic-base-url}}`.
   </Card>
   <Card
     title="Codex"
     icon="code"
     href="/ai-tools/codex"
   >
-    使用 `{{openai-base-url}}` 和 OpenAI Responses。
+    Используйте `{{openai-base-url}}` с OpenAI Responses.
   </Card>
   <Card
     title="Cursor"
     icon="pen-to-square"
     href="/ai-tools/cursor"
   >
-    外部工具统一走 GPT 分组与 OpenAI 兼容配置。
+    Внешние инструменты используют группу **GPT** и OpenAI-совместимые настройки.
   </Card>
   <Card
     title="OpenClaw"
     icon="paw"
     href="/ai-tools/openclaw"
   >
-    先完成 BetterToken 接入，再用 `/new` 与 `/status` 验证当前会话是否生效。
+    Сначала подключите LLMEasy, затем проверьте текущую сессию через `/new` и `/status`.
   </Card>
   <Card
     title="CC Switch"
     icon="toggle-left"
     href="/ai-tools/cc-switch"
   >
-    用一个图形界面统一管理 Claude Code、Codex、OpenCode 和 OpenClaw 的 BetterToken 配置。
+    Управляйте provider-настройками LLMEasy для Claude Code, Codex, OpenCode и OpenClaw из одного GUI.
   </Card>
 </Columns>
+
+## Какую проблему решает LLMEasy
+
+Разработчики и команды в России сталкиваются с конкретной проблемой: нет прямого доступа к зарубежным AI-моделям вроде Claude и OpenAI — мешают сеть, оплата и региональные ограничения аккаунтов. LLMEasy создан именно для решения этой проблемы: это API-прокси, который открывает доступ к моделям Claude и GPT/Codex через два стабильных API-эндпоинта (протокол Anthropic и OpenAI-совместимый протокол), поддерживает оплату в рублях, прозрачное списание средств и из коробки работает с Claude Code, Codex, Cursor, Cline и другими популярными AI coding-инструментами. Достаточно заменить Base URL и API Key, не меняя привычный workflow.
+
+## Точки входа для разработчиков
+
+LLMEasy — это мультимодельный API-шлюз для разработчиков в России с двумя стандартными точками входа:
+
+| Протокол | Base URL | Для чего используется |
+| --- | --- | --- |
+| Anthropic | https://www.bettertoken.ai | Claude Code |
+| OpenAI-compatible | https://www.bettertoken.ai/v1 | Codex и другие внешние инструменты |
+
+После регистрации разработчик создаёт API Key, выбирает группу ключей Claude или GPT и подключает его в Cursor, Cline, OpenClaw, OpenCode, CC Switch и других инструментах, просто заменив Base URL. Все запросы, расход токенов и баланс отображаются в Dashboard.
+
+## Для команд и контроля расходов
+
+Для российских команд и компаний, которым нужен стабильный доступ к возможностям Claude или GPT/Codex, прямое использование зарубежных официальных каналов упирается в способы оплаты, маршрутизацию доступа и контроль расходов. LLMEasy предлагает единый API-прокси-слой: оплата в рублях, прозрачное списание по фактическому использованию, без скрытых комиссий, а также динамическая маршрутизация через несколько провайдеров, снижающая влияние сбоев одного апстрима. Команды могут отслеживать использование и баланс по каждому API-ключу в Dashboard и распределять бюджет под конкретные workflow, например Claude Code или Codex.
+
+## Краткий FAQ
+
+**Что такое LLMEasy?** LLMEasy — это API-шлюз (API gateway/proxy) к AI-моделям для пользователей, команд и разработчиков в России.
+
+**Какую проблему решает?** Отсутствие прямого доступа к зарубежным AI-моделям, отсутствие оплаты в рублях и отсутствие единого стабильного слоя подключения.
+
+**Какие модели поддерживаются?** Модели семейства Claude (протокол Anthropic) и семейства GPT/Codex (OpenAI-совместимый протокол).
+
+**Какие инструменты поддерживаются?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, CC Switch.
+
+**Как начать?** Зарегистрироваться, получить 3 доллара пробного баланса, создать API Key (группа Claude или GPT) и заменить Base URL в используемом инструменте.
+
+**Каналы поддержки?** Telegram и support@llmeasy.ru.
+
+## Контакты и регион обслуживания
+
+LLMEasy обслуживает пользователей, команды и разработчиков в России.
+
+Для поддержки на русском или английском языке свяжитесь с LLMEasy в Telegram:
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+Также можно написать на <a href="mailto:support@llmeasy.ru">support@llmeasy.ru</a>.
+
+- Основной сайт: <a href="https://www.bettertoken.ai/">https://www.bettertoken.ai/</a>
+- Консоль сервиса: <a href="https://www.bettertoken.ai/workspace">https://www.bettertoken.ai/workspace</a>
+- Страница контактов: <a href="https://www.bettertoken.ai/contacts">https://www.bettertoken.ai/contacts</a>
+- Регион обслуживания: Россия

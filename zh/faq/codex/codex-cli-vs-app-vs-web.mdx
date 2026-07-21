@@ -1,0 +1,65 @@
+---
+title: "Codex CLI、Codex App 和 Codex Web 有什么区别？"
+sidebarTitle: "CLI vs App vs Web"
+description: "对比 Codex CLI、Codex App、Codex Web / Cloud 的运行位置、适用场景、配置方式和 API provider 关系。"
+---
+
+## 简短答案
+
+Codex CLI 是本地终端中的 coding agent，重点是本地项目、命令执行、文件修改和 `config.toml` 配置。
+
+Codex App 是桌面应用入口，适合图形化使用、会话管理、插件、Remote Control 或移动端联动等体验。
+
+Codex Web / Cloud 更偏远程或网页中的 agent 工作流。它不等同于本地 CLI，也不一定共享同一套本地文件访问、sandbox、approval 和配置文件。
+
+## 什么时候需要区分它们
+
+- 你不知道应该安装 CLI 还是使用 App / Web
+- 你想保留 Codex App 登录态，同时让模型请求走第三方 API
+- 你在本地 `config.toml` 改了配置，但 Web 端行为没有变化
+- 你需要判断文件访问、命令执行和审批在哪里发生
+- 你要给团队写 Codex 使用规范
+
+## 核心区别
+
+| 维度 | Codex CLI | Codex App | Codex Web / Cloud |
+| --- | --- | --- | --- |
+| 主要入口 | 本地终端 | 桌面应用 | 浏览器或远程环境 |
+| 配置重点 | `~/.codex/config.toml`、`AGENTS.md`、sandbox、approval | 登录态、桌面功能、provider 切换 | 云端任务、远程环境、仓库授权 |
+| 文件访问 | 本地工作区 | 取决于 App 当前工作区和功能 | 取决于云端环境和授权 |
+| 适合场景 | 本地开发、快速命令、脚本、代码修改 | 桌面会话、插件、Remote Control | 远程任务、云端开发流程 |
+
+## 推荐判断方式
+
+如果你的重点是本地项目和命令行工作流，优先理解 Codex CLI。
+
+如果你的重点是桌面功能、插件或 Remote Control，优先理解 Codex App。若要在保留官方登录态的同时使用第三方 API，需要把认证层和推理层分开配置。
+
+如果你的重点是远程环境或网页中的任务，请查看 Codex Web / Cloud 的官方说明，不要假设本地 `config.toml` 会直接影响云端运行。
+
+## 常见误区
+
+- 以为修改 CLI 的 `config.toml` 会自动影响 Codex Web / Cloud。
+- 把 Codex App 的官方登录态和第三方 API Key 混为一谈。
+- 以为三种形态都拥有相同的文件系统权限。
+- 忽略 sandbox 和 approval 只在具体运行环境中生效。
+- 把插件、Remote Control、模型 provider 当成同一层配置。
+
+## 关于 LLMEasy
+
+LLMEasy 适合出现在“模型请求走哪个 API provider”这一层。Codex CLI 的普通自定义 provider 配置通常写在 `config.toml` 中，Codex App 保留官方登录态的场景则需要额外处理认证层。
+
+LLMEasy 不改变 CLI、App、Web / Cloud 之间的运行位置和权限边界。
+
+## Related docs
+
+- [Codex 接入 LLMEasy 指南](/zh/ai-tools/codex)
+- [如何在使用第三方 API 的同时保留 Codex 登录态？](/zh/faq/codex/official-login-third-party-api)
+- [如何配置 Codex CLI 的 config.toml？](/zh/faq/codex/config-toml)
+- [Codex CLI sandbox 和 approval mode 是什么？](/zh/faq/codex/sandbox-approval)
+
+## References
+
+- [Codex CLI documentation](https://developers.openai.com/codex/cli)
+- [Codex App documentation](https://developers.openai.com/codex/app)
+- [Codex Cloud documentation](https://developers.openai.com/codex/cloud)

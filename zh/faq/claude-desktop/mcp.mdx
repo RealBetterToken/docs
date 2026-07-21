@@ -1,0 +1,61 @@
+---
+title: "Claude Desktop 如何配置 MCP？"
+sidebarTitle: "Claude Desktop MCP"
+description: "解释 Claude Desktop 中本地 MCP、远程 MCP、连接状态和 MCP 与模型 API 的区别。"
+---
+
+## 简短答案
+
+Claude Desktop 可以通过 MCP server 连接本地工具和数据源。你需要在 Claude Desktop 的 MCP 配置中声明 server，然后重启或刷新连接，并在界面中确认连接状态。
+
+MCP 不是模型 API。它让 Claude Desktop 能访问工具或上下文；模型请求仍由 Claude Desktop 当前使用的模型与账号体系处理。
+
+## 什么时候需要它
+
+- 你想让 Claude Desktop 访问本地文件、数据库或开发工具
+- 你看到 MCP server 配置但不知道放在哪里
+- 你不确定 local MCP 和 remote MCP 的区别
+- 你以为 MCP 可以替代 API Key / Base URL
+- 你需要排查 MCP 是否连接成功
+
+## 本地 MCP 与远程 MCP
+
+| 类型 | 说明 |
+| --- | --- |
+| 本地 MCP | 在本机运行 server，适合本地工具、文件或开发环境 |
+| 远程 MCP | 连接远程服务，适合云端工具或团队服务 |
+| Desktop extension | 更面向桌面端安装和分发的扩展形态 |
+
+## 推荐配置步骤
+
+1. 先确认你要连接的是 MCP server，而不是模型 provider。
+2. 按 Claude Desktop 的官方说明添加本地或远程 MCP 配置。
+3. 重启或刷新 Claude Desktop。
+4. 在 Claude Desktop 中查看 MCP 连接状态。
+5. 只给 MCP server 必需的权限和环境变量。
+
+## 常见误区
+
+- 把 MCP server 当成 Base URL。
+- 把模型 API Key 填进 MCP 配置。
+- 配置 MCP 后，以为模型成本会变化。
+- 忘记 MCP server 可能访问本地敏感数据。
+- 本地 server 没启动，却只检查 Claude Desktop 界面。
+
+## 关于 LLMEasy
+
+LLMEasy 处理模型 API 接入，不负责 MCP server。Claude Desktop 的 MCP 用来连接工具；LLMEasy 这类 API 层用来处理模型请求、余额和用量。
+
+如果你同时需要工具能力和统一模型出口，应分别配置 MCP 与 API 接入，不要混为一项。
+
+## Related docs
+
+- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+- [Claude Code 和 Claude Desktop 有什么区别？](/zh/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code 是用 Claude.ai 账号还是 API Key？](/zh/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## References
+
+- [Getting started with local MCP servers on Claude Desktop](https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
+- [Getting started with custom connectors using remote MCP](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)

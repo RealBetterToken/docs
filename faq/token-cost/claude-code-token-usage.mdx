@@ -1,71 +1,71 @@
 ---
-title: "Claude Code token 为什么消耗很多？如何降低成本？"
-sidebarTitle: "Claude Code token 成本"
-description: "解释 Claude Code token 消耗来自哪里，以及如何通过上下文、模型选择、CLAUDE.md、MCP 和工作流降低成本。"
+title: "Почему Claude Code расходует много tokens и как снизить cost"
+sidebarTitle: "Token cost Claude Code"
+description: "Откуда берется token usage в Claude Code и как context, CLAUDE.md, MCP, model choice и workflow влияют на cost."
 ---
 
-## 简短答案
+## Короткий ответ
 
-Claude Code 的 token 消耗不只来自你看到的回复。它还包括读取的文件、项目说明、对话历史、工具结果、MCP 工具描述、思考过程、输出内容和压缩摘要。
+Token usage в Claude Code — это не только финальный ответ. В расход могут входить прочитанные файлы, project instructions, история диалога, tool results, описания MCP tools, generated output и compacted summaries.
 
-消耗高通常不是单一原因，而是上下文太大、任务描述太宽、规则文件太长、MCP server 太多、反复返工或模型选择过重共同造成的。
+Высокий расход обычно возникает из сочетания broad tasks, large context, длинных rule files, многих MCP servers, repeated rework и выбора тяжелой модели.
 
-降低成本的核心方法是让 Claude Code 每次只处理当前任务所需的上下文，并让项目规则更短、更具体、更稳定。
+Практический способ снизить cost — держать каждую задачу узкой и загружать только нужный для нее контекст.
 
-## 什么时候需要优化
+## Когда это важно
 
-- Claude Code 每次回复前都会读取大量文件
-- 一个简单修改变成长时间探索
-- `CLAUDE.md` 或规则文件越来越长
-- MCP server 很多，但实际只用其中一两个
-- 频繁让 Claude Code 重做同一个方向
-- 团队想控制 API token 预算
+- Claude Code читает много файлов перед каждым ответом
+- Маленькое изменение превращается в длинное исследование
+- `CLAUDE.md` или rules files постоянно растут
+- Включено много MCP servers, но используются не все
+- Claude Code несколько раз переделывает одну и ту же работу
+- Команде нужен предсказуемый API spend
 
-## 核心概念
+## Ключевые понятия
 
-| 概念 | 说明 |
+| Понятие | Что означает |
 | --- | --- |
-| Input tokens | 用户消息、上下文、文件内容、工具结果等输入 |
-| Output tokens | 模型生成的回复、代码和思考输出 |
-| Context window | 当前会话能容纳的信息总量 |
-| Prompt caching | 对重复上下文进行缓存，降低部分重复成本 |
-| Compaction | 会话接近上下文上限时对历史进行摘要 |
-| MCP overhead | MCP 工具定义和工具结果也可能进入上下文 |
+| Input tokens | User prompts, context, files, tool results и instructions |
+| Output tokens | Сгенерированный моделью текст, код и ответы |
+| Context window | Объем информации, который помещается в session |
+| Prompt caching | Снижение стоимости для части повторяющегося контекста |
+| Compaction | Сжатие старой истории при росте context |
+| MCP overhead | Tool definitions и tool results тоже могут добавлять context |
 
-## 推荐做法
+## Рекомендуемый workflow
 
-从任务范围开始控制：
+Контролируйте cost на уровне задачи:
 
-1. 一次只给 Claude Code 一个明确目标。
-2. 先让它阅读相关目录，而不是“优化整个项目”。
-3. 切换到无关任务时使用 `/clear` 开新上下文。
-4. 把 `CLAUDE.md` 保持为短规则，不要写成长篇手册。
-5. 关闭暂时不用的 MCP server。
-6. 对简单任务使用较轻模型，对复杂架构或长推理任务再使用更强模型。
-7. 让 Claude Code 每次修改后运行最小相关检查，减少返工。
+1. Давайте Claude Code одну четкую цель за раз.
+2. Сначала просите читать только релевантные файлы.
+3. Используйте `/clear` при переходе к несвязанной задаче.
+4. Держите `CLAUDE.md` коротким и конкретным.
+5. Отключайте MCP servers, которые не нужны текущей работе.
+6. Используйте более легкие модели для простых правок и более сильные — для сложного reasoning.
+7. Запускайте минимальную релевантную проверку после небольших изменений, чтобы снизить rework.
 
-如果你使用 API gateway，定期查看 dashboard 的用量记录，区分 input、output、cache 或上下文相关消耗。这样能判断成本来自任务本身，还是来自重复上下文。
+Если вы используете API gateway, регулярно смотрите usage history в dashboard. Когда dashboard показывает детали, разделяйте input, output, cache и context-related consumption.
 
-## 常见误区
+## Частые ошибки
 
-- 只看最终回复长度，忽略文件读取和工具结果也会消耗 token。
-- 把所有项目知识都塞进 `CLAUDE.md`，导致每次会话都加载大量上下文。
-- 开启很多 MCP server，却不确认它们是否真的用于当前任务。
-- 用“重构整个仓库”这类宽泛提示启动任务。
-- 以为换 API gateway 就会自动降低工具自身的上下文消耗。
+- Смотреть только на длину финального ответа и игнорировать files и tool output.
+- Превращать `CLAUDE.md` в длинное руководство, которое загружается в каждой session.
+- Включать много MCP servers без проверки, нужны ли они задаче.
+- Начинать с prompts вроде "refactor the whole repository".
+- Ожидать, что API gateway автоматически уменьшит context usage Claude Code.
 
-## 关于 BetterToken
+## О LLMEasy
 
-BetterToken 可以帮助你集中查看 API Key、余额和用量记录。它能让你更容易观察模型请求层面的消耗。
+LLMEasy может централизовать API Key, баланс и usage history. Он помогает видеть cost на model request layer.
 
-但 Claude Code 的上下文选择、文件读取、MCP 配置、`CLAUDE.md` 大小和权限策略仍由 Claude Code 与你的项目配置决定。降低成本仍然要从工作流和上下文管理入手。
+Он не решает, какие файлы Claude Code читает, насколько длинный `CLAUDE.md`, какие MCP servers включены и насколько широкая задача. Снижение cost начинается с workflow и context management.
 
 ## Related docs
 
-- [CLAUDE.md 是什么？应该怎么写？](/faq/claude-code/claude-md)
-- [Claude Code 是什么？它是如何工作的？](/faq/claude-code/what-is-claude-code)
-- [如何在 Claude Code 中配置 API Key 和 Base URL？](/faq/claude-code/api-key-base-url)
-- [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)
+- [Что такое CLAUDE.md в Claude Code?](/faq/claude-code/claude-md)
+- [Что такое Claude Code и как он работает?](/faq/claude-code/what-is-claude-code)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Настройка Claude Code](/ai-tools/claude-code)
 
 ## References
 

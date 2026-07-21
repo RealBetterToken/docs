@@ -1,55 +1,55 @@
 ---
-title: "如何在 Claude Code 中切换 Sonnet 和 Opus？"
-sidebarTitle: "切换 Sonnet / Opus"
-description: "解释 Claude Code 中 /model、模型别名、完整 model ID、provider 差异和成本影响。"
+title: "Как переключать Sonnet и Opus в Claude Code"
+sidebarTitle: "Sonnet / Opus"
+description: "Разберите /model, model aliases, full model IDs, provider differences и влияние на cost в Claude Code."
 ---
 
-## 简短答案
+## Короткий ответ
 
-在 Claude Code 中切换 Sonnet、Opus 或其他模型时，优先使用工具支持的 `/model` 入口或官方模型配置方式。
+При переключении Sonnet, Opus или другой модели в Claude Code используйте поддерживаемый `/model` или официальный путь model configuration.
 
-需要注意：模型别名、完整 model ID、不同 provider 的模型映射并不总是一样。网页里看到的营销名称，也不一定是 API 可识别的模型 ID。
+Model aliases, full model IDs и provider mappings не всегда одинаковы. Marketing name в web UI не всегда является API-recognized model ID.
 
-如果你通过第三方网关接入，应该以网关模型广场或 provider 文档中可复制的 model ID 为准。
+Если вы используете сторонний gateway, берите model ID из model plaza или документации этого provider.
 
-## 什么时候需要理解它
+## Когда это важно
 
-- 你想在便宜模型和高能力模型之间切换
-- 你看到 Sonnet / Opus / Haiku 的别名，但不知道该填什么
-- 你使用第三方 Base URL 或模型网关
-- 你想控制 Claude Code 的 token 成本
-- 你遇到 model not found 或模型名不生效
+- Вы хотите переключаться между более дешевой и более сильной моделью
+- Вы видите aliases Sonnet / Opus / Haiku, но не знаете, что вводить
+- Вы используете third-party Base URL или model gateway
+- Вы хотите контролировать token cost Claude Code
+- Вы видите model not found или выбор модели не применяется
 
-## 模型名的三层含义
+## Три слоя model names
 
-| 层级 | 说明 |
+| Слой | Значение |
 | --- | --- |
-| 展示名称 | 页面上看到的名称，方便人理解 |
-| 别名 | 工具内的简写或快捷选择 |
-| Model ID | API 请求真正识别的模型标识 |
+| Display name | Удобное человеку имя в UI |
+| Alias | Short name или shortcut внутри инструмента |
+| Model ID | Идентификатор, который реально понимает API |
 
-切换模型时，真正决定请求是否成功的是 Model ID 是否被当前 provider 识别。
+Для успешного запроса важно, распознает ли текущий provider этот Model ID.
 
-## 推荐做法
+## Рекомендуемая практика
 
-1. 先确认当前 provider 支持哪些模型。
-2. 使用 Claude Code 的 `/model` 或官方配置入口切换。
-3. 如果使用第三方网关，从模型广场复制可用 model ID。
-4. 把模型选择和成本控制一起考虑。
-5. 不要在配置中手写猜测的模型名称。
+1. Проверьте, какие модели поддерживает текущий provider.
+2. Используйте `/model` в Claude Code или официальный model configuration.
+3. Если используете third-party gateway, копируйте доступный model ID из его model plaza.
+4. Рассматривайте model choice вместе со стоимостью.
+5. Не угадывайте model names вручную.
 
-## 关于 BetterToken
+## О LLMEasy
 
-如果你通过 BetterToken 接入 Claude Code，请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的模型 ID。Claude 分组和 GPT 分组的模型适用协议不同，不要混用。
+Если Claude Code подключен через LLMEasy, копируйте текущий model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>. Модели **группы ключа Claude** и **группы ключа GPT** относятся к разным protocol paths, поэтому не смешивайте их.
 
-模型选择会影响输出质量、速度和用量成本。用量记录可以帮助你比较不同模型在真实任务中的消耗。
+Выбор модели влияет на качество, скорость и стоимость. Usage records помогают сравнить реальный расход между моделями.
 
-## Related docs
+## Связанные материалы
 
-- [Claude Code token 为什么消耗很多？](/faq/token-cost/claude-code-token-usage)
-- [如何在 Claude Code 中配置 API Key 和 Base URL？](/faq/claude-code/api-key-base-url)
-- [Claude Code 权限和 hooks 是什么？](/faq/claude-code/permissions-and-hooks)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Почему Claude Code расходует много tokens](/faq/token-cost/claude-code-token-usage)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Permissions и hooks в Claude Code](/faq/claude-code/permissions-and-hooks)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ## References
 

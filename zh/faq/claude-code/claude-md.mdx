@@ -1,0 +1,71 @@
+---
+title: "Claude Code 中的 CLAUDE.md 是什么？应该怎么写？"
+sidebarTitle: "CLAUDE.md"
+description: "解释 CLAUDE.md 的作用、加载方式、适合写入的内容、常见误区，以及它和 hooks、MCP 的边界。"
+---
+
+## 简短答案
+
+`CLAUDE.md` 是 Claude Code 读取的项目说明文件。它适合写项目结构、开发命令、代码风格、测试要求、安全边界和协作规则。
+
+它不是强制执行机制。Claude Code 会把 `CLAUDE.md` 当作上下文参考，但如果某条规则必须在特定时机执行，应该使用 hooks 或工具配置，而不是只写在 `CLAUDE.md` 里。
+
+好的 `CLAUDE.md` 应该短、具体、可维护。官方文档建议把它用于你原本每次都要重复解释的项目事实。
+
+## 什么时候需要写它
+
+- Claude Code 每次都问同样的项目结构或命令
+- 团队希望统一测试、提交、代码风格和安全要求
+- 你希望减少重复解释项目背景的 token 消耗
+- Claude Code 经常忽略某些仓库约定
+- 你要让新成员或其他 agent 更快接手项目
+
+## 核心概念
+
+| 概念 | 说明 |
+| --- | --- |
+| 项目级 `CLAUDE.md` | 放在仓库根目录或 `.claude/` 下，适合团队共享 |
+| 用户级规则 | 适合个人偏好，不应提交到团队仓库 |
+| 本地规则 | 适合个人机器上的临时偏好，通常不提交 |
+| hooks | 在工具调用前后执行命令，适合强制性动作 |
+| MCP | 给 Claude Code 增加外部工具，不是项目规则文件 |
+
+## 推荐写法
+
+把 `CLAUDE.md` 写成短小的项目手册：
+
+- 项目是什么，主要目录在哪里
+- 常用构建、测试、格式化命令
+- 修改代码前必须注意的架构边界
+- 提交前要跑的最小检查
+- 不允许泄露的配置、日志或密钥
+- 文档、测试、命名和错误处理约定
+
+避免把长篇教程、临时计划、一次性任务说明全部塞进去。如果内容只对某类文件有效，考虑拆到路径范围更小的规则里。如果内容是固定执行动作，考虑 hooks。
+
+## 常见误区
+
+- 把 `CLAUDE.md` 当作系统提示或硬性权限控制。它是上下文，不是强制沙箱。
+- 写得太长。越长越消耗上下文，也越容易降低遵循度。
+- 把已经过期的部署记录、临时 TODO 和聊天结论一直追加进去。
+- 在里面放 API Key、token、cookie 或私有配置。
+- 同时维护 `CLAUDE.md`、`AGENTS.md`、Cursor Rules，却让规则互相矛盾。
+
+## 关于 LLMEasy
+
+如果项目使用 LLMEasy，可以在 `CLAUDE.md` 中提醒 Claude Code：Claude Code 使用 Anthropic-compatible `{{anthropic-base-url}}`，而 Codex / 外部工具使用 OpenAI-compatible `{{openai-base-url}}`。
+
+不要把真实 API Key 写进 `CLAUDE.md`。API Key 应放在本机环境变量、配置文件或受保护的密钥系统中。
+
+## Related docs
+
+- [Claude Code 是什么？它是如何工作的？](/zh/faq/claude-code/what-is-claude-code)
+- [如何在 Claude Code 中配置 API Key 和 Base URL？](/zh/faq/claude-code/api-key-base-url)
+- [Claude Code token 为什么消耗很多？如何降低成本？](/zh/faq/token-cost/claude-code-token-usage)
+- [Claude Code 接入 LLMEasy 指南](/zh/ai-tools/claude-code)
+
+## References
+
+- [How Claude remembers your project](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Code costs](https://docs.anthropic.com/en/docs/claude-code/costs)

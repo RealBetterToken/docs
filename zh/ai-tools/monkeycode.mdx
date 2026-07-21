@@ -1,0 +1,64 @@
+---
+title: "MonkeyCode 自定义模型接入 LLMEasy 指南"
+sidebarTitle: "MonkeyCode"
+description: "在 MonkeyCode 中使用 LLMEasy，接入 GPT 分组模型。"
+icon: "monkey"
+---
+
+MonkeyCode 是企业级 AI 开发平台。通过 LLMEasy 接入时，请统一使用 GPT 分组和 OpenAI 类协议。
+
+## 前置条件
+
+- 已注册 MonkeyCode 账号（访问 [MonkeyCode 官网](https://monkeycode.ai) 注册）
+- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+
+## 配置步骤
+
+<Steps>
+  <Step title="登录 MonkeyCode">
+    访问 [MonkeyCode 官网](https://monkeycode.ai) 登录账号。
+  </Step>
+
+  <Step title="打开系统配置">
+    进入任务页面后，点击右下角的 **配置**。
+  </Step>
+
+  <Step title="绑定 AI 大模型">
+    在 **AI 大模型** 模块中点击 **绑定**。
+  </Step>
+
+  <Step title="填写 LLMEasy 配置">
+
+    | 配置项 | 值 |
+    |--------|-----|
+    | 模型 API 地址 | `{{openai-base-url}}` |
+    | API Key | 你的 LLMEasy API Key |
+    | 接口格式类型 | `OpenAI` 或 `OpenAI Compatible`（以当前界面为准） |
+    | 模型名称 | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID** |
+  </Step>
+
+  <Step title="仅在官方文档明确要求时再配置额外 headers">
+    当前我们没有查到 MonkeyCode 官方接入说明要求 LLMEasy 额外配置 `User-Agent`。默认先按页面中的 `Base URL`、API Key 和模型 ID 完成接入即可。
+
+    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+  </Step>
+
+  <Step title="保存并开始使用">
+    点击 **保存**，返回主界面后选择刚配置的模型开始使用。
+  </Step>
+
+  <Step title="重启 MonkeyCode">
+    修改配置后，请刷新当前页面或重新打开 MonkeyCode，再使用新模型。
+  </Step>
+</Steps>
+
+<Note>
+  如需额外 headers，请以 MonkeyCode 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 LLMEasy 必填项。
+</Note>
+
+## 相关 FAQ
+
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)

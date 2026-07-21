@@ -1,0 +1,68 @@
+---
+title: "Codex CLI sandbox 和 approval mode 是什么？"
+sidebarTitle: "sandbox / approval"
+description: "解释 Codex CLI 的 sandbox、approval mode、自动审查和本地命令执行边界，以及第三方 API provider 与权限控制的关系。"
+---
+
+## 简短答案
+
+Sandbox 控制 Codex CLI 能访问哪些文件、是否能联网、以及命令运行时的本地边界。Approval mode 控制哪些操作需要用户确认。
+
+这两者是本地安全机制，不是模型 provider 配置。即使你把模型请求切换到第三方 API gateway，Codex CLI 的文件访问和命令执行边界仍然由 sandbox 和 approval 控制。
+
+合理配置 sandbox 和 approval，可以在效率和安全之间取得平衡：简单读写可以少打断，高风险命令仍要确认。
+
+## 什么时候需要理解它
+
+- Codex 每次运行命令都要求确认
+- 你想允许测试自动运行，但不想放开危险命令
+- 你要让 Codex 修改工作区外的文件
+- 你在共享机器、公司项目或敏感仓库里使用 Codex
+- 你需要解释为什么 API provider 不等于本地权限控制
+
+## 核心概念
+
+| 概念 | 说明 |
+| --- | --- |
+| Sandbox | 文件系统、网络和命令访问边界 |
+| Approval | 执行某些操作前是否需要用户确认 |
+| Auto review | 对高风险操作进行额外检查的机制 |
+| Workspace | 当前项目目录和允许访问的路径范围 |
+| Network access | Codex 是否能联网运行命令或访问外部服务 |
+
+## 推荐做法
+
+1. 在普通项目中先使用保守设置。
+2. 只对当前工作区开放写权限。
+3. 允许常见测试、格式化、只读命令更顺畅地执行。
+4. 对删除文件、重置 Git、写工作区外目录、联网操作保持确认。
+5. 在 `AGENTS.md` 中写清楚项目允许的命令和提交前检查。
+
+不要为了少点几次确认就使用过宽设置。真正的效率来自清晰任务、稳定项目规则和小批量验证，而不是无限制执行。
+
+## 常见误区
+
+- 以为换 API provider 会改变本地 sandbox 权限。
+- 把 approval 关闭后，还让 Codex 操作不可信仓库。
+- 允许联网命令，却没有说明可以访问哪些服务。
+- 把 Git reset、删除文件、安装依赖都当作低风险命令。
+- 没有在任务结束前检查 diff 和测试结果。
+
+## 关于 LLMEasy
+
+LLMEasy 只处理 Codex 的模型 API 请求层，例如 API Key、Base URL、模型路由和用量记录。它不改变 Codex CLI 的 sandbox 或 approval mode。
+
+如果你遇到文件访问、命令确认或联网权限问题，应查看 Codex CLI 的本地配置，而不是 API gateway。
+
+## Related docs
+
+- [Codex 接入 LLMEasy 指南](/zh/ai-tools/codex)
+- [如何配置 Codex CLI 的 config.toml？](/zh/faq/codex/config-toml)
+- [model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI 是什么？](/zh/faq/codex/what-is-codex-cli)
+
+## References
+
+- [Codex approvals and security](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex sandboxing](https://developers.openai.com/codex/concepts/sandboxing)
+- [Codex sandboxing auto review](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

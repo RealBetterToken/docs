@@ -1,74 +1,74 @@
 ---
-title: "BetterToken 支持缓存计费吗？"
-sidebarTitle: "缓存计费"
-description: "说明 prompt caching、缓存命中字段、不同模型协议的差异，以及如何判断请求是否命中缓存。"
+title: "Поддерживает ли LLMEasy оплату с учетом cache?"
+sidebarTitle: "Cache billing"
+description: "Что такое prompt caching, где смотреть cached tokens, чем отличаются protocols и как понять, был ли cache hit."
 ---
 
-## 简短答案
+## Короткий ответ
 
-是否产生缓存折扣，取决于上游模型、调用协议和请求格式。BetterToken 会根据上游返回的 usage 信息进行用量记录和计费展示。
+Будет ли скидка за cache, зависит от upstream-модели, API protocol и формата запроса. LLMEasy записывает и показывает usage на основе данных, которые возвращает upstream-модель.
 
-如果上游模型支持 prompt caching，并且响应中返回缓存命中字段，你可以在响应 usage 或调用日志中查看缓存相关 token。不同模型的缓存机制并不相同，不要假设所有模型都自动享受缓存折扣。
+Если upstream-модель поддерживает prompt caching и возвращает cache-поля в ответе, cached tokens можно смотреть в response usage или call logs. Механика cache отличается у разных моделей. Не считайте, что каждая модель автоматически получает cache discount.
 
-## 什么是缓存计费
+## Что такое cache billing
 
-Prompt caching 的核心思想是：当多次请求包含相同或高度稳定的长前缀时，上游模型可能复用之前处理过的上下文，从而降低部分输入 token 的成本。
+Prompt caching позволяет upstream-модели повторно использовать стабильный префикс, который повторяется в нескольких запросах. Если cache сработал, часть входного контекста может тарифицироваться по более низкой цене cached tokens.
 
-它适合这些场景：
+Это полезно для таких сценариев:
 
-- 长系统提示词
-- 固定项目说明
-- 大段稳定文档上下文
-- 多轮代码任务中重复出现的仓库说明
-- 批量任务里相同的规则和格式要求
+- Длинные system prompts
+- Фиксированные инструкции проекта
+- Большой стабильный контекст документации
+- Повторяющиеся инструкции по репозиторию в многошаговых coding-задачах
+- Пакетные задачи с одинаковыми правилами и форматом ответа
 
-缓存不适合把所有内容都放进 prompt。动态内容、时间戳、随机 ID 和用户每次变化的数据应尽量放在后面。
+Caching не означает, что в prompt нужно помещать всё подряд. Динамические данные, timestamps, random IDs и пользовательский ввод лучше размещать ближе к концу запроса.
 
-## 不同协议的差异
+## Отличия между protocols
 
-| 场景 | 常见机制 |
+| Сценарий | Частая механика |
 | --- | --- |
-| OpenAI-compatible | 部分模型会自动对稳定前缀做缓存，响应 usage 可能返回 cached tokens |
-| Anthropic-compatible / Claude | 部分模型需要显式 `cache_control` 标记才能获得缓存收益 |
+| OpenAI-compatible | Некоторые модели автоматически кэшируют стабильные префиксы, а response usage может содержать cached tokens |
+| Anthropic-compatible / Claude | Для некоторых моделей нужны явные метки `cache_control`, чтобы получить выгоду от cache |
 
-同一个 Claude 模型如果通过不同协议调用，缓存行为也可能不同。深度使用 Claude Code 或 Anthropic-compatible API 时，应优先按 Anthropic 原生缓存机制理解。
+Одна и та же Claude-модель может вести себя по-разному через разные protocols. Если вы активно используете Claude Code или Anthropic-compatible API, сначала ориентируйтесь на Anthropic-native cache-механику.
 
-## 如何判断是否命中缓存
+## Как понять, что cache сработал
 
-查看响应中的 usage 字段或 dashboard 调用记录。不同 API 格式的字段名称可能不同：
+Проверьте поле `usage` в ответе или call record в dashboard. Названия полей зависят от API-формата:
 
-| API 格式 | 常见缓存字段 |
+| API-формат | Частые cache-поля |
 | --- | --- |
 | OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
 | OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
 | Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
 
-字段大于 0 时，通常表示本次请求有一部分上下文命中了缓存。字段不存在时，可能是模型不支持、协议不返回、请求未命中，或当前工具隐藏了原始 usage。
+Если значение больше 0, часть запроса обычно попала в cache. Если поля нет, возможны разные причины: модель не поддерживает cache, protocol не возвращает поле, запрос не попал в cache или инструмент скрывает raw usage.
 
-## 提高命中率的做法
+## Как повысить cache hit rate
 
-1. 把稳定内容放在 prompt 前面。
-2. 把用户每次变化的输入放在后面。
-3. 不要在稳定前缀中放时间戳、随机 ID 或每次变化的说明。
-4. 同一类任务尽量使用同一个模型和同一种调用协议。
-5. Claude 原生格式下，根据模型文档给需要缓存的 content block 添加 `cache_control`。
-6. 批量任务先用少量请求观察 usage 字段，再估算真实成本。
+1. Размещайте стабильный контент в начале prompt.
+2. Данные, которые меняются от запроса к запросу, размещайте позже.
+3. Не помещайте timestamps, random IDs и изменяемые инструкции в стабильный префикс.
+4. Для однотипных задач по возможности используйте одну модель и один protocol.
+5. В Claude-native форматах добавляйте `cache_control` к content blocks, которые нужно кэшировать, по документации модели.
+6. Для пакетных задач сначала запустите небольшую выборку и проверьте usage fields, затем оценивайте общую стоимость.
 
-## 常见误区
+## Частые ошибки
 
-- 以为所有模型都自动支持缓存折扣。
-- 以为命中缓存后整条请求都免费。
-- 频繁切换模型，导致缓存无法复用。
-- 用 OpenAI-compatible 格式调用 Claude，却期待 Claude 原生缓存字段。
-- 只看总 token，不看 cached tokens、cache read 或 cache creation 字段。
+- Считать, что все модели автоматически поддерживают cache discounts.
+- Думать, что при cache hit весь запрос становится бесплатным.
+- Часто переключать модели и мешать повторному использованию cache.
+- Вызывать Claude через OpenAI-compatible формат и ждать Claude-native cache-поля.
+- Смотреть только на total tokens и не проверять cached tokens, cache read или cache creation.
 
-## 关于 BetterToken
+## О LLMEasy
 
-BetterToken 的计费和用量展示以实际请求、上游返回的 usage 信息和当前模型价格为准。需要确认缓存是否生效时，请同时查看模型文档、响应 usage 字段和 dashboard 调用记录。
+Billing и usage display в LLMEasy основаны на фактическом запросе, upstream usage information и текущей цене модели. Чтобы понять, сработал ли cache, проверяйте документацию модели, response usage fields и call records в dashboard вместе.
 
-## Related docs
+## Связанные материалы
 
-- [Claude Code token 为什么消耗很多？](/faq/token-cost/claude-code-token-usage)
-- [max_tokens 是什么？不设置会怎样？](/faq/model-calling/max-tokens)
-- [Base URL 怎么填？](/faq/model-calling/base-url-config)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Почему Claude Code расходует много tokens?](/faq/token-cost/claude-code-token-usage)
+- [Что такое max_tokens и что будет, если его не задать?](/faq/model-calling/max-tokens)
+- [Как заполнять Base URL?](/faq/model-calling/base-url-config)
+- [Чем отличаются OpenAI-compatible API и Anthropic-compatible API?](/faq/concepts/openai-compatible-vs-anthropic-compatible)

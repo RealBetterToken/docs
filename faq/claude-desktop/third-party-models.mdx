@@ -1,92 +1,92 @@
 ---
-title: "如何在 Claude Desktop 里使用 Codex 等第三方模型？"
-sidebarTitle: "Claude Desktop 使用第三方模型"
-description: "通过 CC Switch 本地路由，在 Claude Desktop 中使用 GPT 分组模型。"
+title: "Как использовать Codex и другие third-party модели в Claude Desktop?"
+sidebarTitle: "Third-party модели в Claude Desktop"
+description: "Используйте локальный route CC Switch, чтобы запускать модели группы GPT в Claude Desktop."
 ---
 
-Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会校验模型 ID，直接填写 GPT、DeepSeek、GLM 等非官方模型 ID 时，可能会被拦截。
+В новых версиях Claude Desktop изменился способ настройки third-party API gateways. В Gateway mode Claude Desktop строже проверяет model IDs, поэтому неофициальные model IDs, например GPT, DeepSeek или GLM, могут блокироваться.
 
-常见表现是页面顶部出现这条报错：`Your provider setup needs a fix Some required fields are missing or malformed. Open Setup to finish configuring it.` 同时，输入框左下角的第三方模型选择为空，只显示 **Legacy Model** 这类不可用状态。
+Типичный симптом — предупреждение в верхней части страницы: `Your provider setup needs a fix Some required fields are missing or malformed. Open Setup to finish configuring it.` Одновременно selector third-party model в левом нижнем углу пуст, а Claude Desktop показывает только состояние **Legacy Model**.
 
 <Frame>
   <img
     src="/images/claude-desktop-third-party-models/provider-setup-needs-fix.png"
-    alt="Claude Desktop 提示 Your provider setup needs a fix，并且左下角第三方模型为空。"
+    alt="Claude Desktop показывает Your provider setup needs a fix, при этом selector third-party model пуст."
     style={{ borderRadius: '0.5rem' }}
   />
 </Frame>
 
-如果你想在 Claude Desktop 里继续使用 Codex 等第三方模型，建议通过 CC Switch 建立本地路由：先在 CC Switch 的 **Claude Code** 配置里接入 BetterToken，再把 CC Switch 的本地服务地址填入 Claude Desktop Gateway。
+Если вы хотите продолжать использовать Codex или другие third-party модели в Claude Desktop, маршрутизируйте запросы через CC Switch: настройте LLMEasy в разделе **Claude Code** в CC Switch, затем введите local service address CC Switch в Claude Desktop Gateway.
 
 <Info>
-  这条路径适合使用 **GPT 分组** API Key。不要把 `{{openai-base-url}}` 直接填进 Claude Desktop Gateway。
+  Этот путь предназначен для API keys из группы **GPT**. Не вводите `{{openai-base-url}}` напрямую в Claude Desktop Gateway.
 </Info>
 
-## 配置步骤
+## Шаги настройки
 
 <Steps>
-  <Step title="下载 Claude 桌面端">
-    通过官方链接下载最新版 Claude 桌面端：
+  <Step title="Скачайте Claude Desktop">
+    Скачайте актуальное приложение Claude Desktop по официальной ссылке:
 
-    [下载 Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
+    [Download Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
 
-    安装完成后不要登录 Claude 账号，直接进入下一步启用 developer mode。
+    После установки не входите в Claude account. Перейдите к следующему шагу и включите developer mode.
   </Step>
 
-  <Step title="启用 developer mode">
-    打开 Claude 桌面端后，在 macOS 左上角菜单中选择 **Help** → **Troubleshooting** → **Enable Developer Mode**。
+  <Step title="Включите developer mode">
+    Откройте Claude Desktop, затем в macOS menu bar выберите **Help** → **Troubleshooting** → **Enable Developer Mode**.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/enable-developer-mode-menu.png"
-        alt="在 Claude 桌面端 Help 菜单里选择 Enable Developer Mode。"
+        src="/images/claude-desktop-llmeasy-api/enable-developer-mode-menu.png"
+        alt="Выбор Enable Developer Mode в меню Help приложения Claude Desktop."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
 
-    在确认窗口中点击 **Enable**，然后重启 Claude 桌面端。
+    В окне подтверждения нажмите **Enable**, затем перезапустите Claude Desktop.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/developer-mode-confirm.png"
-        alt="确认启用 Claude 桌面端 developer mode。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="打开第三方推理配置">
-    重启后，macOS 左上角菜单会出现 **Developer** 选项。
-
-    选择 **Developer** → **Configure Third-Party Inference...**。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-bettertoken-api/configure-third-party-inference.png"
-        alt="在 Developer 菜单中选择 Configure Third-Party Inference。"
+        src="/images/claude-desktop-llmeasy-api/developer-mode-confirm.png"
+        alt="Подтверждение developer mode в Claude Desktop."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="切到 Claude Code 并添加 provider">
-    打开 CC Switch，切到 **Claude Code**，点击 **Add Provider**。
+  <Step title="Откройте настройки third-party inference">
+    После перезапуска в macOS menu bar появится меню **Developer**.
+
+    Выберите **Developer** → **Configure Third-Party Inference...**.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-llmeasy-api/configure-third-party-inference.png"
+        alt="Выбор Configure Third-Party Inference в меню Developer."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Откройте Claude Code в CC Switch и добавьте provider">
+    Откройте CC Switch, переключитесь на **Claude Code** и нажмите **Add Provider**.
 
     <Frame>
       <img
         src="/images/cc-switch/claude-code-add-provider.png"
-        alt="CC Switch 的 Claude Code 页面，右上角加号按钮用于新增 provider。"
+        alt="Страница Claude Code в CC Switch, кнопка добавления provider в правом верхнем углу."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="填写基础字段">
-    - **Provider Name**：`BetterToken`
-    - **Base URL**：`{{anthropic-base-url}}`
-    - **API Key**：你的 BetterToken API Key
+  <Step title="Заполните базовые поля">
+    - **Provider Name**: `LLMEasy`
+    - **Base URL**: `{{anthropic-base-url}}`
+    - **API Key**: ваш API Key LLMEasy
 
-    下图中的标注对应：
+    Номера на скриншоте соответствуют:
 
     1. **Provider Name**
     2. **API Key**
@@ -95,151 +95,151 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
     <Frame>
       <img
         src="/images/cc-switch/claude-code-basic-fields.png"
-        alt="CC Switch 的 provider 编辑页面，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+        alt="Страница редактирования provider в CC Switch с полями Provider Name, API Key и Base URL."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="设置 API 格式和模型映射">
-    打开 **高级选项**，在 **API 格式** 中选择 **OpenAI Responses API**。
+  <Step title="Установите API format и model mappings">
+    Откройте **Advanced Options** и установите **API Format** в **OpenAI Responses API**.
 
     <Frame>
       <img
         src="/images/cc-switch/claude-code-api-format.png"
-        alt="CC Switch 的高级选项区域，API 格式被设置为 OpenAI Responses API。"
+        alt="Advanced Options в CC Switch, API Format установлен в OpenAI Responses API."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
 
-    在 **模型映射** 里点击 **获取模型列表**，将 **主模型**、**推理模型（Thinking）**、**Haiku 默认模型**、**Sonnet 默认模型**、**Opus 默认模型** 都从下拉列表中显式选中。
+    В **Model Mapping** нажмите **Fetch Model List**. Явно выберите значения в dropdown для **Primary Model**, **Thinking Model**, **Haiku Default Model**, **Sonnet Default Model** и **Opus Default Model**.
 
     <Frame>
       <img
         src="/images/cc-switch/claude-code-model-mapping.png"
-        alt="CC Switch 的模型映射区域，展示了获取模型列表以及主模型、Thinking、Haiku、Sonnet、Opus 的映射位置。"
+        alt="Раздел model mapping в CC Switch с Fetch Model List и mappings для Primary, Thinking, Haiku, Sonnet и Opus."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
 
-    这里使用的模型都应来自 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 当前可用的 **GPT 分组**模型 ID。
+    Используйте model IDs из текущих моделей группы **GPT** в <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>.
   </Step>
 
-  <Step title="保存、切换，并开启代理">
-    保存后，回到渠道列表页：
+  <Step title="Сохраните, переключитесь и включите proxy">
+    После сохранения вернитесь к списку providers:
 
-    1. 将刚保存的 BetterToken provider 设为 **使用中**
-    2. 打开左上角的 **CC Switch 代理功能**
+    1. Установите только что сохраненный provider LLMEasy как **In use**
+    2. Включите **CC Switch proxy** в левом верхнем углу
 
     <Frame>
       <img
         src="/images/cc-switch/claude-code-enable-proxy.png"
-        alt="保存后回到渠道列表页，将 BetterToken 设为使用中，并打开左上角的 CC Switch 代理开关。"
+        alt="После сохранения provider LLMEasy выбран активным, а proxy toggle CC Switch включен в левом верхнем углу."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="进入 CC Switch 设置">
-    回到 CC Switch 主界面后，点击左上角的 **设置**。
+  <Step title="Откройте настройки CC Switch">
+    Вернитесь на главный экран CC Switch и нажмите **Settings** в левом верхнем углу.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/cc-switch-settings-entry.png"
-        alt="CC Switch 主界面中，左上角设置按钮被箭头标出。"
+        src="/images/claude-desktop-llmeasy-api/cc-switch-settings-entry.png"
+        alt="Главный экран CC Switch с выделенной кнопкой Settings в левом верхнем углу."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="确认路由已打开并复制服务地址">
-    进入 **路由** 设置，确认图中标注的 **路由总开关** 和 **Claude** 路由开关都已打开。然后复制下方显示的 **服务地址**。
+  <Step title="Проверьте routing и скопируйте service address">
+    Откройте настройки **Routing**. Убедитесь, что главный routing switch и route switch **Claude** включены. Затем скопируйте **Service address** ниже.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/cc-switch-route-service.png"
-        alt="CC Switch 路由设置页中，路由总开关、Claude 路由开关和服务地址复制按钮被标出。"
+        src="/images/claude-desktop-llmeasy-api/cc-switch-route-service.png"
+        alt="Страница routing settings в CC Switch с главным route switch, Claude route switch и кнопкой копирования service address."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="在 Claude 桌面端填入 Gateway base URL">
-    回到 Claude 桌面端的第三方推理配置窗口，选择 **Gateway**。把刚才复制的 CC Switch **服务地址** 填入 **Gateway base URL**，并填写你的 BetterToken API Key。
+  <Step title="Введите Gateway base URL в Claude Desktop">
+    Вернитесь в окно third-party inference settings Claude Desktop и выберите **Gateway**. Вставьте **Service address** из CC Switch в **Gateway base URL**, затем введите API Key LLMEasy.
 
-    **Gateway auth scheme** 选择 `bearer`。
+    Установите **Gateway auth scheme** в `bearer`.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/claude-gateway-local-route.png"
-        alt="Claude 桌面端 Gateway 配置页中填入 CC Switch 本地服务地址。"
+        src="/images/claude-desktop-llmeasy-api/claude-gateway-local-route.png"
+        alt="Страница Gateway settings в Claude Desktop с локальным service address из CC Switch."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="添加模型列表并应用到本机">
-    在 **Model list** 里增加要展示的模型。每个模型都需要同时填写 **Model ID** 和 **Display name**。
+  <Step title="Добавьте model list и примените локально">
+    Добавьте модели, которые должны отображаться в **Model list**. Для каждой модели нужны и **Model ID**, и **Display name**.
 
-    例如：
+    Например:
 
     | Model ID | Display name |
     |----------|--------------|
     | `claude-opus-4` | `Claude Opus 4` |
 
-    填写完成后点击 **Apply locally**。
+    После заполнения списка нажмите **Apply locally**.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/claude-model-list-codex-group.png"
-        alt="Claude 桌面端 Model list 中填写 Model ID 和 Display name，并点击 Apply locally。"
+        src="/images/claude-desktop-llmeasy-api/claude-model-list-codex-group.png"
+        alt="Model list в Claude Desktop с заполненными Model ID и Display name, кнопка Apply locally доступна."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="确认重启客户端">
-    Claude 写入本地配置后会提示保存并重启。点击 **Save & Restart**，让新网关配置生效。
+  <Step title="Подтвердите relaunch приложения">
+    После записи локальной конфигурации Claude попросит сохранить изменения и перезапустить приложение. Нажмите **Save & Restart**, чтобы новая gateway-конфигурация вступила в силу.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/relaunch-claude.png"
-        alt="Claude 桌面端提示 Save & Restart，点击 Save & Restart 保存并重启客户端。"
+        src="/images/claude-desktop-llmeasy-api/relaunch-claude.png"
+        alt="Claude Desktop просит сохранить изменения и перезапуститься, кнопка Save & Restart выделена."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="选择 Gateway 网关登录">
-    重启后等待约 3 秒，会出现登录方式选择界面。
+  <Step title="Войдите через Gateway">
+    После перезапуска подождите около 3 секунд, пока появится выбор способа входа.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/continue-with-gateway.png"
-        alt="Claude 桌面端显示 Continue with Gateway 登录选项。"
+        src="/images/claude-desktop-llmeasy-api/continue-with-gateway.png"
+        alt="Claude Desktop показывает вариант Continue with Gateway."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
 
-    选择 **Continue with Gateway**。进入 Claude 后，左下角显示 **Cowork 3P | Gateway**，即可正常使用。
+    Выберите **Continue with Gateway**. Когда Claude откроется, в левом нижнем углу появится **Cowork 3P | Gateway**, и можно начинать работу.
 
     <Frame>
       <img
-        src="/images/claude-desktop-bettertoken-api/gateway-ready.png"
-        alt="Claude 桌面端已通过 Gateway 进入并可以正常使用。"
+        src="/images/claude-desktop-llmeasy-api/gateway-ready.png"
+        alt="Claude Desktop готов к работе после входа через Gateway."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 </Steps>
 
-## 排查建议
+## Диагностика
 
-如果仍然看到 **Your provider setup needs a fix**，优先检查：
+Если вы все еще видите **Your provider setup needs a fix**, сначала проверьте:
 
-1. CC Switch 里的 BetterToken provider 是否已设为 **使用中**
-2. **API 格式** 是否已选择 **OpenAI Responses API**
-3. **模型映射** 是否已为主模型、Thinking、Haiku、Sonnet、Opus 显式选择 GPT 分组模型
-4. **CC Switch 代理功能**、**路由总开关** 和 **Claude** 路由开关是否都已打开
-5. Claude Desktop 的 **Gateway base URL** 是否为 CC Switch 复制出的本地服务地址
-6. **Model list** 是否已为每个模型同时填写 **Model ID** 和 **Display name**
+1. Provider LLMEasy в CC Switch установлен как **In use**
+2. **API Format** установлен в **OpenAI Responses API**
+3. В **Model Mapping** явно выбраны модели группы GPT для Primary, Thinking, Haiku, Sonnet и Opus
+4. **CC Switch proxy**, главный routing switch и route switch **Claude** включены
+5. **Gateway base URL** в Claude Desktop использует local service address, скопированный из CC Switch
+6. **Model list** содержит и **Model ID**, и **Display name** для каждой модели

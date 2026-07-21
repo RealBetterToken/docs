@@ -1,13 +1,13 @@
 ---
-title: "OpenClaw 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели OpenClaw через LLMEasy"
 sidebarTitle: "OpenClaw"
-description: "在 OpenClaw 这个多平台 AI 智能体 Gateway 网关中接入 BetterToken。"
+description: "Подключите LLMEasy к OpenClaw, мультиплатформенному AI agent gateway."
 icon: "paw"
 ---
 
-OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsoft Teams、Signal、Slack、Telegram、WhatsApp、Zalo 等更多平台的任意操作系统 AI 智能体 Gateway 网关。这篇文档会带你把 BetterToken 接入 OpenClaw，并完成基础验证。
+OpenClaw — кроссплатформенный AI agent gateway для Discord, Google Chat, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo и других платформ. На этой странице показано, как подключить LLMEasy к OpenClaw и выполнить базовую проверку.
 
-## 安装 OpenClaw
+## Установка OpenClaw
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -22,21 +22,21 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
   </Tab>
 </Tabs>
 
-## 安装接入
+## Установка и подключение
 
 <Tabs>
-  <Tab title="自动配置">
-    你可以直接运行 BetterToken 提供的自动配置脚本。运行前请准备好 BetterToken API Key。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。脚本执行完成后，请继续看下方“运行生效”。
+  <Tab title="Автоматическая настройка">
+    Можно запустить автоматический скрипт LLMEasy. Подготовьте API Key LLMEasy до начала. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается. После завершения скрипта перейдите к разделу «Как применить» ниже.
 
-    按你的操作系统执行对应步骤。你只需要执行其中一项。
+    Выберите шаг для своей ОС. Нужен только один вариант.
 
     <Steps>
-      <Step title="如果你使用 macOS / Linux">
+      <Step title="macOS / Linux">
         ```bash
         curl -fsSL {{install-openclaw-provider-sh-url}} | bash
         ```
       </Step>
-      <Step title="如果你使用 Windows">
+      <Step title="Windows">
         ```powershell
         iwr {{install-openclaw-provider-ps1-url}} -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
         ```
@@ -44,17 +44,17 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
     </Steps>
   </Tab>
 
-  <Tab title="通过 CC-Switch 配置">
-    这条接入路径由 [CC Switch 接入文档](/ai-tools/cc-switch#openclaw) 统一维护。
+  <Tab title="Настройка через CC Switch">
+    Этот путь поддерживается в [инструкции CC Switch](/ai-tools/cc-switch#openclaw).
 
-    直接查看 [CC Switch 中的 OpenClaw 配置步骤](/ai-tools/cc-switch#openclaw)。
+    Перейдите сразу к [вкладке OpenClaw в инструкции CC Switch](/ai-tools/cc-switch#openclaw).
 
-    通过 CC Switch 完成配置后，再回到本页继续参考启动、验证或生效说明。
+    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить startup, verification и activation notes.
   </Tab>
 
-  <Tab title="手动配置">
+  <Tab title="Ручная настройка">
     <Steps>
-      <Step title="清除冲突的环境变量">
+      <Step title="Очистите конфликтующие переменные окружения">
         ```bash
         unset ANTHROPIC_AUTH_TOKEN
         unset ANTHROPIC_BASE_URL
@@ -63,38 +63,36 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
         ```
       </Step>
 
-      <Step title="运行 onboarding">
+      <Step title="Запустите onboarding">
         ```bash
         openclaw onboard --install-daemon
         ```
-
-        按向导完成 Gateway 和基础组件安装。
       </Step>
 
-      <Step title="通过认证入口添加 BetterToken 凭证">
+      <Step title="Добавьте credential LLMEasy через auth flow">
         ```bash
         openclaw models auth add
         ```
       </Step>
 
-      <Step title="添加或确认 BetterToken provider">
-        在向导或 provider 编辑器中填写或确认以下内容：
+      <Step title="Добавьте или проверьте provider LLMEasy">
+        В wizard или provider editor заполните или проверьте:
 
-        - **Base URL**：`{{openai-base-url}}`
-        - **API**：`openai-responses`
-        - **API Key**：你的 BetterToken API Key
-        - **模型**：从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 GPT 分组模型 ID
+        - **Base URL**: `{{openai-base-url}}`
+        - **API**: `openai-responses`
+        - **API Key**: ваш API Key LLMEasy
+        - **Model**: актуальный model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-        最小 provider 配置片段可以写成：
+        Минимальный provider config snippet выглядит так:
 
         ```json
         {
           "models": {
             "mode": "merge",
             "providers": {
-              "bettertoken": {
+              "llmeasy": {
                 "baseUrl": "{{openai-base-url}}",
-                "apiKey": "YOUR_BETTERTOKEN_API_KEY",
+                "apiKey": "YOUR_LLMEASY_API_KEY",
                 "api": "openai-responses",
                 "models": [
                   {
@@ -109,62 +107,69 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
         ```
       </Step>
 
-      <Step title="一般不需要额外配置 `headers`">
-        接入 BetterToken 时通常不需要额外设置 `User-Agent`。
+      <Step title="Extra `headers` обычно не нужны">
+        При подключении LLMEasy обычно не нужен дополнительный `User-Agent`.
 
-        只有在你同时接入了自定义网关、租户路由或其他要求额外 headers 的上游服务时，再按对应文档补充。
+        Добавляйте headers только если вы также используете custom gateway, tenant routing или другой upstream service, который явно требует их.
       </Step>
 
-      <Step title="设置默认模型并验证">
-        先运行 `openclaw models list`，确认当前 provider id，再设置默认模型并检查状态：
+      <Step title="Задайте default model и проверьте">
+        Выполните `openclaw models list`, чтобы проверить provider id, затем задайте default model и проверьте status:
 
         ```bash
         openclaw models list
-        openclaw models set <provider>/<从 {{model-plaza-url}} 复制的 Codex 模型 ID>
+        openclaw models set <provider>/<Codex model ID copied from {{model-plaza-url}}>
         openclaw gateway restart
         openclaw models status
         ```
 
-        配置写入后，请继续看下方“运行生效”完成重启和会话验证。
+        После записи config перейдите к разделу «Как применить» ниже, чтобы перезапустить gateway и проверить сессию.
       </Step>
     </Steps>
   </Tab>
 </Tabs>
 
-### 多 Agent 与已有会话的注意事项
+### Связанные FAQ
 
-OpenClaw 中模型生效的优先级通常是：
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+
+## Примечания для multi-agent setups и существующих сессий
+
+Effective model priority в OpenClaw обычно такой:
 
 `session override` > `agents.list[*].model` > `agents.defaults.model.primary`
 
-这意味着：
+Это значит:
 
-- 如果某个 agent 在 `agents.list` 里显式写了 `model`，它不会继承全局默认模型。
-- 如果你把 BetterToken 设为全局默认模型，但 `main` 仍写着旧模型，那么 Discord 私聊等默认走 `main` 的场景仍会继续使用旧模型。
-- 如果历史会话里残留了 `providerOverride`、`modelOverride` 或 `authProfileOverride`，即使你已经修改了默认模型，当前会话也可能继续使用旧渠道。
+- Если agent явно задает `model` в `agents.list`, он не наследует global default model.
+- Если LLMEasy установлен как global default model, но `main` все еще закрепляет старую модель, Discord DM flows, использующие `main`, продолжат использовать старую модель.
+- Если в предыдущей session остались `providerOverride`, `modelOverride` или `authProfileOverride`, текущая session может продолжать использовать старый route даже после обновления default model.
 
-推荐做法：
+Рекомендуемый workflow:
 
-1. 想让 `main` 跟随全局默认时，不要给 `main` 单独写 `model`，或者把它改成 BetterToken。
-2. 修改配置后执行 `openclaw gateway restart`。
-3. 在 Discord 中执行 `/new` 新开会话。
-4. 再用 `/status` 和 `/model` 验证当前生效模型。
+1. Если вы хотите, чтобы `main` следовал global default, не задавайте отдельный `model` для `main` или измените его на LLMEasy.
+2. Выполните `openclaw gateway restart` после изменения config.
+3. Выполните `/new` в Discord, чтобы начать fresh session.
+4. Используйте `/status` и `/model`, чтобы проверить active model.
 
-### 最小配置示例
+### Минимальный пример config
 
-provider id 以 `openclaw models list` 的实际输出为准。下面用 `bettertoken/gpt-5.4` 举例；如果你的 provider id 不同，请按实际值替换。
+Используйте provider id, который показывает `openclaw models list`. В примере ниже используется `llmeasy/gpt-5.4`; замените его, если provider id отличается.
 
 ```json
 {
   "agents": {
     "defaults": {
       "model": {
-        "primary": "bettertoken/gpt-5.4",
+        "primary": "llmeasy/gpt-5.4",
         "fallbacks": []
       },
       "models": {
-        "bettertoken/gpt-5.4": {
-          "alias": "bettertoken"
+        "llmeasy/gpt-5.4": {
+          "alias": "llmeasy"
         }
       }
     },
@@ -178,7 +183,7 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `better
       {
         "id": "trade-recorder",
         "model": {
-          "primary": "bettertoken/gpt-5.4",
+          "primary": "llmeasy/gpt-5.4",
           "fallbacks": []
         }
       }
@@ -187,87 +192,84 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `better
 }
 ```
 
-- `main` 没写 `model`，所以会继承全局 BetterToken。
-- `trade-recorder` 写了 `model`，所以它不会跟随全局默认变化。
+- `main` не задает `model`, поэтому наследует global LLMEasy default.
+- `trade-recorder` задает `model`, поэтому не следует последующим изменениям global default.
 
-## 运行生效
+## Как применить
 
 <Tip>
-  如果你在旧版 OpenClaw 上遇到 `/model` picker 不稳定、热刷新不及时或模型列表异常，先升级到最新版再排查。
+  Если `/model` работает нестабильно, hot reload непоследователен или model picker странно ведет себя в старом OpenClaw build, обновитесь до последней версии перед глубокой диагностикой.
 </Tip>
 
 <Steps>
-  <Step title="先做配置层验证">
-    运行以下命令，确认 BetterToken provider 和默认模型已经写入配置：
+  <Step title="Сначала проверьте config layer">
+    Выполните:
 
     ```bash
     openclaw models list
     openclaw models status
     ```
+
+    Убедитесь, что provider LLMEasy существует, а default model указывает на LLMEasy.
   </Step>
 
-  <Step title="重载服务">
+  <Step title="Reload gateway">
     ```bash
     openclaw gateway restart
     ```
   </Step>
 
-  <Step title="新开会话">
-    在 Discord 中执行 `/new`。
+  <Step title="Начните новую session">
+    Выполните `/new` в Discord.
   </Step>
 
-  <Step title="验证当前会话实际模型">
-    在 Discord 中执行 `/status`，确认当前 Agent / 当前会话已经切到 BetterToken。
+  <Step title="Проверьте модель текущей session">
+    Выполните `/status` в Discord и убедитесь, что current agent и current session используют LLMEasy.
   </Step>
 
-  <Step title="按需检查可选模型列表">
-    在 Discord 中执行 `/model`。
+  <Step title="При необходимости проверьте available model picker">
+    Выполните `/model` в Discord.
 
-    如果这里看不到 BetterToken，优先检查：
+    Если LLMEasy там не появляется, проверьте:
 
-    - 当前模型是否已加入 `agents.defaults.models`
-    - provider 下该模型的显示名是否正常，必要时是否已在 `agents.defaults.models` 中添加 `alias`
-    - 是否已经执行过 `openclaw gateway restart`
-    - 是否已经通过 `/new` 新开会话
+    - указана ли текущая модель в `agents.defaults.models`
+    - есть ли у provider model читаемое display name и, при необходимости, `alias` в `agents.defaults.models`
+    - выполняли ли вы `openclaw gateway restart`
+    - выполняли ли вы `/new`
   </Step>
 </Steps>
 
-## 排障提示
+## Быстрая диагностика
 
-- 默认模型改了但实际仍是旧模型，优先检查 `agents.list.main.model`
-- `/model` 看不到 BetterToken，优先检查它是否在 `agents.defaults.models` 中
-- 改完配置后 Discord 里仍是旧结果，先执行 `openclaw gateway restart`，再执行 `/new`
-- 如果模型 picker 或热刷新仍不稳定，先升级到最新版 OpenClaw 再排查
+- Если вы изменили default model, но runtime все еще использует старую, сначала проверьте `agents.list.main.model`
+- Если LLMEasy не появляется в `/model`, проверьте, указан ли он в `agents.defaults.models`
+- Если Discord все еще показывает старый route после изменения config, выполните `openclaw gateway restart`, затем `/new`
+- Если model picker или hot reload все еще выглядят устаревшими, сначала обновите OpenClaw и протестируйте снова
 
-## 让 Codex 帮你兜底配置
+## Запасной вариант: пусть Codex настроит это за вас
 
-如果你不想手动改配置，可以先在终端里设置 API Key 环境变量，然后启动 Codex：
+Если вы не хотите редактировать конфигурацию вручную, задайте API Key как переменную окружения и запустите Codex:
 
 ```bash
-export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+export LLMEASY_API_KEY="YOUR_API_KEY"
 codex
 ```
 
-然后把下面这段 prompt 发给 Codex：
+Затем отправьте Codex такой запрос:
 
 ```text
-请帮我检查并修复本机 OpenClaw 的 BetterToken 配置。要求：
-1. 先读取当前 OpenClaw 配置，确认 provider id、默认模型，以及 agents.list 中哪些 agent 显式写了 model。
-2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `{{openai-base-url}}` 的 provider，并写入 `api: "openai-responses"`。
-3. 优先复用 OpenClaw 已保存的认证信息。只有当当前版本或你的上游网关明确要求额外 headers 时，才单独配置；不要默认把 `User-Agent` 当作 BetterToken 必填项。
-4. 把默认模型切到 BetterToken，并检查 `main` 是否被显式 model 覆盖；如果我希望 `main` 跟随全局默认，就删除它的显式 model。
-5. 确保当前 BetterToken 模型出现在 `agents.defaults.models` 中，并补一个易识别的 `alias`。
-6. 备份原配置，使用最小 diff 修改，修改前先告诉我会改哪些字段。
-7. 修改后执行 `openclaw gateway restart`，最后提醒我在 Discord 里依次执行 `/new`、`/status`、`/model` 做验证。
+Проверь и исправь мою локальную настройку OpenClaw для LLMEasy.
 
-约束：
-- 如果需要 API Key，请从环境变量 `BETTERTOKEN_API_KEY` 读取，不要把密钥写进聊天或日志。
-- 如果当前配置里没有 BetterToken 模型，请先提示我从 BetterToken 模型广场提供一个 GPT 分组模型 ID。
+Требования:
+1. Сначала прочитай текущую конфигурацию OpenClaw и определи provider id, модель по умолчанию и агентов в `agents.list`, у которых явно задано поле `model`.
+2. Если provider LLMEasy отсутствует, добавь provider с Base URL `{{openai-base-url}}` и `api: "openai-responses"`.
+3. Используй уже сохраненные в OpenClaw credentials. Добавляй extra headers только если текущая версия OpenClaw или upstream gateway явно требует их; не считай `User-Agent` обязательным для LLMEasy.
+4. Переключи модель по умолчанию на LLMEasy и проверь, не закреплена ли у `main` старая модель. Если я хочу, чтобы `main` следовал global default, убери явное поле `model` у `main`.
+5. Убедись, что активная модель LLMEasy есть в `agents.defaults.models`, и добавь для нее понятный `alias`.
+6. Сделай backup исходного config, подготовь минимальный diff и перед изменением скажи, какие поля собираешься менять.
+7. После изменения выполни `openclaw gateway restart` и напомни мне проверить результат через `/new`, `/status` и `/model` в Discord.
+
+Ограничения:
+- Если нужен API Key, читай его из переменной окружения `LLMEASY_API_KEY` и не выводи секрет в чат или логи.
+- Если в текущей конфигурации еще нет модели LLMEasy, попроси у меня model ID из группы **GPT** в LLMEasy model plaza.
 ```
-
-## 相关 FAQ
-
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)

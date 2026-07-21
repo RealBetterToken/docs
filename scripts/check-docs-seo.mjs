@@ -118,33 +118,30 @@ function readFrontmatter(relativePath) {
 }
 
 const betterTokenConfig = readJson('docs.json');
-const llmEasyConfig = readJson('docs.llmeasy.json');
 
 assert.equal(
-  betterTokenConfig.navigation.languages.find((item) => item.language === 'zh')?.default,
+  betterTokenConfig.navigation.languages.find((item) => item.language === 'ru')?.default,
   true,
-  'docs.json: Chinese must be the explicit default language',
-);
-assert.equal(
-  llmEasyConfig.navigation.languages.find((item) => item.language === 'ru')?.default,
-  true,
-  'docs.llmeasy.json: Russian must be the explicit default language',
+  'docs.json: Russian must be the explicit default language',
 );
 
-assertLanguageRoutes(betterTokenConfig, { zh: '', en: 'en/', ru: 'ru/' }, 'docs.json');
-assertLanguageRoutes(llmEasyConfig, { zh: '', en: 'en/', ru: 'ru/' }, 'docs.llmeasy.json');
-assertRedirects(betterTokenConfig, ['', 'en/', 'ru/'], 'docs.json');
-assertRedirects(llmEasyConfig, ['', 'en/', 'zh/'], 'docs.llmeasy.json');
+assert.equal(betterTokenConfig.variables?.['site-url'], 'https://docs.bettertoken.ai');
+assert.equal(betterTokenConfig.seo?.metatags?.canonical, 'https://docs.bettertoken.ai');
+assert(!JSON.stringify(betterTokenConfig).includes('docs.llmeasy.ru'), 'docs.json contains the retired docs domain');
+assert(!JSON.stringify(betterTokenConfig).includes('www.llmeasy.ru'), 'docs.json contains the retired product domain');
+
+assertLanguageRoutes(betterTokenConfig, { ru: '', en: 'en/', zh: 'zh/' }, 'docs.json');
+assertRedirects(betterTokenConfig, ['', 'en/', 'zh/'], 'docs.json');
 for (const [oldRoute, newRoute] of legacyRoutes) {
-  const redirect = llmEasyConfig.redirects.find((item) => item.source === `/ru/${oldRoute}`);
-  assert(redirect, `docs.llmeasy.json: missing historical Russian redirect /ru/${oldRoute}`);
-  assert.equal(redirect.destination, `/${newRoute}`, `docs.llmeasy.json: /ru/${oldRoute} must use the default Russian route`);
-  assert.equal(redirect.permanent, true, `docs.llmeasy.json: /ru/${oldRoute} must be permanent`);
+  const redirect = betterTokenConfig.redirects.find((item) => item.source === `/ru/${oldRoute}`);
+  assert(redirect, `docs.json: missing historical Russian redirect /ru/${oldRoute}`);
+  assert.equal(redirect.destination, `/${newRoute}`, `docs.json: /ru/${oldRoute} must use the default Russian route`);
+  assert.equal(redirect.permanent, true, `docs.json: /ru/${oldRoute} must be permanent`);
 }
 
-const mdxFiles = listMdxFiles(rootDir).filter((file) => !file.includes(`${path.sep}.mintlify-llmeasy${path.sep}`));
+const mdxFiles = listMdxFiles(rootDir);
 for (const [oldRoute, newRoute] of legacyRoutes) {
-  for (const prefix of ['', 'en/', 'ru/']) {
+  for (const prefix of ['', 'en/', 'zh/']) {
     assert(
       fs.existsSync(path.join(rootDir, `${prefix}${newRoute}.mdx`)),
       `Missing canonical page: ${prefix}${newRoute}.mdx`,
@@ -163,7 +160,13 @@ for (const [oldRoute, newRoute] of legacyRoutes) {
   }
 }
 
-const zedFiles = ['ai-tools/zed.mdx', 'en/ai-tools/zed.mdx', 'ru/ai-tools/zed.mdx'];
+for (const file of mdxFiles) {
+  const text = fs.readFileSync(file, 'utf8');
+  assert(!text.includes('https://docs.llmeasy.ru'), `${path.relative(rootDir, file)} contains the retired docs domain`);
+  assert(!text.includes('https://www.llmeasy.ru'), `${path.relative(rootDir, file)} contains the retired product domain`);
+}
+
+const zedFiles = ['ai-tools/zed.mdx', 'en/ai-tools/zed.mdx', 'zh/ai-tools/zed.mdx'];
 const zedMetadata = zedFiles.map((file) => ({ file, ...readFrontmatter(file) }));
 for (const metadata of zedMetadata) {
   assert(metadata.title, `${metadata.file}: title must not be empty`);
@@ -175,17 +178,5 @@ assert.equal(
   zedFiles.length,
   'Zed descriptions must be unique',
 );
-
-const generatedConfigPath = path.join(rootDir, '.mintlify-llmeasy', 'docs.json');
-if (fs.existsSync(generatedConfigPath)) {
-  const generatedConfig = readJson('.mintlify-llmeasy/docs.json');
-  assertLanguageRoutes(generatedConfig, { ru: '', en: 'en/', zh: 'zh/' }, 'generated LLMEasy docs.json');
-  assertRedirects(generatedConfig, ['', 'en/', 'zh/'], 'generated LLMEasy docs.json');
-  for (const [oldRoute, newRoute] of legacyRoutes) {
-    const redirect = generatedConfig.redirects.find((item) => item.source === `/ru/${oldRoute}`);
-    assert(redirect, `generated LLMEasy docs.json: missing historical Russian redirect /ru/${oldRoute}`);
-    assert.equal(redirect.destination, `/${newRoute}`, `generated LLMEasy docs.json: /ru/${oldRoute} must use the default Russian route`);
-  }
-}
 
 console.log('Documentation SEO checks passed.');

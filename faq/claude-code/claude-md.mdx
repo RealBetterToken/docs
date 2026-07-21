@@ -1,68 +1,68 @@
 ---
-title: "Claude Code 中的 CLAUDE.md 是什么？应该怎么写？"
+title: "Что такое CLAUDE.md в Claude Code и как его писать?"
 sidebarTitle: "CLAUDE.md"
-description: "解释 CLAUDE.md 的作用、加载方式、适合写入的内容、常见误区，以及它和 hooks、MCP 的边界。"
+description: "Роль CLAUDE.md в Claude Code, что туда писать, чего избегать и чем он отличается от hooks и MCP."
 ---
 
-## 简短答案
+## Короткий ответ
 
-`CLAUDE.md` 是 Claude Code 读取的项目说明文件。它适合写项目结构、开发命令、代码风格、测试要求、安全边界和协作规则。
+`CLAUDE.md` — это файл project instructions, который Claude Code может загрузить как контекст. Он подходит для структуры проекта, команд, coding conventions, ожиданий по тестам, safety boundaries и правил совместной работы.
 
-它不是强制执行机制。Claude Code 会把 `CLAUDE.md` 当作上下文参考，但如果某条规则必须在特定时机执行，应该使用 hooks 或工具配置，而不是只写在 `CLAUDE.md` 里。
+Это не enforcement mechanism. Claude Code читает его как guidance. Если правило должно выполняться в конкретный момент, используйте hooks или tool configuration, а не только `CLAUDE.md`.
 
-好的 `CLAUDE.md` 应该短、具体、可维护。官方文档建议把它用于你原本每次都要重复解释的项目事实。
+Хороший `CLAUDE.md` короткий, конкретный и поддерживаемый. Используйте его для project facts, которые иначе пришлось бы повторять в каждой сессии.
 
-## 什么时候需要写它
+## Когда это важно
 
-- Claude Code 每次都问同样的项目结构或命令
-- 团队希望统一测试、提交、代码风格和安全要求
-- 你希望减少重复解释项目背景的 token 消耗
-- Claude Code 经常忽略某些仓库约定
-- 你要让新成员或其他 agent 更快接手项目
+- Claude Code постоянно спрашивает одну и ту же структуру проекта или команды
+- Команда хочет общие правила testing, style и safety
+- Вы хотите снизить повторяющийся context и token usage
+- Claude Code часто пропускает repository-specific conventions
+- Нужно ускорить onboarding других agents или коллег
 
-## 核心概念
+## Ключевые понятия
 
-| 概念 | 说明 |
+| Понятие | Что означает |
 | --- | --- |
-| 项目级 `CLAUDE.md` | 放在仓库根目录或 `.claude/` 下，适合团队共享 |
-| 用户级规则 | 适合个人偏好，不应提交到团队仓库 |
-| 本地规则 | 适合个人机器上的临时偏好，通常不提交 |
-| hooks | 在工具调用前后执行命令，适合强制性动作 |
-| MCP | 给 Claude Code 增加外部工具，不是项目规则文件 |
+| Project `CLAUDE.md` | Общие project instructions, обычно коммитятся в репозиторий |
+| Personal rules | Личные предпочтения, которые не всегда нужно коммитить |
+| Local rules | Заметки для конкретной машины или временные предпочтения |
+| Hooks | Commands, запускаемые вокруг tool use; лучше для enforced behavior |
+| MCP | Внешние tools и data sources; не файл project rules |
 
-## 推荐写法
+## Что писать
 
-把 `CLAUDE.md` 写成短小的项目手册：
+Пишите `CLAUDE.md` как компактный project handbook:
 
-- 项目是什么，主要目录在哪里
-- 常用构建、测试、格式化命令
-- 修改代码前必须注意的架构边界
-- 提交前要跑的最小检查
-- 不允许泄露的配置、日志或密钥
-- 文档、测试、命名和错误处理约定
+- Что это за проект и где основные каталоги
+- Команды build, test и formatting
+- Architecture boundaries, которые нельзя ломать
+- Самые быстрые проверки перед завершением задачи
+- Secrets, logs и private config, которые нельзя раскрывать
+- Conventions для документации, tests, naming и error handling
 
-避免把长篇教程、临时计划、一次性任务说明全部塞进去。如果内容只对某类文件有效，考虑拆到路径范围更小的规则里。如果内容是固定执行动作，考虑 hooks。
+Избегайте длинных tutorial, временных планов и одноразовых task notes. Если правило относится только к одной области, сузьте область. Если поведение должно быть обязательным, используйте hooks.
 
-## 常见误区
+## Частые ошибки
 
-- 把 `CLAUDE.md` 当作系统提示或硬性权限控制。它是上下文，不是强制沙箱。
-- 写得太长。越长越消耗上下文，也越容易降低遵循度。
-- 把已经过期的部署记录、临时 TODO 和聊天结论一直追加进去。
-- 在里面放 API Key、token、cookie 或私有配置。
-- 同时维护 `CLAUDE.md`、`AGENTS.md`、Cursor Rules，却让规则互相矛盾。
+- Считать `CLAUDE.md` system prompt или жестким permission layer.
+- Делать файл слишком длинным, увеличивая context cost и снижая соблюдение правил.
+- Бесконечно добавлять старые deployment notes, temporary TODO и устаревшие решения.
+- Класть API Keys, tokens, cookies или private config в файл.
+- Поддерживать `CLAUDE.md`, `AGENTS.md` и Cursor Rules с противоречивыми инструкциями.
 
-## 关于 BetterToken
+## О LLMEasy
 
-如果项目使用 BetterToken，可以在 `CLAUDE.md` 中提醒 Claude Code：Claude Code 使用 Anthropic-compatible `{{anthropic-base-url}}`，而 Codex / 外部工具使用 OpenAI-compatible `{{openai-base-url}}`。
+Если проект использует LLMEasy, в `CLAUDE.md` можно напомнить: Claude Code использует Anthropic-compatible `{{anthropic-base-url}}`, а Codex и внешние инструменты используют OpenAI-compatible `{{openai-base-url}}`.
 
-不要把真实 API Key 写进 `CLAUDE.md`。API Key 应放在本机环境变量、配置文件或受保护的密钥系统中。
+Не записывайте реальные API Keys в `CLAUDE.md`. Храните их в локальных environment variables, local config files или protected secret system.
 
 ## Related docs
 
-- [Claude Code 是什么？它是如何工作的？](/faq/claude-code/what-is-claude-code)
-- [如何在 Claude Code 中配置 API Key 和 Base URL？](/faq/claude-code/api-key-base-url)
-- [Claude Code token 为什么消耗很多？如何降低成本？](/faq/token-cost/claude-code-token-usage)
-- [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)
+- [Что такое Claude Code и как он работает?](/faq/claude-code/what-is-claude-code)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Почему Claude Code расходует много tokens и как снизить cost](/faq/token-cost/claude-code-token-usage)
+- [Настройка Claude Code](/ai-tools/claude-code)
 
 ## References
 

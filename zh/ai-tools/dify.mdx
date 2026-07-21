@@ -1,0 +1,130 @@
+---
+title: "Dify 如何接入 LLMEasy 自定义模型？"
+sidebarTitle: "Dify"
+description: "通过 Dify 官方 OpenAI-API-compatible 插件添加 LLMEasy GPT 分组模型，配置 API Base URL、API Key 和模型 ID。"
+icon: "layer-group"
+---
+
+在 Dify 中接入 LLMEasy 时，安装官方 **OpenAI-API-compatible** 模型插件，然后为每个要使用的 GPT 分组模型添加一条自定义 LLM 配置。API Base URL 填 `{{openai-base-url}}`。
+
+## 开始前准备
+
+- Dify Cloud 或已启用插件的自托管 Dify
+- LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
+- 有权限安装模型插件并管理 workspace 模型的 Dify 账号
+
+<Note>
+  本指南只配置 **LLM Chat**。不要把 GPT 聊天模型添加成 Text Embedding、Rerank、Speech-to-Text 或 Text-to-Speech 模型。
+</Note>
+
+## 安装 OpenAI-compatible 模型插件
+
+<Steps>
+  <Step title="打开 Model Providers">
+    在 Dify workspace 中进入 **Integrations > Model Providers**。
+  </Step>
+
+  <Step title="安装官方插件">
+    点击 **Install model providers**，搜索并安装 **OpenAI-API-compatible**。
+
+    Dify 官方将模型能力作为 workspace 级插件管理。安装完成后，同一 workspace 中有权限的应用都可以选择该 provider 下的模型。
+  </Step>
+
+  <Step title="添加自定义模型">
+    在 **OpenAI-API-compatible** 卡片中点击 **Add Model**。如果界面先显示 **Setup** 或 **Configure**，进入后再选择添加模型。
+  </Step>
+</Steps>
+
+## 填写模型配置
+
+按照下表填写首个模型：
+
+| Dify 字段 | 推荐值 |
+|---|---|
+| Model Type | `LLM` |
+| Model Name | 从模型广场复制的 GPT 分组模型 ID |
+| Model display name | 可填写与 Model Name 相同的值 |
+| API Key | 你的 LLMEasy GPT 分组 API Key |
+| API Base URL | `{{openai-base-url}}` |
+| model name for API endpoint | 与 Model Name 使用相同的模型 ID |
+| Completion mode | `Chat` |
+| Model context size | 按所选模型能力填写；不确定时先保留插件默认值 |
+| Upper bound for max tokens | 不超过所选模型支持范围；可先保留插件默认值 |
+| Compatibility mode | `OpenAI compatible` / strict |
+| Token parameter name | `Auto` |
+| Function Call Type | 首次验证选 `Not Support` |
+
+<Warning>
+  API Base URL 只填 `{{openai-base-url}}`。不要追加 `/chat/completions`，Dify 插件会自行请求对应 endpoint。
+</Warning>
+
+对于其他可选能力，先按保守配置保存：
+
+- **Thinking Mode Support**：只有确认当前模型支持时才开启
+- **Stream function calling**：首次验证选 `Not Support`
+- **Vision Support**：只有模型和当前接口都支持图片输入时才开启
+- **Structured Output**：先关闭；普通对话成功后再测试
+
+点击 **Save**。Dify 会验证 API Key、Base URL 和模型 ID。
+
+## 在应用中使用模型
+
+<Steps>
+  <Step title="创建或打开 Dify 应用">
+    打开 Chatbot、Agent、Chatflow 或 Workflow。
+  </Step>
+
+  <Step title="选择模型">
+    在应用的模型选择器或 **LLM** 节点中，选择 **OpenAI-API-compatible** 下刚添加的模型。
+  </Step>
+
+  <Step title="先测试普通对话">
+    使用一条不带工具、不带图片的短输入完成首次调用：
+
+    ```text
+    请只回复：连接成功
+    ```
+  </Step>
+
+  <Step title="再启用 Agent 能力">
+    普通对话成功后，如果你需要工具调用，再编辑模型配置，将 **Function Call Type** 改为模型实际支持的模式。OpenAI-compatible 工具调用通常使用 `Tool Call`，但必须以当前模型和 endpoint 的实际支持情况为准。
+  </Step>
+</Steps>
+
+## 添加更多模型
+
+Dify 的自定义模型按模型 ID 单独配置。需要另一个 GPT 分组模型时，在同一个 provider 下再次点击 **Add Model**，使用新的 **Model Name** 和 **model name for API endpoint**，Base URL 与 API Key 可以继续复用。
+
+## 常见问题
+
+### 保存时返回 401
+
+- 检查 API Key 是否完整
+- 确认密钥属于 **GPT 分组**
+- 检查 LLMEasy Dashboard 中的密钥状态和余额
+
+### 保存时返回 404
+
+- API Base URL 必须是 `{{openai-base-url}}`
+- 不要追加 `/chat/completions`
+- 检查 **model name for API endpoint** 是否与模型广场中的 ID 完全一致
+
+### 显示 model not found
+
+**Model Name** 可以影响 Dify 中的显示和选择，而实际请求使用的模型名称由 **model name for API endpoint** 决定。建议两个字段都填写同一个 GPT 分组模型 ID。
+
+### 普通对话成功，但 Agent 工具失败
+
+先把 **Function Call Type** 恢复为 `Not Support`，确认基础 LLM 节点正常。只有在所选模型支持工具调用时，才改为 `Tool Call` 并重新测试工具参数。
+
+### Knowledge 无法选择当前模型作为 Embedding Model
+
+这是正常的。聊天 LLM 不能替代 embedding 模型。本指南没有确认 LLMEasy 提供 Dify 所需的 embedding 或 rerank 接口，请为 Knowledge 单独配置受支持的 embedding provider。
+
+## 相关文档
+
+- [Dify Model Providers](https://docs.dify.ai/en/cloud/use-dify/workspace/model-providers)
+- [Dify 官方 OpenAI-API-compatible 插件](https://github.com/langgenius/dify-official-plugins/tree/main/models/openai_api_compatible)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [如何选择模型？](/zh/faq/model-calling/model-selection-guide)

@@ -1,0 +1,79 @@
+---
+title: "Cline 接入 LLMEasy OpenAI-compatible API 时如何填写？"
+sidebarTitle: "Cline OpenAI-compatible"
+description: "给出 Cline 接入 LLMEasy 时应填写的 Provider、Base URL、API Key 和 Model ID，并提供验证与常见错误处理。"
+---
+
+## 直接答案
+
+在 Cline 中选择 **OpenAI Compatible**，将 **Base URL** 填为 `{{openai-base-url}}`，粘贴你的 LLMEasy API Key，再填写 **GPT 分组**中的 Model ID。不要使用 Claude Code 的 Anthropic-compatible 地址，也不要选择官方 **OpenAI** provider。
+
+| Cline 字段 | LLMEasy 配置 |
+| --- | --- |
+| API Provider | `OpenAI Compatible` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | 你的 LLMEasy API Key |
+| Model ID | <a href={"{{model-plaza-url}}"}>模型广场</a>中 **GPT 分组**的模型 ID |
+
+<Info>
+  这篇 FAQ 解决的是“每个字段应该填什么”和连接失败时如何排查。需要从安装 Cline 开始操作时，请使用 [Cline 完整接入指南](/zh/ai-tools/cline)。
+</Info>
+
+## 完整配置步骤
+
+<Steps>
+  <Step title="准备 API Key 和模型 ID">
+    创建 API Key 后，从 <a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**中当前可用的模型 ID。Model ID 必须原样填写，不能使用页面上的模型展示名称代替。
+  </Step>
+
+  <Step title="打开 Cline 设置">
+    在 VS Code 中打开 Cline 面板，点击齿轮图标进入设置。
+  </Step>
+
+  <Step title="选择 OpenAI Compatible">
+    在 **API Provider** 中选择 **OpenAI Compatible**。这个选项用于连接第三方 OpenAI-compatible endpoint。
+  </Step>
+
+  <Step title="填写四个关键字段">
+    按照页面上方的表格填写 Provider、Base URL、API Key 和 Model ID。Base URL 必须包含 `/v1`。
+
+    如果界面显示 **Use Azure Identity Authentication**，请保持关闭。LLMEasy 使用 API Key 鉴权，不使用 Azure Identity。
+  </Step>
+
+  <Step title="验证连接">
+    点击 Cline 中的 **Verify**。验证成功后，新建一个任务并发送简单问题，确认模型能返回内容并可正常调用工具。
+  </Step>
+</Steps>
+
+## 哪些高级字段需要修改？
+
+Cline 还可能显示 Context Window、Max Output Tokens、Image Support 或 Computer Use 等高级字段。首次接入时不要根据猜测填写这些值；先使用默认设置完成连接。只有在模型广场或模型说明明确给出能力和限制时，再调整对应字段。
+
+模型价格会变化，请不要把价格长期写死在 Cline 的本地配置里。查看当前模型与价格时，以<a href={"{{model-plaza-url}}"}>模型广场</a>为准。
+
+## 常见错误与解决方法
+
+| 现象 | 优先检查 | 处理方法 |
+| --- | --- | --- |
+| `Invalid API Key` 或 `401` | API Key 是否完整、是否属于当前账号 | 重新复制 API Key，确认前后没有空格；不要混用官方 OpenAI Key |
+| `Model Not Found` | Model ID 是否属于 GPT 分组 | 从模型广场重新复制当前可用的 Model ID，不要手动改写大小写或后缀 |
+| `404` 或 endpoint not found | Base URL 是否缺少 `/v1` | 改为 `{{openai-base-url}}`，不要填 Claude Code 使用的 Anthropic-compatible 地址 |
+| 连接超时 | 本机网络、防火墙或旧代理设置 | 确认浏览器可访问 LLMEasy，关闭失效代理后重新 **Verify** |
+| 修改后仍使用旧配置 | Cline 会话未刷新 | 保存设置，关闭当前任务并重新打开 Cline；必要时执行 **Developer: Reload Window** |
+
+## 这套配置适用于什么场景？
+
+这套字段适用于 Cline 通过 LLMEasy 的 OpenAI-compatible endpoint 调用 **GPT 分组**模型。它不会修改 Cline Rules、Memory Bank、MCP 或本地工具权限；这些功能仍由 Cline 自己管理。
+
+如果你要配置 Claude Code，请使用不带 `/v1` 的 Anthropic-compatible 地址，并参考 [Claude Code 接入指南](/zh/ai-tools/claude-code)。
+
+## 相关文档
+
+- [Cline 完整接入 LLMEasy 指南](/zh/ai-tools/cline)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Base URL、API Key 与 Model ID 如何对应？](/zh/faq/model-calling/base-url-config)
+- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+
+## References
+
+- [Cline OpenAI Compatible provider](https://docs.cline.bot/provider-config/openai-compatible)

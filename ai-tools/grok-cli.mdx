@@ -1,64 +1,64 @@
 ---
-title: "Grok CLI 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Grok CLI через LLMEasy"
 sidebarTitle: "Grok CLI"
-description: "在 Grok CLI 中使用 BetterToken，接入 GPT 分组模型。"
+description: "Подключите LLMEasy к Grok CLI с ID моделей группы GPT."
 icon: "g"
 ---
 
-Grok CLI 通过环境变量配置 API 地址和 Key。接入 BetterToken 时，请使用 `{{openai-base-url}}`，并指定 GPT 分组模型 ID。
+Grok CLI использует переменные окружения для API-конфигурации. При подключении LLMEasy используйте `{{openai-base-url}}` и ID модели из группы **GPT**.
 
 <Warning>
-  Grok CLI 更适合轻量场景。如需完整 Agent 工作流，优先使用 Claude Code、Codex 或 OpenClaw。
+  Grok CLI лучше подходит для легкого использования. Для полноценных agent workflow предпочитайте Claude Code, Codex или OpenClaw.
 </Warning>
 
-## 前置条件
+## Требования
 
-- 已安装 Node.js
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- Установленный Node.js
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## 安装 Grok CLI
+## Установка Grok CLI
 
 ```bash
 npm install -g @vibe-kit/grok-cli
 ```
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="清除冲突的环境变量">
+  <Step title="Очистите конфликтующие переменные окружения">
     ```bash
     unset OPENAI_API_KEY
     unset OPENAI_BASE_URL
     ```
   </Step>
 
-  <Step title="设置 BetterToken 环境变量">
+  <Step title="Задайте переменные окружения LLMEasy">
     ```bash
     export GROK_BASE_URL="{{openai-base-url}}"
     export GROK_API_KEY="YOUR_API_KEY"
     ```
   </Step>
 
-  <Step title="启动 Grok CLI 并指定模型">
+  <Step title="Запустите Grok CLI с моделью">
     ```bash
     grok --model YOUR_GPT_MODEL_ID
     ```
 
-    将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
+    Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
 
-  <Step title="重启 Grok CLI">
-    修改环境变量后，请关闭当前 Grok CLI 会话，并重新启动命令行工具。
+  <Step title="Перезапустите Grok CLI">
+    После изменения переменных окружения закройте текущую сессию Grok CLI и запустите инструмент снова.
   </Step>
 </Steps>
 
 <Note>
-  目前我们没有查到 Grok CLI 官方接入说明要求 BetterToken 额外配置 `User-Agent`。优先检查环境变量、模型 ID 和工具版本；只有当你额外接入的上游网关明确要求 headers 时，再按其文档补充。
+  Мы не нашли официального требования Grok CLI, по которому `User-Agent` обязателен для LLMEasy. Сначала проверьте переменные окружения, model ID и версию инструмента; headers добавляйте только если этого требует ваш upstream gateway.
 </Note>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)

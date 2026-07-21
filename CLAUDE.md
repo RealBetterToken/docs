@@ -1,8 +1,8 @@
-# BetterToken 文档项目说明
+# LLMEasy 文档项目说明
 
 ## 项目背景
 
-BetterToken 是一个 AI API 中转服务，聚合多家供应商，兼容 Anthropic SDK 和 OpenAI SDK。这是 BetterToken 的官方文档站，基于 Mintlify 构建，部署在 `docs.bettertoken.ai`。
+LLMEasy 是一个面向俄罗斯用户的 AI API 网关，兼容 Anthropic 与 OpenAI 协议。文档基于 Mintlify 构建，唯一生产地址为 `docs.bettertoken.ai`。
 
 GitHub 仓库：`RealBetterToken/docs`，分支：`main`
 
@@ -47,32 +47,34 @@ mint validate     # 验证文档构建是否有报错
 ```
 docs/
 ├── docs.json              # 站点配置（主题、导航、颜色）
-├── favicon.svg
+├── favicon.ico
 ├── logo/
-│   ├── light.svg
-│   └── dark.svg
-├── index.mdx              # 中文首页
+│   ├── llmeasy-light.png
+│   └── llmeasy-dark.png
+├── index.mdx              # 俄语首页
 ├── quickstart.mdx         # 快速接入
 ├── faq.mdx                # 常见问题
 ├── best-practices.mdx     # 最佳实践
-├── ai-tools/              # 中文 AI 工具页（14 个）
-├── api-reference/         # 中文 API 参考
-├── en/                    # 英文版（结构与中文镜像对应）
+├── ai-tools/              # 俄语 AI 工具页
+├── api-reference/         # 俄语 API 参考
+├── en/                    # 英文版
 │   ├── index.mdx
 │   ├── quickstart.mdx
 │   ├── faq.mdx
 │   ├── best-practices.mdx
 │   ├── ai-tools/          # 英文 AI 工具页（14 个）
 │   └── api-reference/
+├── zh/                    # 中文版
 └── custom.css             # 自定义样式（如存在）
 ```
 
 ## 导航结构
 
-`docs.json` 使用 `navigation.languages` 实现双语，包含 `zh` 和 `en` 两个语言块，每个语言块内有 `tabs`（指南 / API 参考）。
+`docs.json` 使用 `navigation.languages` 实现俄语、英语、中文三种语言，每个语言块内使用相同的信息架构。
 
-- 中文页面路径不带前缀，如 `index`、`ai-tools/claude-code`
+- 俄语是默认语言，页面路径不带前缀，如 `index`、`ai-tools/claude-code`
 - 英文页面路径带 `en/` 前缀，如 `en/index`、`en/ai-tools/claude-code`
+- 中文页面路径带 `zh/` 前缀，如 `zh/index`、`zh/ai-tools/claude-code`
 - 新增页面后必须同时更新 `docs.json` 对应语言的 `pages` 数组，否则不会出现在侧边栏
 
 ---
@@ -81,10 +83,10 @@ docs/
 
 | 配置项 | 值 |
 |--------|-----|
-| `theme` | `luma` |
-| `colors.primary` | `#4F46E5` |
-| `colors.light` | `#818CF8` |
-| `colors.dark` | `#3730A3` |
+| `theme` | `aspen` |
+| `colors.primary` | `#11532F` |
+| `colors.light` | `#94D5A6` |
+| `colors.dark` | `#0E512D` |
 
 ---
 
@@ -92,7 +94,7 @@ docs/
 
 ### 模型指定规则（核心差异）
 
-- **Claude Code、Codex CLI**：接入 BetterToken 后**无需指定模型**，BetterToken 自动路由
+- **Claude Code、Codex CLI**：接入 LLMEasy 后按对应分组和文档选择模型
 - **其他工具**（Cursor、Cline、Roo Code、Kilo Code、Zed 等）：**必须手动指定模型**，如 `claude-sonnet-4-6`、`gpt-5.4`
 
 ### 写作风格
@@ -115,13 +117,13 @@ docs/
 
 ### Google 收录与 sitemap 自动提交
 
-- 普通文档页不要使用 Google Indexing API。该 API 不适用于 LLMEasy 文档站这类普通页面。
+- 普通文档页不要使用 Google Indexing API。该 API 不适用于普通文档页面。
 - 不要用 Playwright、Selenium 或浏览器自动化去点击 Search Console 的 **Request indexing**。
-- LLMEasy 是唯一参与 SEO 和承接新用户的文档版本。正规自动化路径是：发布文档后更新 `https://docs.llmeasy.ru/sitemap.xml`，并通过 Google Search Console Sitemaps API 重新提交 Sitemap。
-- 不再发布 BetterToken 文档，也不再提交 `https://docs.bettertoken.ai/sitemap.xml`。旧域名只用于逐 URL 永久重定向。
-- `https://docs.llmeasy.ru/robots.txt` 必须保留 `Sitemap: https://docs.llmeasy.ru/sitemap.xml`。
+- `docs.bettertoken.ai` 是唯一参与 SEO 和承接新用户的文档版本。发布后更新并提交 `https://docs.bettertoken.ai/sitemap.xml`。
+- 不再发布 `docs.llmeasy.ru` 文档，也不再提交其 Sitemap。旧域名只用于逐 URL 永久重定向。
+- `https://docs.bettertoken.ai/robots.txt` 必须指向 `https://docs.bettertoken.ai/sitemap.xml`。
 - GitHub Actions 中使用 `GOOGLE_OAUTH_CLIENT_ID`、`GOOGLE_OAUTH_CLIENT_SECRET` 和 `GOOGLE_OAUTH_REFRESH_TOKEN` 保存 OAuth 配置。不要把 client secret、refresh token 或 access token 写入仓库和日志。
-- 使用 `.github/workflows/submit-llmeasy-sitemap.yml`。两阶段迁移事项和验收标准记录在 `.github/LLMEASY_SEO_MIGRATION.md`。
+- 使用 `.github/workflows/publish-bettertoken-docs.yml` 和 `.github/workflows/submit-bettertoken-sitemap.yml`。迁移事项记录在 `.github/BETTERTOKEN_SEO_MIGRATION.md`。
 
 ---
 
@@ -129,11 +131,12 @@ docs/
 
 ### 新增工具接入页面
 
-1. 在 `ai-tools/` 创建中文 `.mdx` 文件
+1. 在 `ai-tools/` 创建俄语 `.mdx` 文件
 2. 在 `en/ai-tools/` 创建英文 `.mdx` 文件
-3. 在 `docs.json` 的 `zh` 和 `en` 两个语言块中分别加入页面路径
-4. 运行 `mint validate` 确认无报错
-5. `git add` 相关文件并 commit、push
+3. 在 `zh/ai-tools/` 创建中文 `.mdx` 文件
+4. 在 `docs.json` 的 `ru`、`en` 和 `zh` 三个语言块中分别加入页面路径
+5. 运行 `node scripts/prepare-bettertoken-artifacts.mjs` 和 `mint validate`
+6. `git add` 相关文件并 commit、push
 
 ### 修改样式
 

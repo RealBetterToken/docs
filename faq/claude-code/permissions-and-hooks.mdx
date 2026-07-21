@@ -1,53 +1,52 @@
 ---
-title: "Claude Code 如何配置 permissions 和 hooks？"
-sidebarTitle: "权限和 hooks"
-description: "使用 /permissions 和 settings.json 配置 Claude Code 的 allow、ask、deny 规则，并添加、验证和排查 hooks。"
+title: "Как настроить permissions и hooks в Claude Code"
+sidebarTitle: "Permissions и hooks"
+description: "Настройте allow, ask и deny через /permissions и settings.json, затем добавьте, проверьте и отладьте hooks Claude Code."
 ---
 
-## 直接答案
+## Короткий ответ
 
-在 Claude Code 中运行 `/permissions` 可以查看和管理权限规则；需要持久保存时，把 `allow`、`ask`、`deny` 写入 `settings.json`。Hooks 也写在同一类设置文件中，用于在工具调用前后执行格式化、测试或安全检查。权限规则的优先级是 **deny → ask → allow**，所以 deny 规则不会被 allow 覆盖。
+Выполните `/permissions` в Claude Code, чтобы просмотреть и изменить правила доступа. Для постоянной настройки добавьте `allow`, `ask` и `deny` в `settings.json`. Hooks находятся в тех же файлах и запускают форматирование, тесты или проверки безопасности до и после tool calls. Приоритет правил: **deny → ask → allow**, поэтому allow не может переопределить deny.
 
-这两项控制的是 Claude Code 在你电脑上的工具行为。接入 BetterToken 只会改变模型 API 的 Base URL、API Key 和路由，不会绕过本地权限或替你运行 hooks。
+Эти настройки управляют локальными инструментами на вашем компьютере. LLMEasy меняет только Base URL, API Key и маршрутизацию model API; он не обходит локальные permissions и не запускает hooks вместо Claude Code.
 
-## Permissions 和 hooks 应该怎么分工？
+## Когда использовать permissions, а когда hooks
 
-| 需求 | 使用 |
+| Задача | Используйте |
 | --- | --- |
-| 某条命令可以直接执行 | `permissions.allow` |
-| 每次执行某类操作前都确认 | `permissions.ask` |
-| 禁止读取敏感文件或运行危险命令 | `permissions.deny` |
-| 编辑后自动格式化或测试 | `PostToolUse` hook |
-| 工具调用前做额外检查或阻止操作 | `PreToolUse` hook |
-| 给模型说明团队约定 | `CLAUDE.md`，不是 permission rule |
+| Выполнять определённую команду без запроса | `permissions.allow` |
+| Всегда спрашивать перед операцией | `permissions.ask` |
+| Запретить чтение чувствительных файлов или опасную команду | `permissions.deny` |
+| Форматировать или тестировать после изменения файла | Hook `PostToolUse` |
+| Проверить или заблокировать действие до выполнения | Hook `PreToolUse` |
+| Объяснить модели правила команды | `CLAUDE.md`, а не permission rule |
 
-## 选择正确的配置范围
+## Выберите область действия
 
-| 文件 | 作用范围 | 是否适合提交到仓库 |
+| Файл | Область | Добавлять в репозиторий? |
 | --- | --- | --- |
-| `~/.claude/settings.json` | 当前用户的所有项目 | 否 |
-| `.claude/settings.json` | 当前项目和团队 | 是 |
-| `.claude/settings.local.json` | 当前项目、仅本机 | 否 |
+| `~/.claude/settings.json` | Все проекты текущего пользователя | Нет |
+| `.claude/settings.json` | Текущий проект и команда | Да |
+| `.claude/settings.local.json` | Текущий проект только на этом компьютере | Нет |
 
 <Warning>
-  Permissions、hooks 和环境变量应写入 `settings.json`，不要写进 `~/.claude.json`。后者主要保存 Claude Code 的应用状态和界面信息。
+  Permissions, hooks и переменные окружения должны находиться в `settings.json`, а не в `~/.claude.json`. Последний хранит состояние приложения и настройки интерфейса.
 </Warning>
 
-## 配置一组最小权限规则
+## Настройте минимальные permission rules
 
 <Steps>
-  <Step title="先用 /permissions 查看现有规则">
-    在 Claude Code 中输入：
+  <Step title="Проверьте существующие правила через /permissions">
+    В Claude Code выполните:
 
     ```text
     /permissions
     ```
 
-    界面会显示 allow、ask、deny 规则及其来源文件。先确认是否已有团队或管理员规则，再决定添加到用户级还是项目级配置。
+    Интерфейс покажет allow, ask и deny с файлами-источниками. Перед добавлением правил проверьте, нет ли уже project или managed settings.
   </Step>
-
-  <Step title="添加精细规则">
-    下面的项目级示例允许常见测试和 lint，要求每次 `git push` 前确认，并禁止读取 `.env` 文件：
+  <Step title="Добавьте узкие правила">
+    Этот пример разрешает обычные tests и lint, всегда спрашивает перед `git push` и запрещает чтение `.env`:
 
     ```json
     {
@@ -67,17 +66,16 @@ description: "使用 /permissions 和 settings.json 配置 Claude Code 的 allow
     }
     ```
 
-    请把命令改成项目中真实存在的脚本。不要为了减少弹窗而直接启用 `bypassPermissions`；官方只建议在隔离容器或虚拟机中使用它。
+    Замените команды на scripts, которые действительно есть в проекте. Не включайте `bypassPermissions` только ради отключения запросов: официальная документация рекомендует этот режим лишь для изолированных контейнеров и VM.
   </Step>
-
-  <Step title="重新打开 /permissions 验证">
-    保存文件后再次运行 `/permissions`，确认每条规则显示在预期的来源下。然后分别触发一条 allow、ask 和 deny 规则，检查行为是否符合预期。
+  <Step title="Проверьте правила в /permissions">
+    Сохраните файл и снова выполните `/permissions`. Убедитесь, что каждое правило отображается с правильным источником, затем проверьте по одному сценарию allow, ask и deny.
   </Step>
 </Steps>
 
-## 添加一个可复制的格式化 Hook
+## Добавьте готовый hook форматирования
 
-下面的例子会在 Claude Code 使用 `Edit` 或 `Write` 修改文件后运行项目的格式化脚本：
+Этот пример запускает formatter проекта после того, как Claude Code использует `Edit` или `Write`:
 
 ```json
 {
@@ -97,49 +95,49 @@ description: "使用 /permissions 和 settings.json 配置 Claude Code 的 allow
 }
 ```
 
-如果文件中已经有 `permissions`，请把 `hooks` 合并到同一个顶层 JSON 对象中，不要保存成单独的 `.claude/hooks.json`。先在终端中手动确认 `npm run format` 能正常完成，再交给 hook 自动执行。
+Если в файле уже есть `permissions`, добавьте `hooks` в тот же верхнеуровневый JSON-объект. Не создавайте отдельный `.claude/hooks.json`. Сначала вручную выполните `npm run format` и убедитесь, что команда завершается успешно.
 
 <Warning>
-  Command hook 会以当前系统用户的权限执行命令。只运行你已经检查过的脚本，不要在 hook 中输出 API Key、token、`.env` 内容或其他敏感信息。
+  Command hooks выполняются с правами текущего пользователя системы. Используйте только проверенные scripts и никогда не выводите из hook API Keys, tokens, содержимое `.env` или другие секреты.
 </Warning>
 
-## 如何确认 Hook 已生效？
+## Проверьте hook
 
-1. 在 Claude Code 中输入 `/hooks`。
-2. 找到 **PostToolUse**，确认其中有 `Edit|Write` 和 `npm run format`。
-3. 让 Claude 修改一个测试文件。
-4. 检查 Hook 输出和文件格式，确认只执行一次且没有报错。
+1. Выполните `/hooks` в Claude Code.
+2. Откройте **PostToolUse** и убедитесь, что указаны `Edit|Write` и `npm run format`.
+3. Попросите Claude изменить тестовый файл.
+4. Проверьте вывод hook и формат файла; hook должен выполниться один раз без ошибки.
 
-Claude Code 通常会自动读取设置文件的修改。如果配置没有刷新，退出当前会话并重新启动 Claude Code。
+Обычно Claude Code автоматически перечитывает изменения settings. Если этого не произошло, завершите сессию и перезапустите Claude Code.
 
-## 常见错误与解决方法
+## Частые ошибки
 
-| 现象 | 原因 | 解决方法 |
+| Симптом | Причина | Решение |
 | --- | --- | --- |
-| 权限规则完全不生效 | 写进了 `~/.claude.json` 或错误目录 | 移到 `~/.claude/settings.json`、`.claude/settings.json` 或 `.claude/settings.local.json` |
-| Allow 规则仍被拒绝 | 同一操作命中了 deny 或管理员规则 | 在 `/permissions` 中检查来源；deny 的优先级高于 ask 和 allow |
-| Hook 没有运行 | Event 或 matcher 与实际工具名不匹配 | 用 `/hooks` 检查；`PreToolUse` 在执行前触发，`PostToolUse` 在成功后触发，matcher 区分大小写 |
-| Hook 运行但命令失败 | 脚本、工作目录或依赖不正确 | 先在项目目录手动运行同一条命令，再修正 hook |
-| 接入 BetterToken 后仍出现确认弹窗 | API provider 与本地权限是两套配置 | 保留 BetterToken Base URL 配置，另外在 Claude Code 中设置精细 permissions |
-| 想临时停用全部 hooks | 需要排除 hook 干扰 | 在设置中添加 `"disableAllHooks": true`；排查完成后删除或改回 `false` |
+| Permission rules не применяются | Они записаны в `~/.claude.json` или неверной директории | Перенесите их в `~/.claude/settings.json`, `.claude/settings.json` или `.claude/settings.local.json` |
+| Разрешённое действие всё равно блокируется | Оно совпало с deny или managed rule | Проверьте источники в `/permissions`; deny имеет приоритет над ask и allow |
+| Hook не запускается | Event или matcher не совпадает с инструментом | Проверьте `/hooks`; `PreToolUse` запускается до выполнения, `PostToolUse` после успеха, matcher чувствителен к регистру |
+| Hook запускается, но команда завершается ошибкой | Неверный script, рабочая директория или dependency | Сначала выполните ту же команду вручную из директории проекта |
+| После подключения LLMEasy остались запросы подтверждения | API provider и локальные permissions независимы | Сохраните Base URL LLMEasy и отдельно настройте точные permissions Claude Code |
+| Нужно временно отключить все hooks | Hook может мешать отладке | Добавьте `"disableAllHooks": true`, а после проверки удалите параметр или задайте `false` |
 
-## 适用于 BetterToken 的边界
+## Границы LLMEasy
 
-BetterToken 负责 Claude Code 的模型 API 接入、模型路由、余额和用量记录。下面这些行为仍由本地 Claude Code 控制：
+LLMEasy отвечает за доступ Claude Code к model API, маршрутизацию моделей, баланс и usage. Claude Code по-прежнему управляет:
 
-- 能否读取或修改某个文件
-- 是否需要确认 Bash 命令
-- Hook 何时运行、运行什么脚本
-- Sandbox、MCP 和项目规则
+- Чтением и изменением файлов
+- Подтверждением Bash-команд
+- Моментом запуска hooks и выполняемыми scripts
+- Sandbox, MCP и правилами проекта
 
-如果问题是 `401`、Base URL 或模型映射，请查看 [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)。如果问题是命令确认或自动化脚本，请继续在本页的 permissions 与 hooks 中排查。
+Для ошибок `401`, Base URL или model mapping откройте [инструкцию по Claude Code](/ai-tools/claude-code). Для подтверждений команд и automation используйте диагностику permissions и hooks на этой странице.
 
-## 相关文档
+## Связанные документы
 
-- [Claude Code 接入 BetterToken 指南](/ai-tools/claude-code)
-- [Claude Code 中的 CLAUDE.md 是什么？](/faq/claude-code/claude-md)
-- [Claude Code token 为什么消耗很多？](/faq/token-cost/claude-code-token-usage)
-- [Claude Code MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
+- [Настройка Claude Code с LLMEasy](/ai-tools/claude-code)
+- [Что такое CLAUDE.md в Claude Code](/faq/claude-code/claude-md)
+- [Почему Claude Code расходует много tokens](/faq/token-cost/claude-code-token-usage)
+- [MCP и API Key / Base URL в Claude Code](/faq/concepts/mcp-vs-api-key-base-url)
 
 ## References
 

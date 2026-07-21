@@ -1,0 +1,93 @@
+name: Publish BetterToken docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.mdx"
+      - "api-reference/**"
+      - "custom.css"
+      - "docs.json"
+      - "favicon.ico"
+      - "images/**"
+      - "logo/**"
+      - "scripts/check-bettertoken-*.mjs"
+      - "scripts/check-docs-seo.mjs"
+      - "scripts/generate-bettertoken-sitemap.mjs"
+      - "scripts/indexnow-config.mjs"
+      - "scripts/llmeasy-metrica-spa.js.template"
+      - "scripts/prepare-bettertoken-artifacts.mjs"
+      - "scripts/trigger-mintlify-update.mjs"
+      - ".github/workflows/publish-bettertoken-docs.yml"
+      - ".github/workflows/submit-bettertoken-sitemap.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-bettertoken-docs
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 24
+
+      - name: Install Mintlify CLI
+        run: npm install -g mint
+
+      - name: Generate production artifacts
+        run: node scripts/prepare-bettertoken-artifacts.mjs
+
+      - name: Check localized SEO and analytics
+        run: |
+          node scripts/check-docs-seo.mjs
+          node scripts/check-bettertoken-sitemap.mjs
+          node scripts/check-bettertoken-metrica-spa.mjs
+
+      - name: Validate BetterToken docs
+        run: |
+          mint broken-links
+          mint validate
+
+      - name: Commit refreshed generated artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          git add sitemap.xml llms-full.txt .well-known/llms-full.txt llmeasy-metrica-spa.js indexnow.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit \
+            -m "chore(docs): 刷新 BetterToken 发布产物" \
+            -m "同步多语言 Sitemap、llms-full、Metrica SPA 脚本与 IndexNow 验证文件。"
+          git push origin HEAD:main
+
+      - name: Trigger Mintlify update
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.BETTERTOKEN_MINTLIFY_API_KEY }}
+          MINTLIFY_PROJECT_ID: ${{ secrets.BETTERTOKEN_MINTLIFY_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MINTLIFY_API_KEY:-}" ] || [ -z "${MINTLIFY_PROJECT_ID:-}" ]; then
+            echo "::error::BETTERTOKEN_MINTLIFY_API_KEY or BETTERTOKEN_MINTLIFY_PROJECT_ID is not configured."
+            exit 1
+          fi
+
+          node scripts/trigger-mintlify-update.mjs

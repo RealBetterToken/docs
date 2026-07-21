@@ -1,0 +1,189 @@
+---
+title: "图生图（图片编辑）"
+description: "通过 LLMEasy 的 OpenAI 兼容接口调用 GPT Image 2，根据参考图片生成或编辑图片。"
+openapi: "api-reference/openapi.json POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+图生图接口使用 `multipart/form-data` 请求体。你需要上传一张或多张参考图片，并通过表单字段提交提示词和参数。
+
+<Note>
+  使用 `{{openai-base-url}}` 作为 `Base URL`。调用时通过 `Authorization: Bearer YOUR_API_KEY` 传入 LLMEasy API Key。
+</Note>
+
+<Tip>
+  你可以在页面右侧的 Playground 填写表单字段并上传参考图片，直接在线调试。请求会发往 `{{images-edits-url}}`。
+</Tip>
+
+<Warning>
+  图生图不能使用普通 JSON body。请用 `multipart/form-data` 提交文本字段和文件字段。
+</Warning>
+
+## 推荐请求值
+
+所有图生图请求建议显式传入这些字段：
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+单参考图使用字段名 `image`。多参考图使用可重复的字段名 `image[]`。
+
+## 单参考图
+
+提交这些表单字段：
+
+| 表单字段 | 示例值 |
+| --- | --- |
+| `model` | `gpt-image-2` |
+| `prompt` | `参考这张图片，生成一张更精致的方形产品主视觉，保持主体风格一致。` |
+| `n` | `1` |
+| `size` | `1024x1024` |
+| `response_format` | `b64_json` |
+| `output_format` | `png` |
+| `image` | 选择本地文件 `reference.png` |
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=参考这张图片，生成一张更精致的方形产品主视觉，保持主体风格一致。' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## 多参考图
+
+提交这些表单字段：
+
+| 表单字段 | 示例值 |
+| --- | --- |
+| `model` | `gpt-image-2` |
+| `prompt` | `综合这些参考图，生成一张统一风格的宣传海报。` |
+| `n` | `1` |
+| `size` | `1024x1024` |
+| `response_format` | `b64_json` |
+| `output_format` | `png` |
+| `image[]` | 选择本地文件 `reference-1.png` |
+| `image[]` | 选择本地文件 `reference-2.jpg` |
+| `image[]` | 选择本地文件 `reference-3.png` |
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=综合这些参考图，生成一张统一风格的宣传海报。' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Python 示例
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "参考这张图片，生成一张更精致的方形产品主视觉，保持主体风格一致。",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## 推荐尺寸
+
+| `size` | 比例 | 适用场景 |
+| --- | --- | --- |
+| `auto` | 自动 | 自动选择尺寸 |
+| `1024x1024` | `1:1` | 方图，通用头像、封面、素材图 |
+| `1536x1024` | `3:2` | 横图，海报、banner、场景图 |
+| `1024x1536` | `2:3` | 竖图，移动端封面、人物海报 |
+| `1536x1152` | `4:3` | 标准横图，商品图、内容配图、横版素材 |
+| `1152x1536` | `3:4` | 标准竖图，移动端封面、竖版海报、人物图 |
+| `2048x2048` | `1:1` | 高清方图 |
+| `2048x1152` | `16:9` | 高清横图 |
+| `3840x2160` | `16:9` | 4K 横图 |
+| `2160x3840` | `9:16` | 4K 竖图 |
+
+`size` 表示期望的图片比例和尺寸档位。实际返回图片像素可能由服务端映射或调整，客户端应以解码后的真实图片尺寸为准。
+
+## 保存返回图片
+
+成功响应为 OpenAI 兼容图片响应结构：
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+客户端应读取 `data[0].b64_json` 并将其作为 base64 图片内容保存。响应中可能出现额外字段，例如 `revised_prompt`，客户端应允许这些字段存在。
+
+建议所有请求都显式指定 `output_format: "png"`。这样保存为 `.png` 即可，不需要再解析文件头判断格式。
+
+## 响应流程
+
+图生图接口是同步响应模式。客户端提交 `POST /images/edits` 后，应保持当前 HTTP 请求连接并等待服务端返回。生成成功时，图片内容会直接出现在同一个响应的 `data[0].b64_json` 字段中。
+
+图生图不会返回 `task_id`，也没有单独的状态查询接口或结果下载接口。不需要轮询任务状态，也不能通过额外的 `/images/...` URL 再获取结果。
+
+## 超时和重试
+
+- HTTP 客户端超时建议设置为数分钟级别。
+- 对传输层异常、`408`、`409`、`425`、`429` 和 `5xx` 可以重试。
+- 对 `400`、`401`、参数缺失、格式错误不要自动重试。
+- 重试时使用指数退避，例如等待 `3s`、`8s`、`15s`。
+- 如果业务不能接受重复图片，应用层应记录自己的请求 ID，避免用户重复提交。
+
+## 接入检查清单
+
+- Base URL 是 `{{openai-base-url}}`。
+- Header 包含 `Authorization: Bearer sk-...`。
+- 请求使用 `multipart/form-data`。
+- 模型固定为 `gpt-image-2`。
+- 单参考图使用 `image`，多参考图使用重复的 `image[]`。
+- `response_format` 固定为 `b64_json`。
+- `output_format` 固定为 `png`。
+- `n` 固定为 `1`。
+- `size` 使用推荐尺寸之一。
+- 客户端能处理数分钟级别的生成耗时。
+- 日志和报错截图中不会泄露 API Key 或完整 base64 图片内容。
+
+## 相关文档
+
+- [文生图](/zh/api-reference/images-generations)
+- [GPT Image 2 上线](/zh/model-updates/gpt-image-2)

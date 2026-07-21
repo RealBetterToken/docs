@@ -1,16 +1,16 @@
 ---
-title: "Connect Claude Code to BetterToken with a custom model"
+title: "Connect Claude Code to LLMEasy with a custom model"
 sidebarTitle: "Claude Code"
-description: "Connect BetterToken to Claude Code with ANTHROPIC_BASE_URL and no /v1 suffix."
+description: "Connect LLMEasy to Claude Code with ANTHROPIC_BASE_URL and no /v1 suffix."
 icon: "terminal"
 ---
 
-Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **Do not** add `/v1` to the Claude Code Base URL.
+Connecting LLMEasy to Claude Code only requires `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`. **Do not** add `/v1` to the Claude Code Base URL.
 
 ## Prerequisites
 
 - Claude Code installed (see [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code))
-- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
+- LLMEasy API Key (<a href={"{{register-url}}"}>register here</a>)
 
 <Warning>
   Clear these environment variables before setup so they do not override your config file:
@@ -25,7 +25,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
 
 <Tabs>
   <Tab title="Automatic setup">
-    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
+    You can run the LLMEasy automatic setup script directly. It only writes the LLMEasy provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
 
     Follow the step for your operating system. You only need one of them.
 
@@ -54,7 +54,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
   <Tab title="Manual setup">
     <Steps>
       <Step title="Check your Key group">
-        First confirm which BetterToken Key group you are using:
+        First confirm which LLMEasy Key group you are using:
 
         - `Claude`: only set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
         - `GPT`: set the auth fields and add Claude Code model mappings
@@ -68,7 +68,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         - macOS / Linux: `~/.claude/settings.json`
         - Windows: `%USERPROFILE%\.claude\settings.json`
 
-        If you use the **Claude Key group**, replace `YOUR_API_KEY` with your BetterToken API Key:
+        If you use the **Claude Key group**, replace `YOUR_API_KEY` with your LLMEasy API Key:
 
         ```json
         {
@@ -112,8 +112,8 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
 
         | Field | Description |
         | --- | --- |
-        | `ANTHROPIC_AUTH_TOKEN` | Your BetterToken API Key |
-        | `ANTHROPIC_BASE_URL` | BetterToken `Base URL` for Claude Code |
+        | `ANTHROPIC_AUTH_TOKEN` | Your LLMEasy API Key |
+        | `ANTHROPIC_BASE_URL` | LLMEasy `Base URL` for Claude Code |
         | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to `1` to reduce background traffic |
         | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Model used for Haiku-level tasks |
         | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Model used for Sonnet-level tasks |
@@ -121,7 +121,7 @@ Connecting BetterToken to Claude Code only requires `ANTHROPIC_BASE_URL` and `AN
         | `model` | Default Claude Code model tier; `opus` uses `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
         <Note>
-          `gpt-5.4` is an example **GPT Key group** model ID. Use the current **GPT Key group** model IDs listed in the <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>. You can map all three tiers to the same model or choose different ones.
+          `gpt-5.4` is an example **GPT Key group** model ID. Use the current **GPT Key group** model IDs listed in the <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>. You can map all three tiers to the same model or choose different ones.
         </Note>
       </Step>
 
@@ -221,7 +221,7 @@ If you use the Claude Code VS Code extension:
     ```
 
     <Note>
-      `gpt-5.4` is only an example **GPT Key group** model ID. Copy the current model ID from the <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>. When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+      `gpt-5.4` is only an example **GPT Key group** model ID. Copy the current model ID from the <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>. When the extension uses the Opus tier by default, it will resolve through `ANTHROPIC_DEFAULT_OPUS_MODEL`.
     </Note>
   </Step>
 
@@ -245,7 +245,7 @@ If you use the Claude Code VS Code extension:
 Start Claude Code and send a message. A normal reply means the connection is working.
 
 If authentication fails, check:
-1. `ANTHROPIC_AUTH_TOKEN` contains the correct BetterToken API Key
+1. `ANTHROPIC_AUTH_TOKEN` contains the correct LLMEasy API Key
 2. `ANTHROPIC_BASE_URL` is `{{anthropic-base-url}}`
 3. The **Claude Key group** does not set model variables, while the **GPT Key group** includes the `ANTHROPIC_DEFAULT_*_MODEL` mappings
 4. No old environment variables are overriding your config
@@ -254,7 +254,7 @@ If authentication fails, check:
 
 <AccordionGroup>
   <Accordion title="What should I do if I see API Error: Unable to connect to API (ConnectionRefused)?">
-    This usually means Claude Code cannot reach the BetterToken API. It is normally a network, proxy, or firewall issue, not an API Key or model mapping problem.
+    This usually means Claude Code cannot reach the LLMEasy API. It is normally a network, proxy, or firewall issue, not an API Key or model mapping problem.
 
     Check that your local network is working, then confirm your system proxy, company network, router, or security software is not blocking `{{anthropic-base-url}}`. If you use a firewall, allow Claude Code to access that address.
   </Accordion>

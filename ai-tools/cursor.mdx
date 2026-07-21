@@ -1,114 +1,114 @@
 ---
-title: "Cursor 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Cursor через LLMEasy"
 sidebarTitle: "Cursor"
-description: "在 Cursor 中使用 BetterToken，接入 GPT 分组模型。"
+description: "Подключите LLMEasy к Cursor с ID моделей группы GPT."
 icon: "arrow-pointer"
 ---
 
-在 Cursor 中接入 BetterToken 时，使用 OpenAI-compatible 协议入口。外部工具统一走 GPT 分组，请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的模型 ID。
+При подключении LLMEasy к Cursor используйте OpenAI-compatible endpoint. Внешние инструменты используют группу **GPT**, поэтому копируйте актуальный ID модели из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 <Warning>
-  Cursor 仅支持订阅高级会员及以上的用户配置自定义模型。如果你的账号或当前客户端版本没有显示自定义模型、API Key 或 Base URL 选项，请先确认 Cursor 账号套餐与客户端版本。
+  Cursor позволяет настраивать custom models только пользователям платного advanced tier или выше. Если в вашем аккаунте или версии клиента нет опций custom model, API Key или Base URL, сначала проверьте план Cursor и версию клиента.
 </Warning>
 
 <Warning>
-  **已知问题：** **Override OpenAI Base URL** 是全局设置。开启后会影响 Cursor 中所有已配置的 API Key，包括 Cursor 自带模型使用的 Anthropic / GPT Key。Cursor 官方社区已确认这个问题：设置 Base URL 后，所有 API Key 和模型都会受影响（[社区帖](https://forum.cursor.com/t/cursor-models-fail-when-using-byok-openai-key-with-overridden-base-url-glm-4-7/147218)）。
+  **Известное ограничение:** **Override OpenAI Base URL** — глобальная настройка. Когда она включена, она влияет на все API keys, настроенные в Cursor, включая Anthropic / GPT keys для встроенных моделей Cursor. Официальное сообщество Cursor подтверждало это поведение: Base URL влияет на все API keys и модели ([обсуждение](https://forum.cursor.com/t/cursor-models-fail-when-using-byok-openai-key-with-overridden-base-url-glm-4-7/147218)).
 
-  如果开启 **Override OpenAI Base URL** 后 Cursor 自带的 Claude / GPT 模型停止工作，请在不使用 BetterToken 时关闭 **Override OpenAI Base URL**。Cursor 目前不支持按模型设置不同 Base URL，相关能力仍在功能请求中（[feature request](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219)）。
+  Если встроенные Claude / GPT модели Cursor перестали работать после включения **Override OpenAI Base URL**, выключайте **Override OpenAI Base URL**, когда не используете LLMEasy. Cursor пока не поддерживает отдельный Base URL для каждой модели; эта возможность отслеживается как feature request ([feature request](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219)).
 </Warning>
 
-## 前置条件
+## Требования
 
-- 已安装 Cursor（前往 [Cursor 官网](https://www.cursor.com) 下载）
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- API Key 属于 **GPT 分组**，并且你准备选择同一分组下的模型
+- Установленный Cursor ([скачать Cursor](https://www.cursor.com))
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- В поле **Группа ключа** выбрано **GPT**, и вы будете выбирать модель из той же группы
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="打开模型配置页面">
-    在 Cursor 中，点击左下角 **Settings**，进入设置界面后选择 **Models**。向下找到 **API Keys** 区域。
+  <Step title="Откройте страницу настроек моделей">
+    В Cursor нажмите **Settings** в левом нижнем углу, затем перейдите в **Models** и прокрутите до **API Keys**.
 
     <Frame>
       <img
         src="/images/cursor/settings-api-key.png"
-        alt="Cursor 设置页中，依次打开 Settings、Models、API Keys，并填写 OpenAI API Key 与 Override OpenAI Base URL。"
+        alt="Страница настроек Cursor с полями Settings, Models, API Keys, OpenAI API Key и Override OpenAI Base URL."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="填写 Base URL 和 API Key">
-    在 **API Keys** 区域按下面顺序配置：
+  <Step title="Введите Base URL и API Key">
+    В **API Keys** заполните поля в таком порядке:
 
-    1. 打开 **Override OpenAI Base URL**
-    2. 在 Base URL 输入框中填写 `{{openai-base-url}}`
-    3. 在 **OpenAI API Key** 中填写你的 BetterToken API Key
-    4. 填完 URL 和 Key 后，再打开 **OpenAI API Key** 开关
+    1. Включите **Override OpenAI Base URL**
+    2. Введите `{{openai-base-url}}` в поле Base URL
+    3. Вставьте API Key LLMEasy в **OpenAI API Key**
+    4. После заполнения URL и ключа включите toggle **OpenAI API Key**
 
-    先填写 Key，再打开开关。这样 Cursor 会弹出认证确认窗口。
+    Введите ключ до включения toggle. Так Cursor покажет dialog подтверждения авторизации.
   </Step>
 
-  <Step title="启用 OpenAI API Key">
-    在确认窗口中点击 **Enable OpenAI API Key**。
+  <Step title="Включите OpenAI API Key">
+    В dialog подтверждения нажмите **Enable OpenAI API Key**.
 
     <Frame>
       <img
         src="/images/cursor/enable-openai-api-key.png"
-        alt="Cursor 弹出 Enable OpenAI API Key 确认窗口，需要点击 Enable OpenAI API Key。"
+        alt="Dialog Cursor с запросом включить собственный OpenAI API key."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="刷新模型列表并启用模型">
-    回到 **Models** 区域后，一定要先点击右侧的刷新按钮。等待模型列表刷新完成后，再选择模型。
+  <Step title="Обновите список моделей и включите модели">
+    В **Models** нажмите кнопку refresh справа перед выбором модели. Дождитесь завершения обновления списка.
 
-    只能选择当前 BetterToken API Key 对应分组下的模型。使用 GPT 分组 API Key 时，请选择模型广场里 **GPT 分组**下的模型 ID，并打开对应模型右侧的开关。
+    Выбирайте только модели из той же группы LLMEasy, что и ваш API Key. Если в поле **Группа ключа** выбрано **GPT**, выберите ID модели из группы **GPT** в model plaza, затем включите toggle для этой модели.
 
     <Frame>
       <img
         src="/images/cursor/models-refresh-select.png"
-        alt="Cursor Models 区域中，点击刷新按钮刷新模型列表，并打开可用模型右侧的开关。"
+        alt="Раздел Models в Cursor с кнопкой refresh и toggle моделей."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="回到对话界面并关闭 Auto">
-    配置完成后回到 Cursor 对话界面，点击输入框下方的模型选择器。如果 **Auto** 处于开启状态，请先关闭 **Auto**。
+  <Step title="Вернитесь в chat и выключите Auto">
+    После настройки вернитесь в chat Cursor и откройте model picker под полем ввода. Если включен **Auto**, сначала выключите **Auto**.
 
     <Frame>
       <img
         src="/images/cursor/chat-disable-auto.png"
-        alt="Cursor 对话界面中打开模型选择器，并关闭 Auto 模式。"
+        alt="Model picker в чате Cursor с toggle Auto, который нужно выключить."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="选择模型并开始对话">
-    在模型选择器中选择刚启用的 GPT 分组模型，然后开始对话。
+  <Step title="Выберите модель и начните чат">
+    Выберите включенную модель группы GPT и начните общение.
 
     <Frame>
       <img
         src="/images/cursor/chat-select-model.png"
-        alt="Cursor 对话界面中选择 GPT-5.5 等已启用模型后开始对话。"
+        alt="Поле ввода Cursor chat с выбранной включенной моделью."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 </Steps>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [Cursor 如何配置自定义 OpenAI API Key 和 Base URL？](/faq/cursor/custom-openai-api)
-- [Cursor Rules、AGENTS.md 和 .cursorignore 是什么？](/faq/cursor/rules-agents-cursorignore)
-- [Cursor 如何配置 MCP？](/faq/cursor/mcp)
-- [Claude Code 和 Cursor 哪个更适合本地开发？](/faq/claude-code/claude-code-vs-cursor)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Как настроить custom OpenAI API Key и Base URL в Cursor](/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md и .cursorignore](/faq/cursor/rules-agents-cursorignore)
+- [Как настроить MCP в Cursor](/faq/cursor/mcp)
+- [Claude Code или Cursor для локальной разработки](/faq/claude-code/claude-code-vs-cursor)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
-## 注意事项
+## Примечания
 
-- 不要把 Claude 分组模型 ID 填到 Codex / OpenAI-compatible 流程中
-- 不要继续填写固定 Claude 模型名；请使用<a href={"{{model-plaza-url}}"}>模型广场</a>中当前可用的 GPT 分组模型 ID
+- Не используйте ID моделей группы **Claude** в Codex / OpenAI-compatible flow
+- Не используйте жестко заданные имена Claude-моделей; берите актуальный ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>

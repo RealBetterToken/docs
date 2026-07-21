@@ -1,26 +1,26 @@
 ---
-title: "Hermes Agent 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Hermes Agent через LLMEasy"
 sidebarTitle: "Hermes Agent"
-description: "在 Hermes Agent 中使用 BetterToken，通过 GPT 分组模型和 OpenAI-compatible 协议完成配置。"
+description: "Подключите LLMEasy к Hermes Agent через модели группы GPT и OpenAI-compatible протокол."
 icon: "user-astronaut"
 ---
 
-Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常开发助手使用，也可以结合技能、MCP、任务调度和子 Agent 处理更长的自动化任务。
+Hermes Agent — это AI-agent для локальных terminal workflows. Его можно использовать как помощника для разработки, а также комбинировать skills, MCP, scheduled tasks и subagents для более длинных автоматизированных задач.
 
-接入 BetterToken 时，请使用 **GPT 分组** API Key，并通过 OpenAI-compatible endpoint 调用模型。
+При подключении LLMEasy используйте API Key из группы **GPT** и OpenAI-compatible endpoint.
 
 <Info>
-  本文仅覆盖 Hermes Agent 的 GPT 分组接入方式。模型 ID 请以<a href={"{{model-plaza-url}}"}>模型广场</a>显示为准。
+  Эта страница описывает только подключение Hermes Agent через группу GPT. ID модели копируйте из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 </Info>
 
-## 前置条件
+## Требования
 
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- API Key 属于 **GPT 分组**
-- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制要使用的 GPT 分组模型 ID
-- macOS、Linux 或 Windows WSL2 环境
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- API Key относится к группе **GPT**
+- ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>
+- macOS, Linux или Windows WSL2
 
-## 安装 Hermes Agent
+## Установка Hermes Agent
 
 <Tabs>
   <Tab title="macOS / Linux / WSL2">
@@ -30,38 +30,38 @@ Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常�
   </Tab>
 
   <Tab title="Windows">
-    Windows 用户建议优先使用 WSL2。原生 PowerShell 支持取决于 Hermes Agent 当前版本；如果你使用原生 Windows 环境，请按 Hermes 安装器的当前提示操作。
+    На Windows сначала используйте WSL2. Native PowerShell support зависит от текущей версии Hermes Agent. Если вы используете native Windows, следуйте подсказкам установщика вашей версии.
   </Tab>
 </Tabs>
 
-## 配置步骤
+## Настройка
 
 <Tabs>
-  <Tab title="交互式配置">
+  <Tab title="Интерактивная настройка">
     <Steps>
-      <Step title="运行模型选择器">
+      <Step title="Запустите выбор модели">
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="选择 OpenAI 或 OpenAI Compatible provider">
-        在 provider 列表中，选择 **OpenAI** 或 **OpenAI Compatible**。
+      <Step title="Выберите OpenAI или OpenAI Compatible provider">
+        Выберите **OpenAI** или **OpenAI Compatible** в списке providers.
       </Step>
 
-      <Step title="填写 BetterToken 配置">
-        按提示依次输入：
+      <Step title="Заполните конфигурацию LLMEasy">
+        Введите:
 
-        - **Base URL**：`{{openai-base-url}}`
-        - **API Key**：你的 BetterToken API Key
-        - **Model**：从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
+        - **Base URL**: `{{openai-base-url}}`
+        - **API Key**: ваш API Key LLMEasy
+        - **Model**: ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
       </Step>
 
-      <Step title="重启 Hermes Agent">
-        修改配置后，请退出当前 Hermes Agent 会话，再重新启动。
+      <Step title="Перезапустите Hermes Agent">
+        После обновления конфигурации завершите текущую сессию Hermes Agent и запустите ее снова.
       </Step>
 
-      <Step title="启动 Hermes Agent">
+      <Step title="Запустите Hermes Agent">
         ```bash
         hermes
         ```
@@ -69,81 +69,81 @@ Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常�
     </Steps>
   </Tab>
 
-  <Tab title="命令行配置">
-    如果你更适合复制命令，可以直接写入 Hermes Agent 配置。
+  <Tab title="CLI config">
+    Если вам удобнее копировать команды, запишите конфигурацию Hermes Agent напрямую.
 
     ```bash
     hermes config set llm.provider openai
     hermes config set llm.base_url "{{openai-base-url}}"
-    hermes config set llm.api_key "YOUR_BETTERTOKEN_API_KEY"
+    hermes config set llm.api_key "YOUR_LLMEASY_API_KEY"
     hermes config set llm.model "YOUR_GPT_MODEL_ID"
     ```
 
-    将 `YOUR_BETTERTOKEN_API_KEY` 替换为你的 BetterToken API Key，将 `YOUR_GPT_MODEL_ID` 替换为<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组模型 ID。
+    Замените `YOUR_LLMEASY_API_KEY` на ваш API Key LLMEasy, а `YOUR_GPT_MODEL_ID` — на ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-    配置完成后运行：
+    Затем запустите Hermes Agent:
 
     ```bash
     hermes
     ```
   </Tab>
 
-  <Tab title="环境变量">
-    如果你不想把 API Key 写入 Hermes Agent 配置，可以在当前 shell 中导出环境变量。
+  <Tab title="Environment variables">
+    Если вы не хотите сохранять API Key в конфигурации Hermes Agent, экспортируйте его в текущем shell.
 
     ```bash
     export OPENAI_API_BASE="{{openai-base-url}}"
-    export OPENAI_API_KEY="YOUR_BETTERTOKEN_API_KEY"
+    export OPENAI_API_KEY="YOUR_LLMEASY_API_KEY"
     export HERMES_MODEL="YOUR_GPT_MODEL_ID"
     hermes
     ```
 
-    这组环境变量只对当前 shell 会话生效。新开终端后需要重新导出，或写入你自己的 shell profile。
+    Эти переменные действуют только в текущей shell-сессии. В новом терминале экспортируйте их снова или добавьте в свой shell profile.
   </Tab>
 </Tabs>
 
-## 功能速查
+## Кратко о возможностях
 
-| 能力 | 用途 |
+| Возможность | Для чего нужна |
 | --- | --- |
-| Terminal UI | 在终端中直接和 Agent 交互 |
-| Skills | 为重复任务沉淀可复用流程 |
-| MCP | 连接本地或远程工具能力 |
-| Scheduled tasks | 配置定时任务和周期性工作流 |
-| Subagents | 将复杂任务拆给不同子 Agent |
-| Message gateway | 把 Agent 接入更多消息入口 |
+| Terminal UI | Общение с agent прямо в терминале |
+| Skills | Сохранение повторяемых workflows |
+| MCP | Подключение локальных или удаленных инструментов |
+| Scheduled tasks | Запуск задач по расписанию и recurring workflows |
+| Subagents | Разделение сложной работы между специализированными agents |
+| Message gateway | Подключение agent к дополнительным message entry points |
 
-## 从 OpenClaw 迁移
+## Миграция с OpenClaw
 
-如果你已经使用 OpenClaw，可以先在 Hermes Agent 当前版本中检查是否提供迁移命令。迁移前建议先做 dry run。
+Если вы уже используете OpenClaw, сначала проверьте, есть ли в вашей текущей версии Hermes Agent команда миграции. Перед изменениями запустите dry run.
 
 ```bash
 hermes claw migrate --dry-run
 ```
 
-确认无误后再执行正式迁移：
+После проверки результата выполните миграцию:
 
 ```bash
 hermes claw migrate
 ```
 
-迁移后仍建议检查 Hermes Agent 中的 **Base URL**、API Key 和模型 ID，确保它们分别对应 `{{openai-base-url}}`、你的 BetterToken API Key，以及 GPT 分组模型 ID。
+После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `{{openai-base-url}}`, вашему API Key LLMEasy и ID модели группы GPT.
 
-## 排障提示
+## Troubleshooting
 
-- 无响应或请求失败时，先确认 **Base URL** 是否正好是 `{{openai-base-url}}`。这里通常不要再拼接 `/chat/completions`。
-- 报模型不存在时，确认 **Model** 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组。
-- 报鉴权失败时，确认 API Key 没有复制空格，并且属于 **GPT 分组**。
-- 修改配置后仍走旧模型时，退出当前 Hermes Agent 会话并重新运行 `hermes`。
-- 接入 BetterToken 时通常不需要额外设置 `User-Agent` 或其他 headers。只有当你还接了自定义网关、租户路由、审计或缓存服务时，再按对应上游服务的官方文档补充。
+- Если запросы не отвечают или завершаются ошибкой, проверьте, что **Base URL** равен `{{openai-base-url}}`. Обычно здесь не нужно добавлять `/chat/completions`.
+- Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что ключ относится к группе **GPT**.
+- Если после изменения настроек Hermes все еще использует старую модель, завершите текущую сессию Hermes Agent и снова выполните `hermes`.
+- LLMEasy обычно не требует дополнительного `User-Agent` или custom headers. Добавляйте headers только если этого явно требует ваш custom gateway, tenant routing, observability или caching layer.
 
 <Note>
-  请不要把真实 API Key 提交到仓库。团队共享配置时，优先使用环境变量或本机配置。
+  Не коммитьте реальные API Keys в репозиторий. Для командных конфигураций используйте environment variables или локальную конфигурацию.
 </Note>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
-- [OpenClaw 接入 BetterToken 指南](/ai-tools/openclaw)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+- [Настройка OpenClaw с LLMEasy](/ai-tools/openclaw)

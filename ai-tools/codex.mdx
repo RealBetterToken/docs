@@ -1,37 +1,37 @@
 ---
-title: "Codex 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Codex через LLMEasy"
 sidebarTitle: "Codex"
-description: "在 OpenAI Codex 中使用 BetterToken，使用 /v1 与 OpenAI Responses。"
+description: "Подключите LLMEasy к Codex через /v1 и OpenAI Responses."
 icon: "code"
 ---
 
-在 Codex 中接入 BetterToken，需要配置自定义模型提供商和 API Key。`base_url` 必须填写为 `{{openai-base-url}}`，协议为 `OpenAI Responses`。
+Для подключения Codex к LLMEasy нужен custom model provider и API Key. `base_url` должен быть `{{openai-base-url}}`, протокол — `OpenAI Responses`.
 
 <Info>
-  如果你希望在使用第三方 API 的同时保留 Codex App 官方登录态、插件或 Remote Control，请使用 [保留 Codex 登录态的配置方式](/faq/codex/official-login-third-party-api)。
+  Если вы хотите сохранить официальный login state Codex App, plugins или Remote Control при использовании стороннего API, используйте [настройку с сохранением login state](/faq/codex/official-login-third-party-api).
 </Info>
 
-## 前置条件
+## Требования
 
-- 已安装 Node.js
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- Установленный Node.js
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
 <Warning>
-  配置前请先清除 OpenAI 相关环境变量，避免它们覆盖 `config.toml` 中的设置。
+  Перед настройкой очистите OpenAI-related переменные окружения, чтобы они не переопределили `config.toml`.
 
-  需要清除的变量包括：
+  Очистите:
 
   - `OPENAI_API_KEY`
   - `OPENAI_BASE_URL`
 
-  macOS / Linux 执行：
+  macOS / Linux:
 
   ```bash
   unset OPENAI_API_KEY
   unset OPENAI_BASE_URL
   ```
 
-  Windows PowerShell 执行：
+  Windows PowerShell:
 
   ```powershell
   Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
@@ -41,27 +41,27 @@ icon: "code"
   ```
 </Warning>
 
-## 安装 Codex
+## Установка Codex
 
 ```bash
 npm install -g @openai/codex
 ```
 
-## 配置步骤
+## Настройка
 
 <Tabs>
-  <Tab title="自动配置">
-    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
+  <Tab title="Автоматическая настройка">
+    Можно запустить автоматический скрипт LLMEasy. Он записывает только provider-конфигурацию LLMEasy и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
 
-    按你的操作系统执行对应步骤。你只需要执行其中一项。
+    Выберите шаг для своей ОС. Нужен только один вариант.
 
     <Steps>
-      <Step title="如果你使用 macOS / Linux">
+      <Step title="macOS / Linux">
         ```bash
         curl -fsSL {{install-codex-provider-sh-url}} | bash
         ```
       </Step>
-      <Step title="如果你使用 Windows">
+      <Step title="Windows">
         ```powershell
         iwr {{install-codex-provider-ps1-url}} -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
         ```
@@ -69,37 +69,37 @@ npm install -g @openai/codex
     </Steps>
   </Tab>
 
-  <Tab title="通过 CC-Switch 配置">
-    这条接入路径由 [CC Switch 接入文档](/ai-tools/cc-switch#codex-cli) 统一维护。
+  <Tab title="Настройка через CC Switch">
+    Этот путь описан в [инструкции CC Switch](/ai-tools/cc-switch#codex-cli).
 
-    直接查看 [CC Switch 中的 Codex 配置步骤](/ai-tools/cc-switch#codex-cli)。
+    Перейдите сразу к [вкладке Codex в инструкции CC Switch](/ai-tools/cc-switch#codex-cli).
 
-    通过 CC Switch 完成配置后，再回到本页继续参考启动、验证或生效说明。
+    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить запуск и остальные примечания.
   </Tab>
 
-  <Tab title="手动配置">
+  <Tab title="Ручная настройка">
     <Steps>
-      <Step title="确认默认模型">
-        下方配置默认使用 `gpt-5.5`，并将 review model 设置为 `gpt-5.4`。如果你需要切换模型，请从 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 复制 **GPT 分组**下当前可用的模型 ID。
+      <Step title="Проверьте модели по умолчанию">
+        Конфигурация ниже использует `gpt-5.5` как модель по умолчанию и `gpt-5.4` как review model. Если нужно выбрать другую модель, откройте <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a> и скопируйте актуальный ID модели из группы **GPT**.
       </Step>
 
-      <Step title="确认配置文件位置">
-        手动配置需要修改 Codex 的 `config.toml`。
+      <Step title="Проверьте расположение конфигов">
+        Для ручной настройки нужен файл Codex `config.toml`.
 
-        | 系统 | `config.toml` |
+        | Система | `config.toml` |
         | --- | --- |
         | macOS / Linux | `~/.codex/config.toml` |
         | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
       </Step>
 
-      <Step title="编辑 Codex 配置文件">
-        打开 `config.toml`（不存在则新建）。
+      <Step title="Отредактируйте config.toml Codex">
+        Откройте `config.toml`. Создайте его, если файла нет.
 
         <Warning>
-          这里的配置只适用于手动修改 `~/.codex/config.toml`。如果你使用 CC Switch 配置 Codex，请严格按照 [CC Switch 接入文档](/ai-tools/cc-switch#codex-cli) 操作，不要直接复制这里的信息去替换 CC Switch 管理的配置。
+          Этот блок применим только при ручном редактировании `~/.codex/config.toml`. Если вы настраиваете Codex через CC Switch, точно следуйте [инструкции CC Switch](/ai-tools/cc-switch#codex-cli) и не заменяйте конфигурацию, которой управляет CC Switch.
         </Warning>
 
-        添加以下内容：
+        Добавьте:
 
         ```toml
         model_provider = "{{codex-provider-id}}"
@@ -123,66 +123,67 @@ npm install -g @openai/codex
         ```
       </Step>
 
-      <Step title="重启终端中的 Codex">
-        修改 `config.toml` 后，请结束当前 Codex 进程，并在新终端会话中重新启动。
+      <Step title="Перезапустите Codex в терминале">
+        После изменения `config.toml` остановите текущий процесс Codex и запустите его в новой terminal session.
       </Step>
 
-      <Step title="启动 Codex">
+      <Step title="Запустите Codex">
         ```bash
         codex
         ```
       </Step>
     </Steps>
 
-    ### 配置参数说明
+    ### Справочник параметров
 
-    [Codex 官方配置参考](https://developers.openai.com/codex/config-reference)说明，`model_provider` 指向 `model_providers` 里的 provider id，自定义 provider 通过 `[model_providers.<id>]` 定义；`wire_api = "responses"` 是当前支持的 provider 协议值。
+    В [официальном справочнике конфигурации Codex](https://developers.openai.com/codex/config-reference) указано, что `model_provider` ссылается на provider id внутри `model_providers`, custom provider задается через `[model_providers.<id>]`, а `wire_api = "responses"` — поддерживаемое значение provider protocol.
 
-    | 配置 | 意义 | 推荐值 |
+    | Конфигурация | Значение | Рекомендуемое значение |
     | --- | --- | --- |
-    | `model_provider` | 指定 Codex 当前使用哪个模型供应商；值要对应下面的 `[model_providers.{{codex-provider-id}}]`。 | `"{{codex-provider-id}}"` |
-    | `model` | Codex 默认使用的主模型，日常写代码、改代码、执行任务都会优先用它。 | `"gpt-5.5"` |
-    | `review_model` | `/review` 代码审查命令使用的模型；不配置时默认使用当前主模型。 | `"gpt-5.4"` |
-    | `model_reasoning_effort` | 控制支持 Responses API 的模型使用多少推理强度；可选值包括 `minimal`、`low`、`medium`、`high`、`xhigh`。 | `"high"` |
-    | `model_context_window` | 告诉 Codex 当前模型可用的上下文窗口大小，单位是 token。 | `1000000` |
-    | `model_auto_compact_token_limit` | 当会话历史达到这个 token 阈值时，自动触发上下文压缩。 | `900000` |
-    | `windows_wsl_setup_acknowledged` | Windows / WSL 环境下的初始化确认标记；主要用于避免重复提示 Windows onboarding。 | `true` |
-    | `[model_providers]` | 自定义模型供应商配置的父级配置段。 | `[model_providers]` |
-    | `[model_providers.{{codex-provider-id}}]` | 定义一个 id 为 `{{codex-provider-id}}` 的自定义模型供应商；上面的 `model_provider = "{{codex-provider-id}}"` 会引用它。 | `[model_providers.{{codex-provider-id}}]` |
-    | `name` | 供应商显示名称，只影响展示，不影响请求逻辑。 | `"{{codex-provider-name}}"` |
-    | `base_url` | API 基础地址，Codex 会向这个地址发起模型请求。 | `"{{openai-base-url}}"` |
-    | `wire_api` | 指定 provider 使用的协议；Codex 当前 provider 配置里 `responses` 是支持值，也是默认值。 | `"responses"` |
-    | `requires_openai_auth` | 是否使用 OpenAI 官方认证；这里使用自定义中转 provider，因此关闭 OpenAI auth。 | `false` |
-    | `request_max_retries` | 普通 HTTP 请求失败后的最大重试次数；官方默认值是 `4`。 | `4` |
-    | `stream_max_retries` | SSE 流式输出中断后的最大重试次数；官方默认值是 `5`，中转链路可以适当提高。 | `8` |
-    | `stream_idle_timeout_ms` | SSE 流式输出多久没有新内容就判定为空闲超时，单位毫秒；`300000` 等于 5 分钟。 | `300000` |
-    | `supports_websockets` | 是否声明该 provider 支持 Responses API 的 WebSocket 传输。 | `false` |
+    | `model_provider` | Выбирает model provider, который использует Codex. Значение должно совпадать с `[model_providers.{{codex-provider-id}}]`. | `"{{codex-provider-id}}"` |
+    | `model` | Основная модель Codex для повседневного написания кода, правок и задач агента. | `"gpt-5.5"` |
+    | `review_model` | Модель для команды `/review`. Если не задано, Codex использует текущую основную модель. | `"gpt-5.4"` |
+    | `model_reasoning_effort` | Управляет reasoning strength для моделей с Responses API. Возможные значения: `minimal`, `low`, `medium`, `high`, `xhigh`. | `"high"` |
+    | `model_context_window` | Сообщает Codex размер context window активной модели в токенах. | `1000000` |
+    | `model_auto_compact_token_limit` | Автоматически сжимает историю диалога при достижении этого token threshold. | `900000` |
+    | `windows_wsl_setup_acknowledged` | Флаг подтверждения Windows / WSL onboarding, чтобы избежать повторных setup prompts. | `true` |
+    | `[model_providers]` | Родительская секция для custom model provider configuration. | `[model_providers]` |
+    | `[model_providers.{{codex-provider-id}}]` | Определяет custom provider с id `{{codex-provider-id}}`; `model_provider = "{{codex-provider-id}}"` ссылается на эту секцию. | `[model_providers.{{codex-provider-id}}]` |
+    | `name` | Отображаемое имя provider. Влияет только на отображение, не на request logic. | `"{{codex-provider-name}}"` |
+    | `base_url` | Базовый API URL. Codex отправляет model requests на этот адрес. | `"{{openai-base-url}}"` |
+    | `wire_api` | Provider protocol. В конфигурации Codex provider `responses` — поддерживаемое и default значение. | `"responses"` |
+    | `requires_openai_auth` | Использовать ли официальную OpenAI authentication. Для этого custom proxy provider OpenAI auth отключен. | `false` |
+    | `request_max_retries` | Максимальное число повторов для обычных failed HTTP requests. Официальное default значение — `4`. | `4` |
+    | `stream_max_retries` | Максимальное число повторов при прерывании SSE stream. Официальное default значение — `5`; для proxy chain можно увеличить. | `8` |
+    | `stream_idle_timeout_ms` | Idle timeout для SSE stream в миллисекундах. `300000` — это 5 минут. | `300000` |
+    | `supports_websockets` | Объявляет ли provider поддержку Responses API WebSocket transport. | `false` |
 
-    补充：[`gpt-5.5` 官方模型页](https://developers.openai.com/api/docs/models/gpt-5.5)显示它支持 `high` 推理强度，并且上下文窗口是 `1,050,000` tokens，所以这里写 `model_context_window = 1000000` 是合理的；`model_auto_compact_token_limit = 900000` 会让上下文较晚才压缩，更适合重度长任务。
+    Примечание: [страница модели `gpt-5.5`](https://developers.openai.com/api/docs/models/gpt-5.5) показывает поддержку `high` reasoning effort и context window `1,050,000` tokens. Поэтому `model_context_window = 1000000` — разумное консервативное значение, а `model_auto_compact_token_limit = 900000` откладывает compaction и подходит для долгих задач.
 
-    如果你通过 CC Switch 写入配置，请优先以 CC Switch 生成的配置为准。只有在手动配置或排障时，才建议自行修改这些参数。
+    Если конфигурацию пишет CC Switch, предпочитайте сгенерированный им файл. Редактируйте эти значения вручную только для manual setup или troubleshooting.
   </Tab>
 </Tabs>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [Codex CLI 是什么？](/faq/codex/what-is-codex-cli)
-- [Codex CLI、Codex App 和 Codex Web 有什么区别？](/faq/codex/codex-cli-vs-app-vs-web)
-- [如何配置 Codex CLI 的 config.toml？](/faq/codex/config-toml)
-- [model_provider、base_url 和 wire_api 是什么？](/faq/codex/model-provider-base-url-wire-api)
-- [review_model 和 reasoning_effort 是什么？](/faq/codex/review-model-reasoning-effort)
-- [AGENTS.md 是什么？应该怎么写？](/faq/codex/agents-md)
-- [Codex CLI sandbox 和 approval mode 是什么？](/faq/codex/sandbox-approval)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [Claude Code 和 Codex CLI 有什么区别？](/faq/concepts/claude-code-vs-codex-cli)
+- [Что такое Codex CLI?](/faq/codex/what-is-codex-cli)
+- [Codex CLI, Codex App и Codex Web: в чем разница?](/faq/codex/codex-cli-vs-app-vs-web)
+- [Как настроить Codex CLI config.toml](/faq/codex/config-toml)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Что означают review_model и reasoning_effort?](/faq/codex/review-model-reasoning-effort)
+- [Что такое AGENTS.md и как его писать?](/faq/codex/agents-md)
+- [Что такое sandbox и approval mode в Codex CLI?](/faq/codex/sandbox-approval)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code и Codex CLI: в чем разница?](/faq/concepts/claude-code-vs-codex-cli)
 
-## 验证配置
+## Проверка
 
-启动后，向 Codex 发送一条测试消息，确认收到正常回复即表示配置成功。
+После запуска отправьте тестовое сообщение. Обычный ответ означает, что подключение работает.
 
-如遇到连接问题，请检查：
-1. `base_url` 是否填写为 `{{openai-base-url}}`
-2. `wire_api` 是否保持为 `responses`
-3. `model` 是否为从 <a href={"{{model-plaza-url}}"}>模型广场</a> 复制的 **GPT 分组**模型 ID
-4. `model_provider` 是否与 `[model_providers.{{codex-provider-id}}]` 中的 provider id 保持一致
-5. 是否有旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量在干扰配置
+Если что-то не работает, проверьте:
+
+1. `base_url` равен `{{openai-base-url}}`
+2. `wire_api` остается `responses`
+3. `model` — это ID модели из группы **GPT**
+4. `model_provider` совпадает с provider id в `[model_providers.{{codex-provider-id}}]`
+5. Старые переменные `OPENAI_API_KEY` или `OPENAI_BASE_URL` не мешают настройке

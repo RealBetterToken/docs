@@ -1,66 +1,66 @@
 ---
-title: "Cline 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели Cline через LLMEasy"
 sidebarTitle: "Cline"
-description: "在 Cline 中使用 BetterToken，接入 GPT 分组模型。"
+description: "Подключите LLMEasy к Cline с ID моделей группы GPT."
 icon: "c"
 ---
 
-Cline 是 VS Code 的 AI 编程助手插件。接入 BetterToken 时，请选择 OpenAI Compatible 提供商，并使用 GPT 分组模型 ID。
+Cline — это AI-расширение для разработки в VS Code. Для подключения LLMEasy выберите provider `OpenAI Compatible` и используйте ID модели из группы **GPT**.
 
-## 前置条件
+## Требования
 
-- 已安装 VS Code
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- Установленный VS Code
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## 安装 Cline
+## Установка Cline
 
-打开 VS Code，在扩展市场搜索 **Cline**，点击 Install 安装。
+Откройте VS Code, найдите **Cline** в marketplace расширений и установите его.
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="清除冲突的环境变量">
+  <Step title="Очистите конфликтующие переменные окружения">
     ```bash
     unset OPENAI_API_KEY
     unset OPENAI_BASE_URL
     ```
   </Step>
 
-  <Step title="打开 Cline 配置界面">
-    点击 Cline 侧边栏中的 **Use your own API key**。
+  <Step title="Откройте интерфейс настройки Cline">
+    Нажмите **Use your own API key** в боковой панели Cline.
   </Step>
 
-  <Step title="配置 API 提供商">
-    按以下方式填写：
+  <Step title="Настройте API provider">
+    Заполните:
 
     - **API Provider** → `OpenAI Compatible`
     - **Base URL** → `{{openai-base-url}}`
-    - **API Key** → 你的 BetterToken API Key
-    - **Model** → 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
+    - **API Key** → ваш API Key LLMEasy
+    - **Model** → ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    我们查到的 Cline 官方 OpenAI Compatible 接入文档默认只要求 `Base URL`、API Key 和模型 ID。接入 BetterToken 时通常不需要额外设置 `User-Agent`。
+  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
+    Официальная OpenAI-compatible настройка Cline фокусируется на `Base URL`, API key и model ID. Для LLMEasy обычно не нужен дополнительный `User-Agent`.
 
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
   </Step>
 
-  <Step title="保存配置">
-    点击右上角 **Done** 保存配置。
+  <Step title="Сохраните конфигурацию">
+    Нажмите **Done**.
   </Step>
 
-  <Step title="重启 Cline">
-    修改配置后，请重启 VS Code 或重新加载 Cline 插件，使新配置生效。
+  <Step title="Перезапустите Cline">
+    После сохранения перезапустите VS Code или перезагрузите расширение Cline, чтобы новые настройки вступили в силу.
   </Step>
 </Steps>
 
-## 相关 FAQ
+## Связанные FAQ
 
-- [Cline 如何配置 OpenAI-compatible API？](/faq/cline/openai-compatible-api)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/faq/concepts/mcp-vs-api-key-base-url)
-- [Cursor 如何配置自定义 OpenAI API Key 和 Base URL？](/faq/cursor/custom-openai-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Как настроить custom OpenAI API в Cursor](/faq/cursor/custom-openai-api)
 
 <Note>
-  优先检查 `Base URL`、API Key、模型 ID 和工具版本；不要默认把 `User-Agent` 当作 BetterToken 必填项。
+  Сначала проверьте `Base URL`, API key, model ID и версию инструмента. Не считайте `User-Agent` обязательной настройкой LLMEasy.
 </Note>

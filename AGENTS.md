@@ -2,7 +2,7 @@
 
 ## About this project
 
-- This is the Mintlify documentation site for BetterToken.
+- This is the Mintlify documentation site for LLMEasy, published at `docs.bettertoken.ai`.
 - Pages are MDX files with YAML frontmatter.
 - Site-wide configuration lives in `docs.json`.
 - Main audiences are Claude Code users, Codex users, and users of external AI coding tools.
@@ -57,22 +57,22 @@
 
 - Do not use Google Indexing API for ordinary documentation pages. It is not the supported path for this docs site.
 - Do not automate browser clicks on Google Search Console **Request indexing**. Use sitemap submission instead.
-- LLMEasy is the only SEO and acquisition version of the documentation. Keep the production sitemap at `https://docs.llmeasy.ru/sitemap.xml` and keep `https://docs.llmeasy.ru/robots.txt` pointing to it.
-- Do not publish new BetterToken documentation or submit `https://docs.bettertoken.ai/sitemap.xml`. The BetterToken documentation host is being retired and must remain available only for permanent, route-specific redirects during the migration.
-- Follow `.github/LLMEASY_SEO_MIGRATION.md` for the two-stage migration, URL language mapping, verification gates, and Search Console steps.
-- For post-deploy automation, submit only the LLMEasy sitemap through Google Search Console Sitemaps API after the production site is updated.
+- `docs.bettertoken.ai` is the only SEO, acquisition, and production version of the documentation. Keep its production sitemap at `https://docs.bettertoken.ai/sitemap.xml`.
+- Do not publish new documentation at `docs.llmeasy.ru` or submit its sitemap after the migration begins. Keep that host available only for permanent, route-specific redirects to BetterToken.
+- Follow `.github/BETTERTOKEN_SEO_MIGRATION.md` for URL mapping, verification gates, Search Console steps, and the redirect retention period.
+- For post-deploy automation, submit only the BetterToken sitemap through Google Search Console Sitemaps API after the production site is updated.
 - Store Google credentials only in CI secrets such as `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `GOOGLE_OAUTH_REFRESH_TOKEN`. Never commit client secrets, refresh tokens, or access tokens.
 
-## LLMEasy regional operations
+## BetterToken production operations
 
-- LLMEasy is generated from the shared source by `scripts/prepare-llmeasy-deployment.mjs`, then published from the `llmeasy-docs` branch. Do not treat `.mintlify-llmeasy` as source content.
-- During the first SEO migration stage, keep `main` as the source branch and `llmeasy-docs` as the generated deployment branch. Do not restore the retired BetterToken publishing workflows. Moving LLMEasy directly to `main` belongs to migration stage two.
-- The prepare script promotes Russian to the default language, rewrites the regional favicon to root-level `/favicon.ico` from `favicon-llmeasy.ico`, creates the custom `llms-full.txt`, and writes the IndexNow verification key file. After touching these paths, run `node scripts/prepare-llmeasy-deployment.mjs` and `node scripts/audit-regional-docs.mjs`.
-- LLMEasy search automation uses `.github/workflows/submit-llmeasy-sitemap.yml`: Google Search Console sitemap submission plus best-effort IndexNow after the LLMEasy publish workflow succeeds. Yandex Webmaster still needs the site and sitemap to be added in the dashboard first.
+- `main` is the only content and production branch. Russian pages live at the root, English pages under `/en`, and Chinese pages under `/zh`.
+- The published product name, LLMEasy visual design, content, and navigation are preserved while the canonical documentation and product URLs use `bettertoken.ai`.
+- Run `node scripts/prepare-bettertoken-artifacts.mjs` after content or navigation changes. It refreshes the hreflang Sitemap, `llms-full.txt`, Metrica SPA script, and IndexNow key file.
+- BetterToken publishing uses `.github/workflows/publish-bettertoken-docs.yml`; search submission uses `.github/workflows/submit-bettertoken-sitemap.yml`.
 - Mintlify permanent redirects intentionally return HTTP 308. Treat 301 and 308 as permanent redirects; do not add an Nginx layer only to change 308 into 301. Keep each old URL to one redirect hop, and verify the destination is `200` and self-canonical.
-- `scripts/prepare-llmeasy-deployment.mjs` generates a custom root `sitemap.xml` with reciprocal `ru`, `en`, `zh-CN`, and `x-default` alternates. Mintlify supports custom root sitemaps, and this file overrides its automatic sitemap for LLMEasy.
-- Mintlify currently renders `lang="en"` in the server HTML for all LLMEasy routes and does not expose route-level `html lang` or `hreflang` configuration in `docs.json`. Record this as a platform limitation; do not add Nginx solely to rewrite HTML. Google detects page language from content and can use the custom Sitemap hreflang. Yandex no longer uses Sitemap hreflang, so revisit response-header alternates only if the existing proxy must support Yandex language targeting and Mintlify still lacks native support.
-- Yandex indexing can lag after sitemap submission. Before changing content for an indexing issue, verify `https://docs.llmeasy.ru/robots.txt`, `https://docs.llmeasy.ru/sitemap.xml`, canonical URLs, and a YandexBot user-agent fetch.
+- `scripts/prepare-bettertoken-artifacts.mjs` generates a custom root `sitemap.xml` with reciprocal `ru`, `en`, `zh-CN`, and `x-default` alternates. Mintlify serves this file instead of its automatic Sitemap.
+- Mintlify currently renders `lang="en"` in the server HTML for all routes and does not expose route-level `html lang` or `hreflang` configuration in `docs.json`. Record this as a platform limitation; do not add Nginx solely to rewrite HTML.
+- Yandex indexing can lag after sitemap submission. Before changing content for an indexing issue, verify `https://docs.bettertoken.ai/robots.txt`, `https://docs.bettertoken.ai/sitemap.xml`, canonical URLs, and a YandexBot user-agent fetch.
 - Historical operations note: on 2026-06-17, some Russian networks timed out when reaching Mintlify/Cloudflare for `docs.llmeasy.ru`, while `www.llmeasy.ru` on `67.230.182.168` stayed reachable. The access issue was confirmed fixed on 2026-06-24. Keep the note only as a recurrence runbook: verify DNS, TLS, regional probes, and current server routing before redeploying; do not assume a GitHub or Mintlify redeploy can fix regional network timeouts.
 
 ## Editing guidance
@@ -82,7 +82,7 @@
 - For behavior changes in docs, update nearby examples, troubleshooting notes, and FAQ entries if needed.
 - Use linear, monochrome sidebar icons for custom product pages. Custom SVG icons should use `currentColor` strokes and avoid filled brand colors so they match the rest of the navigation.
 - Every page listed in the Coding Agent setup navigation group must include a frontmatter `icon`. Configuration-tool pages under Getting started, such as CC Switch, are not part of this requirement.
-- Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-bettertoken-api.mdx`.
+- Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-llmeasy-api.mdx`.
 - Store screenshots and other page-specific images under a dedicated folder in `images/<page-slug>/`. Follow the same pattern as `images/quickstart/`.
 - Use `images/temp/` only as a temporary holding area while collecting assets. Before finishing a docs change, move any referenced image into its final page-specific folder and update the MDX path.
 - If a change affects links or navigation wording, run `mint broken-links` after editing.

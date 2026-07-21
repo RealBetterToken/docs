@@ -1,116 +1,116 @@
 ---
-title: "n8n 如何接入 BetterToken 自定义模型？"
+title: "Как подключить custom-модели LLMEasy к n8n"
 sidebarTitle: "n8n"
-description: "在 n8n 中创建 OpenAI credential，填写 BetterToken Base URL、API Key 和 GPT 分组模型 ID，并连接 OpenAI Chat Model。"
+description: "Создайте в n8n credential OpenAI с Base URL LLMEasy, API Key и ID модели группы GPT, затем подключите OpenAI Chat Model."
 icon: "diagram-project"
 ---
 
-在 n8n 中接入 BetterToken 时，使用内置 **OpenAI credential** 和 **OpenAI Chat Model**。Base URL 填 `{{openai-base-url}}`，API Key 使用 **GPT 分组**密钥，然后从模型列表中选择对应模型。
+Для подключения LLMEasy к n8n используйте встроенные **OpenAI credential** и **OpenAI Chat Model**. Укажите Base URL `{{openai-base-url}}`, добавьте API Key из группы **GPT** и выберите соответствующую модель.
 
-## 开始前准备
+## Что потребуется
 
-- 可用的 n8n Cloud 或自托管实例
-- BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
+- n8n Cloud или собственный экземпляр n8n
+- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-| 配置项 | 值 |
+| Параметр | Значение |
 |---|---|
-| Credential 类型 | `OpenAI` |
+| Credential type | `OpenAI` |
 | Base URL | `{{openai-base-url}}` |
-| API Key | 你的 BetterToken GPT 分组 API Key |
-| Organization ID | 留空 |
-| Custom Header | 关闭 |
+| API Key | API Key LLMEasy из группы GPT |
+| Organization ID | оставить пустым |
+| Custom Header | выключить |
 
 <Note>
-  Base URL 必须保留末尾的 `/v1`。不要填写 `/chat/completions` 或 `/responses`，n8n 会根据节点功能自动拼接具体路径。
+  Сохраните `/v1` в конце Base URL. Не добавляйте `/chat/completions` или `/responses`: n8n сам дополняет адрес маршрутом, который нужен узлу.
 </Note>
 
-## 配置步骤
+## Настройка
 
 <Steps>
-  <Step title="添加 AI Agent 和 OpenAI Chat Model">
-    打开一个 workflow，添加 **AI Agent** 节点。然后在它的 **Chat Model** 连接位置添加 **OpenAI Chat Model** 子节点。
+  <Step title="Добавьте AI Agent и OpenAI Chat Model">
+    Откройте workflow и добавьте узел **AI Agent**. В его разъём **Chat Model** добавьте подузел **OpenAI Chat Model**.
 
-    本文使用 **OpenAI Chat Model**，因为它可以作为 n8n AI Agent、Chain 和其他 AI workflow 的模型节点。
+    В этой инструкции используется **OpenAI Chat Model**: он подключает модель к AI Agent, chain и другим AI workflow в n8n.
   </Step>
 
-  <Step title="创建 OpenAI credential">
-    在 **OpenAI Chat Model** 中打开 **Credential to connect with**，选择 **Create new credential**，然后选择 **OpenAI**。
+  <Step title="Создайте OpenAI credential">
+    В **OpenAI Chat Model** откройте **Credential to connect with**, выберите **Create new credential**, затем — **OpenAI**.
 
-    如果当前版本同时提供 **OpenAI Account (ChatGPT)** 和 **API Key**，请选择 **API Key**。OpenAI Account 登录用于官方账号，不用于 BetterToken 自定义 Base URL。
+    Если ваша версия n8n предлагает **OpenAI Account (ChatGPT)** и **API Key**, выберите **API Key**. Авторизация OpenAI Account предназначена для официального аккаунта, а не для custom Base URL LLMEasy.
   </Step>
 
-  <Step title="填写 BetterToken 凭证">
-    按下面填写：
+  <Step title="Введите данные LLMEasy">
+    Заполните поля так:
 
-    | n8n 字段 | 填写内容 |
+    | Поле n8n | Значение |
     |---|---|
-    | API Key | 你的 BetterToken API Key |
-    | Organization ID (optional) | 留空 |
+    | API Key | ваш API Key LLMEasy |
+    | Organization ID (optional) | оставить пустым |
     | Base URL | `{{openai-base-url}}` |
-    | Add Custom Header | 关闭 |
+    | Add Custom Header | выключить |
 
-    点击 **Save**。n8n 会使用当前 Base URL 的 `/models` 路径测试凭证，因此完整测试地址应为 `{{openai-base-url}}/models`。
+    Нажмите **Save**. n8n проверяет credential через `/models` относительно указанного Base URL, поэтому полный адрес проверки — `{{openai-base-url}}/models`.
   </Step>
 
-  <Step title="选择模型">
-    回到 **OpenAI Chat Model**，打开 **Model** 列表，选择与<a href={"{{model-plaza-url}}"}>模型广场</a>一致的 GPT 分组模型 ID。
+  <Step title="Выберите модель">
+    Вернитесь в **OpenAI Chat Model**, откройте список **Model** и выберите ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-    如果刚保存凭证后列表没有刷新，重新打开节点或 credential，再次加载模型列表。
+    Если после сохранения credential список не обновился, заново откройте узел или credential и повторно загрузите модели.
   </Step>
 
-  <Step title="选择 Chat Completions 或 Responses">
-    首次验证建议关闭 **Use Responses API**，先使用默认的 Chat Completions 模式完成一轮普通对话。
+  <Step title="Выберите Chat Completions или Responses">
+    Для первой проверки выключите **Use Responses API** и отправьте обычный запрос через режим Chat Completions.
 
-    如果你的 workflow 明确需要 Responses API，再打开 **Use Responses API**。n8n 官方说明中，Web Search、File Search 和 Code Interpreter 等内置工具只在 **OpenAI Chat Model + AI Agent** 且启用 Responses API 时可用；这些 OpenAI 官方内置工具不等同于 BetterToken 已确认支持的能力，请按实际模型和接口测试。
+    Включайте **Use Responses API**, только если это требуется workflow. n8n описывает Web Search, File Search и Code Interpreter для связки **OpenAI Chat Model + AI Agent** с включённым Responses API. Эти инструменты OpenAI не становятся автоматически подтверждёнными возможностями LLMEasy: проверяйте их с выбранной моделью и endpoint.
   </Step>
 
-  <Step title="执行测试">
-    给 AI Agent 添加一个简单输入，例如：
+  <Step title="Проверьте подключение">
+    Передайте AI Agent простой запрос:
 
     ```text
-    请只回复：连接成功
+    Ответь только: Подключение работает
     ```
 
-    点击 **Execute step** 或运行 workflow。节点返回模型回复后，配置即生效。
+    Нажмите **Execute step** или запустите workflow. Если узел вернул ответ модели, настройка завершена.
   </Step>
 </Steps>
 
-## 常见问题
+## Решение проблем
 
-### Credential test 返回 401
+### Credential test возвращает 401
 
-- 确认 API Key 完整，没有多余空格
-- 确认密钥属于 **GPT 分组**
-- 在 BetterToken Dashboard 检查密钥状态和余额
+- Проверьте API Key и удалите лишние пробелы
+- Убедитесь, что ключ относится к группе **GPT**
+- Проверьте статус ключа и баланс в Dashboard LLMEasy
 
-### Credential test 返回 404
+### Credential test возвращает 404
 
-- Base URL 必须是 `{{openai-base-url}}`
-- 不要把 Base URL 写成 `{{openai-base-url}}/models`
-- 不要在 Base URL 后追加 `/chat/completions` 或 `/responses`
+- Base URL должен быть `{{openai-base-url}}`
+- Не указывайте `{{openai-base-url}}/models` как Base URL
+- Не добавляйте `/chat/completions` или `/responses`
 
-### Model 列表为空
+### Список Model пуст
 
-- 重新保存 credential，再打开 **Model** 列表
-- 确认 `{{openai-base-url}}/models` 可通过当前 API Key 访问
-- 确认模型 ID 来自当前<a href={"{{model-plaza-url}}"}>模型广场</a>，不要使用已经下线或拼写不一致的 ID
+- Сохраните credential ещё раз и повторно откройте **Model**
+- Проверьте доступ к `{{openai-base-url}}/models` с текущим API Key
+- Скопируйте актуальный ID из <a href={"{{model-plaza-url}}"}>model plaza</a>; не используйте удалённый ID или вариант с опечаткой
 
-### 普通对话可用，但 Agent 工具调用失败
+### Обычный чат работает, а вызов инструментов Agent — нет
 
-先关闭 **Use Responses API** 和内置工具，验证普通 Chat Completions。随后逐项启用 Agent 工具，以便定位是模型能力、工具参数还是 workflow 配置问题。
+Выключите **Use Responses API** и встроенные инструменты, затем проверьте обычный Chat Completions. После этого включайте инструменты по одному, чтобы отделить ограничения модели от ошибок параметров и workflow.
 
-### 请求超时
+### Запрос завершается по тайм-ауту
 
-在 **OpenAI Chat Model > Options** 中提高 **Timeout**，并保留有限的 **Max Retries**。不要无限重试 `400`、`401` 或配置错误。
+Увеличьте **Timeout** в **OpenAI Chat Model > Options** и оставьте ограниченное значение **Max Retries**. Не повторяйте бесконечно запросы с `400`, `401` и ошибками конфигурации.
 
-## 使用范围
+## Область применения
 
-本指南只确认通过 OpenAI-compatible 协议接入 LLM Chat。不要把 GPT 聊天模型当作 embedding、rerank、语音或图片模型使用。
+Инструкция подтверждает только LLM Chat через OpenAI-compatible протокол. Не используйте GPT chat model как embedding, rerank, speech или image model.
 
-## 相关文档
+## Связанные документы
 
 - [n8n OpenAI credentials](https://docs.n8n.io/integrations/builtin/credentials/openai/)
 - [n8n OpenAI Chat Model](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [如何选择模型？](/faq/model-calling/model-selection-guide)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Как выбрать модель](/faq/model-calling/model-selection-guide)

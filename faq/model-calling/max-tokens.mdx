@@ -1,90 +1,90 @@
 ---
-title: "max_tokens 是什么？不设置会怎样？"
+title: "Что такое max_tokens и что будет, если его не задать?"
 sidebarTitle: "max_tokens"
-description: "解释 max_tokens、max_completion_tokens、max_output_tokens 的区别，以及如何设置模型输出 token 上限。"
+description: "Разница между max_tokens, max_completion_tokens и max_output_tokens, а также настройка лимита выходных tokens."
 ---
 
-## 简短答案
+## Короткий ответ
 
-`max_tokens` 用来限制模型单次最多输出多少 token。不同 API 和模型对这个字段的名称、必填要求和默认行为不同。
+`max_tokens` ограничивает, сколько tokens модель может сгенерировать за один ответ. В разных API и моделях отличаются названия поля, обязательность параметра и поведение по умолчанию.
 
-为了获得稳定输出，建议在长回复、代码生成、文档生成等任务中显式设置输出上限。对于 Claude / Anthropic-compatible API，通常需要显式传入 `max_tokens`。
+Чтобы получать стабильный вывод, задавайте явный лимит для длинных ответов, генерации кода и документации. Для Claude / Anthropic-compatible API обычно нужно передавать `max_tokens` явно.
 
-## 核心概念
+## Базовые понятия
 
-| 概念 | 说明 |
+| Понятие | Значение |
 | --- | --- |
-| Input tokens | 你的消息、上下文、文件内容、工具结果等输入 |
-| Output tokens | 模型生成的可见回复 |
-| Reasoning tokens | 部分推理模型内部使用的隐藏推理 token |
-| Context window | 输入、输出和部分内部 token 可共同占用的上下文窗口 |
-| Output limit | 单次响应最多生成多少输出 token |
+| Input tokens | Ваши сообщения, контекст, содержимое файлов, результаты tools и другой ввод |
+| Output tokens | Видимый ответ, который генерирует модель |
+| Reasoning tokens | Скрытые tokens для внутреннего reasoning у некоторых reasoning-моделей |
+| Context window | Общий лимит для ввода, вывода и части внутренних tokens |
+| Output limit | Максимальный видимый вывод за один ответ |
 
-`max_tokens` 设置得太小，回复可能被截断。设置得很大，不代表模型一定会输出那么多内容，但可能让长输出任务消耗更多费用。
+Если output limit слишком мал, ответ может оборваться. Если лимит очень большой, модель не обязана использовать его целиком, но длинные задачи могут стоить дороже.
 
-## 不同参数名
+## Разные имена параметров
 
-| 参数 | 常见场景 |
+| Параметр | Частый сценарий |
 | --- | --- |
-| `max_tokens` | Claude / Anthropic Messages API，以及部分 Chat Completions 场景 |
-| `max_completion_tokens` | 部分 OpenAI 推理模型的 Chat Completions 参数 |
-| `max_output_tokens` | OpenAI Responses API 常见输出上限字段 |
+| `max_tokens` | Claude / Anthropic Messages API и часть Chat Completions-настроек |
+| `max_completion_tokens` | Некоторые OpenAI reasoning-модели через Chat Completions |
+| `max_output_tokens` | Частое поле лимита вывода в OpenAI Responses API |
 
-如果你使用的是 Codex CLI 或其他基于 Responses API 的工具，要以工具或 provider 当前支持的字段为准。不要把所有模型都固定写成同一个参数名。
+Если вы используете Codex CLI или другой инструмент на Responses API, ориентируйтесь на поле, которое сейчас поддерживает инструмент или provider. Не задавайте одно и то же имя параметра для всех моделей.
 
-## 不设置会怎样
+## Что будет, если не задать лимит
 
-不同厂商和 API 的行为不完全一样：
+Поведение зависит от provider и API:
 
-| 场景 | 可能结果 |
+| Сценарий | Возможный результат |
 | --- | --- |
-| Claude / Anthropic-compatible API | 可能要求显式设置 `max_tokens` |
-| OpenAI-compatible Chat Completions | 可能使用模型默认行为 |
-| OpenAI Responses API | 可能使用 `max_output_tokens` 或工具默认值 |
-| 其他模型 | 可能有自己的默认输出上限 |
+| Claude / Anthropic-compatible API | Может потребоваться явное значение `max_tokens` |
+| OpenAI-compatible Chat Completions | Может использоваться поведение модели по умолчанию |
+| OpenAI Responses API | Может использоваться `max_output_tokens` или дефолт инструмента |
+| Другие модели | Могут иметь собственный лимит вывода по умолчанию |
 
-因此，同一段代码换模型后，输出长度可能发生变化。为了减少不确定性，生产调用里建议显式设置输出上限。
+Один и тот же код после смены модели может давать ответы разной длины. Для production-вызовов лучше задавать явный лимит вывода.
 
-## 推荐设置
+## Рекомендуемые диапазоны
 
-| 任务 | 建议范围 |
+| Задача | Диапазон |
 | --- | --- |
-| 普通问答 | `1024` - `4096` |
-| 代码解释 / 小型修改 | `4096` - `8192` |
-| 长文生成 / 复杂代码任务 | `8192` 以上，按模型上限调整 |
-| 批量任务 | 尽量设置较小上限，避免单条请求意外生成过长 |
+| Обычные вопросы | `1024` - `4096` |
+| Объяснение кода / небольшие правки | `4096` - `8192` |
+| Длинный текст / сложные coding-задачи | `8192` и выше, с учетом лимита модели |
+| Пакетные задачи | Меньший лимит, чтобы отдельный запрос не сгенерировал слишком длинный ответ |
 
-实际最大值请以<a href={"{{model-plaza-url}}"}>模型广场</a>和上游模型文档为准。不同模型的最大输出 token 数会随版本变化。
+Фактический максимум проверяйте в <a href={"{{model-plaza-url}}"}>model plaza</a> и документации upstream-модели. Максимальный вывод может меняться между версиями.
 
-## 输出被截断怎么办
+## Что делать, если ответ обрывается
 
-如果响应里出现 `finish_reason: "length"`，通常表示模型达到输出上限。
+Если в ответе есть `finish_reason: "length"`, модель обычно достигла лимита вывода.
 
-可以按这个顺序排查：
+Проверяйте в таком порядке:
 
-1. 提高当前 API 支持的输出上限字段。
-2. 检查是否使用了正确的参数名。
-3. 让 prompt 更聚焦，减少不必要的输出。
-4. 换用支持更大输出窗口的模型。
-5. 把长任务拆成多个步骤。
+1. Увеличьте поле лимита вывода, которое поддерживает текущий API.
+2. Проверьте, что использовали правильное имя параметра.
+3. Сузьте prompt, чтобы убрать лишний вывод.
+4. Выберите модель с большим output window.
+5. Разбейте длинную задачу на несколько шагов.
 
-## 常见误区
+## Частые ошибки
 
-- 以为 `max_tokens` 越大，模型就一定输出越长。
-- 输出被截断后只重试，不检查 `finish_reason`。
-- 对推理模型仍使用旧字段名。
-- 忽略 hidden reasoning tokens 对上下文和成本的影响。
-- 不看模型自身最大输出上限。
+- Считать, что большее значение `max_tokens` всегда заставит модель писать длиннее.
+- Повторять запрос после обрыва и не проверять `finish_reason`.
+- Использовать старое имя поля с reasoning-моделью.
+- Не учитывать hidden reasoning tokens при оценке контекста и стоимости.
+- Игнорировать собственный максимальный лимит вывода у модели.
 
-## 关于 BetterToken
+## О LLMEasy
 
-BetterToken 会记录 API Key 和模型请求层面的用量。你可以通过 dashboard 观察不同模型、不同任务的 token 消耗。
+LLMEasy записывает usage на уровне API Key и model request. В dashboard можно смотреть расход tokens по моделям и задачам.
 
-但输出上限字段仍由你使用的 API 格式和模型决定。配置时要同时确认模型、Base URL、API 格式和参数名。
+Но поле лимита вывода всё равно определяется API-форматом и моделью. При настройке проверяйте модель, Base URL, API-формат и имя параметра вместе.
 
-## Related docs
+## Связанные материалы
 
-- [Claude Code token 为什么消耗很多？](/faq/token-cost/claude-code-token-usage)
-- [如何选择合适的 AI 模型？](/faq/model-calling/model-selection-guide)
-- [Base URL 怎么填？](/faq/model-calling/base-url-config)
-- [Codex CLI 中 review_model 和 reasoning_effort 是什么？](/faq/codex/review-model-reasoning-effort)
+- [Почему Claude Code расходует много tokens?](/faq/token-cost/claude-code-token-usage)
+- [Как выбрать подходящую AI-модель?](/faq/model-calling/model-selection-guide)
+- [Как заполнять Base URL?](/faq/model-calling/base-url-config)
+- [Что такое review_model и reasoning_effort в Codex CLI?](/faq/codex/review-model-reasoning-effort)

@@ -1,106 +1,106 @@
 ---
-title: "GitHub Copilot 自定义模型接入 BetterToken 指南"
+title: "Настройка кастомной модели GitHub Copilot через LLMEasy"
 sidebarTitle: "GitHub Copilot"
-description: "在 VS Code 的 GitHub Copilot Chat 中通过 Custom Endpoint 配置 BetterToken API Key 和 Base URL。"
+description: "Настройте LLMEasy API Key и Base URL в GitHub Copilot Chat через Custom Endpoint в VS Code."
 icon: "github"
 ---
 
-GitHub Copilot Chat 支持通过 **Custom Endpoint** 添加自定义模型。接入 BetterToken 时，请使用 **GPT 分组** API Key，并选择 **Chat Completions**。
+GitHub Copilot Chat поддерживает пользовательские модели через **Custom Endpoint**. Для подключения LLMEasy используйте API Key из группы **GPT** и выберите **Chat Completions**.
 
 <Info>
-  本文配置的是 VS Code 中 GitHub Copilot Chat 的自定义语言模型。它不会替换 GitHub Copilot 的行内代码补全服务。
+  Эта инструкция настраивает пользовательскую языковую модель для GitHub Copilot Chat в VS Code. Она не заменяет inline code completion в GitHub Copilot.
 </Info>
 
-## 前置条件
+## Перед началом
 
-- 已安装最新版 VS Code
-- 已安装并登录 GitHub Copilot / Copilot Chat
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- API Key 属于 **GPT 分组**
-- 已确认要使用的模型 ID，例如 `gpt-5.5`
+- Установлена актуальная версия VS Code
+- Установлен GitHub Copilot / Copilot Chat, выполнен вход в аккаунт
+- Получен LLMEasy API Key (<a href={"{{register-url}}"}>зарегистрироваться и получить</a>)
+- API Key относится к группе **GPT**
+- Вы знаете ID модели, например `gpt-5.5`
 
 <Warning>
-  不要把真实 API Key 手动写进 `chatLanguageModels.json`。请在 VS Code 弹出的 API Key 输入框中粘贴 Key，VS Code 会自动生成 `${input:chat.lm.secret...}` 这种本机密钥引用。
+  Не записывайте реальный API Key вручную в `chatLanguageModels.json`. Вставьте ключ в окно ввода VS Code. VS Code сам создаст локальную secret-ссылку вида `${input:chat.lm.secret...}`.
 </Warning>
 
-## 配置步骤
+## Шаги настройки
 
 <Steps>
-  <Step title="打开模型管理入口">
-    在 Copilot Chat 输入框下方，点击模型选择器，然后选择 **Manage Models...**。
+  <Step title="Откройте управление моделями">
+    В области ввода Copilot Chat нажмите на выбор модели, затем выберите **Manage Models...**.
 
     <Frame>
       <img
         src="/images/github-copilot/manage-models-entry.png"
-        alt="在 Copilot Chat 模型选择器中点击 Manage Models。"
+        alt="Открытие Manage Models из выбора модели в Copilot Chat."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="添加 Custom Endpoint">
-    在 **Language Models** 界面中，点击 **Add Models**，然后选择 **Custom Endpoint**。
+  <Step title="Добавьте Custom Endpoint">
+    В окне **Language Models** нажмите **Add Models**, затем выберите **Custom Endpoint**.
 
     <Frame>
       <img
         src="/images/github-copilot/add-custom-endpoint.png"
-        alt="在 Language Models 界面中点击 Add Models 并选择 Custom Endpoint。"
+        alt="Кнопка Add Models в Language Models и выбор Custom Endpoint."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="输入名称">
-    在 **Group Name** 输入框中填写：
+  <Step title="Введите название группы">
+    В поле **Group Name** введите:
 
     ```text
-    BetterToken
+    LLMEasy
     ```
 
-    然后按 **Enter**。
+    Затем нажмите **Enter**.
 
     <Frame>
       <img
         src="/images/github-copilot/group-name.png"
-        alt="在 Group Name 输入框中填写 BetterToken。"
+        alt="Ввод LLMEasy в поле Group Name."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="输入 API Key">
-    接下来 VS Code 会要求输入 API Key。粘贴你的 BetterToken API Key，然后按 **Enter**。
+  <Step title="Введите API Key">
+    VS Code попросит ввести API Key. Вставьте LLMEasy API Key и нажмите **Enter**.
 
-    这一步不会显示在配置文件里。VS Code 会把 API Key 保存成本机 secret，并在 JSON 中生成类似下面的引用：
+    Значение ключа не будет напрямую показано в конфигурационном файле. VS Code сохранит его как локальный secret и создаст ссылку вида:
 
     ```json
     "apiKey": "${input:chat.lm.secret.xxxxx}"
     ```
 
     <Warning>
-      不要把 `${input:chat.lm.secret...}` 改成真实 API Key。保持 VS Code 自动生成的 secret 引用即可。
+      Не заменяйте `${input:chat.lm.secret...}` на реальный API Key. Оставьте secret-ссылку, которую сгенерировал VS Code.
     </Warning>
   </Step>
 
-  <Step title="选择 API 类型">
-    在 **Custom Endpoint: API Type** 中选择 **Chat Completions**。
+  <Step title="Выберите тип API">
+    В **Custom Endpoint: API Type** выберите **Chat Completions**.
 
     <Frame>
       <img
         src="/images/github-copilot/select-chat-completions.png"
-        alt="在 Custom Endpoint API Type 中选择 Chat Completions。"
+        alt="Выбор Chat Completions в Custom Endpoint API Type."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="编辑 JSON 配置">
-    VS Code 会打开 `chatLanguageModels.json`。确认或修改配置为下面结构：
+  <Step title="Отредактируйте JSON-конфигурацию">
+    VS Code откроет `chatLanguageModels.json`. Проверьте или измените конфигурацию:
 
     <Frame>
       <img
         src="/images/github-copilot/chat-language-models-json.png"
-        alt="在 chatLanguageModels.json 中配置 BetterToken 模型 URL、toolCalling、vision 和 token 上限。"
+        alt="Настройка URL модели LLMEasy, toolCalling, vision и лимитов токенов в chatLanguageModels.json."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
@@ -108,7 +108,7 @@ GitHub Copilot Chat 支持通过 **Custom Endpoint** 添加自定义模型。接
     ```json
     [
       {
-        "name": "BetterToken",
+        "name": "LLMEasy",
         "vendor": "customendpoint",
         "apiKey": "${input:chat.lm.secret.xxxxx}",
         "apiType": "chat-completions",
@@ -127,14 +127,14 @@ GitHub Copilot Chat 支持通过 **Custom Endpoint** 添加自定义模型。接
     ]
     ```
 
-    你需要重点确认：
+    Проверьте ключевые поля:
 
-    | 字段 | 推荐值 |
+    | Поле | Рекомендуемое значение |
     | --- | --- |
-    | `name` | `BetterToken` |
+    | `name` | `LLMEasy` |
     | `apiType` | `chat-completions` |
-    | `id` | `gpt-5.5` 或<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组模型 ID |
-    | `name` | 与模型 ID 保持一致 |
+    | `id` | `gpt-5.5` или другой ID модели из группы GPT в <a href={"{{model-plaza-url}}"}>model plaza</a> |
+    | `name` | Совпадает с ID модели |
     | `url` | `{{chat-completions-url}}` |
     | `toolCalling` | `true` |
     | `vision` | `true` |
@@ -142,54 +142,54 @@ GitHub Copilot Chat 支持通过 **Custom Endpoint** 添加自定义模型。接
     | `maxOutputTokens` | `64000` |
   </Step>
 
-  <Step title="保存并重新加载 VS Code">
-    保存 `chatLanguageModels.json` 后，执行：
+  <Step title="Сохраните и перезагрузите VS Code">
+    Сохраните `chatLanguageModels.json`, затем выполните команду:
 
     ```text
     Developer: Reload Window
     ```
 
-    重新加载后，回到 Copilot Chat 的模型选择器，选择 `gpt-5.5`。
+    После перезагрузки вернитесь к выбору модели в Copilot Chat и выберите `gpt-5.5`.
   </Step>
 
-  <Step title="发送测试消息">
-    在 Copilot Chat 中发送一条简单消息，例如：
+  <Step title="Отправьте тестовое сообщение">
+    Отправьте простое сообщение в Copilot Chat:
 
     ```text
-    用一句话说明你当前使用的模型。
+    Опиши в одном предложении, какую модель ты используешь.
     ```
 
-    如果能够正常回复，说明 BetterToken Custom Endpoint 已配置成功。
+    Если Copilot Chat отвечает нормально, LLMEasy Custom Endpoint настроен успешно.
   </Step>
 </Steps>
 
-## 常见问题
+## FAQ
 
-### 为什么必须在弹窗里输入 API Key？
+### Почему API Key нужно вводить во всплывающем окне?
 
-VS Code 会把 API Key 保存到本机 secret 存储中，并在 JSON 里使用 `${input:chat.lm.secret...}` 引用它。这样比把真实 API Key 写进 JSON 更安全。
+VS Code сохраняет API Key в локальном secret storage и использует в JSON ссылку `${input:chat.lm.secret...}`. Это безопаснее, чем записывать реальный API Key в JSON-файл.
 
-### 为什么选择 Chat Completions？
+### Почему нужно выбрать Chat Completions?
 
-本次验证成功的配置使用的是 **Chat Completions**。对应 URL 是：
+Проверенная рабочая конфигурация использует **Chat Completions**. URL:
 
 ```text
 {{chat-completions-url}}
 ```
 
-不要把它写成 `/v1/responses`，也不要只写到 `/v1`。
+Не используйте `/v1/responses` и не оставляйте только `/v1`.
 
-### 这个配置会影响 GitHub Copilot 自动补全吗？
+### Эта настройка заменяет inline completion в GitHub Copilot?
 
-不会。这个 Custom Endpoint 主要用于 Copilot Chat 的语言模型调用。GitHub Copilot 的行内自动补全仍由 GitHub Copilot 自身服务提供。
+Нет. Custom Endpoint в основном используется для запросов языковой модели в Copilot Chat. Inline completion в GitHub Copilot по-прежнему работает через сервис GitHub Copilot.
 
-### 报 Invalid token 怎么办？
+### Что делать при ошибке Invalid token?
 
-如果出现 `Invalid token`，按顺序检查：
+Проверьте по порядку:
 
-1. API Key 是否是在 VS Code 弹窗中输入的
-2. JSON 里是否保留 `${input:chat.lm.secret...}`
-3. API Key 是否属于 **GPT 分组**
-4. `url` 是否为 `{{chat-completions-url}}`
-5. `apiType` 是否为 `chat-completions`
-6. 模型 ID 是否为<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组模型
+1. API Key был введён во всплывающем окне VS Code
+2. В JSON сохранена ссылка `${input:chat.lm.secret...}`
+3. API Key относится к группе **GPT**
+4. `url` равен `{{chat-completions-url}}`
+5. `apiType` равен `chat-completions`
+6. ID модели взят из группы GPT в <a href={"{{model-plaza-url}}"}>model plaza</a>

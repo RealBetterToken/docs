@@ -1,0 +1,58 @@
+---
+title: "Codex CLI 中 review_model 和 reasoning_effort 是什么？"
+sidebarTitle: "review_model / reasoning"
+description: "解释 Codex CLI 中 review_model、model_reasoning_effort、/review、/model 与成本和质量的关系。"
+---
+
+## 简短答案
+
+`review_model` 是 Codex 在代码审查场景中使用的模型。`model_reasoning_effort` 控制支持 Responses API 的模型使用多少推理强度。
+
+这两个字段会影响质量、速度和用量成本。一般来说，更强的推理设置更适合复杂任务，但也可能带来更高消耗。
+
+## 字段关系
+
+| 字段 | 作用 |
+| --- | --- |
+| `model` | 日常任务默认模型 |
+| `review_model` | `/review` 等审查场景使用的模型 |
+| `model_reasoning_effort` | 主模型的推理强度设置 |
+| `/model` | 会话中切换模型或推理设置的入口 |
+| `/review` | 让 Codex 对当前改动做代码审查的入口 |
+
+## 推荐配置
+
+```toml
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+```
+
+如果你的任务更偏快速小修，可以降低推理强度。如果任务涉及跨文件重构、复杂排障或长上下文，较高推理强度更合适。
+
+## 常见误区
+
+- 以为 `review_model` 会替代所有任务的主模型。
+- 把 reasoning effort 当成温度参数。
+- 使用不被当前 provider 支持的模型 ID。
+- 为所有任务都设置最高推理强度。
+- 只看模型名称，不看实际用量和效果。
+
+## 关于 LLMEasy
+
+不同模型和 reasoning 设置会影响用量。通过 LLMEasy 的用量记录，你可以观察同一类任务在不同模型和配置下的输入、输出和成本差异。
+
+模型 ID 应从 **GPT 分组**复制，确保当前 provider 可以识别。
+
+## Related docs
+
+- [如何配置 Codex CLI 的 config.toml？](/zh/faq/codex/config-toml)
+- [model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [Codex 接入 LLMEasy 指南](/zh/ai-tools/codex)
+- [Codex CLI sandbox 和 approval mode 是什么？](/zh/faq/codex/sandbox-approval)
+
+## References
+
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)
+- [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
