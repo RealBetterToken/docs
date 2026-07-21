@@ -8,7 +8,7 @@ description: "Настройте allow, ask и deny через /permissions и s
 
 Выполните `/permissions` в Claude Code, чтобы просмотреть и изменить правила доступа. Для постоянной настройки добавьте `allow`, `ask` и `deny` в `settings.json`. Hooks находятся в тех же файлах и запускают форматирование, тесты или проверки безопасности до и после tool calls. Приоритет правил: **deny → ask → allow**, поэтому allow не может переопределить deny.
 
-Эти настройки управляют локальными инструментами на вашем компьютере. LLMEasy меняет только Base URL, API Key и маршрутизацию model API; он не обходит локальные permissions и не запускает hooks вместо Claude Code.
+Эти настройки управляют локальными инструментами на вашем компьютере. BetterToken меняет только Base URL, API Key и маршрутизацию model API; он не обходит локальные permissions и не запускает hooks вместо Claude Code.
 
 ## Когда использовать permissions, а когда hooks
 
@@ -118,12 +118,12 @@ description: "Настройте allow, ask и deny через /permissions и s
 | Разрешённое действие всё равно блокируется | Оно совпало с deny или managed rule | Проверьте источники в `/permissions`; deny имеет приоритет над ask и allow |
 | Hook не запускается | Event или matcher не совпадает с инструментом | Проверьте `/hooks`; `PreToolUse` запускается до выполнения, `PostToolUse` после успеха, matcher чувствителен к регистру |
 | Hook запускается, но команда завершается ошибкой | Неверный script, рабочая директория или dependency | Сначала выполните ту же команду вручную из директории проекта |
-| После подключения LLMEasy остались запросы подтверждения | API provider и локальные permissions независимы | Сохраните Base URL LLMEasy и отдельно настройте точные permissions Claude Code |
+| После подключения BetterToken остались запросы подтверждения | API provider и локальные permissions независимы | Сохраните Base URL BetterToken и отдельно настройте точные permissions Claude Code |
 | Нужно временно отключить все hooks | Hook может мешать отладке | Добавьте `"disableAllHooks": true`, а после проверки удалите параметр или задайте `false` |
 
-## Границы LLMEasy
+## Границы BetterToken
 
-LLMEasy отвечает за доступ Claude Code к model API, маршрутизацию моделей, баланс и usage. Claude Code по-прежнему управляет:
+BetterToken отвечает за доступ Claude Code к model API, маршрутизацию моделей, баланс и usage. Claude Code по-прежнему управляет:
 
 - Чтением и изменением файлов
 - Подтверждением Bash-команд
@@ -134,7 +134,7 @@ LLMEasy отвечает за доступ Claude Code к model API, маршр�
 
 ## Связанные документы
 
-- [Настройка Claude Code с LLMEasy](/ai-tools/claude-code)
+- [Настройка Claude Code с BetterToken](/ai-tools/claude-code)
 - [Что такое CLAUDE.md в Claude Code](/faq/claude-code/claude-md)
 - [Почему Claude Code расходует много tokens](/faq/token-cost/claude-code-token-usage)
 - [MCP и API Key / Base URL в Claude Code](/faq/concepts/mcp-vs-api-key-base-url)

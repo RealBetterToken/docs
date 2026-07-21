@@ -1,11 +1,11 @@
 ---
-title: "OpenClaw 自定义模型接入 LLMEasy 指南"
+title: "OpenClaw 自定义模型接入 BetterToken 指南"
 sidebarTitle: "OpenClaw"
-description: "在 OpenClaw 这个多平台 AI 智能体 Gateway 网关中接入 LLMEasy。"
+description: "在 OpenClaw 这个多平台 AI 智能体 Gateway 网关中接入 BetterToken。"
 icon: "paw"
 ---
 
-OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsoft Teams、Signal、Slack、Telegram、WhatsApp、Zalo 等更多平台的任意操作系统 AI 智能体 Gateway 网关。这篇文档会带你把 LLMEasy 接入 OpenClaw，并完成基础验证。
+OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsoft Teams、Signal、Slack、Telegram、WhatsApp、Zalo 等更多平台的任意操作系统 AI 智能体 Gateway 网关。这篇文档会带你把 BetterToken 接入 OpenClaw，并完成基础验证。
 
 ## 安装 OpenClaw
 
@@ -26,7 +26,7 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
 
 <Tabs>
   <Tab title="自动配置">
-    你可以直接运行 LLMEasy 提供的自动配置脚本。运行前请准备好 LLMEasy API Key。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。脚本执行完成后，请继续看下方“运行生效”。
+    你可以直接运行 BetterToken 提供的自动配置脚本。运行前请准备好 BetterToken API Key。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。脚本执行完成后，请继续看下方“运行生效”。
 
     按你的操作系统执行对应步骤。你只需要执行其中一项。
 
@@ -71,18 +71,18 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
         按向导完成 Gateway 和基础组件安装。
       </Step>
 
-      <Step title="通过认证入口添加 LLMEasy 凭证">
+      <Step title="通过认证入口添加 BetterToken 凭证">
         ```bash
         openclaw models auth add
         ```
       </Step>
 
-      <Step title="添加或确认 LLMEasy provider">
+      <Step title="添加或确认 BetterToken provider">
         在向导或 provider 编辑器中填写或确认以下内容：
 
         - **Base URL**：`{{openai-base-url}}`
         - **API**：`openai-responses`
-        - **API Key**：你的 LLMEasy API Key
+        - **API Key**：你的 BetterToken API Key
         - **模型**：从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 GPT 分组模型 ID
 
         最小 provider 配置片段可以写成：
@@ -92,9 +92,9 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
           "models": {
             "mode": "merge",
             "providers": {
-              "llmeasy": {
+              "bettertoken": {
                 "baseUrl": "{{openai-base-url}}",
-                "apiKey": "YOUR_LLMEASY_API_KEY",
+                "apiKey": "YOUR_BETTERTOKEN_API_KEY",
                 "api": "openai-responses",
                 "models": [
                   {
@@ -110,7 +110,7 @@ OpenClaw 是一个适用于 Discord、Google Chat、iMessage、Matrix、Microsof
       </Step>
 
       <Step title="一般不需要额外配置 `headers`">
-        接入 LLMEasy 时通常不需要额外设置 `User-Agent`。
+        接入 BetterToken 时通常不需要额外设置 `User-Agent`。
 
         只有在你同时接入了自定义网关、租户路由或其他要求额外 headers 的上游服务时，再按对应文档补充。
       </Step>
@@ -140,31 +140,31 @@ OpenClaw 中模型生效的优先级通常是：
 这意味着：
 
 - 如果某个 agent 在 `agents.list` 里显式写了 `model`，它不会继承全局默认模型。
-- 如果你把 LLMEasy 设为全局默认模型，但 `main` 仍写着旧模型，那么 Discord 私聊等默认走 `main` 的场景仍会继续使用旧模型。
+- 如果你把 BetterToken 设为全局默认模型，但 `main` 仍写着旧模型，那么 Discord 私聊等默认走 `main` 的场景仍会继续使用旧模型。
 - 如果历史会话里残留了 `providerOverride`、`modelOverride` 或 `authProfileOverride`，即使你已经修改了默认模型，当前会话也可能继续使用旧渠道。
 
 推荐做法：
 
-1. 想让 `main` 跟随全局默认时，不要给 `main` 单独写 `model`，或者把它改成 LLMEasy。
+1. 想让 `main` 跟随全局默认时，不要给 `main` 单独写 `model`，或者把它改成 BetterToken。
 2. 修改配置后执行 `openclaw gateway restart`。
 3. 在 Discord 中执行 `/new` 新开会话。
 4. 再用 `/status` 和 `/model` 验证当前生效模型。
 
 ### 最小配置示例
 
-provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeasy/gpt-5.4` 举例；如果你的 provider id 不同，请按实际值替换。
+provider id 以 `openclaw models list` 的实际输出为准。下面用 `bettertoken/gpt-5.4` 举例；如果你的 provider id 不同，请按实际值替换。
 
 ```json
 {
   "agents": {
     "defaults": {
       "model": {
-        "primary": "llmeasy/gpt-5.4",
+        "primary": "bettertoken/gpt-5.4",
         "fallbacks": []
       },
       "models": {
-        "llmeasy/gpt-5.4": {
-          "alias": "llmeasy"
+        "bettertoken/gpt-5.4": {
+          "alias": "bettertoken"
         }
       }
     },
@@ -178,7 +178,7 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeas
       {
         "id": "trade-recorder",
         "model": {
-          "primary": "llmeasy/gpt-5.4",
+          "primary": "bettertoken/gpt-5.4",
           "fallbacks": []
         }
       }
@@ -187,7 +187,7 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeas
 }
 ```
 
-- `main` 没写 `model`，所以会继承全局 LLMEasy。
+- `main` 没写 `model`，所以会继承全局 BetterToken。
 - `trade-recorder` 写了 `model`，所以它不会跟随全局默认变化。
 
 ## 运行生效
@@ -198,7 +198,7 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeas
 
 <Steps>
   <Step title="先做配置层验证">
-    运行以下命令，确认 LLMEasy provider 和默认模型已经写入配置：
+    运行以下命令，确认 BetterToken provider 和默认模型已经写入配置：
 
     ```bash
     openclaw models list
@@ -217,13 +217,13 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeas
   </Step>
 
   <Step title="验证当前会话实际模型">
-    在 Discord 中执行 `/status`，确认当前 Agent / 当前会话已经切到 LLMEasy。
+    在 Discord 中执行 `/status`，确认当前 Agent / 当前会话已经切到 BetterToken。
   </Step>
 
   <Step title="按需检查可选模型列表">
     在 Discord 中执行 `/model`。
 
-    如果这里看不到 LLMEasy，优先检查：
+    如果这里看不到 BetterToken，优先检查：
 
     - 当前模型是否已加入 `agents.defaults.models`
     - provider 下该模型的显示名是否正常，必要时是否已在 `agents.defaults.models` 中添加 `alias`
@@ -235,7 +235,7 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeas
 ## 排障提示
 
 - 默认模型改了但实际仍是旧模型，优先检查 `agents.list.main.model`
-- `/model` 看不到 LLMEasy，优先检查它是否在 `agents.defaults.models` 中
+- `/model` 看不到 BetterToken，优先检查它是否在 `agents.defaults.models` 中
 - 改完配置后 Discord 里仍是旧结果，先执行 `openclaw gateway restart`，再执行 `/new`
 - 如果模型 picker 或热刷新仍不稳定，先升级到最新版 OpenClaw 再排查
 
@@ -244,25 +244,25 @@ provider id 以 `openclaw models list` 的实际输出为准。下面用 `llmeas
 如果你不想手动改配置，可以先在终端里设置 API Key 环境变量，然后启动 Codex：
 
 ```bash
-export LLMEASY_API_KEY="YOUR_API_KEY"
+export BETTERTOKEN_API_KEY="YOUR_API_KEY"
 codex
 ```
 
 然后把下面这段 prompt 发给 Codex：
 
 ```text
-请帮我检查并修复本机 OpenClaw 的 LLMEasy 配置。要求：
+请帮我检查并修复本机 OpenClaw 的 BetterToken 配置。要求：
 1. 先读取当前 OpenClaw 配置，确认 provider id、默认模型，以及 agents.list 中哪些 agent 显式写了 model。
-2. 如果 LLMEasy provider 不存在，就新增一个指向 Base URL `{{openai-base-url}}` 的 provider，并写入 `api: "openai-responses"`。
-3. 优先复用 OpenClaw 已保存的认证信息。只有当当前版本或你的上游网关明确要求额外 headers 时，才单独配置；不要默认把 `User-Agent` 当作 LLMEasy 必填项。
-4. 把默认模型切到 LLMEasy，并检查 `main` 是否被显式 model 覆盖；如果我希望 `main` 跟随全局默认，就删除它的显式 model。
-5. 确保当前 LLMEasy 模型出现在 `agents.defaults.models` 中，并补一个易识别的 `alias`。
+2. 如果 BetterToken provider 不存在，就新增一个指向 Base URL `{{openai-base-url}}` 的 provider，并写入 `api: "openai-responses"`。
+3. 优先复用 OpenClaw 已保存的认证信息。只有当当前版本或你的上游网关明确要求额外 headers 时，才单独配置；不要默认把 `User-Agent` 当作 BetterToken 必填项。
+4. 把默认模型切到 BetterToken，并检查 `main` 是否被显式 model 覆盖；如果我希望 `main` 跟随全局默认，就删除它的显式 model。
+5. 确保当前 BetterToken 模型出现在 `agents.defaults.models` 中，并补一个易识别的 `alias`。
 6. 备份原配置，使用最小 diff 修改，修改前先告诉我会改哪些字段。
 7. 修改后执行 `openclaw gateway restart`，最后提醒我在 Discord 里依次执行 `/new`、`/status`、`/model` 做验证。
 
 约束：
-- 如果需要 API Key，请从环境变量 `LLMEASY_API_KEY` 读取，不要把密钥写进聊天或日志。
-- 如果当前配置里没有 LLMEasy 模型，请先提示我从 LLMEasy 模型广场提供一个 GPT 分组模型 ID。
+- 如果需要 API Key，请从环境变量 `BETTERTOKEN_API_KEY` 读取，不要把密钥写进聊天或日志。
+- 如果当前配置里没有 BetterToken 模型，请先提示我从 BetterToken 模型广场提供一个 GPT 分组模型 ID。
 ```
 
 ## 相关 FAQ

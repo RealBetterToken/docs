@@ -66,7 +66,7 @@
 ## BetterToken production operations
 
 - `main` is the only content and production branch. Russian pages live at the root, English pages under `/en`, and Chinese pages under `/zh`.
-- The published product name, LLMEasy visual design, content, and navigation are preserved while the canonical documentation and product URLs use `bettertoken.ai`.
+- The published product name is BetterToken. Keep the existing green visual design, content structure, and navigation while the canonical documentation and product URLs use `bettertoken.ai`.
 - Run `node scripts/prepare-bettertoken-artifacts.mjs` after content or navigation changes. It refreshes the hreflang Sitemap, `llms-full.txt`, Metrica SPA script, and IndexNow key file.
 - BetterToken validation and artifact generation use `.github/workflows/publish-bettertoken-docs.yml`; the Mintlify GitHub App deploys `main`. Search submission uses `.github/workflows/submit-bettertoken-sitemap.yml` and must wait for the live Sitemap to match the new deployment.
 - The current Mintlify plan does not allow Admin API deployment triggers. Do not treat that restriction as a successful publish; verify the `Mintlify Deployment` Check and the live site.

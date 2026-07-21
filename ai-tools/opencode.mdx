@@ -1,15 +1,15 @@
 ---
-title: "Настройка кастомной модели OpenCode через LLMEasy"
+title: "Настройка кастомной модели OpenCode через BetterToken"
 sidebarTitle: "OpenCode"
-description: "Подключите LLMEasy к OpenCode с ID моделей группы GPT."
+description: "Подключите BetterToken к OpenCode с ID моделей группы GPT."
 icon: "brackets-curly"
 ---
 
-OpenCode можно подключить к LLMEasy так: сначала добавьте credentials через `/connect`, затем объявите LLMEasy как OpenAI-compatible provider в конфиге и выберите ID модели из группы **GPT**.
+OpenCode можно подключить к BetterToken так: сначала добавьте credentials через `/connect`, затем объявите BetterToken как OpenAI-compatible provider в конфиге и выберите ID модели из группы **GPT**.
 
 ## Требования
 
-- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
 ## Установка OpenCode
 
@@ -30,7 +30,7 @@ OpenCode можно подключить к LLMEasy так: сначала до�
 
 <Tabs>
   <Tab title="Автоматическая настройка">
-    Можно запустить автоматический скрипт LLMEasy. Он записывает только provider-конфигурацию LLMEasy и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
+    Можно запустить автоматический скрипт BetterToken. Он записывает только provider-конфигурацию BetterToken и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
 
     Выберите шаг для своей ОС. Нужен только один вариант.
 
@@ -65,7 +65,7 @@ OpenCode можно подключить к LLMEasy так: сначала до�
         ```
       </Step>
 
-      <Step title="Сначала добавьте credential LLMEasy через /connect">
+      <Step title="Сначала добавьте credential BetterToken через /connect">
         Запустите OpenCode и выполните:
 
         ```bash
@@ -74,8 +74,8 @@ OpenCode можно подключить к LLMEasy так: сначала до�
 
         В мастере выберите **Other**, затем:
 
-        - задайте **provider id** как `llmeasy`
-        - вставьте API Key LLMEasy
+        - задайте **provider id** как `bettertoken`
+        - вставьте API Key BetterToken
 
         OpenCode сохранит credential в `~/.local/share/opencode/auth.json`.
       </Step>
@@ -86,11 +86,11 @@ OpenCode можно подключить к LLMEasy так: сначала до�
         ```json
         {
           "$schema": "https://opencode.ai/config.json",
-          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "model": "bettertoken/YOUR_GPT_MODEL_ID",
           "provider": {
-            "llmeasy": {
+            "bettertoken": {
               "npm": "@ai-sdk/openai-compatible",
-              "name": "LLMEasy",
+              "name": "BetterToken",
               "options": {
                 "baseURL": "{{openai-base-url}}"
               },
@@ -111,11 +111,11 @@ OpenCode можно подключить к LLMEasy так: сначала до�
         ```json
         {
           "$schema": "https://opencode.ai/config.json",
-          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "model": "bettertoken/YOUR_GPT_MODEL_ID",
           "provider": {
-            "llmeasy": {
+            "bettertoken": {
               "npm": "@ai-sdk/openai-compatible",
-              "name": "LLMEasy",
+              "name": "BetterToken",
               "options": {
                 "baseURL": "{{openai-base-url}}",
                 "apiKey": "YOUR_API_KEY"
@@ -134,7 +134,7 @@ OpenCode можно подключить к LLMEasy так: сначала до�
       </Step>
 
       <Step title="Используйте `options.headers` только для provider-specific задач">
-        Официальная документация OpenCode поддерживает custom headers через `provider.<id>.options.headers`, но это optional. При подключении LLMEasy обычно не нужен дополнительный `User-Agent`.
+        Официальная документация OpenCode поддерживает custom headers через `provider.<id>.options.headers`, но это optional. При подключении BetterToken обычно не нужен дополнительный `User-Agent`.
 
         Если вы также используете Helicone, tenant routing, observability или кеширующие сервисы, добавляйте нужные headers по официальной документации этих upstream-сервисов.
       </Step>
@@ -163,6 +163,6 @@ OpenCode можно подключить к LLMEasy так: сначала до�
 ## Примечания
 
 - Используйте ID модели группы **GPT** по умолчанию вместо фиксированных имен Claude-моделей
-- Для LLMEasy сейчас следует использовать `@ai-sdk/openai-compatible` как OpenAI-compatible provider adapter
+- Для BetterToken сейчас следует использовать `@ai-sdk/openai-compatible` как OpenAI-compatible provider adapter
 - Если вы используете `/connect`, обычно не нужно хранить API key прямо в конфиге
-- Официальная документация OpenCode трактует `options.headers` как optional extended configuration; LLMEasy обычно не требует extra headers
+- Официальная документация OpenCode трактует `options.headers` как optional extended configuration; BetterToken обычно не требует extra headers

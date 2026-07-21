@@ -1,8 +1,8 @@
-# LLMEasy 文档项目说明
+# BetterToken 文档项目说明
 
 ## 项目背景
 
-LLMEasy 是一个面向俄罗斯用户的 AI API 网关，兼容 Anthropic 与 OpenAI 协议。文档基于 Mintlify 构建，唯一生产地址为 `docs.bettertoken.ai`。
+BetterToken 是一个面向俄罗斯用户的 AI API 网关，兼容 Anthropic 与 OpenAI 协议。文档基于 Mintlify 构建，唯一生产地址为 `docs.bettertoken.ai`。
 
 GitHub 仓库：`RealBetterToken/docs`，分支：`main`
 
@@ -94,7 +94,7 @@ docs/
 
 ### 模型指定规则（核心差异）
 
-- **Claude Code、Codex CLI**：接入 LLMEasy 后按对应分组和文档选择模型
+- **Claude Code、Codex CLI**：接入 BetterToken 后按对应分组和文档选择模型
 - **其他工具**（Cursor、Cline、Roo Code、Kilo Code、Zed 等）：**必须手动指定模型**，如 `claude-sonnet-4-6`、`gpt-5.4`
 
 ### 写作风格

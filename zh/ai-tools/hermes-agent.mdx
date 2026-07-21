@@ -1,13 +1,13 @@
 ---
-title: "Hermes Agent 自定义模型接入 LLMEasy 指南"
+title: "Hermes Agent 自定义模型接入 BetterToken 指南"
 sidebarTitle: "Hermes Agent"
-description: "在 Hermes Agent 中使用 LLMEasy，通过 GPT 分组模型和 OpenAI-compatible 协议完成配置。"
+description: "在 Hermes Agent 中使用 BetterToken，通过 GPT 分组模型和 OpenAI-compatible 协议完成配置。"
 icon: "user-astronaut"
 ---
 
 Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常开发助手使用，也可以结合技能、MCP、任务调度和子 Agent 处理更长的自动化任务。
 
-接入 LLMEasy 时，请使用 **GPT 分组** API Key，并通过 OpenAI-compatible endpoint 调用模型。
+接入 BetterToken 时，请使用 **GPT 分组** API Key，并通过 OpenAI-compatible endpoint 调用模型。
 
 <Info>
   本文仅覆盖 Hermes Agent 的 GPT 分组接入方式。模型 ID 请以<a href={"{{model-plaza-url}}"}>模型广场</a>显示为准。
@@ -15,7 +15,7 @@ Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常�
 
 ## 前置条件
 
-- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
 - API Key 属于 **GPT 分组**
 - 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制要使用的 GPT 分组模型 ID
 - macOS、Linux 或 Windows WSL2 环境
@@ -49,11 +49,11 @@ Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常�
         在 provider 列表中，选择 **OpenAI** 或 **OpenAI Compatible**。
       </Step>
 
-      <Step title="填写 LLMEasy 配置">
+      <Step title="填写 BetterToken 配置">
         按提示依次输入：
 
         - **Base URL**：`{{openai-base-url}}`
-        - **API Key**：你的 LLMEasy API Key
+        - **API Key**：你的 BetterToken API Key
         - **Model**：从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
       </Step>
 
@@ -75,11 +75,11 @@ Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常�
     ```bash
     hermes config set llm.provider openai
     hermes config set llm.base_url "{{openai-base-url}}"
-    hermes config set llm.api_key "YOUR_LLMEASY_API_KEY"
+    hermes config set llm.api_key "YOUR_BETTERTOKEN_API_KEY"
     hermes config set llm.model "YOUR_GPT_MODEL_ID"
     ```
 
-    将 `YOUR_LLMEASY_API_KEY` 替换为你的 LLMEasy API Key，将 `YOUR_GPT_MODEL_ID` 替换为<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组模型 ID。
+    将 `YOUR_BETTERTOKEN_API_KEY` 替换为你的 BetterToken API Key，将 `YOUR_GPT_MODEL_ID` 替换为<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组模型 ID。
 
     配置完成后运行：
 
@@ -93,7 +93,7 @@ Hermes Agent 是面向本地终端工作流的 AI Agent。它可以作为日常�
 
     ```bash
     export OPENAI_API_BASE="{{openai-base-url}}"
-    export OPENAI_API_KEY="YOUR_LLMEASY_API_KEY"
+    export OPENAI_API_KEY="YOUR_BETTERTOKEN_API_KEY"
     export HERMES_MODEL="YOUR_GPT_MODEL_ID"
     hermes
     ```
@@ -127,7 +127,7 @@ hermes claw migrate --dry-run
 hermes claw migrate
 ```
 
-迁移后仍建议检查 Hermes Agent 中的 **Base URL**、API Key 和模型 ID，确保它们分别对应 `{{openai-base-url}}`、你的 LLMEasy API Key，以及 GPT 分组模型 ID。
+迁移后仍建议检查 Hermes Agent 中的 **Base URL**、API Key 和模型 ID，确保它们分别对应 `{{openai-base-url}}`、你的 BetterToken API Key，以及 GPT 分组模型 ID。
 
 ## 排障提示
 
@@ -135,7 +135,7 @@ hermes claw migrate
 - 报模型不存在时，确认 **Model** 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>中的 GPT 分组。
 - 报鉴权失败时，确认 API Key 没有复制空格，并且属于 **GPT 分组**。
 - 修改配置后仍走旧模型时，退出当前 Hermes Agent 会话并重新运行 `hermes`。
-- 接入 LLMEasy 时通常不需要额外设置 `User-Agent` 或其他 headers。只有当你还接了自定义网关、租户路由、审计或缓存服务时，再按对应上游服务的官方文档补充。
+- 接入 BetterToken 时通常不需要额外设置 `User-Agent` 或其他 headers。只有当你还接了自定义网关、租户路由、审计或缓存服务时，再按对应上游服务的官方文档补充。
 
 <Note>
   请不要把真实 API Key 提交到仓库。团队共享配置时，优先使用环境变量或本机配置。
@@ -146,4 +146,4 @@ hermes claw migrate
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
-- [OpenClaw 接入 LLMEasy 指南](/zh/ai-tools/openclaw)
+- [OpenClaw 接入 BetterToken 指南](/zh/ai-tools/openclaw)

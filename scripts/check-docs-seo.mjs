@@ -127,6 +127,9 @@ assert.equal(
 
 assert.equal(betterTokenConfig.variables?.['site-url'], 'https://docs.bettertoken.ai');
 assert.equal(betterTokenConfig.seo?.metatags?.canonical, 'https://docs.bettertoken.ai');
+assert.equal(betterTokenConfig.name, 'BetterToken');
+assert.equal(betterTokenConfig.variables?.['brand-name'], 'BetterToken');
+assert(!/LLMEasy|LLMEASY|LLM Easy/.test(JSON.stringify(betterTokenConfig)), 'docs.json contains the retired brand name');
 assert(!JSON.stringify(betterTokenConfig).includes('docs.llmeasy.ru'), 'docs.json contains the retired docs domain');
 assert(!JSON.stringify(betterTokenConfig).includes('www.llmeasy.ru'), 'docs.json contains the retired product domain');
 
@@ -162,6 +165,7 @@ for (const [oldRoute, newRoute] of legacyRoutes) {
 
 for (const file of mdxFiles) {
   const text = fs.readFileSync(file, 'utf8');
+  assert(!/LLMEasy|LLMEASY|LLM Easy/.test(text), `${path.relative(rootDir, file)} contains the retired brand name`);
   assert(!text.includes('https://docs.llmeasy.ru'), `${path.relative(rootDir, file)} contains the retired docs domain`);
   assert(!text.includes('https://www.llmeasy.ru'), `${path.relative(rootDir, file)} contains the retired product domain`);
 }

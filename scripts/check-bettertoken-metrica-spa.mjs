@@ -29,7 +29,7 @@ const location = {
 };
 
 const document = {
-  title: 'Quickstart | LLMEasy',
+  title: 'Quickstart | BetterToken',
   documentElement: {
     getAttribute(name) {
       return name === 'data-current-path' ? currentPath : null;
@@ -76,14 +76,14 @@ assert.equal(hits.length, 0, 'initial load must rely on the automatic Metrica pa
 
 history.pushState({}, '', '/en/ai-tools/codex?_ym_debug=2');
 assert.equal(hits.length, 0, 'route hit must wait until the document title is updated');
-document.title = 'Codex | LLMEasy';
+document.title = 'Codex | BetterToken';
 await new Promise((resolve) => setTimeout(resolve, 80));
 
 assert.deepEqual(hits, [[
   110565477,
   'hit',
   'https://docs.bettertoken.ai/en/ai-tools/codex?_ym_debug=2',
-  { title: 'Codex | LLMEasy' },
+  { title: 'Codex | BetterToken' },
 ]]);
 
 history.replaceState({}, '', '/en/ai-tools/codex?_ym_debug=2');
@@ -92,14 +92,14 @@ await new Promise((resolve) => setTimeout(resolve, 20));
 assert.equal(hits.length, 1, 'the same route must not be reported twice');
 
 history.pushState({}, '', '/en/faq/claude-desktop-llmeasy-api?_ym_debug=2');
-document.title = 'Claude Desktop | LLMEasy';
+document.title = 'Claude Desktop | BetterToken';
 await new Promise((resolve) => setTimeout(resolve, 80));
 assert.equal(hits.length, 2, 'a second document route must produce one hit');
 
 currentUrl = new URL('https://docs.bettertoken.ai/en/ai-tools/codex?_ym_debug=2');
 currentPath = currentUrl.pathname;
 listeners.get('popstate')();
-document.title = 'Codex | LLMEasy';
+document.title = 'Codex | BetterToken';
 await new Promise((resolve) => setTimeout(resolve, 80));
 
 assert.equal(hits.length, 3, 'back navigation must produce one hit');
@@ -107,7 +107,7 @@ assert.deepEqual(hits[2], [
   110565477,
   'hit',
   'https://docs.bettertoken.ai/en/ai-tools/codex?_ym_debug=2',
-  { title: 'Codex | LLMEasy' },
+  { title: 'Codex | BetterToken' },
 ]);
 
 console.log('BetterToken Yandex Metrica SPA tracking check passed.');

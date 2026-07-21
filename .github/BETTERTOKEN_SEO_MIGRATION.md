@@ -8,7 +8,7 @@
 
 - `docs.bettertoken.ai` 是唯一生产、SEO 和内容更新域名。
 - `main` 是唯一内容源与 Mintlify 部署分支。
-- 文档继续使用 LLMEasy 名称、内容、Logo、主题、字体与三语言结构。
+- 文档统一使用 BetterToken 名称、Logo 与域名，并沿用既有内容、主题、字体和三语言结构。
 - 俄语为默认语言，英语使用 `/en`，中文使用 `/zh`。
 - `docs.llmeasy.ru` 停止发布新内容，仅保留永久重定向。
 - 不再生成或强制推送 `llmeasy-docs` 分支。

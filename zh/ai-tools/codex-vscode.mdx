@@ -1,13 +1,13 @@
 ---
 title: "VS Code Codex 插件如何配置自定义 Base URL 和 API Key？"
 sidebarTitle: "VS Code Codex 插件"
-description: "在 VS Code Codex 插件中打开共享的 config.toml，配置 LLMEasy Base URL、API Key 和 GPT 分组模型，并排查插件未读取配置的问题。"
+description: "在 VS Code Codex 插件中打开共享的 config.toml，配置 BetterToken Base URL、API Key 和 GPT 分组模型，并排查插件未读取配置的问题。"
 icon: "/icons/codex-vscode.svg"
 ---
 
 ## 直接答案
 
-VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Codex CLI 共享配置层，因此你需要通过插件右上角的齿轮打开 **Codex Settings → Open config.toml**，再在用户级配置中添加 LLMEasy provider。配置完成后执行 **Developer: Reload Window**，让插件读取新地址、密钥和模型。
+VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Codex CLI 共享配置层，因此你需要通过插件右上角的齿轮打开 **Codex Settings → Open config.toml**，再在用户级配置中添加 BetterToken provider。配置完成后执行 **Developer: Reload Window**，让插件读取新地址、密钥和模型。
 
 <Info>
   如果你在 VS Code 设置里没有看到 `Base URL` 或 API Key 输入框，这是正常的。不要把自定义 endpoint 填到普通 VS Code 网络代理设置中。
@@ -17,7 +17,7 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
 
 - 已安装 VS Code
 - 已安装 **Codex - OpenAI's coding agent** 插件
-- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
 - 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**下可用的模型 ID
 
 <Warning>
@@ -63,7 +63,7 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
         Codex CLI 和 IDE 插件会读取同一套配置。Windows 使用 WSL 打开工作区时，应修改 WSL 内的文件，而不是 Windows 用户目录中的另一份配置。
       </Step>
 
-      <Step title="写入 LLMEasy provider">
+      <Step title="写入 BetterToken provider">
         将下面配置添加到 `config.toml`。如果文件中已经有同名字段，请合并配置，不要重复写多个 `model_provider`。
 
         ```toml
@@ -88,7 +88,7 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
         supports_websockets = false
         ```
 
-        将 `YOUR_API_KEY` 替换为你的 LLMEasy API Key。
+        将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。
       </Step>
 
       <Step title="确认关键字段">
@@ -99,7 +99,7 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
         | `base_url` | `{{openai-base-url}}` |
         | `wire_api` | `responses` |
         | `model` | 从 **GPT 分组**复制的模型 ID |
-        | `experimental_bearer_token` | 你的 LLMEasy API Key |
+        | `experimental_bearer_token` | 你的 BetterToken API Key |
 
         <Warning>
           VS Code Codex 插件场景下，不建议把 `auth.json` 改成 API Key 结构。`auth.json` 用于保留 Codex 官方登录态；第三方 API Key 应放在 `experimental_bearer_token` 中。
@@ -121,15 +121,15 @@ VS Code Codex 插件没有独立的 Base URL 和 API Key 输入框。它与 Code
 
 ## 为什么这里要保留官方登录态？
 
-VS Code Codex 插件依赖 Codex 的应用侧能力，例如插件界面、会话管理和 VS Code 集成。因此推荐保留官方登录态，同时让模型请求走 LLMEasy。
+VS Code Codex 插件依赖 Codex 的应用侧能力，例如插件界面、会话管理和 VS Code 集成。因此推荐保留官方登录态，同时让模型请求走 BetterToken。
 
 这组配置中：
 
 | 配置 | 作用 |
 | --- | --- |
 | `requires_openai_auth = true` | 保留 Codex 官方登录态 |
-| `experimental_bearer_token = "YOUR_API_KEY"` | 使用 LLMEasy API Key 发起模型请求 |
-| `base_url = "{{openai-base-url}}"` | 将模型请求发送到 LLMEasy 的 OpenAI-compatible / Responses API 入口 |
+| `experimental_bearer_token = "YOUR_API_KEY"` | 使用 BetterToken API Key 发起模型请求 |
+| `base_url = "{{openai-base-url}}"` | 将模型请求发送到 BetterToken 的 OpenAI-compatible / Responses API 入口 |
 
 <Note>
   Codex 官方配置参考更推荐普通自定义 provider 通过 `env_key` 读取 API Key。本页使用 `experimental_bearer_token`，是因为目标场景还需要保留 Codex 官方登录态。如果你只使用 Codex CLI，不需要插件、Remote Control 或官方登录态，请使用 [config.toml 普通自定义 provider 配置](/zh/faq/codex/config-toml)。
@@ -154,7 +154,7 @@ VS Code Codex 插件依赖 Codex 的应用侧能力，例如插件界面、会�
 
 ## 相关文档
 
-- [Codex 接入 LLMEasy 指南](/zh/ai-tools/codex)
+- [Codex 接入 BetterToken 指南](/zh/ai-tools/codex)
 - [如何在使用第三方 API 的同时保留 Codex 登录态？](/zh/faq/codex/official-login-third-party-api)
 - [如何配置 Codex CLI 的 config.toml？](/zh/faq/codex/config-toml)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)

@@ -1,13 +1,13 @@
 ---
 title: "Как настроить custom Base URL и API Key в расширении Codex для VS Code"
 sidebarTitle: "Расширение Codex для VS Code"
-description: "Откройте общий config.toml из расширения Codex, настройте Base URL, API Key и модель группы GPT для LLMEasy и устраните проблемы чтения конфигурации."
+description: "Откройте общий config.toml из расширения Codex, настройте Base URL, API Key и модель группы GPT для BetterToken и устраните проблемы чтения конфигурации."
 icon: "/icons/codex-vscode.svg"
 ---
 
 ## Короткий ответ
 
-В расширении Codex для VS Code нет отдельных полей Base URL и API Key. Оно использует те же уровни конфигурации, что и Codex CLI. Нажмите шестерёнку, выберите **Codex Settings → Open config.toml** и добавьте provider LLMEasy в пользовательский файл. Затем выполните **Developer: Reload Window**, чтобы расширение прочитало новый endpoint, Key и модель.
+В расширении Codex для VS Code нет отдельных полей Base URL и API Key. Оно использует те же уровни конфигурации, что и Codex CLI. Нажмите шестерёнку, выберите **Codex Settings → Open config.toml** и добавьте provider BetterToken в пользовательский файл. Затем выполните **Developer: Reload Window**, чтобы расширение прочитало новый endpoint, Key и модель.
 
 <Info>
   Если в настройках VS Code нет полей `Base URL` или API Key, это нормально. Не добавляйте custom endpoint в общие proxy settings VS Code.
@@ -17,7 +17,7 @@ icon: "/icons/codex-vscode.svg"
 
 - Установлен VS Code
 - Установлено расширение **Codex - OpenAI's coding agent**
-- У вас есть LLMEasy API Key (<a href={"{{register-url}}"}>зарегистрируйтесь и получите ключ</a>)
+- У вас есть BetterToken API Key (<a href={"{{register-url}}"}>зарегистрируйтесь и получите ключ</a>)
 - Вы скопировали доступный model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
 
 <Warning>
@@ -63,7 +63,7 @@ icon: "/icons/codex-vscode.svg"
         Codex CLI и IDE extension читают одни и те же уровни конфигурации. Если проект открыт через WSL, изменяйте файл внутри WSL, а не отдельный файл в пользовательской директории Windows.
       </Step>
 
-      <Step title="Добавьте provider LLMEasy">
+      <Step title="Добавьте provider BetterToken">
         Добавьте конфигурацию ниже в `config.toml`. Если в файле уже есть такие же верхнеуровневые поля, объедините конфигурацию и не создавайте несколько `model_provider`.
 
         ```toml
@@ -88,7 +88,7 @@ icon: "/icons/codex-vscode.svg"
         supports_websockets = false
         ```
 
-        Замените `YOUR_API_KEY` на ваш LLMEasy API Key.
+        Замените `YOUR_API_KEY` на ваш BetterToken API Key.
       </Step>
 
       <Step title="Проверьте ключевые поля">
@@ -99,7 +99,7 @@ icon: "/icons/codex-vscode.svg"
         | `base_url` | `{{openai-base-url}}` |
         | `wire_api` | `responses` |
         | `model` | Model ID, скопированный из **группы ключа GPT** |
-        | `experimental_bearer_token` | Ваш LLMEasy API Key |
+        | `experimental_bearer_token` | Ваш BetterToken API Key |
 
         <Warning>
           Для расширения Codex в VS Code не меняйте `auth.json` на структуру только с API Key. `auth.json` хранит официальный login state Codex; сторонний API Key должен находиться в `experimental_bearer_token`.
@@ -121,15 +121,15 @@ icon: "/icons/codex-vscode.svg"
 
 ## Почему нужно сохранять официальный login state?
 
-Расширение Codex в VS Code зависит от возможностей приложения Codex: интерфейса расширения, управления сессиями и интеграции с VS Code. Поэтому рекомендуется сохранить официальный login state и при этом отправлять model requests через LLMEasy.
+Расширение Codex в VS Code зависит от возможностей приложения Codex: интерфейса расширения, управления сессиями и интеграции с VS Code. Поэтому рекомендуется сохранить официальный login state и при этом отправлять model requests через BetterToken.
 
 В этой конфигурации:
 
 | Настройка | Что делает |
 | --- | --- |
 | `requires_openai_auth = true` | Сохраняет официальный login state Codex |
-| `experimental_bearer_token = "YOUR_API_KEY"` | Использует LLMEasy API Key для model requests |
-| `base_url = "{{openai-base-url}}"` | Отправляет model requests на OpenAI-compatible / Responses API endpoint LLMEasy |
+| `experimental_bearer_token = "YOUR_API_KEY"` | Использует BetterToken API Key для model requests |
+| `base_url = "{{openai-base-url}}"` | Отправляет model requests на OpenAI-compatible / Responses API endpoint BetterToken |
 
 <Note>
   Официальный справочник Codex рекомендует `env_key` для API Key обычного custom provider. На этой странице используется `experimental_bearer_token`, потому что сценарий также сохраняет официальный login state Codex. Если вам нужен только Codex CLI без плагинов, Remote Control и официального входа, используйте [обычную настройку custom provider в config.toml](/faq/codex/config-toml).

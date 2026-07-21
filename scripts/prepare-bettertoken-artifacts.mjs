@@ -65,7 +65,7 @@ async function generateLlmsFull() {
   const config = JSON.parse(await readFile(configPath, 'utf8'));
   const variables = config.variables ?? {};
   const pages = [...new Set(walkNavPages(config.navigation))];
-  const sections = [`# ${config.name ?? 'LLMEasy'}`];
+  const sections = [`# ${config.name ?? 'BetterToken'}`];
 
   if (config.description) sections.push(`> ${config.description}`);
 

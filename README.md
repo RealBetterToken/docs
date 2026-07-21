@@ -1,6 +1,6 @@
-# LLMEasy documentation
+# BetterToken documentation
 
-Mintlify documentation for LLMEasy, published at `https://docs.bettertoken.ai`.
+Mintlify documentation for BetterToken, published at `https://docs.bettertoken.ai`.
 
 ## Production structure
 
@@ -8,7 +8,8 @@ Mintlify documentation for LLMEasy, published at `https://docs.bettertoken.ai`.
 - Default language: Russian at `/`
 - English: `/en`
 - Chinese: `/zh`
-- Product name and visual design: LLMEasy
+- Product name: BetterToken
+- Visual design: existing green BetterToken documentation theme
 - Canonical documentation domain: `docs.bettertoken.ai`
 - Product and API domain: `www.bettertoken.ai`
 

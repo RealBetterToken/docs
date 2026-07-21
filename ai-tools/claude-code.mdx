@@ -1,16 +1,16 @@
 ---
-title: "Настройка кастомной модели Claude Code через LLMEasy"
+title: "Настройка кастомной модели Claude Code через BetterToken"
 sidebarTitle: "Claude Code"
-description: "Подключите LLMEasy к Claude Code через ANTHROPIC_BASE_URL без суффикса /v1."
+description: "Подключите BetterToken к Claude Code через ANTHROPIC_BASE_URL без суффикса /v1."
 icon: "terminal"
 ---
 
-Для подключения LLMEasy к Claude Code нужны только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. **Не добавляйте** `/v1` к Claude Code Base URL.
+Для подключения BetterToken к Claude Code нужны только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. **Не добавляйте** `/v1` к Claude Code Base URL.
 
 ## Требования
 
 - Установленный Claude Code (см. [документацию Claude Code](https://docs.anthropic.com/en/docs/claude-code))
-- API Key LLMEasy (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
 <Warning>
   Перед настройкой очистите эти переменные окружения, чтобы они не переопределили ваш config file:
@@ -25,7 +25,7 @@ icon: "terminal"
 
 <Tabs>
   <Tab title="Автоматическая настройка">
-    Можно запустить автоматический скрипт LLMEasy. Он записывает только provider-конфигурацию LLMEasy и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
+    Можно запустить автоматический скрипт BetterToken. Он записывает только provider-конфигурацию BetterToken и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
 
     Выберите шаг для своей ОС. Нужен только один вариант.
 
@@ -54,7 +54,7 @@ icon: "terminal"
   <Tab title="Ручная настройка">
     <Steps>
       <Step title="Проверьте группу API Key">
-        Сначала проверьте, какую группу API Key LLMEasy вы используете:
+        Сначала проверьте, какую группу API Key BetterToken вы используете:
 
         - `Claude`: задайте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
         - `GPT`: задайте auth fields и добавьте Claude Code model mappings
@@ -68,7 +68,7 @@ icon: "terminal"
         - macOS / Linux: `~/.claude/settings.json`
         - Windows: `%USERPROFILE%\.claude\settings.json`
 
-        Если вы используете группу ключа **Claude**, замените `YOUR_API_KEY` на API Key LLMEasy:
+        Если вы используете группу ключа **Claude**, замените `YOUR_API_KEY` на API Key BetterToken:
 
         ```json
         {
@@ -112,8 +112,8 @@ icon: "terminal"
 
         | Поле | Описание |
         | --- | --- |
-        | `ANTHROPIC_AUTH_TOKEN` | Ваш API Key LLMEasy |
-        | `ANTHROPIC_BASE_URL` | LLMEasy `Base URL` для Claude Code |
+        | `ANTHROPIC_AUTH_TOKEN` | Ваш API Key BetterToken |
+        | `ANTHROPIC_BASE_URL` | BetterToken `Base URL` для Claude Code |
         | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Установите `1`, чтобы уменьшить фоновый трафик |
         | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Модель для задач уровня Haiku |
         | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Модель для задач уровня Sonnet |
@@ -121,7 +121,7 @@ icon: "terminal"
         | `model` | Model tier Claude Code по умолчанию; `opus` использует `ANTHROPIC_DEFAULT_OPUS_MODEL` |
 
         <Note>
-          `gpt-5.4` — пример ID модели группы **GPT**. Используйте актуальные ID моделей группы **GPT** из <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>. Можно сопоставить все три уровня с одной моделью или выбрать разные модели.
+          `gpt-5.4` — пример ID модели группы **GPT**. Используйте актуальные ID моделей группы **GPT** из <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>. Можно сопоставить все три уровня с одной моделью или выбрать разные модели.
         </Note>
       </Step>
 
@@ -221,7 +221,7 @@ icon: "terminal"
     ```
 
     <Note>
-      `gpt-5.4` — только пример ID модели группы **GPT**. Скопируйте актуальный model ID из <a href={"{{model-plaza-url}}"}>LLMEasy model plaza</a>. Когда расширение использует Opus tier по умолчанию, оно будет разрешаться через `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+      `gpt-5.4` — только пример ID модели группы **GPT**. Скопируйте актуальный model ID из <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>. Когда расширение использует Opus tier по умолчанию, оно будет разрешаться через `ANTHROPIC_DEFAULT_OPUS_MODEL`.
     </Note>
   </Step>
 
@@ -246,7 +246,7 @@ icon: "terminal"
 
 Если авторизация не проходит, проверьте:
 
-1. `ANTHROPIC_AUTH_TOKEN` содержит правильный API Key LLMEasy
+1. `ANTHROPIC_AUTH_TOKEN` содержит правильный API Key BetterToken
 2. `ANTHROPIC_BASE_URL` равен `{{anthropic-base-url}}`
 3. Группа ключа **Claude** не задает model variables, а группа ключа **GPT** содержит mappings `ANTHROPIC_DEFAULT_*_MODEL`
 4. Старые переменные окружения не переопределяют ваш config
@@ -255,7 +255,7 @@ icon: "terminal"
 
 <AccordionGroup>
   <Accordion title="Что делать, если появляется API Error: Unable to connect to API (ConnectionRefused)?">
-    Обычно это означает, что Claude Code не может подключиться к LLMEasy API. Чаще всего причина в сети, proxy или firewall, а не в API Key или model mapping.
+    Обычно это означает, что Claude Code не может подключиться к BetterToken API. Чаще всего причина в сети, proxy или firewall, а не в API Key или model mapping.
 
     Проверьте, что локальная сеть работает, затем убедитесь, что system proxy, корпоративная сеть, router или security software не блокируют `{{anthropic-base-url}}`. Если вы используете firewall, разрешите Claude Code доступ к этому адресу.
   </Accordion>

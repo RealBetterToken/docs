@@ -1,15 +1,15 @@
 ---
-title: "OpenCode 自定义模型接入 LLMEasy 指南"
+title: "OpenCode 自定义模型接入 BetterToken 指南"
 sidebarTitle: "OpenCode"
-description: "在 OpenCode 中使用 LLMEasy，接入 GPT 分组模型。"
+description: "在 OpenCode 中使用 BetterToken，接入 GPT 分组模型。"
 icon: "brackets-curly"
 ---
 
-在 OpenCode 中接入 LLMEasy，建议先用 `/connect` 添加凭证，再在配置文件中声明 LLMEasy 这个 OpenAI-compatible provider，并填入 GPT 分组模型 ID。
+在 OpenCode 中接入 BetterToken，建议先用 `/connect` 添加凭证，再在配置文件中声明 BetterToken 这个 OpenAI-compatible provider，并填入 GPT 分组模型 ID。
 
 ## 前置条件
 
-- 已获取 LLMEasy API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
 
 ## 安装 OpenCode
 
@@ -30,7 +30,7 @@ icon: "brackets-curly"
 
 <Tabs>
   <Tab title="自动配置">
-    你可以直接运行 LLMEasy 提供的自动配置脚本。它只负责写入 LLMEasy provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
+    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
 
     按你的操作系统执行对应步骤。你只需要执行其中一项。
 
@@ -65,7 +65,7 @@ icon: "brackets-curly"
         ```
       </Step>
 
-      <Step title="先用 /connect 添加 LLMEasy 凭证">
+      <Step title="先用 /connect 添加 BetterToken 凭证">
         启动 OpenCode 后运行：
 
         ```bash
@@ -74,8 +74,8 @@ icon: "brackets-curly"
 
         在向导里选择 **Other**，然后：
 
-        - **provider id** 填 `llmeasy`
-        - 粘贴你的 LLMEasy API Key
+        - **provider id** 填 `bettertoken`
+        - 粘贴你的 BetterToken API Key
 
         OpenCode 会将凭证保存到 `~/.local/share/opencode/auth.json`。
       </Step>
@@ -86,11 +86,11 @@ icon: "brackets-curly"
         ```json
         {
           "$schema": "https://opencode.ai/config.json",
-          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "model": "bettertoken/YOUR_GPT_MODEL_ID",
           "provider": {
-            "llmeasy": {
+            "bettertoken": {
               "npm": "@ai-sdk/openai-compatible",
-              "name": "LLMEasy",
+              "name": "BetterToken",
               "options": {
                 "baseURL": "{{openai-base-url}}"
               },
@@ -111,11 +111,11 @@ icon: "brackets-curly"
         ```json
         {
           "$schema": "https://opencode.ai/config.json",
-          "model": "llmeasy/YOUR_GPT_MODEL_ID",
+          "model": "bettertoken/YOUR_GPT_MODEL_ID",
           "provider": {
-            "llmeasy": {
+            "bettertoken": {
               "npm": "@ai-sdk/openai-compatible",
-              "name": "LLMEasy",
+              "name": "BetterToken",
               "options": {
                 "baseURL": "{{openai-base-url}}",
                 "apiKey": "YOUR_API_KEY"
@@ -134,7 +134,7 @@ icon: "brackets-curly"
       </Step>
 
       <Step title="仅在有 provider-specific 需求时再使用 `options.headers`">
-        OpenCode 官方文档支持通过 `provider.<id>.options.headers` 添加自定义 headers，但这是可选能力。接入 LLMEasy 时通常不需要额外设置 `User-Agent`。
+        OpenCode 官方文档支持通过 `provider.<id>.options.headers` 添加自定义 headers，但这是可选能力。接入 BetterToken 时通常不需要额外设置 `User-Agent`。
 
         如果你还接了 Helicone、租户路由网关、审计或缓存服务，再按这些上游服务的官方文档补充所需 headers。
       </Step>
@@ -163,6 +163,6 @@ icon: "brackets-curly"
 ## 注意事项
 
 - 默认模型请填写 **GPT 分组模型 ID**，不要再写 Claude 系列固定模型名
-- LLMEasy 这类 OpenAI-compatible provider 当前应优先使用 `@ai-sdk/openai-compatible`
+- BetterToken 这类 OpenAI-compatible provider 当前应优先使用 `@ai-sdk/openai-compatible`
 - 如果你使用 `/connect`，一般不需要再把 API Key 明文写进配置文件
-- OpenCode 官方文档将 `options.headers` 视为可选扩展配置；接入 LLMEasy 时通常不需要额外 headers
+- OpenCode 官方文档将 `options.headers` 视为可选扩展配置；接入 BetterToken 时通常不需要额外 headers
