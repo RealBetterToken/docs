@@ -1,7 +1,8 @@
 # LLMEasy 文档迁移到 BetterToken
 
-状态：准备 BetterToken 目标站
+状态：技术迁移已完成，等待提交 Google Search Console 地址更改
 决策日期：2026-07-21
+技术验收日期：2026-07-21
 
 ## 最终架构
 
@@ -14,13 +15,15 @@
 
 ## 上线顺序
 
-1. 取消并移除 `docs.bettertoken.ai` → `docs.llmeasy.ru` 的旧重定向与 Worker Route。
-2. 从 `main` 发布 BetterToken，验证所有 Sitemap URL 返回 `200` 且 canonical 指向自身。
-3. 生成 LLMEasy → BetterToken 的逐 URL 映射。
-4. 在 LLMEasy 的代理或 DNS/CDN 层启用单跳 `301` 或 `308`。
-5. 验证旧 URL 只跳转一次，最终页面为 `200`，语言与内容对应。
-6. 在 Google Search Console 从 `docs.llmeasy.ru` 提交地址更改到 `docs.bettertoken.ai`。
-7. 只提交 `https://docs.bettertoken.ai/sitemap.xml`。
+1. [x] 取消并移除 `docs.bettertoken.ai` → `docs.llmeasy.ru` 的旧重定向与 Worker Route。
+2. [x] 从 `main` 发布 BetterToken，验证所有 Sitemap URL 返回 `200` 且 canonical 指向自身。
+3. [x] 生成 LLMEasy → BetterToken 的逐 URL 映射。
+4. [x] 在 LLMEasy 的代理或 DNS/CDN 层启用单跳 `301` 或 `308`。
+5. [x] 验证旧 URL 只跳转一次，最终页面为 `200`，语言与内容对应。
+6. [ ] 在 Google Search Console 从 `docs.llmeasy.ru` 提交地址更改到 `docs.bettertoken.ai`。
+7. [x] 只提交 `https://docs.bettertoken.ai/sitemap.xml`。
+
+2026-07-21 的完整验收结果：213 个 LLMEasy 旧 URL 均单跳到对应的 BetterToken URL；213 个目标页面均返回 `200` 且 canonical 指向自身。
 
 ## URL 映射
 
