@@ -11,7 +11,7 @@ Mintlify documentation for BetterToken, published at `https://docs.bettertoken.a
 - Product name: BetterToken
 - Visual design: existing green BetterToken documentation theme
 - Canonical documentation domain: `docs.bettertoken.ai`
-- Product and API domain: `www.bettertoken.ai`
+- Product and API domain: `bettertoken.ai`
 
 `docs.llmeasy.ru` is retired as a publishing target. During the SEO migration it remains online only to permanently redirect each old URL to the corresponding BetterToken URL. See [`.github/BETTERTOKEN_SEO_MIGRATION.md`](.github/BETTERTOKEN_SEO_MIGRATION.md).
 
