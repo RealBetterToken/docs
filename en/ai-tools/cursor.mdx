@@ -1,11 +1,20 @@
 ---
-title: "Connect Cursor to BetterToken with a custom model"
+title: "Cursor Custom API: OpenAI Base URL and API Key Setup"
 sidebarTitle: "Cursor"
-description: "Connect BetterToken to Cursor with GPT Key group model IDs."
+description: "Configure BetterToken as a Cursor custom API with an OpenAI Base URL and API Key, select a GPT Key group model, and fix common setup errors."
 icon: "arrow-pointer"
 ---
 
-When connecting BetterToken to Cursor, use the OpenAI-compatible endpoint. External tools use the GPT Key group, so copy the current model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+To connect BetterToken as a Cursor custom API, turn on **Override OpenAI Base URL**, enter `{{openai-base-url}}`, paste your API Key into **OpenAI API Key**, and select a model from the **GPT Key group**. Copy current model IDs from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Cursor quick values
+
+| Cursor field | Value |
+| --- | --- |
+| **Override OpenAI Base URL** | Turn on |
+| **Base URL** | `{{openai-base-url}}` |
+| **OpenAI API Key** | Your BetterToken API Key from the **GPT Key group** |
+| Custom model | A current model ID from the same **GPT Key group** |
 
 <Warning>
   Cursor only lets users on a paid advanced tier or higher configure custom models. If your account or client version does not show custom model, API Key, or Base URL options, check your Cursor plan and client version first.
@@ -100,12 +109,36 @@ When connecting BetterToken to Cursor, use the OpenAI-compatible endpoint. Exter
   </Step>
 </Steps>
 
+## Custom API and API Key errors
+
+### Cursor does not show Custom API, API Key, or Base URL fields
+
+Check your Cursor plan and client version. Custom models are available only in supported paid tiers. After updating Cursor, open **Settings** → **Models** again.
+
+### The API Key cannot be enabled or verified
+
+Enter the Base URL `{{openai-base-url}}` and the API Key before turning on the **OpenAI API Key** toggle. Do not append `/chat/completions` to the Base URL, and do not use a Claude Key group key.
+
+### The model is missing after refresh
+
+Confirm that the API Key belongs to the **GPT Key group**, wait for refresh to finish, and enable only a model from that same group. The model plaza always lists current IDs.
+
+### Cursor built-in models stop working
+
+**Override OpenAI Base URL** is global. When you are not using BetterToken, turn this toggle off so Cursor can use its own Base URL again.
+
+### Chat selects a different model
+
+Open the model picker and turn **Auto** off. Then manually select the model you enabled.
+
 ## Related FAQ
 
 - [How to configure a custom OpenAI API Key and Base URL in Cursor](/en/faq/cursor/custom-openai-api)
 - [Cursor Rules, AGENTS.md, and .cursorignore explained](/en/faq/cursor/rules-agents-cursorignore)
 - [How to configure MCP in Cursor](/en/faq/cursor/mcp)
 - [Claude Code vs Cursor for local development](/en/faq/claude-code/claude-code-vs-cursor)
+- [Configure a custom provider in Codex CLI](/en/ai-tools/codex)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ## Notes

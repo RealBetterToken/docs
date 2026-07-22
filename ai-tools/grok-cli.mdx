@@ -1,64 +1,117 @@
 ---
-title: "Настройка кастомной модели Grok CLI через BetterToken"
+title: "Grok CLI: установка, API Key и настройка BetterToken"
 sidebarTitle: "Grok CLI"
-description: "Подключите BetterToken к Grok CLI с ID моделей группы GPT."
+description: "Установите Grok CLI, задайте Base URL и API Key BetterToken, выберите модель группы GPT и устраните частые ошибки."
 icon: "g"
 ---
 
-Grok CLI использует переменные окружения для API-конфигурации. При подключении BetterToken используйте `{{openai-base-url}}` и ID модели из группы **GPT**.
+Чтобы подключить кастомный API к Grok CLI, установите CLI, задайте Base URL `{{openai-base-url}}` и API Key BetterToken, затем запустите инструмент с ID модели из группы **GPT**. Для этого подключения не нужен отдельный VPN endpoint или локальный proxy.
+
+<Info>
+  Grok CLI использует OpenAI-compatible API BetterToken. Введите только базовый адрес `{{openai-base-url}}`; не добавляйте `/chat/completions` в переменную `GROK_BASE_URL`.
+</Info>
 
 <Warning>
-  Grok CLI лучше подходит для легкого использования. Для полноценных agent workflow предпочитайте Claude Code, Codex или OpenClaw.
+  Grok CLI лучше подходит для легких задач в терминале. Для полноценного agent workflow используйте Claude Code, Codex CLI или OpenClaw.
 </Warning>
 
-## Требования
+## Что нужно подготовить
 
-- Установленный Node.js
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- Node.js и `npm`
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться</a>
+- ID доступной модели из группы **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-## Установка Grok CLI
+## Установите Grok CLI
+
+В Windows, macOS и Linux выполните:
 
 ```bash
 npm install -g @vibe-kit/grok-cli
 ```
 
-## Настройка
+Если после установки команда `grok` не найдена, закройте терминал, откройте его снова и выполните `grok --help`. Проверьте, что каталог глобальных пакетов `npm` добавлен в `PATH`.
 
-<Steps>
-  <Step title="Очистите конфликтующие переменные окружения">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+## Настройте Base URL и API Key
 
-  <Step title="Задайте переменные окружения BetterToken">
-    ```bash
-    export GROK_BASE_URL="{{openai-base-url}}"
-    export GROK_API_KEY="YOUR_API_KEY"
-    ```
-  </Step>
+<Tabs>
+  <Tab title="macOS / Linux">
+    <Steps>
+      <Step title="Очистите конфликтующие переменные">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-  <Step title="Запустите Grok CLI с моделью">
-    ```bash
-    grok --model YOUR_GPT_MODEL_ID
-    ```
+      <Step title="Задайте переменные BetterToken">
+        ```bash
+        export GROK_BASE_URL="{{openai-base-url}}"
+        export GROK_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
 
-    Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
-  </Step>
+      <Step title="Запустите Grok CLI с моделью">
+        ```bash
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
-  <Step title="Перезапустите Grok CLI">
-    После изменения переменных окружения закройте текущую сессию Grok CLI и запустите инструмент снова.
-  </Step>
-</Steps>
+        Замените `YOUR_GPT_MODEL_ID` на текущий ID модели из группы **GPT** в model plaza.
+      </Step>
+    </Steps>
+  </Tab>
 
-<Note>
-  Мы не нашли официального требования Grok CLI, по которому `User-Agent` обязателен для BetterToken. Сначала проверьте переменные окружения, model ID и версию инструмента; headers добавляйте только если этого требует ваш upstream gateway.
-</Note>
+  <Tab title="Windows PowerShell">
+    <Steps>
+      <Step title="Задайте переменные для текущего окна PowerShell">
+        ```powershell
+        $env:GROK_BASE_URL = "{{openai-base-url}}"
+        $env:GROK_API_KEY = "YOUR_API_KEY"
+        ```
+      </Step>
 
-## Связанные FAQ
+      <Step title="Запустите Grok CLI с моделью">
+        ```powershell
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
+        Переменные в этом примере действуют только в текущем окне PowerShell. После открытия нового окна задайте их снова через безопасный способ хранения секретов, принятый в вашей команде.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Проверьте подключение
+
+После запуска отправьте короткий запрос в Grok CLI. Если инструмент отвечает без ошибки авторизации или model ID, подключение готово. При изменении переменных окружения всегда завершайте текущую сессию Grok CLI и запускайте новую.
+
+## Частые ошибки
+
+| Симптом | Что проверить |
+| --- | --- |
+| `grok: command not found` | Выполните установку еще раз, затем откройте новый терминал и проверьте `grok --help`. |
+| `401`, `Unauthorized` или `Invalid API key` | Проверьте `GROK_API_KEY`, убедитесь, что в ключ не попал пробел, и запустите Grok CLI в том же окне терминала, где задана переменная. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID модели из группы **GPT** в model plaza. Не используйте ID из группы Claude. |
+| Запрос уходит на прежний сервис | Проверьте `GROK_BASE_URL`, не добавляйте путь `/chat/completions`, затем перезапустите терминал и Grok CLI. |
+| Ошибка соединения | Убедитесь, что Base URL равен `{{openai-base-url}}`, и что сеть разрешает HTTPS-соединения с `www.bettertoken.ai`. |
+
+## Вопросы по настройке
+
+**Какой Base URL нужен для Grok CLI?**
+
+Используйте `{{openai-base-url}}`. Это OpenAI-compatible Base URL BetterToken.
+
+**Какой API Key и модель выбрать?**
+
+Для Grok CLI используйте API Key из группы **GPT** и модель из той же группы.
+
+**Нужно ли менять системный proxy или включать VPN?**
+
+Нет. Для подключения BetterToken достаточно настроить Base URL и API Key в терминале.
+
+## Связанные инструкции
+
+- [Настройка Codex CLI с custom provider](/ai-tools/codex)
+- [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
-- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
-- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)

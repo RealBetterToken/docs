@@ -1286,17 +1286,29 @@ Claude Desktop может использовать third-party inference gateway
 
 ---
 
-## Настройка кастомной модели Codex через BetterToken
+## Codex custom provider: config.toml, Base URL и API Key
 
 Source: https://docs.bettertoken.ai/ai-tools/codex
 
-Description: Подключите BetterToken к Codex через /v1 и OpenAI Responses.
+Description: Настройте BetterToken как Codex custom provider: config.toml, OpenAI-compatible Base URL, API Key, Responses API и устранение ошибок.
 
-Для подключения Codex к BetterToken нужен custom model provider и API Key. `base_url` должен быть `https://www.bettertoken.ai/v1`, протокол — `OpenAI Responses`.
+Чтобы использовать BetterToken в Codex CLI, добавьте custom provider в `config.toml`, укажите `base_url = "https://www.bettertoken.ai/v1"`, protocol `wire_api = "responses"` и API Key BetterToken. Для этого OpenAI-compatible подключения нужен API Key из группы **GPT**.
 
 <Info>
   Если вы хотите сохранить официальный login state Codex App, plugins или Remote Control при использовании стороннего API, используйте [настройку с сохранением login state](/faq/codex/official-login-third-party-api).
 </Info>
+
+## Выберите способ настройки
+
+| Способ | Когда выбирать |
+| --- | --- |
+| Автоматический скрипт | Нужна быстрая настройка provider на одном компьютере. |
+| CC Switch | Нужно управлять provider в интерфейсе CC Switch или сохранять официальный login state Codex App. |
+| Ручной `config.toml` | Нужен прозрачный конфиг, контроль над model ID, retry и другими параметрами. |
+
+## Модели GPT-5.5 и GPT-5.6
+
+Пример `config.toml` ниже использует `gpt-5.5` и `gpt-5.4`. Чтобы использовать модель GPT-5.6, замените `model` и при необходимости `review_model` на актуальный ID из группы **GPT**, например `gpt-5.6-luna`, если он отображается в <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>. Не используйте ID модели из группы Claude в Codex custom provider.
 
 ## Требования
 
@@ -1474,6 +1486,16 @@ npm install -g @openai/codex
 3. `model` — это ID модели из группы **GPT**
 4. `model_provider` совпадает с provider id в `[model_providers.custom]`
 5. Старые переменные `OPENAI_API_KEY` или `OPENAI_BASE_URL` не мешают настройке
+
+## Ошибки Codex custom provider
+
+| Симптом | Что проверить |
+| --- | --- |
+| Codex использует официальный provider вместо BetterToken | Проверьте `model_provider = "custom"` и точное имя секции `[model_providers.custom]`. Затем полностью перезапустите Codex. |
+| Ошибка API mode или protocol | В custom provider оставьте `wire_api = "responses"`. Не заменяйте его на `chat_completions`. |
+| `401`, `Unauthorized` или ошибка входа OpenAI | Убедитесь, что `requires_openai_auth = false`, API Key BetterToken действителен и отсутствуют старые `OPENAI_API_KEY` / `OPENAI_BASE_URL`. |
+| Модель не найдена | Скопируйте актуальный ID модели из группы **GPT** в model plaza. Проверьте `model` и `review_model` по отдельности. |
+| Поток ответа обрывается | Сначала проверьте Base URL и сеть. Затем сохраните `stream_max_retries` и `stream_idle_timeout_ms` из примера и перезапустите Codex. |
 
 ---
 
@@ -2119,13 +2141,22 @@ codex
 
 ---
 
-## Настройка кастомной модели Cursor через BetterToken
+## Cursor custom API: OpenAI Base URL и API Key BetterToken
 
 Source: https://docs.bettertoken.ai/ai-tools/cursor
 
-Description: Подключите BetterToken к Cursor с ID моделей группы GPT.
+Description: Настройте в Cursor custom API, OpenAI Base URL и API Key BetterToken, выберите модель группы GPT и устраните частые ошибки.
 
-При подключении BetterToken к Cursor используйте OpenAI-compatible endpoint. Внешние инструменты используют группу **GPT**, поэтому копируйте актуальный ID модели из <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>.
+Чтобы подключить BetterToken как custom API в Cursor, включите **Override OpenAI Base URL**, укажите `https://www.bettertoken.ai/v1`, вставьте API Key в поле **OpenAI API Key** и выберите модель из группы **GPT**. ID моделей берите из <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>.
+
+## Быстрые значения для Cursor
+
+| Поле Cursor | Значение |
+| --- | --- |
+| **Override OpenAI Base URL** | Включить |
+| **Base URL** | `https://www.bettertoken.ai/v1` |
+| **OpenAI API Key** | Ваш API Key BetterToken из группы **GPT** |
+| Custom model | Актуальный ID модели из той же группы **GPT** |
 
 <Warning>
   Cursor позволяет настраивать custom models только пользователям платного advanced tier или выше. Если в вашем аккаунте или версии клиента нет опций custom model, API Key или Base URL, сначала проверьте план Cursor и версию клиента.
@@ -2220,12 +2251,36 @@ Description: Подключите BetterToken к Cursor с ID моделей г�
   </Step>
 </Steps>
 
+## Ошибки custom API и API Key
+
+### В Cursor нет полей Custom API, API Key или Base URL
+
+Проверьте план и версию приложения Cursor. Custom models доступны только в поддерживаемых платных tiers. После обновления Cursor снова откройте **Settings** → **Models**.
+
+### API Key не включается или не проходит проверку
+
+Проверьте, что вы сначала ввели Base URL `https://www.bettertoken.ai/v1` и API Key, а уже затем включили toggle **OpenAI API Key**. Не добавляйте `/chat/completions` к Base URL и не используйте ключ из группы Claude.
+
+### После refresh нет нужной модели
+
+Убедитесь, что API Key принадлежит группе **GPT**, дождитесь окончания refresh и включите только модель из той же группы. Текущий список ID всегда доступен в model plaza.
+
+### Встроенные модели Cursor перестали работать
+
+**Override OpenAI Base URL** действует глобально. Когда вы не используете BetterToken, выключайте этот toggle, чтобы Cursor вернулся к собственному Base URL.
+
+### В чате выбирается не та модель
+
+Откройте model picker и выключите **Auto**. Затем выберите включенную модель вручную.
+
 ## Связанные FAQ
 
 - [Как настроить custom OpenAI API Key и Base URL в Cursor](/faq/cursor/custom-openai-api)
 - [Cursor Rules, AGENTS.md и .cursorignore](/faq/cursor/rules-agents-cursorignore)
 - [Как настроить MCP в Cursor](/faq/cursor/mcp)
 - [Claude Code или Cursor для локальной разработки](/faq/claude-code/claude-code-vs-cursor)
+- [Настройка custom provider в Codex CLI](/ai-tools/codex)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ## Примечания
@@ -2942,69 +2997,122 @@ Roo Code — это AI-расширение для разработки в VS Co
 
 ---
 
-## Настройка кастомной модели Grok CLI через BetterToken
+## Grok CLI: установка, API Key и настройка BetterToken
 
 Source: https://docs.bettertoken.ai/ai-tools/grok-cli
 
-Description: Подключите BetterToken к Grok CLI с ID моделей группы GPT.
+Description: Установите Grok CLI, задайте Base URL и API Key BetterToken, выберите модель группы GPT и устраните частые ошибки.
 
-Grok CLI использует переменные окружения для API-конфигурации. При подключении BetterToken используйте `https://www.bettertoken.ai/v1` и ID модели из группы **GPT**.
+Чтобы подключить кастомный API к Grok CLI, установите CLI, задайте Base URL `https://www.bettertoken.ai/v1` и API Key BetterToken, затем запустите инструмент с ID модели из группы **GPT**. Для этого подключения не нужен отдельный VPN endpoint или локальный proxy.
+
+<Info>
+  Grok CLI использует OpenAI-compatible API BetterToken. Введите только базовый адрес `https://www.bettertoken.ai/v1`; не добавляйте `/chat/completions` в переменную `GROK_BASE_URL`.
+</Info>
 
 <Warning>
-  Grok CLI лучше подходит для легкого использования. Для полноценных agent workflow предпочитайте Claude Code, Codex или OpenClaw.
+  Grok CLI лучше подходит для легких задач в терминале. Для полноценного agent workflow используйте Claude Code, Codex CLI или OpenClaw.
 </Warning>
 
-## Требования
+## Что нужно подготовить
 
-- Установленный Node.js
-- API Key BetterToken (<a href={"https://www.bettertoken.ai/register"}>зарегистрироваться</a>)
+- Node.js и `npm`
+- API Key BetterToken: <a href={"https://www.bettertoken.ai/register"}>зарегистрироваться</a>
+- ID доступной модели из группы **GPT** в <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>
 
-## Установка Grok CLI
+## Установите Grok CLI
+
+В Windows, macOS и Linux выполните:
 
 ```bash
 npm install -g @vibe-kit/grok-cli
 ```
 
-## Настройка
+Если после установки команда `grok` не найдена, закройте терминал, откройте его снова и выполните `grok --help`. Проверьте, что каталог глобальных пакетов `npm` добавлен в `PATH`.
 
-<Steps>
-  <Step title="Очистите конфликтующие переменные окружения">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+## Настройте Base URL и API Key
 
-  <Step title="Задайте переменные окружения BetterToken">
-    ```bash
-    export GROK_BASE_URL="https://www.bettertoken.ai/v1"
-    export GROK_API_KEY="YOUR_API_KEY"
-    ```
-  </Step>
+<Tabs>
+  <Tab title="macOS / Linux">
+    <Steps>
+      <Step title="Очистите конфликтующие переменные">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-  <Step title="Запустите Grok CLI с моделью">
-    ```bash
-    grok --model YOUR_GPT_MODEL_ID
-    ```
+      <Step title="Задайте переменные BetterToken">
+        ```bash
+        export GROK_BASE_URL="https://www.bettertoken.ai/v1"
+        export GROK_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
 
-    Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>.
-  </Step>
+      <Step title="Запустите Grok CLI с моделью">
+        ```bash
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
-  <Step title="Перезапустите Grok CLI">
-    После изменения переменных окружения закройте текущую сессию Grok CLI и запустите инструмент снова.
-  </Step>
-</Steps>
+        Замените `YOUR_GPT_MODEL_ID` на текущий ID модели из группы **GPT** в model plaza.
+      </Step>
+    </Steps>
+  </Tab>
 
-<Note>
-  Мы не нашли официального требования Grok CLI, по которому `User-Agent` обязателен для BetterToken. Сначала проверьте переменные окружения, model ID и версию инструмента; headers добавляйте только если этого требует ваш upstream gateway.
-</Note>
+  <Tab title="Windows PowerShell">
+    <Steps>
+      <Step title="Задайте переменные для текущего окна PowerShell">
+        ```powershell
+        $env:GROK_BASE_URL = "https://www.bettertoken.ai/v1"
+        $env:GROK_API_KEY = "YOUR_API_KEY"
+        ```
+      </Step>
 
-## Связанные FAQ
+      <Step title="Запустите Grok CLI с моделью">
+        ```powershell
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
+        Переменные в этом примере действуют только в текущем окне PowerShell. После открытия нового окна задайте их снова через безопасный способ хранения секретов, принятый в вашей команде.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Проверьте подключение
+
+После запуска отправьте короткий запрос в Grok CLI. Если инструмент отвечает без ошибки авторизации или model ID, подключение готово. При изменении переменных окружения всегда завершайте текущую сессию Grok CLI и запускайте новую.
+
+## Частые ошибки
+
+| Симптом | Что проверить |
+| --- | --- |
+| `grok: command not found` | Выполните установку еще раз, затем откройте новый терминал и проверьте `grok --help`. |
+| `401`, `Unauthorized` или `Invalid API key` | Проверьте `GROK_API_KEY`, убедитесь, что в ключ не попал пробел, и запустите Grok CLI в том же окне терминала, где задана переменная. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID модели из группы **GPT** в model plaza. Не используйте ID из группы Claude. |
+| Запрос уходит на прежний сервис | Проверьте `GROK_BASE_URL`, не добавляйте путь `/chat/completions`, затем перезапустите терминал и Grok CLI. |
+| Ошибка соединения | Убедитесь, что Base URL равен `https://www.bettertoken.ai/v1`, и что сеть разрешает HTTPS-соединения с `www.bettertoken.ai`. |
+
+## Вопросы по настройке
+
+**Какой Base URL нужен для Grok CLI?**
+
+Используйте `https://www.bettertoken.ai/v1`. Это OpenAI-compatible Base URL BetterToken.
+
+**Какой API Key и модель выбрать?**
+
+Для Grok CLI используйте API Key из группы **GPT** и модель из той же группы.
+
+**Нужно ли менять системный proxy или включать VPN?**
+
+Нет. Для подключения BetterToken достаточно настроить Base URL и API Key в терминале.
+
+## Связанные инструкции
+
+- [Настройка Codex CLI с custom provider](/ai-tools/codex)
+- [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
-- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
-- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 
 ---
 
@@ -3590,11 +3698,11 @@ unset OPENAI_BASE_URL
 
 ---
 
-## Текст в изображение (генерация изображений)
+## OpenAI-compatible API генерации изображений: GPT Image 2
 
 Source: https://docs.bettertoken.ai/api-reference/images-generations
 
-Description: Генерируйте изображения из текстовых prompt через GPT Image 2 и OpenAI-совместимый API BetterToken.
+Description: Генерируйте изображения из текста через GPT Image 2 и OpenAI-compatible API BetterToken: API Key, Base URL, параметры, Python, JavaScript и ошибки.
 
 `POST /v1/images/generations`
 
@@ -3612,6 +3720,24 @@ Endpoint text-to-image использует тело запроса `application
   Не помещайте API keys во frontend-код браузера, Git-репозитории, тикеты, скриншоты или логи. Для server-side proxy calls храните ключи только в переменных окружения сервера или secret manager.
 </Warning>
 
+## Быстрый старт с curl
+
+Используйте `https://www.bettertoken.ai/v1` как Base URL и отправьте запрос на `https://www.bettertoken.ai/v1/images/generations`:
+
+```bash
+curl -X POST "https://www.bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
 ## Рекомендуемые значения
 
 Передавайте эти поля явно в каждом запросе:
@@ -3624,6 +3750,15 @@ Endpoint text-to-image использует тело запроса `application
   "output_format": "png"
 }
 ```
+
+| Параметр | Что передавать | Назначение |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | Выбирает image model. |
+| `prompt` | Текстовое описание | Обязательное описание изображения. Укажите объект, стиль, композицию и важные ограничения. |
+| `size` | Например, `1024x1024` | Размер и соотношение сторон. |
+| `n` | `1` | Количество изображений в одном запросе. Для нескольких изображений отправляйте отдельные запросы. |
+| `response_format` | `b64_json` | Возвращает изображение в base64 в `data[0].b64_json`. |
+| `output_format` | `png` | Позволяет сохранить результат как PNG. |
 
 Чтобы сгенерировать несколько изображений, отправляйте несколько независимых запросов. Не рассчитывайте на один запрос с `n > 1`.
 
@@ -3677,6 +3812,35 @@ image_bytes = base64.b64decode(b64_json)
 Path("output.png").write_bytes(image_bytes)
 ```
 
+### Пример JavaScript (Node.js)
+
+```js
+
+const response = await fetch("https://www.bettertoken.ai/v1/images/generations", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
 <Warning>
   Не рассчитывайте, что `output_format: "jpeg"` или `output_format: "webp"` сразу вернет JPEG или WebP-файл. Текущий endpoint может по-прежнему вернуть PNG. Если продукту нужен JPEG или WebP, сначала получите PNG и конвертируйте его в своем коде.
 </Warning>
@@ -3694,6 +3858,27 @@ Endpoint не возвращает `task_id`; отдельного status query 
 - Не повторяйте автоматически `400`, `401`, отсутствующие параметры и некорректные запросы.
 - Используйте exponential backoff, например `3s`, `8s`, `15s`.
 - Если дубли изображений недопустимы, записывайте собственный request ID перед retry.
+
+## Обработка ошибок
+
+Ошибка обычно возвращается как JSON. При отображении сообщения сначала прочитайте `error.message`, затем `message`, а после этого HTTP status text.
+
+| HTTP status | Значение | Что делать |
+| --- | --- | --- |
+| `400` | Некорректный JSON, отсутствует параметр или неподдерживаемый размер | Проверьте тело запроса. Не повторяйте автоматически. |
+| `401` | API Key отсутствует или недействителен | Проверьте header `Authorization: Bearer YOUR_API_KEY`. |
+| `402` | Недостаточно баланса или квоты | Пополните баланс или используйте доступный key. |
+| `429` | Rate limit, ограничение concurrency или занятый upstream | Подождите и повторите с exponential backoff. |
+| `5xx` | Ошибка gateway или upstream | Повторите запрос. При повторной ошибке сохраните request ID и сообщение ошибки. |
+
+## Чек-лист подключения
+
+- Base URL — `https://www.bettertoken.ai/v1`.
+- Header содержит `Authorization: Bearer YOUR_API_KEY`.
+- Request использует `application/json` и `POST /images/generations`.
+- `model` — `gpt-image-2`, `response_format` — `b64_json`, `output_format` — `png`, `n` — `1`.
+- `size` выбран из рекомендованных значений, например `1024x1024`.
+- HTTP client допускает ожидание генерации в течение нескольких минут.
 
 ## Смежные документы
 
@@ -4832,11 +5017,13 @@ BetterToken отвечает за model API access, а не MCP servers. MCP в 
 
 ---
 
-## Как использовать Codex и другие third-party модели в Claude Desktop?
+## Third-party модели в Claude Desktop: custom API, Gateway и Codex
 
 Source: https://docs.bettertoken.ai/faq/claude-desktop/third-party-models
 
-Description: Используйте локальный route CC Switch, чтобы запускать модели группы GPT в Claude Desktop.
+Description: Настройте custom API gateway для Codex и других third-party моделей в Claude Desktop через CC Switch: Base URL, API Key, model mapping и диагностика.
+
+Чтобы использовать Codex или другие third-party модели в Claude Desktop, настройте BetterToken в CC Switch, включите local proxy и передайте его **Service address** в Claude Desktop как **Gateway base URL**. Не указывайте `https://www.bettertoken.ai/v1` напрямую в Claude Desktop: ему нужен local Gateway CC Switch.
 
 В новых версиях Claude Desktop изменился способ настройки third-party API gateways. В Gateway mode Claude Desktop строже проверяет model IDs, поэтому неофициальные model IDs, например GPT, DeepSeek или GLM, могут блокироваться.
 
@@ -4850,11 +5037,17 @@ Description: Используйте локальный route CC Switch, чтоб
   />
 </Frame>
 
-Если вы хотите продолжать использовать Codex или другие third-party модели в Claude Desktop, маршрутизируйте запросы через CC Switch: настройте BetterToken в разделе **Claude Code** в CC Switch, затем введите local service address CC Switch в Claude Desktop Gateway.
-
 <Info>
   Этот путь предназначен для API keys из группы **GPT**. Не вводите `https://www.bettertoken.ai/v1` напрямую в Claude Desktop Gateway.
 </Info>
+
+## Что настраивается
+
+| Что нужно сделать | Где это настраивается |
+| --- | --- |
+| Подключить custom API и API Key BetterToken | Provider **BetterToken** в разделе **Claude Code** в CC Switch |
+| Выбрать модели Codex / GPT | **Model Mapping** CC Switch и **Model list** Claude Desktop |
+| Передать запросы в Claude Desktop | Включить proxy и routing **Claude** в CC Switch, затем вставить его **Service address** в Claude Desktop Gateway |
 
 ## Шаги настройки
 
@@ -5019,7 +5212,7 @@ Description: Используйте локальный route CC Switch, чтоб
 
     | Model ID | Display name |
     |----------|--------------|
-    | `claude-opus-4` | `Claude Opus 4` |
+    | `gpt-5.5` | `GPT-5.5` |
 
     После заполнения списка нажмите **Apply locally**.
 
@@ -5077,6 +5270,29 @@ Description: Используйте локальный route CC Switch, чтоб
 4. **CC Switch proxy**, главный routing switch и route switch **Claude** включены
 5. **Gateway base URL** в Claude Desktop использует local service address, скопированный из CC Switch
 6. **Model list** содержит и **Model ID**, и **Display name** для каждой модели
+
+### Gateway option не появляется
+
+Вернитесь в **Configure Third-Party Inference...**, проверьте настройки Gateway и нажмите **Apply locally**. Затем полностью перезапустите Claude Desktop и подождите появления варианта **Continue with Gateway**.
+
+### Model list пуст или модель не отображается
+
+В CC Switch снова выполните **Fetch Model List** и явно сохраните model mapping. В Claude Desktop добавьте в **Model list** один и тот же актуальный ID модели группы **GPT** и display name, затем примените конфигурацию локально.
+
+### Ошибка `401` или `Unauthorized`
+
+Проверьте, что в Gateway указан API Key BetterToken из группы **GPT**, а **Gateway auth scheme** установлен в `bearer`. После замены ключа сохраните настройки и перезапустите Claude Desktop.
+
+### Запросы не проходят после входа через Gateway
+
+Убедитесь, что provider BetterToken отмечен как **In use**, proxy CC Switch включен, а в **Routing** включены главный switch и route **Claude**. Не заменяйте local service address на публичный OpenAI-compatible Base URL.
+
+## Связанные инструкции
+
+- [Настройка BetterToken в CC Switch](/ai-tools/cc-switch)
+- [Настройка custom provider в Codex CLI](/ai-tools/codex)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ---
 
@@ -8686,17 +8902,29 @@ If requests fail, check these items first:
 
 ---
 
-## Connect Codex to BetterToken with a custom model
+## Codex Custom Provider: config.toml, Base URL, and API Key
 
 Source: https://docs.bettertoken.ai/en/ai-tools/codex
 
-Description: Connect BetterToken to Codex with /v1 and OpenAI Responses.
+Description: Configure BetterToken as a Codex custom provider with config.toml, an OpenAI-compatible Base URL, API Key, Responses API, and error fixes.
 
-Connecting Codex to BetterToken requires a custom model provider and API Key. The `base_url` must be `https://www.bettertoken.ai/v1`, and the protocol is `OpenAI Responses`.
+To use BetterToken in Codex CLI, add a custom provider to `config.toml`, set `base_url = "https://www.bettertoken.ai/v1"`, use `wire_api = "responses"`, and add your BetterToken API Key. This OpenAI-compatible connection requires an API Key from the **GPT Key group**.
 
 <Info>
   If you want to keep the official Codex App login state, plugins, or Remote Control while using a third-party API, use the [login-preserving Codex setup](/en/faq/codex/official-login-third-party-api).
 </Info>
+
+## Choose a setup method
+
+| Method | Choose it when |
+| --- | --- |
+| Automatic script | You want a fast provider setup on one computer. |
+| CC Switch | You want to manage the provider in CC Switch or keep the official Codex App login state. |
+| Manual `config.toml` | You need a transparent config and control over model IDs, retries, and other settings. |
+
+## GPT-5.5 and GPT-5.6 models
+
+The `config.toml` example below starts with `gpt-5.5` and `gpt-5.4`. To use a GPT-5.6 model, replace `model` and, if needed, `review_model` with a current **GPT Key group** ID, such as `gpt-5.6-luna` when it appears in the <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>. Do not use a Claude Key group model ID in a Codex custom provider.
 
 ## Prerequisites
 
@@ -8873,6 +9101,16 @@ If something fails, check:
 3. `model` is a model ID copied from the **GPT Key group**
 4. `model_provider` matches the provider id in `[model_providers.custom]`
 5. No old `OPENAI_API_KEY` or `OPENAI_BASE_URL` variables are interfering
+
+## Codex custom provider errors
+
+| Symptom | What to check |
+| --- | --- |
+| Codex uses the official provider instead of BetterToken | Check `model_provider = "custom"` and the exact `[model_providers.custom]` table name. Then fully restart Codex. |
+| API mode or protocol error | Keep `wire_api = "responses"` in the custom provider. Do not change it to `chat_completions`. |
+| `401`, `Unauthorized`, or an OpenAI sign-in error | Confirm `requires_openai_auth = false`, the BetterToken API Key is valid, and old `OPENAI_API_KEY` / `OPENAI_BASE_URL` values are absent. |
+| Model not found | Copy a current ID from the **GPT Key group** in the model plaza. Check `model` and `review_model` separately. |
+| The response stream stops | First check the Base URL and network. Then retain the example `stream_max_retries` and `stream_idle_timeout_ms` values and restart Codex. |
 
 ---
 
@@ -9516,13 +9754,22 @@ Constraints:
 
 ---
 
-## Connect Cursor to BetterToken with a custom model
+## Cursor Custom API: OpenAI Base URL and API Key Setup
 
 Source: https://docs.bettertoken.ai/en/ai-tools/cursor
 
-Description: Connect BetterToken to Cursor with GPT Key group model IDs.
+Description: Configure BetterToken as a Cursor custom API with an OpenAI Base URL and API Key, select a GPT Key group model, and fix common setup errors.
 
-When connecting BetterToken to Cursor, use the OpenAI-compatible endpoint. External tools use the GPT Key group, so copy the current model ID from the <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>.
+To connect BetterToken as a Cursor custom API, turn on **Override OpenAI Base URL**, enter `https://www.bettertoken.ai/v1`, paste your API Key into **OpenAI API Key**, and select a model from the **GPT Key group**. Copy current model IDs from the <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>.
+
+## Cursor quick values
+
+| Cursor field | Value |
+| --- | --- |
+| **Override OpenAI Base URL** | Turn on |
+| **Base URL** | `https://www.bettertoken.ai/v1` |
+| **OpenAI API Key** | Your BetterToken API Key from the **GPT Key group** |
+| Custom model | A current model ID from the same **GPT Key group** |
 
 <Warning>
   Cursor only lets users on a paid advanced tier or higher configure custom models. If your account or client version does not show custom model, API Key, or Base URL options, check your Cursor plan and client version first.
@@ -9617,12 +9864,36 @@ When connecting BetterToken to Cursor, use the OpenAI-compatible endpoint. Exter
   </Step>
 </Steps>
 
+## Custom API and API Key errors
+
+### Cursor does not show Custom API, API Key, or Base URL fields
+
+Check your Cursor plan and client version. Custom models are available only in supported paid tiers. After updating Cursor, open **Settings** → **Models** again.
+
+### The API Key cannot be enabled or verified
+
+Enter the Base URL `https://www.bettertoken.ai/v1` and the API Key before turning on the **OpenAI API Key** toggle. Do not append `/chat/completions` to the Base URL, and do not use a Claude Key group key.
+
+### The model is missing after refresh
+
+Confirm that the API Key belongs to the **GPT Key group**, wait for refresh to finish, and enable only a model from that same group. The model plaza always lists current IDs.
+
+### Cursor built-in models stop working
+
+**Override OpenAI Base URL** is global. When you are not using BetterToken, turn this toggle off so Cursor can use its own Base URL again.
+
+### Chat selects a different model
+
+Open the model picker and turn **Auto** off. Then manually select the model you enabled.
+
 ## Related FAQ
 
 - [How to configure a custom OpenAI API Key and Base URL in Cursor](/en/faq/cursor/custom-openai-api)
 - [Cursor Rules, AGENTS.md, and .cursorignore explained](/en/faq/cursor/rules-agents-cursorignore)
 - [How to configure MCP in Cursor](/en/faq/cursor/mcp)
 - [Claude Code vs Cursor for local development](/en/faq/claude-code/claude-code-vs-cursor)
+- [Configure a custom provider in Codex CLI](/en/ai-tools/codex)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ## Notes
@@ -10339,69 +10610,122 @@ Open VS Code, search for **Roo Code** in the extensions marketplace, and install
 
 ---
 
-## Connect Grok CLI to BetterToken with a custom model
+## Grok CLI setup: install, API Key, and Base URL
 
 Source: https://docs.bettertoken.ai/en/ai-tools/grok-cli
 
-Description: Connect BetterToken to Grok CLI with GPT Key group model IDs.
+Description: Install Grok CLI, configure BetterToken Base URL and API Key, choose a GPT Key group model, and fix common setup errors.
 
-Grok CLI uses environment variables for API configuration. When connecting BetterToken, use `https://www.bettertoken.ai/v1` and a model ID from the GPT Key group.
+To connect a custom API to Grok CLI, install the CLI, set the BetterToken Base URL to `https://www.bettertoken.ai/v1`, add your API Key, and start the tool with a model ID from the **GPT Key group**. This connection does not require a separate VPN endpoint or local proxy.
+
+<Info>
+  Grok CLI uses BetterToken's OpenAI-compatible API. Enter only `https://www.bettertoken.ai/v1`; do not append `/chat/completions` to `GROK_BASE_URL`.
+</Info>
 
 <Warning>
-  Grok CLI is better suited to lightweight usage. For full agent workflows, prefer Claude Code, Codex, or OpenClaw.
+  Grok CLI is best for lightweight terminal tasks. For a full agent workflow, use Claude Code, Codex CLI, or OpenClaw.
 </Warning>
 
-## Prerequisites
+## What you need
 
-- Node.js installed
-- BetterToken API Key (<a href={"https://www.bettertoken.ai/register"}>register here</a>)
+- Node.js and `npm`
+- A BetterToken API Key: <a href={"https://www.bettertoken.ai/register"}>register here</a>
+- A currently available **GPT Key group** model ID from the <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>
 
 ## Install Grok CLI
+
+Run this on Windows, macOS, or Linux:
 
 ```bash
 npm install -g @vibe-kit/grok-cli
 ```
 
-## Setup
+If `grok` is not found after installation, close and reopen the terminal, then run `grok --help`. Check that the global `npm` package directory is on your `PATH`.
 
-<Steps>
-  <Step title="Clear conflicting environment variables">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+## Configure the Base URL and API Key
 
-  <Step title="Set BetterToken environment variables">
-    ```bash
-    export GROK_BASE_URL="https://www.bettertoken.ai/v1"
-    export GROK_API_KEY="YOUR_API_KEY"
-    ```
-  </Step>
+<Tabs>
+  <Tab title="macOS / Linux">
+    <Steps>
+      <Step title="Clear conflicting variables">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-  <Step title="Start Grok CLI with a model">
-    ```bash
-    grok --model YOUR_GPT_MODEL_ID
-    ```
+      <Step title="Set BetterToken variables">
+        ```bash
+        export GROK_BASE_URL="https://www.bettertoken.ai/v1"
+        export GROK_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
 
-    Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID copied from the <a href={"https://www.bettertoken.ai/pricing"}>model plaza</a>.
-  </Step>
+      <Step title="Start Grok CLI with a model">
+        ```bash
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
-  <Step title="Restart Grok CLI">
-    After changing the environment variables, close the current Grok CLI session and start the tool again.
-  </Step>
-</Steps>
+        Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID from the model plaza.
+      </Step>
+    </Steps>
+  </Tab>
 
-<Note>
-  We did not find an official Grok CLI setup requirement that makes `User-Agent` mandatory for BetterToken. Check the environment variables, model ID, and tool version first; only add headers when your upstream gateway explicitly requires them.
-</Note>
+  <Tab title="Windows PowerShell">
+    <Steps>
+      <Step title="Set variables for the current PowerShell window">
+        ```powershell
+        $env:GROK_BASE_URL = "https://www.bettertoken.ai/v1"
+        $env:GROK_API_KEY = "YOUR_API_KEY"
+        ```
+      </Step>
 
-## Related FAQ
+      <Step title="Start Grok CLI with a model">
+        ```powershell
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
+        These variables apply only to the current PowerShell window. Set them again through your team's approved secret-storage approach when you open a new window.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Verify the connection
+
+After Grok CLI starts, send a short prompt. If it replies without an authentication or model ID error, the connection is ready. Whenever you change environment variables, end the current Grok CLI session and start a new one.
+
+## Common errors
+
+| Symptom | What to check |
+| --- | --- |
+| `grok: command not found` | Install again, open a new terminal, and check `grok --help`. |
+| `401`, `Unauthorized`, or `Invalid API key` | Check `GROK_API_KEY`, make sure no extra whitespace was copied, and start Grok CLI in the same terminal where the variable is set. |
+| `model not found` or unavailable model | Copy a current model ID from the **GPT Key group** in the model plaza. Do not use an ID from the Claude Key group. |
+| Requests still use a previous service | Check `GROK_BASE_URL`, do not append `/chat/completions`, then restart the terminal and Grok CLI. |
+| Connection error | Confirm the Base URL is `https://www.bettertoken.ai/v1` and that your network can reach `www.bettertoken.ai` over HTTPS. |
+
+## Setup FAQ
+
+**Which Base URL should I use in Grok CLI?**
+
+Use `https://www.bettertoken.ai/v1`. This is BetterToken's OpenAI-compatible Base URL.
+
+**Which API Key and model should I select?**
+
+Use a **GPT Key group** API Key and a model from the same group.
+
+**Do I need to change a system proxy or enable a VPN?**
+
+No. Configure the Base URL and API Key in your terminal to connect to BetterToken.
+
+## Related guides
+
+- [Configure Codex CLI with a custom provider](/en/ai-tools/codex)
+- [Configure a custom API, Base URL, and API Key in Cursor](/en/ai-tools/cursor)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
-- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
-- [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
 
 ---
 
@@ -10987,11 +11311,11 @@ For external tools, copy the model ID from the **GPT Key group** in the <a href=
 
 ---
 
-## Text to image (image generation)
+## OpenAI-Compatible Image Generation API: GPT Image 2 Guide
 
 Source: https://docs.bettertoken.ai/en/api-reference/images-generations
 
-Description: Generate images from text prompts with GPT Image 2 through BetterToken's OpenAI-compatible API.
+Description: Generate images from text with GPT Image 2 and BetterToken's OpenAI-compatible API: API Key, Base URL, parameters, Python, JavaScript, and errors.
 
 `POST /v1/images/generations`
 
@@ -11009,6 +11333,24 @@ The text-to-image endpoint uses an `application/json` request body. Submit a pro
   Do not put API keys in frontend browser code, Git repositories, tickets, screenshots, or logs. For server-side proxy calls, store API keys only in server environment variables or a secret manager.
 </Warning>
 
+## Quick start with curl
+
+Use `https://www.bettertoken.ai/v1` as the Base URL and send a request to `https://www.bettertoken.ai/v1/images/generations`:
+
+```bash
+curl -X POST "https://www.bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
 ## Recommended values
 
 Send these fields explicitly in every request:
@@ -11021,6 +11363,15 @@ Send these fields explicitly in every request:
   "output_format": "png"
 }
 ```
+
+| Parameter | What to send | Purpose |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | Selects the image model. |
+| `prompt` | A text description | Required image description. Include the subject, style, composition, and important constraints. |
+| `size` | For example, `1024x1024` | Selects the output size and aspect ratio. |
+| `n` | `1` | Image count for one request. Send separate requests for multiple images. |
+| `response_format` | `b64_json` | Returns image content as base64 in `data[0].b64_json`. |
+| `output_format` | `png` | Lets you save the result as PNG. |
 
 Generate multiple images by sending multiple independent requests. Do not rely on a single request with `n > 1`.
 
@@ -11074,6 +11425,35 @@ image_bytes = base64.b64decode(b64_json)
 Path("output.png").write_bytes(image_bytes)
 ```
 
+### JavaScript example (Node.js)
+
+```js
+
+const response = await fetch("https://www.bettertoken.ai/v1/images/generations", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
 <Warning>
   Do not rely on `output_format: "jpeg"` or `output_format: "webp"` to directly receive JPEG or WebP files. The current endpoint may still return PNG image content. If your product needs JPEG or WebP, receive PNG first and convert it in your own code.
 </Warning>
@@ -11091,6 +11471,27 @@ The endpoint does not return a `task_id`, and there is no separate status query 
 - Do not retry `400`, `401`, missing parameters, or malformed requests automatically.
 - Use exponential backoff such as `3s`, `8s`, and `15s`.
 - If duplicate images are unacceptable, record your own request ID before retrying.
+
+## Error handling
+
+Errors usually return JSON. When showing an error, read `error.message` first, then `message`, then the HTTP status text.
+
+| HTTP status | Meaning | What to do |
+| --- | --- | --- |
+| `400` | Malformed JSON, a missing parameter, or an unsupported size | Check the request body. Do not retry automatically. |
+| `401` | API Key is missing or invalid | Check the `Authorization: Bearer YOUR_API_KEY` header. |
+| `402` | Insufficient balance or quota | Add balance or use an available key. |
+| `429` | Rate limit, concurrency limit, or busy upstream | Wait and retry with exponential backoff. |
+| `5xx` | Gateway or upstream failure | Retry the request. If it still fails, record the request ID and error message. |
+
+## Integration checklist
+
+- The Base URL is `https://www.bettertoken.ai/v1`.
+- The header contains `Authorization: Bearer YOUR_API_KEY`.
+- The request uses `application/json` and `POST /images/generations`.
+- `model` is `gpt-image-2`, `response_format` is `b64_json`, `output_format` is `png`, and `n` is `1`.
+- `size` is one of the recommended values, such as `1024x1024`.
+- Your HTTP client allows several minutes for generation.
 
 ## Related docs
 
@@ -12229,11 +12630,13 @@ If you need both tool access and unified model routing, configure MCP and API ac
 
 ---
 
-## How can I use Codex and other third-party models in Claude Desktop?
+## Claude Desktop Third-Party Models: Custom API and Codex Setup
 
 Source: https://docs.bettertoken.ai/en/faq/claude-desktop/third-party-models
 
-Description: Use a CC Switch local route to run GPT Key group models in Claude Desktop.
+Description: Configure a custom API gateway for Codex and other third-party models in Claude Desktop through CC Switch: Base URL, API Key, model mapping, and fixes.
+
+To use Codex or other third-party models in Claude Desktop, configure BetterToken in CC Switch, enable its local proxy, and enter the CC Switch **Service address** as the Claude Desktop **Gateway base URL**. Do not enter `https://www.bettertoken.ai/v1` directly in Claude Desktop: it needs the CC Switch local Gateway.
 
 Recent Claude Desktop versions changed how third-party API gateways are configured. In Gateway mode, Claude Desktop validates model IDs more strictly, so non-official model IDs such as GPT, DeepSeek, or GLM can be blocked.
 
@@ -12247,11 +12650,17 @@ A common symptom is this warning at the top of the page: `Your provider setup ne
   />
 </Frame>
 
-If you want to keep using Codex or other third-party models in Claude Desktop, route the requests through CC Switch: configure BetterToken under **Claude Code** in CC Switch, then enter the CC Switch local service address in Claude Desktop Gateway.
-
 <Info>
   This path is for API keys from the **GPT Key group**. Do not enter `https://www.bettertoken.ai/v1` directly in Claude Desktop Gateway.
 </Info>
+
+## What this setup configures
+
+| Goal | Where to configure it |
+| --- | --- |
+| Add your custom API and BetterToken API Key | The **BetterToken** provider under **Claude Code** in CC Switch |
+| Choose Codex / GPT models | **Model Mapping** in CC Switch and **Model list** in Claude Desktop |
+| Route requests through Claude Desktop | Enable the CC Switch proxy and **Claude** routing, then enter its **Service address** in Claude Desktop Gateway |
 
 ## Setup steps
 
@@ -12416,7 +12825,7 @@ If you want to keep using Codex or other third-party models in Claude Desktop, r
 
     | Model ID | Display name |
     |----------|--------------|
-    | `claude-opus-4` | `Claude Opus 4` |
+    | `gpt-5.5` | `GPT-5.5` |
 
     After filling in the list, click **Apply locally**.
 
@@ -12474,6 +12883,29 @@ If you still see **Your provider setup needs a fix**, check these items first:
 4. **CC Switch proxy**, the main routing switch, and the **Claude** route switch are all enabled
 5. Claude Desktop **Gateway base URL** uses the local service address copied from CC Switch
 6. **Model list** includes both **Model ID** and **Display name** for each model
+
+### The Gateway sign-in option does not appear
+
+Return to **Configure Third-Party Inference...**, confirm the Gateway settings, and click **Apply locally**. Then fully restart Claude Desktop and wait for **Continue with Gateway** to appear.
+
+### The model list is empty or the model is missing
+
+Run **Fetch Model List** in CC Switch again and explicitly save the model mapping. In Claude Desktop, add the same current **GPT Key group** model ID and a display name to **Model list**, then apply the configuration locally.
+
+### `401` or `Unauthorized`
+
+Confirm that Gateway uses a **GPT Key group** BetterToken API Key and that **Gateway auth scheme** is `bearer`. Save the settings and restart Claude Desktop after replacing the key.
+
+### Requests fail after signing in with Gateway
+
+Check that the BetterToken provider is **In use**, the CC Switch proxy is on, and both the main switch and **Claude** route are enabled in **Routing**. Do not replace the local service address with the public OpenAI-compatible Base URL.
+
+## Related guides
+
+- [Configure BetterToken in CC Switch](/en/ai-tools/cc-switch)
+- [Configure a custom provider in Codex CLI](/en/ai-tools/codex)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ---
 
@@ -16085,17 +16517,29 @@ Claude 桌面端支持通过 developer mode 配置第三方推理网关。你可
 
 ---
 
-## Codex 自定义模型接入 BetterToken 指南
+## Codex 自定义 provider：config.toml、Base URL 与 API Key
 
 Source: https://docs.bettertoken.ai/zh/ai-tools/codex
 
-Description: 在 OpenAI Codex 中使用 BetterToken，使用 /v1 与 OpenAI Responses。
+Description: 在 Codex 中将 BetterToken 配置为自定义 provider，包含 config.toml、OpenAI-compatible Base URL、API Key、Responses API 与错误排查。
 
-在 Codex 中接入 BetterToken，需要配置自定义模型提供商和 API Key。`base_url` 必须填写为 `https://www.bettertoken.ai/v1`，协议为 `OpenAI Responses`。
+要在 Codex CLI 中使用 BetterToken，请在 `config.toml` 中添加自定义 provider，设置 `base_url = "https://www.bettertoken.ai/v1"`、`wire_api = "responses"`，并填写 BetterToken API Key。这个 OpenAI-compatible 接入需要使用 **GPT 分组** API Key。
 
 <Info>
   如果你希望在使用第三方 API 的同时保留 Codex App 官方登录态、插件或 Remote Control，请使用 [保留 Codex 登录态的配置方式](/zh/faq/codex/official-login-third-party-api)。
 </Info>
+
+## 选择一种配置方式
+
+| 方式 | 适合场景 |
+| --- | --- |
+| 自动脚本 | 希望在一台电脑上快速写入 provider 配置。 |
+| CC Switch | 希望在 CC Switch 中管理 provider，或保留 Codex App 官方登录态。 |
+| 手动 `config.toml` | 希望清晰查看配置，并控制模型 ID、重试等参数。 |
+
+## GPT-5.5 与 GPT-5.6 模型
+
+下面的 `config.toml` 示例默认使用 `gpt-5.5` 和 `gpt-5.4`。如需使用 GPT-5.6，请将 `model` 和按需将 `review_model` 改为当前可用的 **GPT 分组**模型 ID；例如模型广场出现 `gpt-5.6-luna` 时可直接填写。不要在 Codex 自定义 provider 中使用 Claude 分组模型 ID。
 
 ## 前置条件
 
@@ -16272,6 +16716,16 @@ npm install -g @openai/codex
 3. `model` 是否为从 <a href={"https://www.bettertoken.ai/pricing"}>模型广场</a> 复制的 **GPT 分组**模型 ID
 4. `model_provider` 是否与 `[model_providers.custom]` 中的 provider id 保持一致
 5. 是否有旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量在干扰配置
+
+## Codex 自定义 provider 常见错误
+
+| 现象 | 排查方式 |
+| --- | --- |
+| Codex 仍使用官方 provider，没有使用 BetterToken | 检查 `model_provider = "custom"`，并确认 `[model_providers.custom]` 段名完全一致。然后完全重启 Codex。 |
+| 出现 API mode 或协议错误 | 自定义 provider 中必须保留 `wire_api = "responses"`，不要改为 `chat_completions`。 |
+| `401`、`Unauthorized` 或 OpenAI 登录错误 | 确认 `requires_openai_auth = false`、BetterToken API Key 有效，并且没有旧的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`。 |
+| 找不到模型 | 从模型广场复制当前 **GPT 分组**模型 ID，并分别检查 `model` 和 `review_model`。 |
+| 流式响应中断 | 先检查 Base URL 和网络，再保留示例中的 `stream_max_retries` 与 `stream_idle_timeout_ms`，然后重启 Codex。 |
 
 ---
 
@@ -16915,13 +17369,22 @@ codex
 
 ---
 
-## Cursor 自定义模型接入 BetterToken 指南
+## Cursor 自定义 API：OpenAI Base URL 与 API Key 配置
 
 Source: https://docs.bettertoken.ai/zh/ai-tools/cursor
 
-Description: 在 Cursor 中使用 BetterToken，接入 GPT 分组模型。
+Description: 在 Cursor 中配置 BetterToken 自定义 API、OpenAI Base URL 和 API Key，选择 GPT 分组模型并排查常见错误。
 
-在 Cursor 中接入 BetterToken 时，使用 OpenAI-compatible 协议入口。外部工具统一走 GPT 分组，请从<a href={"https://www.bettertoken.ai/pricing"}>模型广场</a>复制当前可用的模型 ID。
+要在 Cursor 中接入 BetterToken 自定义 API，请打开 **Override OpenAI Base URL**，填写 `https://www.bettertoken.ai/v1`，在 **OpenAI API Key** 中粘贴 API Key，并选择 **GPT 分组**模型。当前模型 ID 请从<a href={"https://www.bettertoken.ai/pricing"}>模型广场</a>复制。
+
+## Cursor 快速填写值
+
+| Cursor 字段 | 填写内容 |
+| --- | --- |
+| **Override OpenAI Base URL** | 打开 |
+| **Base URL** | `https://www.bettertoken.ai/v1` |
+| **OpenAI API Key** | 你的 **GPT 分组** BetterToken API Key |
+| 自定义模型 | 同一 **GPT 分组**下当前可用的模型 ID |
 
 <Warning>
   Cursor 仅支持订阅高级会员及以上的用户配置自定义模型。如果你的账号或当前客户端版本没有显示自定义模型、API Key 或 Base URL 选项，请先确认 Cursor 账号套餐与客户端版本。
@@ -17016,12 +17479,36 @@ Description: 在 Cursor 中使用 BetterToken，接入 GPT 分组模型。
   </Step>
 </Steps>
 
+## 自定义 API 和 API Key 常见错误
+
+### Cursor 没有显示自定义 API、API Key 或 Base URL
+
+先检查 Cursor 账号套餐和客户端版本。自定义模型只对支持的付费套餐开放。更新 Cursor 后，再次打开 **Settings** → **Models**。
+
+### API Key 无法启用或验证失败
+
+先填写 Base URL `https://www.bettertoken.ai/v1` 和 API Key，再打开 **OpenAI API Key** 开关。Base URL 不要附加 `/chat/completions`，也不要填写 Claude 分组 Key。
+
+### 刷新后没有需要的模型
+
+确认 API Key 属于 **GPT 分组**，等待刷新完成后，只启用同一分组下的模型。当前模型 ID 以模型广场为准。
+
+### Cursor 自带模型停止工作
+
+**Override OpenAI Base URL** 是全局设置。不使用 BetterToken 时，请关闭这个开关，让 Cursor 恢复使用自己的 Base URL。
+
+### 对话中选错模型
+
+打开模型选择器并关闭 **Auto**，再手动选择已启用的模型。
+
 ## 相关 FAQ
 
 - [Cursor 如何配置自定义 OpenAI API Key 和 Base URL？](/zh/faq/cursor/custom-openai-api)
 - [Cursor Rules、AGENTS.md 和 .cursorignore 是什么？](/zh/faq/cursor/rules-agents-cursorignore)
 - [Cursor 如何配置 MCP？](/zh/faq/cursor/mcp)
 - [Claude Code 和 Cursor 哪个更适合本地开发？](/zh/faq/claude-code/claude-code-vs-cursor)
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ## 注意事项
@@ -17738,69 +18225,122 @@ Roo Code 是 VS Code 的 AI 编程助手插件。接入 BetterToken 时，请选
 
 ---
 
-## Grok CLI 自定义模型接入 BetterToken 指南
+## Grok CLI 安装、API Key 与 Base URL 配置
 
 Source: https://docs.bettertoken.ai/zh/ai-tools/grok-cli
 
-Description: 在 Grok CLI 中使用 BetterToken，接入 GPT 分组模型。
+Description: 安装 Grok CLI，配置 BetterToken 的 Base URL 和 API Key，选择 GPT 分组模型并排查常见错误。
 
-Grok CLI 通过环境变量配置 API 地址和 Key。接入 BetterToken 时，请使用 `https://www.bettertoken.ai/v1`，并指定 GPT 分组模型 ID。
+要在 Grok CLI 中使用自定义 API，请先安装 CLI，将 BetterToken Base URL 设为 `https://www.bettertoken.ai/v1`，填写 API Key，再用 **GPT 分组**的模型 ID 启动工具。这个接入不需要额外配置 VPN 地址或本地代理。
+
+<Info>
+  Grok CLI 使用 BetterToken 的 OpenAI-compatible API。`GROK_BASE_URL` 只填写 `https://www.bettertoken.ai/v1`，不要附加 `/chat/completions`。
+</Info>
 
 <Warning>
-  Grok CLI 更适合轻量场景。如需完整 Agent 工作流，优先使用 Claude Code、Codex 或 OpenClaw。
+  Grok CLI 更适合轻量终端任务。如需完整 Agent 工作流，优先使用 Claude Code、Codex CLI 或 OpenClaw。
 </Warning>
 
-## 前置条件
+## 准备工作
 
-- 已安装 Node.js
-- 已获取 BetterToken API Key（<a href={"https://www.bettertoken.ai/register"}>注册并获取</a>）
+- 已安装 Node.js 和 `npm`
+- 已获取 BetterToken API Key：<a href={"https://www.bettertoken.ai/register"}>注册并获取</a>
+- 已从<a href={"https://www.bettertoken.ai/pricing"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
 
 ## 安装 Grok CLI
+
+Windows、macOS 和 Linux 都可以执行：
 
 ```bash
 npm install -g @vibe-kit/grok-cli
 ```
 
-## 配置步骤
+如果安装后找不到 `grok` 命令，请关闭并重新打开终端，再运行 `grok --help`。同时检查全局 `npm` 包目录是否已加入 `PATH`。
 
-<Steps>
-  <Step title="清除冲突的环境变量">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
+## 配置 Base URL 和 API Key
 
-  <Step title="设置 BetterToken 环境变量">
-    ```bash
-    export GROK_BASE_URL="https://www.bettertoken.ai/v1"
-    export GROK_API_KEY="YOUR_API_KEY"
-    ```
-  </Step>
+<Tabs>
+  <Tab title="macOS / Linux">
+    <Steps>
+      <Step title="清除冲突的环境变量">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
 
-  <Step title="启动 Grok CLI 并指定模型">
-    ```bash
-    grok --model YOUR_GPT_MODEL_ID
-    ```
+      <Step title="设置 BetterToken 环境变量">
+        ```bash
+        export GROK_BASE_URL="https://www.bettertoken.ai/v1"
+        export GROK_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
 
-    将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"https://www.bettertoken.ai/pricing"}>模型广场</a>复制的 **GPT 分组模型 ID**。
-  </Step>
+      <Step title="指定模型启动 Grok CLI">
+        ```bash
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
-  <Step title="重启 Grok CLI">
-    修改环境变量后，请关闭当前 Grok CLI 会话，并重新启动命令行工具。
-  </Step>
-</Steps>
+        将 `YOUR_GPT_MODEL_ID` 替换为模型广场中当前可用的 **GPT 分组**模型 ID。
+      </Step>
+    </Steps>
+  </Tab>
 
-<Note>
-  目前我们没有查到 Grok CLI 官方接入说明要求 BetterToken 额外配置 `User-Agent`。优先检查环境变量、模型 ID 和工具版本；只有当你额外接入的上游网关明确要求 headers 时，再按其文档补充。
-</Note>
+  <Tab title="Windows PowerShell">
+    <Steps>
+      <Step title="为当前 PowerShell 窗口设置变量">
+        ```powershell
+        $env:GROK_BASE_URL = "https://www.bettertoken.ai/v1"
+        $env:GROK_API_KEY = "YOUR_API_KEY"
+        ```
+      </Step>
 
-## 相关 FAQ
+      <Step title="指定模型启动 Grok CLI">
+        ```powershell
+        grok --model YOUR_GPT_MODEL_ID
+        ```
 
+        上述变量只在当前 PowerShell 窗口中有效。重新打开窗口后，请按团队认可的安全密钥管理方式再次设置。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## 验证连接
+
+Grok CLI 启动后，发送一条简短提示词。没有出现认证或模型 ID 错误，就说明连接已生效。每次修改环境变量后，都应结束当前 Grok CLI 会话并重新启动。
+
+## 常见错误
+
+| 现象 | 排查方式 |
+| --- | --- |
+| `grok: command not found` | 重新执行安装命令，打开新的终端后运行 `grok --help`。 |
+| `401`、`Unauthorized` 或 `Invalid API key` | 检查 `GROK_API_KEY`，确认复制的 Key 没有多余空格，并确保在设置变量的同一个终端中启动 Grok CLI。 |
+| `model not found` 或模型不可用 | 从模型广场复制当前 **GPT 分组**模型 ID。不要使用 Claude 分组模型 ID。 |
+| 请求仍发往旧服务 | 检查 `GROK_BASE_URL`，不要填写 `/chat/completions`，然后重启终端和 Grok CLI。 |
+| 连接失败 | 确认 Base URL 是 `https://www.bettertoken.ai/v1`，并确认网络可通过 HTTPS 访问 `www.bettertoken.ai`。 |
+
+## 配置 FAQ
+
+**Grok CLI 应该填写哪个 Base URL？**
+
+填写 `https://www.bettertoken.ai/v1`，这是 BetterToken 的 OpenAI-compatible Base URL。
+
+**应该使用哪个 API Key 和模型？**
+
+使用 **GPT 分组** API Key，并选择同一分组下的模型。
+
+**需要修改系统代理或开启 VPN 吗？**
+
+不需要。只要在终端中设置 Base URL 和 API Key，即可连接 BetterToken。
+
+## 相关指南
+
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
-- [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
 
 ---
 
@@ -18386,11 +18926,11 @@ unset OPENAI_BASE_URL
 
 ---
 
-## 文生图（图片生成）
+## OpenAI-compatible 图片生成 API：GPT Image 2 接入指南
 
 Source: https://docs.bettertoken.ai/zh/api-reference/images-generations
 
-Description: 通过 BetterToken 的 OpenAI 兼容接口调用 GPT Image 2，根据文本提示词生成图片。
+Description: 通过 BetterToken 的 OpenAI-compatible API 调用 GPT Image 2 生成图片，包含 API Key、Base URL、参数、Python、JavaScript 与错误处理。
 
 `POST /v1/images/generations`
 
@@ -18408,6 +18948,24 @@ Description: 通过 BetterToken 的 OpenAI 兼容接口调用 GPT Image 2，根�
   不要把 API Key 放进前端浏览器代码，也不要提交到 Git 仓库、工单、截图或日志里。服务端代理调用时，应只在服务端环境变量或密钥管理系统里保存 API Key。
 </Warning>
 
+## 使用 curl 快速调用
+
+将 `https://www.bettertoken.ai/v1` 作为 Base URL，并向 `https://www.bettertoken.ai/v1/images/generations` 发送请求：
+
+```bash
+curl -X POST "https://www.bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
 ## 推荐请求值
 
 所有文生图请求建议显式传入这些字段：
@@ -18420,6 +18978,15 @@ Description: 通过 BetterToken 的 OpenAI 兼容接口调用 GPT Image 2，根�
   "output_format": "png"
 }
 ```
+
+| 参数 | 填写内容 | 作用 |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | 指定图片模型。 |
+| `prompt` | 文本描述 | 必填。描述主体、风格、构图和重要限制。 |
+| `size` | 例如 `1024x1024` | 选择输出尺寸与比例。 |
+| `n` | `1` | 单次请求的图片数。需要多张图片时，请发起多次独立请求。 |
+| `response_format` | `b64_json` | 在 `data[0].b64_json` 中返回 base64 图片内容。 |
+| `output_format` | `png` | 让客户端按 PNG 保存返回结果。 |
 
 多张图片建议由客户端或服务端任务队列发起多次独立请求。不要依赖单次请求 `n > 1`。
 
@@ -18471,6 +19038,35 @@ if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
 
 image_bytes = base64.b64decode(b64_json)
 Path("output.png").write_bytes(image_bytes)
+```
+
+### JavaScript 示例（Node.js）
+
+```js
+
+const response = await fetch("https://www.bettertoken.ai/v1/images/generations", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
 ```
 
 <Warning>
@@ -19711,11 +20307,13 @@ BetterToken 处理模型 API 接入，不负责 MCP server。Claude Desktop 的 
 
 ---
 
-## 如何在 Claude Desktop 里使用 Codex 等第三方模型？
+## Claude Desktop 第三方模型配置：自定义 API、Gateway 与 Codex
 
 Source: https://docs.bettertoken.ai/zh/faq/claude-desktop/third-party-models
 
-Description: 通过 CC Switch 本地路由，在 Claude Desktop 中使用 GPT 分组模型。
+Description: 通过 CC Switch 为 Claude Desktop 配置 Codex 等第三方模型的自定义 API Gateway，包含 Base URL、API Key、模型映射与常见错误排查。
+
+要在 Claude Desktop 中使用 Codex 等第三方模型，请先在 CC Switch 中配置 BetterToken 并打开本地代理，再把 CC Switch 的**服务地址**填写为 Claude Desktop 的 **Gateway base URL**。不要将 `https://www.bettertoken.ai/v1` 直接填入 Claude Desktop；这里需要的是 CC Switch 的本地 Gateway。
 
 Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会校验模型 ID，直接填写 GPT、DeepSeek、GLM 等非官方模型 ID 时，可能会被拦截。
 
@@ -19729,11 +20327,17 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
   />
 </Frame>
 
-如果你想在 Claude Desktop 里继续使用 Codex 等第三方模型，建议通过 CC Switch 建立本地路由：先在 CC Switch 的 **Claude Code** 配置里接入 BetterToken，再把 CC Switch 的本地服务地址填入 Claude Desktop Gateway。
-
 <Info>
   这条路径适合使用 **GPT 分组** API Key。不要把 `https://www.bettertoken.ai/v1` 直接填进 Claude Desktop Gateway。
 </Info>
+
+## 本教程会配置什么
+
+| 目标 | 配置位置 |
+| --- | --- |
+| 接入自定义 API 和 BetterToken API Key | CC Switch 的 **Claude Code** 中创建 **BetterToken** provider |
+| 选择 Codex / GPT 模型 | CC Switch 的 **Model Mapping** 和 Claude Desktop 的 **Model list** |
+| 让 Claude Desktop 通过网关发送请求 | 打开 CC Switch 代理和 **Claude** 路由，再将其**服务地址**填入 Claude Desktop Gateway |
 
 ## 配置步骤
 
@@ -19898,7 +20502,7 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
 
     | Model ID | Display name |
     |----------|--------------|
-    | `claude-opus-4` | `Claude Opus 4` |
+    | `gpt-5.5` | `GPT-5.5` |
 
     填写完成后点击 **Apply locally**。
 
@@ -19956,6 +20560,29 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
 4. **CC Switch 代理功能**、**路由总开关** 和 **Claude** 路由开关是否都已打开
 5. Claude Desktop 的 **Gateway base URL** 是否为 CC Switch 复制出的本地服务地址
 6. **Model list** 是否已为每个模型同时填写 **Model ID** 和 **Display name**
+
+### 没有出现 Gateway 登录选项
+
+回到 **Configure Third-Party Inference...**，确认 Gateway 配置后点击 **Apply locally**。然后完全退出并重新启动 Claude Desktop，等待出现 **Continue with Gateway**。
+
+### 模型列表为空或找不到模型
+
+在 CC Switch 中再次点击 **Fetch Model List**，并显式保存模型映射。在 Claude Desktop 的 **Model list** 中添加同一个当前可用的 **GPT 分组**模型 ID 和显示名称，再应用到本机。
+
+### 出现 `401` 或 `Unauthorized`
+
+确认 Gateway 中填写的是 **GPT 分组** BetterToken API Key，且 **Gateway auth scheme** 为 `bearer`。更换 Key 后请保存并重启 Claude Desktop。
+
+### 通过 Gateway 登录后请求失败
+
+确认 BetterToken provider 已设为**使用中**、CC Switch 代理已打开，并且 **Routing** 中的总开关与 **Claude** 路由都已开启。不要将本地服务地址替换为公开的 OpenAI-compatible Base URL。
+
+## 相关指南
+
+- [CC Switch 配置 BetterToken](/zh/ai-tools/cc-switch)
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
 ---
 

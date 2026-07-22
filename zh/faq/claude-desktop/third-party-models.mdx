@@ -1,8 +1,10 @@
 ---
-title: "如何在 Claude Desktop 里使用 Codex 等第三方模型？"
+title: "Claude Desktop 第三方模型配置：自定义 API、Gateway 与 Codex"
 sidebarTitle: "Claude Desktop 使用第三方模型"
-description: "通过 CC Switch 本地路由，在 Claude Desktop 中使用 GPT 分组模型。"
+description: "通过 CC Switch 为 Claude Desktop 配置 Codex 等第三方模型的自定义 API Gateway，包含 Base URL、API Key、模型映射与常见错误排查。"
 ---
+
+要在 Claude Desktop 中使用 Codex 等第三方模型，请先在 CC Switch 中配置 BetterToken 并打开本地代理，再把 CC Switch 的**服务地址**填写为 Claude Desktop 的 **Gateway base URL**。不要将 `{{openai-base-url}}` 直接填入 Claude Desktop；这里需要的是 CC Switch 的本地 Gateway。
 
 Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会校验模型 ID，直接填写 GPT、DeepSeek、GLM 等非官方模型 ID 时，可能会被拦截。
 
@@ -16,11 +18,17 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
   />
 </Frame>
 
-如果你想在 Claude Desktop 里继续使用 Codex 等第三方模型，建议通过 CC Switch 建立本地路由：先在 CC Switch 的 **Claude Code** 配置里接入 BetterToken，再把 CC Switch 的本地服务地址填入 Claude Desktop Gateway。
-
 <Info>
   这条路径适合使用 **GPT 分组** API Key。不要把 `{{openai-base-url}}` 直接填进 Claude Desktop Gateway。
 </Info>
+
+## 本教程会配置什么
+
+| 目标 | 配置位置 |
+| --- | --- |
+| 接入自定义 API 和 BetterToken API Key | CC Switch 的 **Claude Code** 中创建 **BetterToken** provider |
+| 选择 Codex / GPT 模型 | CC Switch 的 **Model Mapping** 和 Claude Desktop 的 **Model list** |
+| 让 Claude Desktop 通过网关发送请求 | 打开 CC Switch 代理和 **Claude** 路由，再将其**服务地址**填入 Claude Desktop Gateway |
 
 ## 配置步骤
 
@@ -185,7 +193,7 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
 
     | Model ID | Display name |
     |----------|--------------|
-    | `claude-opus-4` | `Claude Opus 4` |
+    | `gpt-5.5` | `GPT-5.5` |
 
     填写完成后点击 **Apply locally**。
 
@@ -243,3 +251,26 @@ Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会�
 4. **CC Switch 代理功能**、**路由总开关** 和 **Claude** 路由开关是否都已打开
 5. Claude Desktop 的 **Gateway base URL** 是否为 CC Switch 复制出的本地服务地址
 6. **Model list** 是否已为每个模型同时填写 **Model ID** 和 **Display name**
+
+### 没有出现 Gateway 登录选项
+
+回到 **Configure Third-Party Inference...**，确认 Gateway 配置后点击 **Apply locally**。然后完全退出并重新启动 Claude Desktop，等待出现 **Continue with Gateway**。
+
+### 模型列表为空或找不到模型
+
+在 CC Switch 中再次点击 **Fetch Model List**，并显式保存模型映射。在 Claude Desktop 的 **Model list** 中添加同一个当前可用的 **GPT 分组**模型 ID 和显示名称，再应用到本机。
+
+### 出现 `401` 或 `Unauthorized`
+
+确认 Gateway 中填写的是 **GPT 分组** BetterToken API Key，且 **Gateway auth scheme** 为 `bearer`。更换 Key 后请保存并重启 Claude Desktop。
+
+### 通过 Gateway 登录后请求失败
+
+确认 BetterToken provider 已设为**使用中**、CC Switch 代理已打开，并且 **Routing** 中的总开关与 **Claude** 路由都已开启。不要将本地服务地址替换为公开的 OpenAI-compatible Base URL。
+
+## 相关指南
+
+- [CC Switch 配置 BetterToken](/zh/ai-tools/cc-switch)
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
+- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)

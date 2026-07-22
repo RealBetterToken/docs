@@ -1,6 +1,6 @@
 ---
-title: "Текст в изображение (генерация изображений)"
-description: "Генерируйте изображения из текстовых prompt через GPT Image 2 и OpenAI-совместимый API BetterToken."
+title: "OpenAI-compatible API генерации изображений: GPT Image 2"
+description: "Генерируйте изображения из текста через GPT Image 2 и OpenAI-compatible API BetterToken: API Key, Base URL, параметры, Python, JavaScript и ошибки."
 openapi: "POST /v1/images/generations"
 ---
 
@@ -20,6 +20,24 @@ Endpoint text-to-image использует тело запроса `application
   Не помещайте API keys во frontend-код браузера, Git-репозитории, тикеты, скриншоты или логи. Для server-side proxy calls храните ключи только в переменных окружения сервера или secret manager.
 </Warning>
 
+## Быстрый старт с curl
+
+Используйте `{{openai-base-url}}` как Base URL и отправьте запрос на `{{images-generations-url}}`:
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
 ## Рекомендуемые значения
 
 Передавайте эти поля явно в каждом запросе:
@@ -32,6 +50,15 @@ Endpoint text-to-image использует тело запроса `application
   "output_format": "png"
 }
 ```
+
+| Параметр | Что передавать | Назначение |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | Выбирает image model. |
+| `prompt` | Текстовое описание | Обязательное описание изображения. Укажите объект, стиль, композицию и важные ограничения. |
+| `size` | Например, `1024x1024` | Размер и соотношение сторон. |
+| `n` | `1` | Количество изображений в одном запросе. Для нескольких изображений отправляйте отдельные запросы. |
+| `response_format` | `b64_json` | Возвращает изображение в base64 в `data[0].b64_json`. |
+| `output_format` | `png` | Позволяет сохранить результат как PNG. |
 
 Чтобы сгенерировать несколько изображений, отправляйте несколько независимых запросов. Не рассчитывайте на один запрос с `n > 1`.
 
@@ -86,6 +113,36 @@ image_bytes = base64.b64decode(b64_json)
 Path("output.png").write_bytes(image_bytes)
 ```
 
+### Пример JavaScript (Node.js)
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
 <Warning>
   Не рассчитывайте, что `output_format: "jpeg"` или `output_format: "webp"` сразу вернет JPEG или WebP-файл. Текущий endpoint может по-прежнему вернуть PNG. Если продукту нужен JPEG или WebP, сначала получите PNG и конвертируйте его в своем коде.
 </Warning>
@@ -103,6 +160,27 @@ Endpoint не возвращает `task_id`; отдельного status query 
 - Не повторяйте автоматически `400`, `401`, отсутствующие параметры и некорректные запросы.
 - Используйте exponential backoff, например `3s`, `8s`, `15s`.
 - Если дубли изображений недопустимы, записывайте собственный request ID перед retry.
+
+## Обработка ошибок
+
+Ошибка обычно возвращается как JSON. При отображении сообщения сначала прочитайте `error.message`, затем `message`, а после этого HTTP status text.
+
+| HTTP status | Значение | Что делать |
+| --- | --- | --- |
+| `400` | Некорректный JSON, отсутствует параметр или неподдерживаемый размер | Проверьте тело запроса. Не повторяйте автоматически. |
+| `401` | API Key отсутствует или недействителен | Проверьте header `Authorization: Bearer YOUR_API_KEY`. |
+| `402` | Недостаточно баланса или квоты | Пополните баланс или используйте доступный key. |
+| `429` | Rate limit, ограничение concurrency или занятый upstream | Подождите и повторите с exponential backoff. |
+| `5xx` | Ошибка gateway или upstream | Повторите запрос. При повторной ошибке сохраните request ID и сообщение ошибки. |
+
+## Чек-лист подключения
+
+- Base URL — `{{openai-base-url}}`.
+- Header содержит `Authorization: Bearer YOUR_API_KEY`.
+- Request использует `application/json` и `POST /images/generations`.
+- `model` — `gpt-image-2`, `response_format` — `b64_json`, `output_format` — `png`, `n` — `1`.
+- `size` выбран из рекомендованных значений, например `1024x1024`.
+- HTTP client допускает ожидание генерации в течение нескольких минут.
 
 ## Смежные документы
 

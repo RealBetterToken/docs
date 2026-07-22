@@ -1,15 +1,27 @@
 ---
-title: "Connect Codex to BetterToken with a custom model"
+title: "Codex Custom Provider: config.toml, Base URL, and API Key"
 sidebarTitle: "Codex"
-description: "Connect BetterToken to Codex with /v1 and OpenAI Responses."
+description: "Configure BetterToken as a Codex custom provider with config.toml, an OpenAI-compatible Base URL, API Key, Responses API, and error fixes."
 icon: "code"
 ---
 
-Connecting Codex to BetterToken requires a custom model provider and API Key. The `base_url` must be `{{openai-base-url}}`, and the protocol is `OpenAI Responses`.
+To use BetterToken in Codex CLI, add a custom provider to `config.toml`, set `base_url = "{{openai-base-url}}"`, use `wire_api = "responses"`, and add your BetterToken API Key. This OpenAI-compatible connection requires an API Key from the **GPT Key group**.
 
 <Info>
   If you want to keep the official Codex App login state, plugins, or Remote Control while using a third-party API, use the [login-preserving Codex setup](/en/faq/codex/official-login-third-party-api).
 </Info>
+
+## Choose a setup method
+
+| Method | Choose it when |
+| --- | --- |
+| Automatic script | You want a fast provider setup on one computer. |
+| CC Switch | You want to manage the provider in CC Switch or keep the official Codex App login state. |
+| Manual `config.toml` | You need a transparent config and control over model IDs, retries, and other settings. |
+
+## GPT-5.5 and GPT-5.6 models
+
+The `config.toml` example below starts with `gpt-5.5` and `gpt-5.4`. To use a GPT-5.6 model, replace `model` and, if needed, `review_model` with a current **GPT Key group** ID, such as `gpt-5.6-luna` when it appears in the <a href={"{{model-plaza-url}}"}>model plaza</a>. Do not use a Claude Key group model ID in a Codex custom provider.
 
 ## Prerequisites
 
@@ -186,3 +198,13 @@ If something fails, check:
 3. `model` is a model ID copied from the **GPT Key group**
 4. `model_provider` matches the provider id in `[model_providers.{{codex-provider-id}}]`
 5. No old `OPENAI_API_KEY` or `OPENAI_BASE_URL` variables are interfering
+
+## Codex custom provider errors
+
+| Symptom | What to check |
+| --- | --- |
+| Codex uses the official provider instead of BetterToken | Check `model_provider = "{{codex-provider-id}}"` and the exact `[model_providers.{{codex-provider-id}}]` table name. Then fully restart Codex. |
+| API mode or protocol error | Keep `wire_api = "responses"` in the custom provider. Do not change it to `chat_completions`. |
+| `401`, `Unauthorized`, or an OpenAI sign-in error | Confirm `requires_openai_auth = false`, the BetterToken API Key is valid, and old `OPENAI_API_KEY` / `OPENAI_BASE_URL` values are absent. |
+| Model not found | Copy a current ID from the **GPT Key group** in the model plaza. Check `model` and `review_model` separately. |
+| The response stream stops | First check the Base URL and network. Then retain the example `stream_max_retries` and `stream_idle_timeout_ms` values and restart Codex. |

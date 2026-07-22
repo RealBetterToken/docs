@@ -1,6 +1,6 @@
 ---
-title: "文生图（图片生成）"
-description: "通过 BetterToken 的 OpenAI 兼容接口调用 GPT Image 2，根据文本提示词生成图片。"
+title: "OpenAI-compatible 图片生成 API：GPT Image 2 接入指南"
+description: "通过 BetterToken 的 OpenAI-compatible API 调用 GPT Image 2 生成图片，包含 API Key、Base URL、参数、Python、JavaScript 与错误处理。"
 openapi: "api-reference/openapi.json POST /v1/images/generations"
 ---
 
@@ -20,6 +20,24 @@ openapi: "api-reference/openapi.json POST /v1/images/generations"
   不要把 API Key 放进前端浏览器代码，也不要提交到 Git 仓库、工单、截图或日志里。服务端代理调用时，应只在服务端环境变量或密钥管理系统里保存 API Key。
 </Warning>
 
+## 使用 curl 快速调用
+
+将 `{{openai-base-url}}` 作为 Base URL，并向 `{{images-generations-url}}` 发送请求：
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
 ## 推荐请求值
 
 所有文生图请求建议显式传入这些字段：
@@ -32,6 +50,15 @@ openapi: "api-reference/openapi.json POST /v1/images/generations"
   "output_format": "png"
 }
 ```
+
+| 参数 | 填写内容 | 作用 |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | 指定图片模型。 |
+| `prompt` | 文本描述 | 必填。描述主体、风格、构图和重要限制。 |
+| `size` | 例如 `1024x1024` | 选择输出尺寸与比例。 |
+| `n` | `1` | 单次请求的图片数。需要多张图片时，请发起多次独立请求。 |
+| `response_format` | `b64_json` | 在 `data[0].b64_json` 中返回 base64 图片内容。 |
+| `output_format` | `png` | 让客户端按 PNG 保存返回结果。 |
 
 多张图片建议由客户端或服务端任务队列发起多次独立请求。不要依赖单次请求 `n > 1`。
 
@@ -84,6 +111,36 @@ if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
 
 image_bytes = base64.b64decode(b64_json)
 Path("output.png").write_bytes(image_bytes)
+```
+
+### JavaScript 示例（Node.js）
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
 ```
 
 <Warning>

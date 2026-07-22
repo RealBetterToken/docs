@@ -1,15 +1,27 @@
 ---
-title: "Codex 自定义模型接入 BetterToken 指南"
+title: "Codex 自定义 provider：config.toml、Base URL 与 API Key"
 sidebarTitle: "Codex"
-description: "在 OpenAI Codex 中使用 BetterToken，使用 /v1 与 OpenAI Responses。"
+description: "在 Codex 中将 BetterToken 配置为自定义 provider，包含 config.toml、OpenAI-compatible Base URL、API Key、Responses API 与错误排查。"
 icon: "code"
 ---
 
-在 Codex 中接入 BetterToken，需要配置自定义模型提供商和 API Key。`base_url` 必须填写为 `{{openai-base-url}}`，协议为 `OpenAI Responses`。
+要在 Codex CLI 中使用 BetterToken，请在 `config.toml` 中添加自定义 provider，设置 `base_url = "{{openai-base-url}}"`、`wire_api = "responses"`，并填写 BetterToken API Key。这个 OpenAI-compatible 接入需要使用 **GPT 分组** API Key。
 
 <Info>
   如果你希望在使用第三方 API 的同时保留 Codex App 官方登录态、插件或 Remote Control，请使用 [保留 Codex 登录态的配置方式](/zh/faq/codex/official-login-third-party-api)。
 </Info>
+
+## 选择一种配置方式
+
+| 方式 | 适合场景 |
+| --- | --- |
+| 自动脚本 | 希望在一台电脑上快速写入 provider 配置。 |
+| CC Switch | 希望在 CC Switch 中管理 provider，或保留 Codex App 官方登录态。 |
+| 手动 `config.toml` | 希望清晰查看配置，并控制模型 ID、重试等参数。 |
+
+## GPT-5.5 与 GPT-5.6 模型
+
+下面的 `config.toml` 示例默认使用 `gpt-5.5` 和 `gpt-5.4`。如需使用 GPT-5.6，请将 `model` 和按需将 `review_model` 改为当前可用的 **GPT 分组**模型 ID；例如模型广场出现 `gpt-5.6-luna` 时可直接填写。不要在 Codex 自定义 provider 中使用 Claude 分组模型 ID。
 
 ## 前置条件
 
@@ -186,3 +198,13 @@ npm install -g @openai/codex
 3. `model` 是否为从 <a href={"{{model-plaza-url}}"}>模型广场</a> 复制的 **GPT 分组**模型 ID
 4. `model_provider` 是否与 `[model_providers.{{codex-provider-id}}]` 中的 provider id 保持一致
 5. 是否有旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量在干扰配置
+
+## Codex 自定义 provider 常见错误
+
+| 现象 | 排查方式 |
+| --- | --- |
+| Codex 仍使用官方 provider，没有使用 BetterToken | 检查 `model_provider = "{{codex-provider-id}}"`，并确认 `[model_providers.{{codex-provider-id}}]` 段名完全一致。然后完全重启 Codex。 |
+| 出现 API mode 或协议错误 | 自定义 provider 中必须保留 `wire_api = "responses"`，不要改为 `chat_completions`。 |
+| `401`、`Unauthorized` 或 OpenAI 登录错误 | 确认 `requires_openai_auth = false`、BetterToken API Key 有效，并且没有旧的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`。 |
+| 找不到模型 | 从模型广场复制当前 **GPT 分组**模型 ID，并分别检查 `model` 和 `review_model`。 |
+| 流式响应中断 | 先检查 Base URL 和网络，再保留示例中的 `stream_max_retries` 与 `stream_idle_timeout_ms`，然后重启 Codex。 |

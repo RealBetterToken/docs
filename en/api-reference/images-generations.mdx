@@ -1,6 +1,6 @@
 ---
-title: "Text to image (image generation)"
-description: "Generate images from text prompts with GPT Image 2 through BetterToken's OpenAI-compatible API."
+title: "OpenAI-Compatible Image Generation API: GPT Image 2 Guide"
+description: "Generate images from text with GPT Image 2 and BetterToken's OpenAI-compatible API: API Key, Base URL, parameters, Python, JavaScript, and errors."
 openapi: "api-reference/openapi.json POST /v1/images/generations"
 ---
 
@@ -20,6 +20,24 @@ The text-to-image endpoint uses an `application/json` request body. Submit a pro
   Do not put API keys in frontend browser code, Git repositories, tickets, screenshots, or logs. For server-side proxy calls, store API keys only in server environment variables or a secret manager.
 </Warning>
 
+## Quick start with curl
+
+Use `{{openai-base-url}}` as the Base URL and send a request to `{{images-generations-url}}`:
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
 ## Recommended values
 
 Send these fields explicitly in every request:
@@ -32,6 +50,15 @@ Send these fields explicitly in every request:
   "output_format": "png"
 }
 ```
+
+| Parameter | What to send | Purpose |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | Selects the image model. |
+| `prompt` | A text description | Required image description. Include the subject, style, composition, and important constraints. |
+| `size` | For example, `1024x1024` | Selects the output size and aspect ratio. |
+| `n` | `1` | Image count for one request. Send separate requests for multiple images. |
+| `response_format` | `b64_json` | Returns image content as base64 in `data[0].b64_json`. |
+| `output_format` | `png` | Lets you save the result as PNG. |
 
 Generate multiple images by sending multiple independent requests. Do not rely on a single request with `n > 1`.
 
@@ -86,6 +113,36 @@ image_bytes = base64.b64decode(b64_json)
 Path("output.png").write_bytes(image_bytes)
 ```
 
+### JavaScript example (Node.js)
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
 <Warning>
   Do not rely on `output_format: "jpeg"` or `output_format: "webp"` to directly receive JPEG or WebP files. The current endpoint may still return PNG image content. If your product needs JPEG or WebP, receive PNG first and convert it in your own code.
 </Warning>
@@ -103,6 +160,27 @@ The endpoint does not return a `task_id`, and there is no separate status query 
 - Do not retry `400`, `401`, missing parameters, or malformed requests automatically.
 - Use exponential backoff such as `3s`, `8s`, and `15s`.
 - If duplicate images are unacceptable, record your own request ID before retrying.
+
+## Error handling
+
+Errors usually return JSON. When showing an error, read `error.message` first, then `message`, then the HTTP status text.
+
+| HTTP status | Meaning | What to do |
+| --- | --- | --- |
+| `400` | Malformed JSON, a missing parameter, or an unsupported size | Check the request body. Do not retry automatically. |
+| `401` | API Key is missing or invalid | Check the `Authorization: Bearer YOUR_API_KEY` header. |
+| `402` | Insufficient balance or quota | Add balance or use an available key. |
+| `429` | Rate limit, concurrency limit, or busy upstream | Wait and retry with exponential backoff. |
+| `5xx` | Gateway or upstream failure | Retry the request. If it still fails, record the request ID and error message. |
+
+## Integration checklist
+
+- The Base URL is `{{openai-base-url}}`.
+- The header contains `Authorization: Bearer YOUR_API_KEY`.
+- The request uses `application/json` and `POST /images/generations`.
+- `model` is `gpt-image-2`, `response_format` is `b64_json`, `output_format` is `png`, and `n` is `1`.
+- `size` is one of the recommended values, such as `1024x1024`.
+- Your HTTP client allows several minutes for generation.
 
 ## Related docs
 

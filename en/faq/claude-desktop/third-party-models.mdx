@@ -1,8 +1,10 @@
 ---
-title: "How can I use Codex and other third-party models in Claude Desktop?"
+title: "Claude Desktop Third-Party Models: Custom API and Codex Setup"
 sidebarTitle: "Claude Desktop third-party models"
-description: "Use a CC Switch local route to run GPT Key group models in Claude Desktop."
+description: "Configure a custom API gateway for Codex and other third-party models in Claude Desktop through CC Switch: Base URL, API Key, model mapping, and fixes."
 ---
+
+To use Codex or other third-party models in Claude Desktop, configure BetterToken in CC Switch, enable its local proxy, and enter the CC Switch **Service address** as the Claude Desktop **Gateway base URL**. Do not enter `{{openai-base-url}}` directly in Claude Desktop: it needs the CC Switch local Gateway.
 
 Recent Claude Desktop versions changed how third-party API gateways are configured. In Gateway mode, Claude Desktop validates model IDs more strictly, so non-official model IDs such as GPT, DeepSeek, or GLM can be blocked.
 
@@ -16,11 +18,17 @@ A common symptom is this warning at the top of the page: `Your provider setup ne
   />
 </Frame>
 
-If you want to keep using Codex or other third-party models in Claude Desktop, route the requests through CC Switch: configure BetterToken under **Claude Code** in CC Switch, then enter the CC Switch local service address in Claude Desktop Gateway.
-
 <Info>
   This path is for API keys from the **GPT Key group**. Do not enter `{{openai-base-url}}` directly in Claude Desktop Gateway.
 </Info>
+
+## What this setup configures
+
+| Goal | Where to configure it |
+| --- | --- |
+| Add your custom API and BetterToken API Key | The **BetterToken** provider under **Claude Code** in CC Switch |
+| Choose Codex / GPT models | **Model Mapping** in CC Switch and **Model list** in Claude Desktop |
+| Route requests through Claude Desktop | Enable the CC Switch proxy and **Claude** routing, then enter its **Service address** in Claude Desktop Gateway |
 
 ## Setup steps
 
@@ -185,7 +193,7 @@ If you want to keep using Codex or other third-party models in Claude Desktop, r
 
     | Model ID | Display name |
     |----------|--------------|
-    | `claude-opus-4` | `Claude Opus 4` |
+    | `gpt-5.5` | `GPT-5.5` |
 
     After filling in the list, click **Apply locally**.
 
@@ -243,3 +251,26 @@ If you still see **Your provider setup needs a fix**, check these items first:
 4. **CC Switch proxy**, the main routing switch, and the **Claude** route switch are all enabled
 5. Claude Desktop **Gateway base URL** uses the local service address copied from CC Switch
 6. **Model list** includes both **Model ID** and **Display name** for each model
+
+### The Gateway sign-in option does not appear
+
+Return to **Configure Third-Party Inference...**, confirm the Gateway settings, and click **Apply locally**. Then fully restart Claude Desktop and wait for **Continue with Gateway** to appear.
+
+### The model list is empty or the model is missing
+
+Run **Fetch Model List** in CC Switch again and explicitly save the model mapping. In Claude Desktop, add the same current **GPT Key group** model ID and a display name to **Model list**, then apply the configuration locally.
+
+### `401` or `Unauthorized`
+
+Confirm that Gateway uses a **GPT Key group** BetterToken API Key and that **Gateway auth scheme** is `bearer`. Save the settings and restart Claude Desktop after replacing the key.
+
+### Requests fail after signing in with Gateway
+
+Check that the BetterToken provider is **In use**, the CC Switch proxy is on, and both the main switch and **Claude** route are enabled in **Routing**. Do not replace the local service address with the public OpenAI-compatible Base URL.
+
+## Related guides
+
+- [Configure BetterToken in CC Switch](/en/ai-tools/cc-switch)
+- [Configure a custom provider in Codex CLI](/en/ai-tools/codex)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
+- [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)

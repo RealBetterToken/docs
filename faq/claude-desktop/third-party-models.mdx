@@ -1,8 +1,10 @@
 ---
-title: "Как использовать Codex и другие third-party модели в Claude Desktop?"
+title: "Third-party модели в Claude Desktop: custom API, Gateway и Codex"
 sidebarTitle: "Third-party модели в Claude Desktop"
-description: "Используйте локальный route CC Switch, чтобы запускать модели группы GPT в Claude Desktop."
+description: "Настройте custom API gateway для Codex и других third-party моделей в Claude Desktop через CC Switch: Base URL, API Key, model mapping и диагностика."
 ---
+
+Чтобы использовать Codex или другие third-party модели в Claude Desktop, настройте BetterToken в CC Switch, включите local proxy и передайте его **Service address** в Claude Desktop как **Gateway base URL**. Не указывайте `{{openai-base-url}}` напрямую в Claude Desktop: ему нужен local Gateway CC Switch.
 
 В новых версиях Claude Desktop изменился способ настройки third-party API gateways. В Gateway mode Claude Desktop строже проверяет model IDs, поэтому неофициальные model IDs, например GPT, DeepSeek или GLM, могут блокироваться.
 
@@ -16,11 +18,17 @@ description: "Используйте локальный route CC Switch, что�
   />
 </Frame>
 
-Если вы хотите продолжать использовать Codex или другие third-party модели в Claude Desktop, маршрутизируйте запросы через CC Switch: настройте BetterToken в разделе **Claude Code** в CC Switch, затем введите local service address CC Switch в Claude Desktop Gateway.
-
 <Info>
   Этот путь предназначен для API keys из группы **GPT**. Не вводите `{{openai-base-url}}` напрямую в Claude Desktop Gateway.
 </Info>
+
+## Что настраивается
+
+| Что нужно сделать | Где это настраивается |
+| --- | --- |
+| Подключить custom API и API Key BetterToken | Provider **BetterToken** в разделе **Claude Code** в CC Switch |
+| Выбрать модели Codex / GPT | **Model Mapping** CC Switch и **Model list** Claude Desktop |
+| Передать запросы в Claude Desktop | Включить proxy и routing **Claude** в CC Switch, затем вставить его **Service address** в Claude Desktop Gateway |
 
 ## Шаги настройки
 
@@ -185,7 +193,7 @@ description: "Используйте локальный route CC Switch, что�
 
     | Model ID | Display name |
     |----------|--------------|
-    | `claude-opus-4` | `Claude Opus 4` |
+    | `gpt-5.5` | `GPT-5.5` |
 
     После заполнения списка нажмите **Apply locally**.
 
@@ -243,3 +251,26 @@ description: "Используйте локальный route CC Switch, что�
 4. **CC Switch proxy**, главный routing switch и route switch **Claude** включены
 5. **Gateway base URL** в Claude Desktop использует local service address, скопированный из CC Switch
 6. **Model list** содержит и **Model ID**, и **Display name** для каждой модели
+
+### Gateway option не появляется
+
+Вернитесь в **Configure Third-Party Inference...**, проверьте настройки Gateway и нажмите **Apply locally**. Затем полностью перезапустите Claude Desktop и подождите появления варианта **Continue with Gateway**.
+
+### Model list пуст или модель не отображается
+
+В CC Switch снова выполните **Fetch Model List** и явно сохраните model mapping. В Claude Desktop добавьте в **Model list** один и тот же актуальный ID модели группы **GPT** и display name, затем примените конфигурацию локально.
+
+### Ошибка `401` или `Unauthorized`
+
+Проверьте, что в Gateway указан API Key BetterToken из группы **GPT**, а **Gateway auth scheme** установлен в `bearer`. После замены ключа сохраните настройки и перезапустите Claude Desktop.
+
+### Запросы не проходят после входа через Gateway
+
+Убедитесь, что provider BetterToken отмечен как **In use**, proxy CC Switch включен, а в **Routing** включены главный switch и route **Claude**. Не заменяйте local service address на публичный OpenAI-compatible Base URL.
+
+## Связанные инструкции
+
+- [Настройка BetterToken в CC Switch](/ai-tools/cc-switch)
+- [Настройка custom provider в Codex CLI](/ai-tools/codex)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
