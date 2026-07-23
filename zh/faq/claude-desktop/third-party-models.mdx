@@ -1,272 +1,123 @@
 ---
-title: "Claude Desktop 第三方模型配置：自定义 API、Gateway 与 Codex"
+title: "Claude Desktop 第三方模型配置：通过 CC Switch 接入 BetterToken"
 sidebarTitle: "Claude Desktop 使用第三方模型"
-description: "通过 CC Switch 为 Claude Desktop 配置 Codex 等第三方模型的自定义 API Gateway，包含 Base URL、API Key、模型映射与常见错误排查。"
+description: "通过 CC Switch 为 Claude Desktop 配置 BetterToken 自定义 API：填写 API Key、设置模型映射、开启代理并重启应用。"
 ---
 
-要在 Claude Desktop 中使用 Codex 等第三方模型，请先在 CC Switch 中配置 BetterToken 并打开本地代理，再把 CC Switch 的**服务地址**填写为 Claude Desktop 的 **Gateway base URL**。不要将 `{{openai-base-url}}` 直接填入 Claude Desktop；这里需要的是 CC Switch 的本地 Gateway。
-
-Claude Desktop 新版本对第三方 API 接入做了调整。Gateway 模式会校验模型 ID，直接填写 GPT、DeepSeek、GLM 等非官方模型 ID 时，可能会被拦截。
-
-常见表现是页面顶部出现这条报错：`Your provider setup needs a fix Some required fields are missing or malformed. Open Setup to finish configuring it.` 同时，输入框左下角的第三方模型选择为空，只显示 **Legacy Model** 这类不可用状态。
-
-<Frame>
-  <img
-    src="/images/claude-desktop-third-party-models/provider-setup-needs-fix.png"
-    alt="Claude Desktop 提示 Your provider setup needs a fix，并且左下角第三方模型为空。"
-    style={{ borderRadius: '0.5rem' }}
-  />
-</Frame>
+通过 CC Switch `v3.16.5` 或更新版本，你可以将 BetterToken 的 **GPT 分组** API Key 接入 Claude Desktop。创建 provider、开启代理并重启 Claude Desktop 后，配置会自动生效。
 
 <Info>
-  这条路径适合使用 **GPT 分组** API Key。不要把 `{{openai-base-url}}` 直接填进 Claude Desktop Gateway。
+  请使用最新版本的 Claude Desktop 和 CC Switch。此流程需要 BetterToken 的 **GPT 分组** API Key。
 </Info>
-
-## 本教程会配置什么
-
-| 目标 | 配置位置 |
-| --- | --- |
-| 接入自定义 API 和 BetterToken API Key | CC Switch 的 **Claude Code** 中创建 **BetterToken** provider |
-| 选择 Codex / GPT 模型 | CC Switch 的 **Model Mapping** 和 Claude Desktop 的 **Model list** |
-| 让 Claude Desktop 通过网关发送请求 | 打开 CC Switch 代理和 **Claude** 路由，再将其**服务地址**填入 Claude Desktop Gateway |
 
 ## 配置步骤
 
 <Steps>
-  <Step title="下载 Claude 桌面端">
-    通过官方链接下载最新版 Claude 桌面端：
+  <Step title="更新 Claude Desktop 和 CC Switch">
+    将 Claude Desktop 更新到最新版本，并将 CC Switch 更新到 `v3.16.5` 或更新版本。
 
-    [下载 Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
-
-    安装完成后不要登录 Claude 账号，直接进入下一步启用 developer mode。
+    - [下载 Claude Desktop](https://claude.ai/download)
+    - [下载 CC Switch](https://github.com/farion1231/cc-switch/releases)
   </Step>
 
-  <Step title="启用 developer mode">
-    打开 Claude 桌面端后，在 macOS 左上角菜单中选择 **Help** → **Troubleshooting** → **Enable Developer Mode**。
+  <Step title="切到 Claude Desktop 并添加 provider">
+    打开 CC Switch，点击顶部的 **Claude Desktop** 图标，然后点击右上角的 **+** 添加 provider。
 
     <Frame>
       <img
-        src="/images/claude-desktop-llmeasy-api/enable-developer-mode-menu.png"
-        alt="在 Claude 桌面端 Help 菜单里选择 Enable Developer Mode。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    在确认窗口中点击 **Enable**，然后重启 Claude 桌面端。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/developer-mode-confirm.png"
-        alt="确认启用 Claude 桌面端 developer mode。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="打开第三方推理配置">
-    重启后，macOS 左上角菜单会出现 **Developer** 选项。
-
-    选择 **Developer** → **Configure Third-Party Inference...**。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/configure-third-party-inference.png"
-        alt="在 Developer 菜单中选择 Configure Third-Party Inference。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="切到 Claude Code 并添加 provider">
-    打开 CC Switch，切到 **Claude Code**，点击 **Add Provider**。
-
-    <Frame>
-      <img
-        src="/images/cc-switch/claude-code-add-provider.png"
-        alt="CC Switch 的 Claude Code 页面，右上角加号按钮用于新增 provider。"
+        src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
+        alt="在 CC Switch 中切到 Claude Desktop，并点击右上角加号添加 provider。"
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
   <Step title="填写基础字段">
-    - **Provider Name**：`BetterToken`
-    - **Base URL**：`{{anthropic-base-url}}`
-    - **API Key**：你的 BetterToken API Key
+    填写以下字段：
 
-    下图中的标注对应：
-
-    1. **Provider Name**
-    2. **API Key**
-    3. **Base URL**
+    - **Provider Name**：`BetterToken-codex`
+    - **API Key**：你的 BetterToken **GPT 分组** API Key
+    - **API Endpoint**：`{{anthropic-base-url}}`
 
     <Frame>
       <img
-        src="/images/cc-switch/claude-code-basic-fields.png"
-        alt="CC Switch 的 provider 编辑页面，标出了 Provider Name、API Key 和 Base URL 的填写位置。"
+        src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
+        alt="CC Switch provider 编辑页，填写 BetterToken-codex、API Key 和 API Endpoint。"
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="设置 API 格式和模型映射">
-    打开 **高级选项**，在 **API 格式** 中选择 **OpenAI Responses API**。
+  <Step title="设置模型映射">
+    在 **API Format** 中选择 **OpenAI Responses API (Requires routing)**，然后点击 **Fetch Models** 获取模型。
+
+    按下图填写并保留 **Declare 1M**：
+
+    | Model role | Requested model |
+    | --- | --- |
+    | Sonnet | `gpt-5.6-terra` |
+    | Opus | `gpt-5.6-sol` |
+    | Fable | `gpt-5.6-sol` |
+    | Haiku | `gpt-5.6-luna` |
 
     <Frame>
       <img
-        src="/images/cc-switch/claude-code-api-format.png"
-        alt="CC Switch 的高级选项区域，API 格式被设置为 OpenAI Responses API。"
+        src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
+        alt="CC Switch 中选择 OpenAI Responses API 并配置 Sonnet、Opus、Fable 和 Haiku 的模型映射。"
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
 
-    在 **模型映射** 里点击 **获取模型列表**，将 **主模型**、**推理模型（Thinking）**、**Haiku 默认模型**、**Sonnet 默认模型**、**Opus 默认模型** 都从下拉列表中显式选中。
-
-    <Frame>
-      <img
-        src="/images/cc-switch/claude-code-model-mapping.png"
-        alt="CC Switch 的模型映射区域，展示了获取模型列表以及主模型、Thinking、Haiku、Sonnet、Opus 的映射位置。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    这里使用的模型都应来自 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 当前可用的 **GPT 分组**模型 ID。
+    模型 ID 以 <a href={"{{model-plaza-url}}"}>模型广场</a> 中当前可用的 GPT 分组模型为准。
   </Step>
 
   <Step title="保存、切换，并开启代理">
-    保存后，回到渠道列表页：
+    保存 provider 后，回到 Claude Desktop provider 列表：
 
-    1. 将刚保存的 BetterToken provider 设为 **使用中**
-    2. 打开左上角的 **CC Switch 代理功能**
+    1. 选择刚创建的 **BetterToken-codex** provider，使其显示为 **In use**。
+    2. 打开左上角的代理开关。
 
     <Frame>
       <img
-        src="/images/cc-switch/claude-code-enable-proxy.png"
-        alt="保存后回到渠道列表页，将 BetterToken 设为使用中，并打开左上角的 CC Switch 代理开关。"
+        src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
+        alt="CC Switch 中 BetterToken-codex 已启用，并打开左上角代理开关。"
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="进入 CC Switch 设置">
-    回到 CC Switch 主界面后，点击左上角的 **设置**。
+  <Step title="重启 Claude Desktop 并选择模型">
+    完全退出 Claude Desktop 后重新打开。左下角显示 **Gateway** 即表示配置已生效。
+
+    在输入框的模型菜单中选择所需模型，即可开始使用。
 
     <Frame>
       <img
-        src="/images/claude-desktop-llmeasy-api/cc-switch-settings-entry.png"
-        alt="CC Switch 主界面中，左上角设置按钮被箭头标出。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="确认路由已打开并复制服务地址">
-    进入 **路由** 设置，确认图中标注的 **路由总开关** 和 **Claude** 路由开关都已打开。然后复制下方显示的 **服务地址**。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/cc-switch-route-service.png"
-        alt="CC Switch 路由设置页中，路由总开关、Claude 路由开关和服务地址复制按钮被标出。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="在 Claude 桌面端填入 Gateway base URL">
-    回到 Claude 桌面端的第三方推理配置窗口，选择 **Gateway**。把刚才复制的 CC Switch **服务地址** 填入 **Gateway base URL**，并填写你的 BetterToken API Key。
-
-    **Gateway auth scheme** 选择 `bearer`。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/claude-gateway-local-route.png"
-        alt="Claude 桌面端 Gateway 配置页中填入 CC Switch 本地服务地址。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="添加模型列表并应用到本机">
-    在 **Model list** 里增加要展示的模型。每个模型都需要同时填写 **Model ID** 和 **Display name**。
-
-    例如：
-
-    | Model ID | Display name |
-    |----------|--------------|
-    | `gpt-5.5` | `GPT-5.5` |
-
-    填写完成后点击 **Apply locally**。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/claude-model-list-codex-group.png"
-        alt="Claude 桌面端 Model list 中填写 Model ID 和 Display name，并点击 Apply locally。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="确认重启客户端">
-    Claude 写入本地配置后会提示保存并重启。点击 **Save & Restart**，让新网关配置生效。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/relaunch-claude.png"
-        alt="Claude 桌面端提示 Save & Restart，点击 Save & Restart 保存并重启客户端。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="选择 Gateway 网关登录">
-    重启后等待约 3 秒，会出现登录方式选择界面。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/continue-with-gateway.png"
-        alt="Claude 桌面端显示 Continue with Gateway 登录选项。"
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    选择 **Continue with Gateway**。进入 Claude 后，左下角显示 **Cowork 3P | Gateway**，即可正常使用。
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/gateway-ready.png"
-        alt="Claude 桌面端已通过 Gateway 进入并可以正常使用。"
+        src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
+        alt="Claude Desktop 重启后左下角显示 Gateway，并可在模型菜单中选择模型。"
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 </Steps>
 
-## 排查建议
+## 常见问题
 
-如果仍然看到 **Your provider setup needs a fix**，优先检查：
+### Claude Desktop 中没有显示 Gateway
 
-1. CC Switch 里的 BetterToken provider 是否已设为 **使用中**
-2. **API 格式** 是否已选择 **OpenAI Responses API**
-3. **模型映射** 是否已为主模型、Thinking、Haiku、Sonnet、Opus 显式选择 GPT 分组模型
-4. **CC Switch 代理功能**、**路由总开关** 和 **Claude** 路由开关是否都已打开
-5. Claude Desktop 的 **Gateway base URL** 是否为 CC Switch 复制出的本地服务地址
-6. **Model list** 是否已为每个模型同时填写 **Model ID** 和 **Display name**
+确认 CC Switch 中的 **BetterToken-codex** 已设为 **In use**，代理开关已打开。然后完全退出 Claude Desktop 后重新打开。
 
-### 没有出现 Gateway 登录选项
+### 模型列表为空
 
-回到 **Configure Third-Party Inference...**，确认 Gateway 配置后点击 **Apply locally**。然后完全退出并重新启动 Claude Desktop，等待出现 **Continue with Gateway**。
-
-### 模型列表为空或找不到模型
-
-在 CC Switch 中再次点击 **Fetch Model List**，并显式保存模型映射。在 Claude Desktop 的 **Model list** 中添加同一个当前可用的 **GPT 分组**模型 ID 和显示名称，再应用到本机。
+回到 provider 编辑页，点击 **Fetch Models**，检查模型映射是否已保存。确保所填写的模型 ID 位于 <a href={"{{model-plaza-url}}"}>模型广场</a> 的 GPT 分组中，然后重启 Claude Desktop。
 
 ### 出现 `401` 或 `Unauthorized`
 
-确认 Gateway 中填写的是 **GPT 分组** BetterToken API Key，且 **Gateway auth scheme** 为 `bearer`。更换 Key 后请保存并重启 Claude Desktop。
+确认填写的是 BetterToken 的 **GPT 分组** API Key。更新 Key 后保存 provider，并重新开启代理后重启 Claude Desktop。
 
-### 通过 Gateway 登录后请求失败
+### 请求没有通过 BetterToken 发送
 
-确认 BetterToken provider 已设为**使用中**、CC Switch 代理已打开，并且 **Routing** 中的总开关与 **Claude** 路由都已开启。不要将本地服务地址替换为公开的 OpenAI-compatible Base URL。
+确认当前启用的是 **BetterToken-codex**，而不是 Claude Desktop Official，并检查左上角代理开关保持开启。
 
 ## 相关指南
 

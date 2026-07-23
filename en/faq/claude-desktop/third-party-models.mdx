@@ -1,240 +1,100 @@
 ---
-title: "Claude Desktop Third-Party Models: Custom API and Codex Setup"
+title: "Claude Desktop Third-Party Models: BetterToken Setup with CC Switch"
 sidebarTitle: "Claude Desktop third-party models"
-description: "Configure a custom API gateway for Codex and other third-party models in Claude Desktop through CC Switch: Base URL, API Key, model mapping, and fixes."
+description: "Configure the BetterToken custom API in Claude Desktop with CC Switch: enter an API Key, map models, enable the proxy, and restart the app."
 ---
 
-To use Codex or other third-party models in Claude Desktop, configure BetterToken in CC Switch, enable its local proxy, and enter the CC Switch **Service address** as the Claude Desktop **Gateway base URL**. Do not enter `{{openai-base-url}}` directly in Claude Desktop: it needs the CC Switch local Gateway.
-
-Recent Claude Desktop versions changed how third-party API gateways are configured. In Gateway mode, Claude Desktop validates model IDs more strictly, so non-official model IDs such as GPT, DeepSeek, or GLM can be blocked.
-
-A common symptom is this warning at the top of the page: `Your provider setup needs a fix Some required fields are missing or malformed. Open Setup to finish configuring it.` At the same time, the third-party model selector in the lower-left area is empty, and Claude Desktop only shows a **Legacy Model** state.
-
-<Frame>
-  <img
-    src="/images/claude-desktop-third-party-models/provider-setup-needs-fix.png"
-    alt="Claude Desktop showing Your provider setup needs a fix while the third-party model selector is empty."
-    style={{ borderRadius: '0.5rem' }}
-  />
-</Frame>
+With CC Switch `v3.16.5` or later, you can use a BetterToken **GPT Key group** API Key in Claude Desktop. Create a provider, enable the proxy, and restart Claude Desktop. The configuration then takes effect automatically.
 
 <Info>
-  This path is for API keys from the **GPT Key group**. Do not enter `{{openai-base-url}}` directly in Claude Desktop Gateway.
+  Use the latest versions of Claude Desktop and CC Switch. This setup requires a BetterToken API Key from the **GPT Key group**.
 </Info>
-
-## What this setup configures
-
-| Goal | Where to configure it |
-| --- | --- |
-| Add your custom API and BetterToken API Key | The **BetterToken** provider under **Claude Code** in CC Switch |
-| Choose Codex / GPT models | **Model Mapping** in CC Switch and **Model list** in Claude Desktop |
-| Route requests through Claude Desktop | Enable the CC Switch proxy and **Claude** routing, then enter its **Service address** in Claude Desktop Gateway |
 
 ## Setup steps
 
 <Steps>
-  <Step title="Download Claude Desktop">
-    Download the latest Claude Desktop app from the official link:
+  <Step title="Update Claude Desktop and CC Switch">
+    Update Claude Desktop to the latest version and CC Switch to `v3.16.5` or later.
 
-    [Download Claude for Mac](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
-
-    After installation, do not sign in to a Claude account. Continue to the next step and enable developer mode.
+    - [Download Claude Desktop](https://claude.ai/download)
+    - [Download CC Switch](https://github.com/farion1231/cc-switch/releases)
   </Step>
 
-  <Step title="Enable developer mode">
-    Open Claude Desktop, then choose **Help** → **Troubleshooting** → **Enable Developer Mode** from the macOS menu bar.
+  <Step title="Switch to Claude Desktop and add a provider">
+    Open CC Switch. Select the **Claude Desktop** icon in the top toolbar, then click **+** in the upper-right corner to add a provider.
 
     <Frame>
       <img
-        src="/images/claude-desktop-llmeasy-api/enable-developer-mode-menu.png"
-        alt="Select Enable Developer Mode from the Claude Desktop Help menu."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    In the confirmation window, click **Enable**, then restart Claude Desktop.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/developer-mode-confirm.png"
-        alt="Confirm developer mode in Claude Desktop."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Open third-party inference settings">
-    After restarting, the macOS menu bar shows a **Developer** menu.
-
-    Choose **Developer** → **Configure Third-Party Inference...**.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/configure-third-party-inference.png"
-        alt="Choose Configure Third-Party Inference from the Developer menu."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Open Claude Code in CC Switch and add a provider">
-    Open CC Switch, switch to **Claude Code**, and click **Add Provider**.
-
-    <Frame>
-      <img
-        src="/images/cc-switch/claude-code-add-provider.png"
-        alt="The Claude Code page in CC Switch, with the add button in the top-right corner used to create a new provider."
+        src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
+        alt="Switch to Claude Desktop in CC Switch and click the plus button in the upper-right corner to add a provider."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
   <Step title="Fill in the basic fields">
-    - **Provider Name**: `BetterToken`
-    - **Base URL**: `{{anthropic-base-url}}`
-    - **API Key**: your BetterToken API Key
+    Enter the following values:
 
-    The screenshot labels map to:
-
-    1. **Provider Name**
-    2. **API Key**
-    3. **Base URL**
+    - **Provider Name**: `BetterToken-codex`
+    - **API Key**: your BetterToken API Key from the **GPT Key group**
+    - **API Endpoint**: `{{anthropic-base-url}}`
 
     <Frame>
       <img
-        src="/images/cc-switch/claude-code-basic-fields.png"
-        alt="The provider edit page in CC Switch, showing where to enter Provider Name, API Key, and Base URL."
+        src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
+        alt="CC Switch provider editor with BetterToken-codex, API Key, and API Endpoint fields."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="Set the API format and model mappings">
-    Open **Advanced Options** and set **API Format** to **OpenAI Responses API**.
+  <Step title="Set the model mappings">
+    Set **API Format** to **OpenAI Responses API (Requires routing)**, then click **Fetch Models**.
+
+    Use the mappings shown below and keep **Declare 1M** enabled:
+
+    | Model role | Requested model |
+    | --- | --- |
+    | Sonnet | `gpt-5.6-terra` |
+    | Opus | `gpt-5.6-sol` |
+    | Fable | `gpt-5.6-sol` |
+    | Haiku | `gpt-5.6-luna` |
 
     <Frame>
       <img
-        src="/images/cc-switch/claude-code-api-format.png"
-        alt="The advanced options section in CC Switch, with API Format set to OpenAI Responses API."
+        src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
+        alt="CC Switch with OpenAI Responses API selected and mappings configured for Sonnet, Opus, Fable, and Haiku."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
 
-    In **Model Mapping**, click **Fetch Model List**. Explicitly select dropdown values for **Primary Model**, **Thinking Model**, **Haiku Default Model**, **Sonnet Default Model**, and **Opus Default Model**.
-
-    <Frame>
-      <img
-        src="/images/cc-switch/claude-code-model-mapping.png"
-        alt="The model mapping section in CC Switch, showing Fetch Model List and the mappings for Primary, Thinking, Haiku, Sonnet, and Opus models."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    Use model IDs from the current **GPT Key group** models in the <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>.
+    Use model IDs currently available in the GPT Key group of the <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
 
   <Step title="Save, switch, and enable the proxy">
-    After saving, return to the provider list:
+    After saving the provider, return to the Claude Desktop provider list:
 
-    1. Set the BetterToken provider you just saved as **In use**
-    2. Enable the **CC Switch proxy** from the top-left corner
+    1. Select your new **BetterToken-codex** provider until it shows **In use**.
+    2. Turn on the proxy switch in the upper-left corner.
 
     <Frame>
       <img
-        src="/images/cc-switch/claude-code-enable-proxy.png"
-        alt="After saving, return to the provider list, set BetterToken as active, and enable the CC Switch proxy toggle in the top-left corner."
+        src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
+        alt="BetterToken-codex is active in CC Switch and the proxy switch in the upper-left corner is enabled."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 
-  <Step title="Open CC Switch settings">
-    Return to the CC Switch home screen, then click **Settings** in the top-left corner.
+  <Step title="Restart Claude Desktop and choose a model">
+    Quit Claude Desktop completely, then open it again. **Gateway** in the lower-left corner confirms that the configuration is active.
+
+    Choose the model you need from the model menu in the message box, then start working.
 
     <Frame>
       <img
-        src="/images/claude-desktop-llmeasy-api/cc-switch-settings-entry.png"
-        alt="The CC Switch home screen with the Settings button highlighted in the top-left corner."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Confirm routing is enabled and copy the service address">
-    Open **Routing** settings. Confirm that the highlighted main routing switch and **Claude** route switch are both on. Then copy the **Service address** shown below.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/cc-switch-route-service.png"
-        alt="The CC Switch routing settings page, with the main route switch, Claude route switch, and service address copy button highlighted."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Enter the Gateway base URL in Claude Desktop">
-    Return to the Claude Desktop third-party inference settings window and select **Gateway**. Paste the CC Switch **Service address** into **Gateway base URL**, then enter your BetterToken API Key.
-
-    Set **Gateway auth scheme** to `bearer`.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/claude-gateway-local-route.png"
-        alt="The Claude Desktop Gateway settings page with the CC Switch local service address entered."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Add the model list and apply locally">
-    Add the models you want to show in **Model list**. Each model entry needs both **Model ID** and **Display name**.
-
-    For example:
-
-    | Model ID | Display name |
-    |----------|--------------|
-    | `gpt-5.5` | `GPT-5.5` |
-
-    After filling in the list, click **Apply locally**.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/claude-model-list-codex-group.png"
-        alt="The Claude Desktop Model list with Model ID and Display name filled in, and Apply locally available."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Confirm the app relaunch">
-    After Claude writes the local configuration, it asks you to save and restart. Click **Save & Restart** so the new gateway configuration takes effect.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/relaunch-claude.png"
-        alt="Claude Desktop asks to save and restart, with the Save & Restart button highlighted."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Sign in with Gateway">
-    After restarting, wait about 3 seconds for the sign-in choice to appear.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/continue-with-gateway.png"
-        alt="Claude Desktop shows the Continue with Gateway sign-in option."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    Choose **Continue with Gateway**. After Claude opens, **Cowork 3P | Gateway** appears in the lower-left corner and you can start using it.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-llmeasy-api/gateway-ready.png"
-        alt="Claude Desktop is ready after signing in with Gateway."
+        src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
+        alt="Claude Desktop after restart, showing Gateway in the lower-left corner and the model selection menu."
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
@@ -243,30 +103,21 @@ A common symptom is this warning at the top of the page: `Your provider setup ne
 
 ## Troubleshooting
 
-If you still see **Your provider setup needs a fix**, check these items first:
+### Gateway does not appear in Claude Desktop
 
-1. The BetterToken provider in CC Switch is set as **In use**
-2. **API Format** is set to **OpenAI Responses API**
-3. **Model Mapping** explicitly selects GPT Key group models for Primary, Thinking, Haiku, Sonnet, and Opus
-4. **CC Switch proxy**, the main routing switch, and the **Claude** route switch are all enabled
-5. Claude Desktop **Gateway base URL** uses the local service address copied from CC Switch
-6. **Model list** includes both **Model ID** and **Display name** for each model
+Check that **BetterToken-codex** is set to **In use** in CC Switch and the proxy switch is on. Quit Claude Desktop completely and open it again.
 
-### The Gateway sign-in option does not appear
+### The model list is empty
 
-Return to **Configure Third-Party Inference...**, confirm the Gateway settings, and click **Apply locally**. Then fully restart Claude Desktop and wait for **Continue with Gateway** to appear.
-
-### The model list is empty or the model is missing
-
-Run **Fetch Model List** in CC Switch again and explicitly save the model mapping. In Claude Desktop, add the same current **GPT Key group** model ID and a display name to **Model list**, then apply the configuration locally.
+Open the provider editor, click **Fetch Models**, and confirm that the model mappings were saved. Use a model ID from the GPT Key group in the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart Claude Desktop.
 
 ### `401` or `Unauthorized`
 
-Confirm that Gateway uses a **GPT Key group** BetterToken API Key and that **Gateway auth scheme** is `bearer`. Save the settings and restart Claude Desktop after replacing the key.
+Confirm that you entered a BetterToken API Key from the **GPT Key group**. Save the provider, re-enable the proxy, and restart Claude Desktop after replacing the key.
 
-### Requests fail after signing in with Gateway
+### Requests are not sent through BetterToken
 
-Check that the BetterToken provider is **In use**, the CC Switch proxy is on, and both the main switch and **Claude** route are enabled in **Routing**. Do not replace the local service address with the public OpenAI-compatible Base URL.
+Confirm that **BetterToken-codex**, rather than Claude Desktop Official, is active and that the proxy switch in the upper-left corner remains enabled.
 
 ## Related guides
 
