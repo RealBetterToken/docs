@@ -1,0 +1,155 @@
+---
+title: "Continue CLI custom model setup: API Key and Base URL"
+sidebarTitle: "Continue CLI"
+description: "Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in Continue CLI through config.yaml."
+icon: "terminal"
+---
+
+To use a BetterToken custom model in Continue CLI (`cn`), set your API Key as an environment variable, then add the BetterToken OpenAI-compatible Base URL and a GPT Key group model ID to `config.yaml`.
+
+<Info>
+  Continue CLI uses BetterToken's OpenAI-compatible API. Set Base URL to `{{openai-base-url}}`, then use an API Key and model from the **GPT Key group**.
+</Info>
+
+## Before you start
+
+- Get a BetterToken API Key: <a href={"{{register-url}}"}>register and get started</a>
+- Copy a current **GPT Key group** model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+- Install Node.js 20 or later when using the npm installation method
+
+## Install Continue CLI
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm (cross-platform)">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+After installation, confirm that `cn` is available:
+
+```bash
+cn --version
+```
+
+## Configure API Key and Base URL
+
+<Steps>
+  <Step title="Set the API Key environment variable">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        Run this in the same terminal that will start Continue CLI:
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        Run this in the same PowerShell window that will start Continue CLI:
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Replace `YOUR_API_KEY` with your **GPT Key group** API Key. Do not commit the key to Git or put it in a shared configuration file.
+  </Step>
+
+  <Step title="Create config.yaml">
+    Create or edit this file in your user directory:
+
+    - macOS / Linux: `~/.continue/config.yaml`
+    - Windows: `%USERPROFILE%\.continue\config.yaml`
+
+    Add this configuration:
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: gpt-5.6-sol
+        apiBase: "{{openai-base-url}}"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+    ```
+
+    `gpt-5.6-sol` is only an example. Replace it with a current **GPT Key group** model ID from the model plaza.
+  </Step>
+
+  <Step title="Start Continue CLI">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    You can enter your project directory first, then run the command. Once the configuration loads, enter a task directly in Continue CLI.
+  </Step>
+</Steps>
+
+## Change the model
+
+After changing `model` in `config.yaml`, end the current `cn` session and start it again. The model ID must belong to the same **GPT Key group** as the API Key.
+
+To use a separate configuration for one project, save it in that project and provide its path explicitly:
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## Common errors
+
+| Symptom | What to do |
+| --- | --- |
+| `401`, `Unauthorized`, or an API Key error | Confirm `BETTERTOKEN_API_KEY` is set in the current terminal and is a **GPT Key group** API Key. |
+| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza. Do not use a Claude Key group model. |
+| Continue still uses an old configuration | Start with `cn --config` and the explicit file path. Check that the filename is `config.yaml`. |
+| Wrong request URL or `404` | Confirm `apiBase` is `{{openai-base-url}}`. Do not append `/chat/completions` or a model name. |
+| The API Key variable is not resolved | Set `BETTERTOKEN_API_KEY` in the same terminal that starts `cn`, then launch it again. |
+
+## Setup FAQ
+
+**Which Base URL should Continue CLI use?**
+
+Use `{{openai-base-url}}`. This is BetterToken's OpenAI-compatible Base URL.
+
+**Can I use a Claude Key group API Key?**
+
+No. This Continue CLI setup uses the OpenAI-compatible API, so use a **GPT Key group** API Key and a model from the same group.
+
+**How do I view or switch saved configurations?**
+
+Enter `/config` inside a Continue CLI session to view and choose local configurations.
+
+## Related guides
+
+- [aider custom model setup](/en/ai-tools/aider)
+- [Codex CLI custom provider setup](/en/ai-tools/codex)
+- [Cursor custom API, Base URL, and API Key setup](/en/ai-tools/cursor)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)

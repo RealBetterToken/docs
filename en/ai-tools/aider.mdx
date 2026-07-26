@@ -1,0 +1,125 @@
+---
+title: "aider custom model setup: API Key and Base URL"
+sidebarTitle: "aider"
+description: "Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in aider."
+icon: "wrench"
+---
+
+aider can connect to OpenAI-compatible APIs. To use BetterToken, set `OPENAI_API_BASE` and `OPENAI_API_KEY`, then start aider with the `openai/model-id` format.
+
+<Info>
+  aider uses BetterToken's OpenAI-compatible API. Set Base URL to `{{openai-base-url}}`, then use an API Key and model from the **GPT Key group**.
+</Info>
+
+## Before you start
+
+- Get a BetterToken API Key: <a href={"{{register-url}}"}>register and get started</a>
+- Copy a current **GPT Key group** model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+- Install Python
+
+## Install aider
+
+Run the following commands in a terminal:
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+After installation, confirm that aider is available:
+
+```bash
+aider --help
+```
+
+## Configure BetterToken for the current terminal
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="{{openai-base-url}}"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "{{openai-base-url}}"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    After `setx`, close and reopen PowerShell. Then change into your project directory and run:
+
+    ```powershell
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+</Tabs>
+
+Replace `YOUR_API_KEY` with your **GPT Key group** API Key. `gpt-5.6-sol` is only an example. Replace it with a current **GPT Key group** model ID from the model plaza, and keep the `openai/` prefix.
+
+## Save the configuration with .env
+
+To avoid setting variables every time you open a terminal, create a `.env` file at the Git root of your project:
+
+```dotenv
+OPENAI_API_BASE={{openai-base-url}}
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/gpt-5.6-sol
+```
+
+Add `.env` to `.gitignore` so the API Key is not committed. Then enter the project directory and run:
+
+```bash
+aider
+```
+
+To use another file for one project, specify it explicitly:
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+## Change the model
+
+Replace the model in the launch command with a current **GPT Key group** model ID:
+
+```bash
+aider --model openai/YOUR_GPT_MODEL_ID
+```
+
+Do not remove the `openai/` prefix. The API Key and model must belong to the same **GPT Key group**.
+
+## Common errors
+
+| Symptom | What to do |
+| --- | --- |
+| `401`, `Unauthorized`, or `Invalid API key` | Check `OPENAI_API_KEY`, confirm it is a **GPT Key group** API Key, and remove any extra spaces. |
+| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza and pass it to aider as `openai/model-id`. |
+| Wrong request URL or `404` | Confirm `OPENAI_API_BASE` is `{{openai-base-url}}`. Do not append `/chat/completions`. |
+| Windows does not read the new variables | `setx` only affects newly opened terminals. Close the current PowerShell window and open a new one. |
+| aider reports an unknown model | Check the model ID and API Key group first. aider may show a warning for a new model, but you must still use a current ID from the model plaza. |
+
+## Setup FAQ
+
+**Which Base URL should aider use?**
+
+Use `{{openai-base-url}}`. This is BetterToken's OpenAI-compatible Base URL.
+
+**Why does the model name need the `openai/` prefix?**
+
+aider uses this prefix to identify an OpenAI-compatible model. Omitting it can make aider select the wrong provider.
+
+**Can I put the API Key in `.aider.conf.yml`?**
+
+We do not recommend it. Use environment variables or a `.env` file ignored by Git to reduce the risk of exposing an API Key in project files.
+
+## Related guides
+
+- [Continue CLI custom model setup](/en/ai-tools/continue-cli)
+- [Codex CLI custom provider setup](/en/ai-tools/codex)
+- [Cursor custom API, Base URL, and API Key setup](/en/ai-tools/cursor)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)

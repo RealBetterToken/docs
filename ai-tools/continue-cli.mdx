@@ -1,0 +1,155 @@
+---
+title: "Настройка пользовательской модели в Continue CLI: API Key и Base URL"
+sidebarTitle: "Continue CLI"
+description: "Настройте OpenAI-compatible API BetterToken, API Key группы GPT и модель в Continue CLI через config.yaml."
+icon: "terminal"
+---
+
+Чтобы использовать пользовательскую модель BetterToken в Continue CLI (`cn`), задайте API Key как переменную окружения, а затем добавьте OpenAI-compatible Base URL BetterToken и ID модели группы GPT в `config.yaml`.
+
+<Info>
+  Continue CLI использует OpenAI-compatible API BetterToken. Укажите Base URL `{{openai-base-url}}`, API Key группы **GPT** и модель из той же группы.
+</Info>
+
+## Перед началом
+
+- Получите API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и начать</a>
+- Скопируйте актуальный ID модели из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+- Установите Node.js 20 или новее, если используете установку через npm
+
+## Установите Continue CLI
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm (кроссплатформенно)">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+После установки проверьте, что команда `cn` доступна:
+
+```bash
+cn --version
+```
+
+## Настройте API Key и Base URL
+
+<Steps>
+  <Step title="Задайте переменную окружения API Key">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        Выполните команду в том же терминале, из которого будете запускать Continue CLI:
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        Выполните команду в том же окне PowerShell, из которого будете запускать Continue CLI:
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Замените `YOUR_API_KEY` на ваш API Key из **группы ключа GPT**. Не добавляйте ключ в Git и не сохраняйте его в общей конфигурации.
+  </Step>
+
+  <Step title="Создайте config.yaml">
+    Создайте или отредактируйте файл в пользовательской директории:
+
+    - macOS / Linux: `~/.continue/config.yaml`
+    - Windows: `%USERPROFILE%\.continue\config.yaml`
+
+    Добавьте конфигурацию:
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: gpt-5.6-sol
+        apiBase: "{{openai-base-url}}"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+    ```
+
+    `gpt-5.6-sol` приведён только как пример. Замените его на актуальный ID модели из **группы ключа GPT** в model plaza.
+  </Step>
+
+  <Step title="Запустите Continue CLI">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    Можно сначала перейти в каталог проекта, а затем выполнить команду. После загрузки конфигурации введите задачу прямо в Continue CLI.
+  </Step>
+</Steps>
+
+## Как сменить модель
+
+После изменения `model` в `config.yaml` завершите текущую сессию `cn` и запустите её снова. ID модели должен относиться к той же **группе ключа GPT**, что и API Key.
+
+Для отдельной конфигурации одного проекта сохраните файл в проекте и явно укажите путь:
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## Частые ошибки
+
+| Симптом | Что делать |
+| --- | --- |
+| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к **группе ключа GPT**. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID из **группы ключа GPT** в model plaza. Не используйте модель группы Claude. |
+| Continue использует старую конфигурацию | Запускайте `cn --config` с явным путём к файлу. Проверьте имя файла `config.yaml`. |
+| Неверный URL запроса или `404` | Проверьте, что `apiBase` равен `{{openai-base-url}}`. Не добавляйте `/chat/completions` или имя модели. |
+| Переменная API Key не подставляется | Задайте `BETTERTOKEN_API_KEY` в том же терминале, где запускаете `cn`, затем запустите команду снова. |
+
+## FAQ по настройке
+
+**Какой Base URL использовать в Continue CLI?**
+
+Используйте `{{openai-base-url}}`. Это OpenAI-compatible Base URL BetterToken.
+
+**Можно использовать API Key группы Claude?**
+
+Нет. В этой конфигурации Continue CLI используется OpenAI-compatible API, поэтому нужен API Key **группы ключа GPT** и модель из той же группы.
+
+**Как посмотреть или сменить сохранённую конфигурацию?**
+
+Введите `/config` в сессии Continue CLI, чтобы посмотреть и выбрать локальную конфигурацию.
+
+## Связанные инструкции
+
+- [Настройка пользовательской модели в aider](/ai-tools/aider)
+- [Настройка custom provider в Codex CLI](/ai-tools/codex)
+- [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)

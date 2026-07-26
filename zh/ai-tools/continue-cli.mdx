@@ -1,0 +1,155 @@
+---
+title: "Continue CLI 自定义模型配置：API Key 与 Base URL"
+sidebarTitle: "Continue CLI"
+description: "在 Continue CLI 中通过 config.yaml 配置 BetterToken 的 OpenAI-compatible API、GPT 分组 API Key 和模型。"
+icon: "terminal"
+---
+
+要在 Continue CLI（`cn`）中使用 BetterToken 自定义模型，请将 API Key 设为环境变量，再在 `config.yaml` 中填写 BetterToken 的 OpenAI-compatible Base URL 和 GPT 分组模型 ID。
+
+<Info>
+  Continue CLI 使用 BetterToken 的 OpenAI-compatible API。Base URL 填写 `{{openai-base-url}}`，并使用 **GPT 分组** API Key 和模型。
+</Info>
+
+## 准备工作
+
+- 已获取 BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
+- 已安装 Node.js 20 或更高版本（仅使用 npm 安装时需要）
+
+## 安装 Continue CLI
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm（跨平台）">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+安装完成后，运行以下命令确认 `cn` 可用：
+
+```bash
+cn --version
+```
+
+## 配置 API Key 和 Base URL
+
+<Steps>
+  <Step title="设置 API Key 环境变量">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        在启动 Continue CLI 的同一个终端中运行：
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        在启动 Continue CLI 的同一个 PowerShell 窗口中运行：
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    将 `YOUR_API_KEY` 替换为你的 **GPT 分组** API Key。不要把 API Key 提交到 Git 仓库或写入共享配置文件。
+  </Step>
+
+  <Step title="创建 config.yaml">
+    在用户目录创建或编辑以下文件：
+
+    - macOS / Linux：`~/.continue/config.yaml`
+    - Windows：`%USERPROFILE%\.continue\config.yaml`
+
+    写入以下配置：
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: gpt-5.6-sol
+        apiBase: "{{openai-base-url}}"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+    ```
+
+    `gpt-5.6-sol` 只是示例。请改为模型广场中当前可用的 **GPT 分组**模型 ID。
+  </Step>
+
+  <Step title="启动 Continue CLI">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    也可以先进入你的项目目录，再运行上面的命令。配置加载后，直接在 Continue CLI 中输入任务即可。
+  </Step>
+</Steps>
+
+## 切换模型
+
+修改 `config.yaml` 中的 `model` 后，结束当前 `cn` 会话并重新运行启动命令。模型 ID 必须来自同一个 **GPT 分组**。
+
+如果你想仅为一个项目使用单独配置，可以在项目目录保存配置文件，并显式指定路径：
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## 常见错误
+
+| 现象 | 处理方式 |
+| --- | --- |
+| `401`、`Unauthorized` 或 API Key 错误 | 确认 `BETTERTOKEN_API_KEY` 已在当前终端设置，并且使用的是 **GPT 分组** API Key。 |
+| `model not found` 或模型不可用 | 从模型广场重新复制当前可用的 **GPT 分组**模型 ID，不要填写 Claude 分组模型。 |
+| 仍使用旧配置 | 使用 `cn --config` 明确指定文件路径；检查文件名为 `config.yaml`。 |
+| 请求地址错误或 `404` | 确认 `apiBase` 是 `{{openai-base-url}}`，不要填入 `/chat/completions` 或模型名称。 |
+| 配置中的密钥变量未解析 | 在启动 `cn` 的同一个终端中设置 `BETTERTOKEN_API_KEY`，然后重新运行启动命令。 |
+
+## 配置 FAQ
+
+**Continue CLI 应该使用哪个 Base URL？**
+
+填写 `{{openai-base-url}}`。这是 BetterToken 的 OpenAI-compatible Base URL。
+
+**可以使用 Claude 分组 API Key 吗？**
+
+不可以。Continue CLI 的这套配置使用 OpenAI-compatible API，应使用 **GPT 分组** API Key 和同组模型。
+
+**如何查看或切换已保存的配置？**
+
+在 Continue CLI 会话中输入 `/config`，即可查看并选择本地配置。
+
+## 相关指南
+
+- [aider 自定义模型配置](/zh/ai-tools/aider)
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)

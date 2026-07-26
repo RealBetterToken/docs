@@ -3235,6 +3235,290 @@ MonkeyCode — enterprise-платформа для AI-разработки. П�
 
 ---
 
+## Настройка пользовательской модели в Continue CLI: API Key и Base URL
+
+Source: https://docs.bettertoken.ai/ai-tools/continue-cli
+
+Description: Настройте OpenAI-compatible API BetterToken, API Key группы GPT и модель в Continue CLI через config.yaml.
+
+Чтобы использовать пользовательскую модель BetterToken в Continue CLI (`cn`), задайте API Key как переменную окружения, а затем добавьте OpenAI-compatible Base URL BetterToken и ID модели группы GPT в `config.yaml`.
+
+<Info>
+  Continue CLI использует OpenAI-compatible API BetterToken. Укажите Base URL `https://bettertoken.ai/v1`, API Key группы **GPT** и модель из той же группы.
+</Info>
+
+## Перед началом
+
+- Получите API Key BetterToken: <a href={"https://bettertoken.ai/register"}>зарегистрироваться и начать</a>
+- Скопируйте актуальный ID модели из **группы ключа GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
+- Установите Node.js 20 или новее, если используете установку через npm
+
+## Установите Continue CLI
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm (кроссплатформенно)">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+После установки проверьте, что команда `cn` доступна:
+
+```bash
+cn --version
+```
+
+## Настройте API Key и Base URL
+
+<Steps>
+  <Step title="Задайте переменную окружения API Key">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        Выполните команду в том же терминале, из которого будете запускать Continue CLI:
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        Выполните команду в том же окне PowerShell, из которого будете запускать Continue CLI:
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Замените `YOUR_API_KEY` на ваш API Key из **группы ключа GPT**. Не добавляйте ключ в Git и не сохраняйте его в общей конфигурации.
+  </Step>
+
+  <Step title="Создайте config.yaml">
+    Создайте или отредактируйте файл в пользовательской директории:
+
+    - macOS / Linux: `~/.continue/config.yaml`
+    - Windows: `%USERPROFILE%\.continue\config.yaml`
+
+    Добавьте конфигурацию:
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: gpt-5.6-sol
+        apiBase: "https://bettertoken.ai/v1"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+    ```
+
+    `gpt-5.6-sol` приведён только как пример. Замените его на актуальный ID модели из **группы ключа GPT** в model plaza.
+  </Step>
+
+  <Step title="Запустите Continue CLI">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    Можно сначала перейти в каталог проекта, а затем выполнить команду. После загрузки конфигурации введите задачу прямо в Continue CLI.
+  </Step>
+</Steps>
+
+## Как сменить модель
+
+После изменения `model` в `config.yaml` завершите текущую сессию `cn` и запустите её снова. ID модели должен относиться к той же **группе ключа GPT**, что и API Key.
+
+Для отдельной конфигурации одного проекта сохраните файл в проекте и явно укажите путь:
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## Частые ошибки
+
+| Симптом | Что делать |
+| --- | --- |
+| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к **группе ключа GPT**. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID из **группы ключа GPT** в model plaza. Не используйте модель группы Claude. |
+| Continue использует старую конфигурацию | Запускайте `cn --config` с явным путём к файлу. Проверьте имя файла `config.yaml`. |
+| Неверный URL запроса или `404` | Проверьте, что `apiBase` равен `https://bettertoken.ai/v1`. Не добавляйте `/chat/completions` или имя модели. |
+| Переменная API Key не подставляется | Задайте `BETTERTOKEN_API_KEY` в том же терминале, где запускаете `cn`, затем запустите команду снова. |
+
+## FAQ по настройке
+
+**Какой Base URL использовать в Continue CLI?**
+
+Используйте `https://bettertoken.ai/v1`. Это OpenAI-compatible Base URL BetterToken.
+
+**Можно использовать API Key группы Claude?**
+
+Нет. В этой конфигурации Continue CLI используется OpenAI-compatible API, поэтому нужен API Key **группы ключа GPT** и модель из той же группы.
+
+**Как посмотреть или сменить сохранённую конфигурацию?**
+
+Введите `/config` в сессии Continue CLI, чтобы посмотреть и выбрать локальную конфигурацию.
+
+## Связанные инструкции
+
+- [Настройка пользовательской модели в aider](/ai-tools/aider)
+- [Настройка custom provider в Codex CLI](/ai-tools/codex)
+- [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
+
+---
+
+## Настройка пользовательской модели в aider: API Key и Base URL
+
+Source: https://docs.bettertoken.ai/ai-tools/aider
+
+Description: Настройте OpenAI-compatible API BetterToken, API Key группы GPT и модель в aider.
+
+aider может подключаться к OpenAI-compatible API. Чтобы использовать BetterToken, задайте `OPENAI_API_BASE` и `OPENAI_API_KEY`, а затем запустите aider с именем модели в формате `openai/model-id`.
+
+<Info>
+  aider использует OpenAI-compatible API BetterToken. Укажите Base URL `https://bettertoken.ai/v1`, API Key **группы ключа GPT** и модель из той же группы.
+</Info>
+
+## Перед началом
+
+- Получите API Key BetterToken: <a href={"https://bettertoken.ai/register"}>зарегистрироваться и начать</a>
+- Скопируйте актуальный ID модели из **группы ключа GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
+- Установите Python
+
+## Установите aider
+
+Выполните в терминале:
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+После установки проверьте, что aider доступен:
+
+```bash
+aider --help
+```
+
+## Настройте BetterToken для текущего терминала
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="https://bettertoken.ai/v1"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "https://bettertoken.ai/v1"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    После `setx` закройте и снова откройте PowerShell. Затем перейдите в каталог проекта и выполните:
+
+    ```powershell
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+</Tabs>
+
+Замените `YOUR_API_KEY` на ваш API Key из **группы ключа GPT**. `gpt-5.6-sol` приведён только как пример. Замените его на актуальный ID из model plaza и сохраните префикс `openai/`.
+
+## Сохраните конфигурацию в .env
+
+Чтобы не задавать переменные при каждом запуске терминала, создайте файл `.env` в Git-корне проекта:
+
+```dotenv
+OPENAI_API_BASE=https://bettertoken.ai/v1
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/gpt-5.6-sol
+```
+
+Добавьте `.env` в `.gitignore`, чтобы API Key не попал в Git. Затем перейдите в каталог проекта и выполните:
+
+```bash
+aider
+```
+
+Чтобы использовать другой файл для одного проекта, укажите его явно:
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+## Как сменить модель
+
+Замените модель в команде запуска на актуальный ID из **группы ключа GPT**:
+
+```bash
+aider --model openai/YOUR_GPT_MODEL_ID
+```
+
+Не удаляйте префикс `openai/`. API Key и модель должны относиться к одной **группе ключа GPT**.
+
+## Частые ошибки
+
+| Симптом | Что делать |
+| --- | --- |
+| `401`, `Unauthorized` или `Invalid API key` | Проверьте `OPENAI_API_KEY`, убедитесь, что это API Key **группы ключа GPT**, и удалите лишние пробелы. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID из **группы ключа GPT** в model plaza и передайте его aider в формате `openai/model-id`. |
+| Неверный URL запроса или `404` | Проверьте, что `OPENAI_API_BASE` равен `https://bettertoken.ai/v1`. Не добавляйте `/chat/completions`. |
+| Windows не видит новые переменные | `setx` действует только в новых терминалах. Закройте текущее окно PowerShell и откройте новое. |
+| aider сообщает, что модель неизвестна | Сначала проверьте ID модели и группу API Key. aider может показать предупреждение для новой модели, но используйте только актуальный ID из model plaza. |
+
+## FAQ по настройке
+
+**Какой Base URL использовать в aider?**
+
+Используйте `https://bettertoken.ai/v1`. Это OpenAI-compatible Base URL BetterToken.
+
+**Почему перед названием модели нужен префикс `openai/`?**
+
+aider использует этот префикс для определения OpenAI-compatible модели. Без него aider может выбрать неправильный provider.
+
+**Можно сохранить API Key в `.aider.conf.yml`?**
+
+Не рекомендуем. Используйте переменные окружения или `.env`, который добавлен в `.gitignore`, чтобы снизить риск раскрытия API Key в файлах проекта.
+
+## Связанные инструкции
+
+- [Настройка пользовательской модели в Continue CLI](/ai-tools/continue-cli)
+- [Настройка custom provider в Codex CLI](/ai-tools/codex)
+- [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
+- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
+
+---
+
 ## Как подключить custom-модели BetterToken к n8n
 
 Source: https://docs.bettertoken.ai/ai-tools/n8n
@@ -10588,6 +10872,290 @@ MonkeyCode is an enterprise AI development platform. When connecting BetterToken
 - [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
 - [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
 - [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
+
+---
+
+## Continue CLI custom model setup: API Key and Base URL
+
+Source: https://docs.bettertoken.ai/en/ai-tools/continue-cli
+
+Description: Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in Continue CLI through config.yaml.
+
+To use a BetterToken custom model in Continue CLI (`cn`), set your API Key as an environment variable, then add the BetterToken OpenAI-compatible Base URL and a GPT Key group model ID to `config.yaml`.
+
+<Info>
+  Continue CLI uses BetterToken's OpenAI-compatible API. Set Base URL to `https://bettertoken.ai/v1`, then use an API Key and model from the **GPT Key group**.
+</Info>
+
+## Before you start
+
+- Get a BetterToken API Key: <a href={"https://bettertoken.ai/register"}>register and get started</a>
+- Copy a current **GPT Key group** model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
+- Install Node.js 20 or later when using the npm installation method
+
+## Install Continue CLI
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm (cross-platform)">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+After installation, confirm that `cn` is available:
+
+```bash
+cn --version
+```
+
+## Configure API Key and Base URL
+
+<Steps>
+  <Step title="Set the API Key environment variable">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        Run this in the same terminal that will start Continue CLI:
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        Run this in the same PowerShell window that will start Continue CLI:
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Replace `YOUR_API_KEY` with your **GPT Key group** API Key. Do not commit the key to Git or put it in a shared configuration file.
+  </Step>
+
+  <Step title="Create config.yaml">
+    Create or edit this file in your user directory:
+
+    - macOS / Linux: `~/.continue/config.yaml`
+    - Windows: `%USERPROFILE%\.continue\config.yaml`
+
+    Add this configuration:
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: gpt-5.6-sol
+        apiBase: "https://bettertoken.ai/v1"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+    ```
+
+    `gpt-5.6-sol` is only an example. Replace it with a current **GPT Key group** model ID from the model plaza.
+  </Step>
+
+  <Step title="Start Continue CLI">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    You can enter your project directory first, then run the command. Once the configuration loads, enter a task directly in Continue CLI.
+  </Step>
+</Steps>
+
+## Change the model
+
+After changing `model` in `config.yaml`, end the current `cn` session and start it again. The model ID must belong to the same **GPT Key group** as the API Key.
+
+To use a separate configuration for one project, save it in that project and provide its path explicitly:
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## Common errors
+
+| Symptom | What to do |
+| --- | --- |
+| `401`, `Unauthorized`, or an API Key error | Confirm `BETTERTOKEN_API_KEY` is set in the current terminal and is a **GPT Key group** API Key. |
+| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza. Do not use a Claude Key group model. |
+| Continue still uses an old configuration | Start with `cn --config` and the explicit file path. Check that the filename is `config.yaml`. |
+| Wrong request URL or `404` | Confirm `apiBase` is `https://bettertoken.ai/v1`. Do not append `/chat/completions` or a model name. |
+| The API Key variable is not resolved | Set `BETTERTOKEN_API_KEY` in the same terminal that starts `cn`, then launch it again. |
+
+## Setup FAQ
+
+**Which Base URL should Continue CLI use?**
+
+Use `https://bettertoken.ai/v1`. This is BetterToken's OpenAI-compatible Base URL.
+
+**Can I use a Claude Key group API Key?**
+
+No. This Continue CLI setup uses the OpenAI-compatible API, so use a **GPT Key group** API Key and a model from the same group.
+
+**How do I view or switch saved configurations?**
+
+Enter `/config` inside a Continue CLI session to view and choose local configurations.
+
+## Related guides
+
+- [aider custom model setup](/en/ai-tools/aider)
+- [Codex CLI custom provider setup](/en/ai-tools/codex)
+- [Cursor custom API, Base URL, and API Key setup](/en/ai-tools/cursor)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
+
+---
+
+## aider custom model setup: API Key and Base URL
+
+Source: https://docs.bettertoken.ai/en/ai-tools/aider
+
+Description: Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in aider.
+
+aider can connect to OpenAI-compatible APIs. To use BetterToken, set `OPENAI_API_BASE` and `OPENAI_API_KEY`, then start aider with the `openai/model-id` format.
+
+<Info>
+  aider uses BetterToken's OpenAI-compatible API. Set Base URL to `https://bettertoken.ai/v1`, then use an API Key and model from the **GPT Key group**.
+</Info>
+
+## Before you start
+
+- Get a BetterToken API Key: <a href={"https://bettertoken.ai/register"}>register and get started</a>
+- Copy a current **GPT Key group** model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
+- Install Python
+
+## Install aider
+
+Run the following commands in a terminal:
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+After installation, confirm that aider is available:
+
+```bash
+aider --help
+```
+
+## Configure BetterToken for the current terminal
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="https://bettertoken.ai/v1"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "https://bettertoken.ai/v1"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    After `setx`, close and reopen PowerShell. Then change into your project directory and run:
+
+    ```powershell
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+</Tabs>
+
+Replace `YOUR_API_KEY` with your **GPT Key group** API Key. `gpt-5.6-sol` is only an example. Replace it with a current **GPT Key group** model ID from the model plaza, and keep the `openai/` prefix.
+
+## Save the configuration with .env
+
+To avoid setting variables every time you open a terminal, create a `.env` file at the Git root of your project:
+
+```dotenv
+OPENAI_API_BASE=https://bettertoken.ai/v1
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/gpt-5.6-sol
+```
+
+Add `.env` to `.gitignore` so the API Key is not committed. Then enter the project directory and run:
+
+```bash
+aider
+```
+
+To use another file for one project, specify it explicitly:
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+## Change the model
+
+Replace the model in the launch command with a current **GPT Key group** model ID:
+
+```bash
+aider --model openai/YOUR_GPT_MODEL_ID
+```
+
+Do not remove the `openai/` prefix. The API Key and model must belong to the same **GPT Key group**.
+
+## Common errors
+
+| Symptom | What to do |
+| --- | --- |
+| `401`, `Unauthorized`, or `Invalid API key` | Check `OPENAI_API_KEY`, confirm it is a **GPT Key group** API Key, and remove any extra spaces. |
+| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza and pass it to aider as `openai/model-id`. |
+| Wrong request URL or `404` | Confirm `OPENAI_API_BASE` is `https://bettertoken.ai/v1`. Do not append `/chat/completions`. |
+| Windows does not read the new variables | `setx` only affects newly opened terminals. Close the current PowerShell window and open a new one. |
+| aider reports an unknown model | Check the model ID and API Key group first. aider may show a warning for a new model, but you must still use a current ID from the model plaza. |
+
+## Setup FAQ
+
+**Which Base URL should aider use?**
+
+Use `https://bettertoken.ai/v1`. This is BetterToken's OpenAI-compatible Base URL.
+
+**Why does the model name need the `openai/` prefix?**
+
+aider uses this prefix to identify an OpenAI-compatible model. Omitting it can make aider select the wrong provider.
+
+**Can I put the API Key in `.aider.conf.yml`?**
+
+We do not recommend it. Use environment variables or a `.env` file ignored by Git to reduce the risk of exposing an API Key in project files.
+
+## Related guides
+
+- [Continue CLI custom model setup](/en/ai-tools/continue-cli)
+- [Codex CLI custom provider setup](/en/ai-tools/codex)
+- [Cursor custom API, Base URL, and API Key setup](/en/ai-tools/cursor)
+- [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
 
 ---
 
@@ -17946,6 +18514,290 @@ MonkeyCode 是企业级 AI 开发平台。通过 BetterToken 接入时，请统�
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
+
+---
+
+## Continue CLI 自定义模型配置：API Key 与 Base URL
+
+Source: https://docs.bettertoken.ai/zh/ai-tools/continue-cli
+
+Description: 在 Continue CLI 中通过 config.yaml 配置 BetterToken 的 OpenAI-compatible API、GPT 分组 API Key 和模型。
+
+要在 Continue CLI（`cn`）中使用 BetterToken 自定义模型，请将 API Key 设为环境变量，再在 `config.yaml` 中填写 BetterToken 的 OpenAI-compatible Base URL 和 GPT 分组模型 ID。
+
+<Info>
+  Continue CLI 使用 BetterToken 的 OpenAI-compatible API。Base URL 填写 `https://bettertoken.ai/v1`，并使用 **GPT 分组** API Key 和模型。
+</Info>
+
+## 准备工作
+
+- 已获取 BetterToken API Key：<a href={"https://bettertoken.ai/register"}>注册并获取</a>
+- 已从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
+- 已安装 Node.js 20 或更高版本（仅使用 npm 安装时需要）
+
+## 安装 Continue CLI
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm（跨平台）">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+安装完成后，运行以下命令确认 `cn` 可用：
+
+```bash
+cn --version
+```
+
+## 配置 API Key 和 Base URL
+
+<Steps>
+  <Step title="设置 API Key 环境变量">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        在启动 Continue CLI 的同一个终端中运行：
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        在启动 Continue CLI 的同一个 PowerShell 窗口中运行：
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    将 `YOUR_API_KEY` 替换为你的 **GPT 分组** API Key。不要把 API Key 提交到 Git 仓库或写入共享配置文件。
+  </Step>
+
+  <Step title="创建 config.yaml">
+    在用户目录创建或编辑以下文件：
+
+    - macOS / Linux：`~/.continue/config.yaml`
+    - Windows：`%USERPROFILE%\.continue\config.yaml`
+
+    写入以下配置：
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: gpt-5.6-sol
+        apiBase: "https://bettertoken.ai/v1"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+    ```
+
+    `gpt-5.6-sol` 只是示例。请改为模型广场中当前可用的 **GPT 分组**模型 ID。
+  </Step>
+
+  <Step title="启动 Continue CLI">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    也可以先进入你的项目目录，再运行上面的命令。配置加载后，直接在 Continue CLI 中输入任务即可。
+  </Step>
+</Steps>
+
+## 切换模型
+
+修改 `config.yaml` 中的 `model` 后，结束当前 `cn` 会话并重新运行启动命令。模型 ID 必须来自同一个 **GPT 分组**。
+
+如果你想仅为一个项目使用单独配置，可以在项目目录保存配置文件，并显式指定路径：
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## 常见错误
+
+| 现象 | 处理方式 |
+| --- | --- |
+| `401`、`Unauthorized` 或 API Key 错误 | 确认 `BETTERTOKEN_API_KEY` 已在当前终端设置，并且使用的是 **GPT 分组** API Key。 |
+| `model not found` 或模型不可用 | 从模型广场重新复制当前可用的 **GPT 分组**模型 ID，不要填写 Claude 分组模型。 |
+| 仍使用旧配置 | 使用 `cn --config` 明确指定文件路径；检查文件名为 `config.yaml`。 |
+| 请求地址错误或 `404` | 确认 `apiBase` 是 `https://bettertoken.ai/v1`，不要填入 `/chat/completions` 或模型名称。 |
+| 配置中的密钥变量未解析 | 在启动 `cn` 的同一个终端中设置 `BETTERTOKEN_API_KEY`，然后重新运行启动命令。 |
+
+## 配置 FAQ
+
+**Continue CLI 应该使用哪个 Base URL？**
+
+填写 `https://bettertoken.ai/v1`。这是 BetterToken 的 OpenAI-compatible Base URL。
+
+**可以使用 Claude 分组 API Key 吗？**
+
+不可以。Continue CLI 的这套配置使用 OpenAI-compatible API，应使用 **GPT 分组** API Key 和同组模型。
+
+**如何查看或切换已保存的配置？**
+
+在 Continue CLI 会话中输入 `/config`，即可查看并选择本地配置。
+
+## 相关指南
+
+- [aider 自定义模型配置](/zh/ai-tools/aider)
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
+
+---
+
+## aider 自定义模型配置：API Key 与 Base URL
+
+Source: https://docs.bettertoken.ai/zh/ai-tools/aider
+
+Description: 在 aider 中配置 BetterToken 的 OpenAI-compatible API、GPT 分组 API Key 和模型。
+
+aider 可以连接 OpenAI-compatible API。要使用 BetterToken，请设置 `OPENAI_API_BASE` 和 `OPENAI_API_KEY`，然后以 `openai/模型 ID` 的格式启动 aider。
+
+<Info>
+  aider 使用 BetterToken 的 OpenAI-compatible API。Base URL 填写 `https://bettertoken.ai/v1`，并使用 **GPT 分组** API Key 和模型。
+</Info>
+
+## 准备工作
+
+- 已获取 BetterToken API Key：<a href={"https://bettertoken.ai/register"}>注册并获取</a>
+- 已从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
+- 已安装 Python
+
+## 安装 aider
+
+在终端中执行：
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+安装完成后，运行以下命令确认 aider 可用：
+
+```bash
+aider --help
+```
+
+## 为当前终端配置 BetterToken
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="https://bettertoken.ai/v1"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "https://bettertoken.ai/v1"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    执行 `setx` 后，请关闭并重新打开 PowerShell，再进入项目目录并运行：
+
+    ```powershell
+    aider --model openai/gpt-5.6-sol
+    ```
+  </Tab>
+</Tabs>
+
+将 `YOUR_API_KEY` 替换为你的 **GPT 分组** API Key。`gpt-5.6-sol` 只是示例；请改为模型广场中当前可用的 **GPT 分组**模型 ID，并保留 `openai/` 前缀。
+
+## 使用 .env 持久保存配置
+
+如果不想每次打开终端都设置变量，可在项目 Git 根目录创建 `.env`：
+
+```dotenv
+OPENAI_API_BASE=https://bettertoken.ai/v1
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/gpt-5.6-sol
+```
+
+将 `.env` 加入 `.gitignore`，避免 API Key 被提交。之后进入项目目录并直接运行：
+
+```bash
+aider
+```
+
+需要为某个项目使用其他文件时，可显式指定：
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+## 切换模型
+
+将启动命令中的模型替换为当前可用的 **GPT 分组**模型 ID：
+
+```bash
+aider --model openai/YOUR_GPT_MODEL_ID
+```
+
+`openai/` 前缀不能省略。API Key 与模型必须属于同一个 **GPT 分组**。
+
+## 常见错误
+
+| 现象 | 处理方式 |
+| --- | --- |
+| `401`、`Unauthorized` 或 `Invalid API key` | 检查 `OPENAI_API_KEY`，确认使用的是 **GPT 分组** API Key，且没有多余空格。 |
+| `model not found` 或模型不可用 | 从模型广场重新复制当前 **GPT 分组**模型 ID，并以 `openai/模型 ID` 格式传给 aider。 |
+| 请求地址错误或 `404` | 确认 `OPENAI_API_BASE` 是 `https://bettertoken.ai/v1`，不要填写 `/chat/completions`。 |
+| 在 Windows 设置后仍读取不到变量 | `setx` 只对新打开的终端生效。关闭当前 PowerShell 后重新打开。 |
+| aider 提示不认识模型 | 先检查模型 ID 和 API Key 分组。aider 可能对新模型显示警告，但模型仍需使用模型广场中的当前 ID。 |
+
+## 配置 FAQ
+
+**aider 的 Base URL 应该填写哪个地址？**
+
+填写 `https://bettertoken.ai/v1`。这是 BetterToken 的 OpenAI-compatible Base URL。
+
+**为什么模型名前要加 `openai/`？**
+
+aider 用这个前缀识别 OpenAI-compatible 模型。省略前缀可能导致它使用错误的 provider。
+
+**可以把 API Key 写进 `.aider.conf.yml` 吗？**
+
+不建议。优先使用环境变量或已加入 `.gitignore` 的 `.env`，避免 API Key 随项目文件泄露。
+
+## 相关指南
+
+- [Continue CLI 自定义模型配置](/zh/ai-tools/continue-cli)
+- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
+- [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
+- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
 
 ---
 
