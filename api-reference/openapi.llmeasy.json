@@ -138,6 +138,188 @@
           }
         ]
       }
+    },
+    "/v1/responses": {
+      "post": {
+        "summary": "Создать ответ через Responses API",
+        "description": "Отправляйте input в GPT Key group через OpenAI Responses API BetterToken. В Playground можно указать свой API Key и сразу протестировать запрос.",
+        "operationId": "createResponse",
+        "tags": [
+          "OpenAI Responses"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsesRequest"
+              },
+              "example": {
+                "model": "gpt-5.6-sol",
+                "input": "Привет"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ResponsesResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/responses' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"input\": \"Привет\"\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "summary": "Создать ответ через Chat Completions API",
+        "description": "Отправляйте диалоговые сообщения в GPT Key group через OpenAI-compatible Chat Completions API BetterToken. Подходит для внешних инструментов и приложений, которым нужен /v1/chat/completions.",
+        "operationId": "createChatCompletion",
+        "tags": [
+          "OpenAI Chat Completions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionsRequest"
+              },
+              "example": {
+                "model": "gpt-5.6-sol",
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Привет"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ChatCompletionResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/chat/completions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/messages": {
+      "post": {
+        "summary": "Создать ответ через Anthropic Messages API",
+        "description": "Отправляйте сообщения в Claude Key group через Anthropic-compatible Messages API BetterToken. Подходит для Claude Code, Anthropic SDK и приложений, использующих /v1/messages.",
+        "operationId": "createAnthropicMessage",
+        "tags": [
+          "Anthropic Messages"
+        ],
+        "security": [
+          {
+            "anthropicApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "anthropic-version",
+            "in": "header",
+            "required": true,
+            "description": "Заголовок версии Anthropic API.",
+            "schema": {
+              "type": "string",
+              "default": "2023-06-01",
+              "example": "2023-06-01"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnthropicMessagesRequest"
+              },
+              "example": {
+                "model": "claude-sonnet-4-6",
+                "max_tokens": 1024,
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Привет"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AnthropicMessageResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: 2023-06-01' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"claude-sonnet-4-6\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -147,6 +329,12 @@
         "scheme": "bearer",
         "bearerFormat": "BetterToken API Key",
         "description": "Используйте API Key BetterToken как bearer token. Не публикуйте API keys во frontend-коде, скриншотах, логах, тикетах или Git-репозиториях."
+      },
+      "anthropicApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Передавайте API Key BetterToken в header x-api-key для Anthropic-compatible запросов."
       }
     },
     "schemas": {
@@ -321,6 +509,130 @@
         },
         "additionalProperties": true
       },
+      "ResponsesRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "input"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "ID доступной модели из GPT Key group. Ориентируйтесь на актуальный список в model plaza.",
+            "example": "gpt-5.6-sol"
+          },
+          "input": {
+            "type": "string",
+            "description": "Текст, который будет отправлен модели.",
+            "example": "Привет"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ResponsesResponse": {
+        "type": "object",
+        "description": "Ответ OpenAI Responses API. Поля зависят от выбранной модели и параметров запроса.",
+        "additionalProperties": true
+      },
+      "ChatCompletionsRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "ID доступной модели из GPT Key group. Ориентируйтесь на актуальный список в model plaza.",
+            "example": "gpt-5.6-sol"
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Массив сообщений диалога. Каждый элемент должен содержать role и content.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "Привет"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "stream": {
+            "type": "boolean",
+            "description": "Запрашивать ли потоковый ответ.",
+            "default": false
+          }
+        },
+        "additionalProperties": true
+      },
+      "AnthropicMessagesRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "max_tokens",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "ID доступной модели из Claude Key group.",
+            "example": "claude-sonnet-4-6"
+          },
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Максимальное число токенов в одном ответе.",
+            "default": 1024,
+            "example": 1024
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Массив сообщений в формате Anthropic. Каждый элемент должен содержать role и content.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "Привет"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "ChatCompletionResponse": {
+        "type": "object",
+        "description": "Ответ OpenAI-compatible Chat Completions API. Поля зависят от выбранной модели и параметров запроса.",
+        "additionalProperties": true
+      },
+      "AnthropicMessageResponse": {
+        "type": "object",
+        "description": "Ответ Anthropic-compatible Messages API. Поля зависят от выбранной модели и параметров запроса.",
+        "additionalProperties": true
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -365,6 +677,36 @@
                   "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
                 }
               ]
+            }
+          }
+        }
+      },
+      "ResponsesResponse": {
+        "description": "Ответ Responses API от модели из GPT Key group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResponsesResponse"
+            }
+          }
+        }
+      },
+      "ChatCompletionResponse": {
+        "description": "Ответ Chat Completions API от модели из GPT Key group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ChatCompletionResponse"
+            }
+          }
+        }
+      },
+      "AnthropicMessageResponse": {
+        "description": "Ответ Anthropic Messages API от модели из Claude Key group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AnthropicMessageResponse"
             }
           }
         }

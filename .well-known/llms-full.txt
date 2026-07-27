@@ -7580,6 +7580,16 @@ BetterToken использует два endpoint в зависимости от 
   Не используйте один общий endpoint для всех протоколов.
 </Warning>
 
+## Тестирование endpoint
+
+Откройте отдельную страницу нужного endpoint, чтобы заполнить запрос в Playground справа и отправить его напрямую:
+
+- [OpenAI Responses API](/api-reference/responses) для Codex и приложений, использующих `/v1/responses`
+- [OpenAI Chat Completions API](/api-reference/chat-completions) для инструментов, использующих `/v1/chat/completions`
+- [Anthropic Messages API](/api-reference/messages) для Claude Code, Anthropic SDK и приложений, использующих `/v1/messages`
+
+В Playground указывайте только свой API Key. Перед тестом OpenAI-compatible endpoint сверяйте модель из GPT Key group с <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
 ## Авторизация и примеры
 
 Передавайте API Key BetterToken вместе с запросом:
@@ -7602,8 +7612,20 @@ BetterToken использует два endpoint в зависимости от 
     ```
 
     ```bash
-    curl https://bettertoken.ai/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    curl "https://bettertoken.ai/v1/messages" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 1024,
+        "messages": [
+          {"role": "user", "content": "Привет"}
+        ]
+      }'
     ```
+
+    `ANTHROPIC_BASE_URL` для SDK указывает на корневой адрес. В ручном curl-запросе используйте полный путь `/v1/messages`, а не `/messages`.
   </Tab>
   <Tab title="Codex / OpenAI Responses">
     ```python
@@ -7621,8 +7643,16 @@ BetterToken использует два endpoint в зависимости от 
     ```
 
     ```bash
-    curl https://bettertoken.ai/v1/chat/completions       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    curl "https://bettertoken.ai/v1/responses" \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "YOUR_GPT_MODEL_ID",
+        "input": "Привет"
+      }'
     ```
+
+    Замените `YOUR_GPT_MODEL_ID` на актуальный ID из **группы GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Этот пример использует OpenAI Responses API, как и Codex.
   </Tab>
 </Tabs>
 
@@ -7647,6 +7677,93 @@ BetterToken использует два endpoint в зависимости от 
 | `OPENAI_API_KEY` | Ваш API Key | Авторизация OpenAI-style инструментов |
 | `API_TIMEOUT_MS` | `3000000` | Рекомендуется для длинных задач |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Только Claude Code |
+
+---
+
+## OpenAI Responses API
+
+Source: https://docs.bettertoken.ai/api-reference/responses
+
+Description: Тестируйте BetterToken OpenAI Responses API для Codex: Base URL, Bearer API Key и запрос POST /v1/responses.
+
+`POST /v1/responses`
+
+Используйте этот endpoint для Codex и приложений, работающих с OpenAI Responses API.
+
+<Note>
+  Base URL: `https://bettertoken.ai/v1`. Передавайте API Key через `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+## Тест в Playground
+
+В Playground справа вставьте свой API Key, при необходимости замените `model` на актуальный ID из GPT Key group и отправьте запрос. Перед тестом проверьте модель в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  Используйте только свой тестовый API Key. Не публикуйте ключ в коде, скриншотах, тикетах или Git-репозитории.
+</Warning>
+
+## Связанные endpoint
+
+- [OpenAI Chat Completions API](/api-reference/chat-completions)
+- [Anthropic Messages API](/api-reference/messages)
+
+---
+
+## OpenAI Chat Completions API
+
+Source: https://docs.bettertoken.ai/api-reference/chat-completions
+
+Description: Тестируйте BetterToken OpenAI-compatible Chat Completions API: Base URL, Bearer API Key и POST /v1/chat/completions.
+
+`POST /v1/chat/completions`
+
+Используйте этот endpoint для внешних инструментов и приложений, которым нужен OpenAI-compatible Chat Completions API.
+
+<Note>
+  Base URL: `https://bettertoken.ai/v1`. Передавайте API Key через `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+## Тест в Playground
+
+В Playground справа вставьте свой API Key, укажите доступную модель из GPT Key group и заполните `messages`. Перед тестом проверьте ID модели в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  Не добавляйте `/chat/completions` к Base URL в настройках внешнего инструмента, если сам инструмент формирует путь endpoint. В Playground полный путь уже задан.
+</Warning>
+
+## Связанные endpoint
+
+- [OpenAI Responses API](/api-reference/responses)
+- [Anthropic Messages API](/api-reference/messages)
+
+---
+
+## Anthropic Messages API
+
+Source: https://docs.bettertoken.ai/api-reference/messages
+
+Description: Тестируйте BetterToken Anthropic-compatible Messages API: x-api-key, anthropic-version и POST /v1/messages.
+
+`POST /v1/messages`
+
+Используйте этот endpoint для Claude Code, Anthropic SDK и приложений, работающих с Anthropic Messages API.
+
+<Note>
+  Для SDK укажите `https://bettertoken.ai` как Base URL. В ручном запросе и Playground используется полный путь `https://bettertoken.ai/v1/messages`.
+</Note>
+
+## Тест в Playground
+
+В Playground справа вставьте свой API Key в поле `x-api-key`, оставьте `anthropic-version` равным `2023-06-01`, укажите доступную модель из Claude Key group и отправьте запрос.
+
+<Warning>
+  Для этого endpoint не используйте `Authorization: Bearer ...`. Нужен header `x-api-key`.
+</Warning>
+
+## Связанные endpoint
+
+- [OpenAI Responses API](/api-reference/responses)
+- [OpenAI Chat Completions API](/api-reference/chat-completions)
 
 ---
 
@@ -15220,6 +15337,16 @@ BetterToken now uses two different endpoints by protocol:
   Do not keep using one shared endpoint for every protocol.
 </Warning>
 
+## Test an endpoint
+
+Open the page for the endpoint you need. Its Playground on the right lets you fill in the request and send it directly:
+
+- [OpenAI Responses API](/en/api-reference/responses) for Codex and applications that use `/v1/responses`
+- [OpenAI Chat Completions API](/en/api-reference/chat-completions) for tools that use `/v1/chat/completions`
+- [Anthropic Messages API](/en/api-reference/messages) for Claude Code, the Anthropic SDK, and applications that use `/v1/messages`
+
+Only enter your own API Key in the Playground. Before testing an OpenAI-compatible endpoint, confirm the GPT Key group model ID in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
 ## Authentication and examples
 
 Pass your BetterToken API Key with the request:
@@ -15242,8 +15369,20 @@ Pass your BetterToken API Key with the request:
     ```
 
     ```bash
-    curl https://bettertoken.ai/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    curl "https://bettertoken.ai/v1/messages" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 1024,
+        "messages": [
+          {"role": "user", "content": "Hello"}
+        ]
+      }'
     ```
+
+    `ANTHROPIC_BASE_URL` points the SDK at the root address. A manual curl request must use the full `/v1/messages` path, not `/messages`.
   </Tab>
   <Tab title="Codex / OpenAI Responses">
     ```python
@@ -15261,8 +15400,16 @@ Pass your BetterToken API Key with the request:
     ```
 
     ```bash
-    curl https://bettertoken.ai/v1/chat/completions       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    curl "https://bettertoken.ai/v1/responses" \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "YOUR_GPT_MODEL_ID",
+        "input": "Hello"
+      }'
     ```
+
+    Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. This example uses the OpenAI Responses API, which is also used by Codex.
   </Tab>
 </Tabs>
 
@@ -15287,6 +15434,93 @@ Pass your BetterToken API Key with the request:
 | `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
 | `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |
+
+---
+
+## OpenAI Responses API
+
+Source: https://docs.bettertoken.ai/en/api-reference/responses
+
+Description: Test BetterToken's OpenAI Responses API for Codex: Base URL, Bearer API Key, and POST /v1/responses.
+
+`POST /v1/responses`
+
+Use this endpoint for Codex and applications that use the OpenAI Responses API.
+
+<Note>
+  Base URL: `https://bettertoken.ai/v1`. Pass your API Key as `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+## Test in the Playground
+
+In the Playground on the right, enter your API Key, replace `model` with a current GPT Key group model ID when needed, and send the request. Confirm the model in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before testing.
+
+<Warning>
+  Only use your own test API Key. Do not put keys in code, screenshots, tickets, or Git repositories.
+</Warning>
+
+## Related endpoints
+
+- [OpenAI Chat Completions API](/en/api-reference/chat-completions)
+- [Anthropic Messages API](/en/api-reference/messages)
+
+---
+
+## OpenAI Chat Completions API
+
+Source: https://docs.bettertoken.ai/en/api-reference/chat-completions
+
+Description: Test BetterToken's OpenAI-compatible Chat Completions API: Base URL, Bearer API Key, and POST /v1/chat/completions.
+
+`POST /v1/chat/completions`
+
+Use this endpoint for external tools and applications that require the OpenAI-compatible Chat Completions API.
+
+<Note>
+  Base URL: `https://bettertoken.ai/v1`. Pass your API Key as `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+## Test in the Playground
+
+In the Playground on the right, enter your API Key, choose an available GPT Key group model, fill in `messages`, and send the request. Confirm the model ID in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before testing.
+
+<Warning>
+  Do not append `/chat/completions` to the Base URL in an external tool when the tool constructs the endpoint path itself. The Playground already uses the full path.
+</Warning>
+
+## Related endpoints
+
+- [OpenAI Responses API](/en/api-reference/responses)
+- [Anthropic Messages API](/en/api-reference/messages)
+
+---
+
+## Anthropic Messages API
+
+Source: https://docs.bettertoken.ai/en/api-reference/messages
+
+Description: Test BetterToken's Anthropic-compatible Messages API: x-api-key, anthropic-version, and POST /v1/messages.
+
+`POST /v1/messages`
+
+Use this endpoint for Claude Code, the Anthropic SDK, and applications that use the Anthropic Messages API.
+
+<Note>
+  For an SDK, use `https://bettertoken.ai` as the Base URL. A manual request and the Playground use the full `https://bettertoken.ai/v1/messages` path.
+</Note>
+
+## Test in the Playground
+
+In the Playground on the right, enter your API Key in the `x-api-key` field, leave `anthropic-version` as `2023-06-01`, choose an available Claude Key group model, and send the request.
+
+<Warning>
+  Do not use `Authorization: Bearer ...` for this endpoint. It requires the `x-api-key` header.
+</Warning>
+
+## Related endpoints
+
+- [OpenAI Responses API](/en/api-reference/responses)
+- [OpenAI Chat Completions API](/en/api-reference/chat-completions)
 
 ---
 
@@ -22930,6 +23164,16 @@ BetterToken 现在按协议区分两个地址：
   不要继续使用“一个地址适配所有协议”的旧写法。
 </Warning>
 
+## 测试接口
+
+打开对应接口页面，即可在右侧 Playground 填写请求并直接发送：
+
+- [OpenAI Responses API](/zh/api-reference/responses)，适用于 Codex 与使用 `/v1/responses` 的应用
+- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)，适用于使用 `/v1/chat/completions` 的工具
+- [Anthropic Messages API](/zh/api-reference/messages)，适用于 Claude Code、Anthropic SDK 与使用 `/v1/messages` 的应用
+
+Playground 中只填写你自己的 API Key。测试 OpenAI 类协议接口前，请先在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认 GPT 分组模型 ID。
+
 ## 认证与示例
 
 在请求中传入你的 BetterToken API Key：
@@ -22952,8 +23196,20 @@ BetterToken 现在按协议区分两个地址：
     ```
 
     ```bash
-    curl https://bettertoken.ai/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    curl "https://bettertoken.ai/v1/messages" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 1024,
+        "messages": [
+          {"role": "user", "content": "你好"}
+        ]
+      }'
     ```
+
+    `ANTHROPIC_BASE_URL` 在 SDK 中只填写根地址；手动发送 curl 请求时必须使用完整的 `/v1/messages` 路径，不能写成 `/messages`。
   </Tab>
   <Tab title="Codex / OpenAI Responses">
     ```python
@@ -22971,8 +23227,16 @@ BetterToken 现在按协议区分两个地址：
     ```
 
     ```bash
-    curl https://bettertoken.ai/v1/chat/completions       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    curl "https://bettertoken.ai/v1/responses" \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "YOUR_GPT_MODEL_ID",
+        "input": "你好"
+      }'
     ```
+
+    将 `YOUR_GPT_MODEL_ID` 替换为<a href={"https://bettertoken.ai/pricing"}>模型广场</a>中当前可用的 **GPT 分组**模型 ID。该示例使用的是 Codex 同样采用的 OpenAI Responses API。
   </Tab>
 </Tabs>
 
@@ -22997,6 +23261,93 @@ BetterToken 现在按协议区分两个地址：
 | `OPENAI_API_KEY` | 你的 API Key | OpenAI 类协议工具认证 |
 | `API_TIMEOUT_MS` | `3000000` | 建议设置，防止长任务超时 |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code 专用，减少后台请求 |
+
+---
+
+## OpenAI Responses API
+
+Source: https://docs.bettertoken.ai/zh/api-reference/responses
+
+Description: 测试 BetterToken 面向 Codex 的 OpenAI Responses API：Base URL、Bearer API Key 与 POST /v1/responses。
+
+`POST /v1/responses`
+
+适用于 Codex 与使用 OpenAI Responses API 的应用。
+
+<Note>
+  Base URL：`https://bettertoken.ai/v1`。通过 `Authorization: Bearer YOUR_API_KEY` 传入 API Key。
+</Note>
+
+## 在 Playground 中测试
+
+在右侧 Playground 填入你的 API Key；如有需要，将 `model` 改为当前可用的 GPT 分组模型 ID，然后发送请求。测试前请在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认模型。
+
+<Warning>
+  只使用你自己的测试 API Key。不要把 API Key 写入代码、截图、工单或 Git 仓库。
+</Warning>
+
+## 相关接口
+
+- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)
+- [Anthropic Messages API](/zh/api-reference/messages)
+
+---
+
+## OpenAI Chat Completions API
+
+Source: https://docs.bettertoken.ai/zh/api-reference/chat-completions
+
+Description: 测试 BetterToken 的 OpenAI 类协议 Chat Completions API：Base URL、Bearer API Key 与 POST /v1/chat/completions。
+
+`POST /v1/chat/completions`
+
+适用于需要 OpenAI 类协议 Chat Completions API 的外部工具和应用。
+
+<Note>
+  Base URL：`https://bettertoken.ai/v1`。通过 `Authorization: Bearer YOUR_API_KEY` 传入 API Key。
+</Note>
+
+## 在 Playground 中测试
+
+在右侧 Playground 填入你的 API Key，选择可用的 GPT 分组模型，填写 `messages` 后发送请求。测试前请在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认模型 ID。
+
+<Warning>
+  若外部工具会自动拼接 endpoint 路径，就不要在它的 Base URL 后追加 `/chat/completions`。Playground 已经使用完整请求路径。
+</Warning>
+
+## 相关接口
+
+- [OpenAI Responses API](/zh/api-reference/responses)
+- [Anthropic Messages API](/zh/api-reference/messages)
+
+---
+
+## Anthropic Messages API
+
+Source: https://docs.bettertoken.ai/zh/api-reference/messages
+
+Description: 测试 BetterToken 的 Anthropic 类协议 Messages API：x-api-key、anthropic-version 与 POST /v1/messages。
+
+`POST /v1/messages`
+
+适用于 Claude Code、Anthropic SDK 与使用 Anthropic Messages API 的应用。
+
+<Note>
+  SDK 的 Base URL 填 `https://bettertoken.ai`。手动请求和 Playground 使用完整路径 `https://bettertoken.ai/v1/messages`。
+</Note>
+
+## 在 Playground 中测试
+
+在右侧 Playground 的 `x-api-key` 字段填入你的 API Key，`anthropic-version` 保持 `2023-06-01`，选择可用的 Claude 分组模型后发送请求。
+
+<Warning>
+  此接口不要使用 `Authorization: Bearer ...`。它需要 `x-api-key` 请求头。
+</Warning>
+
+## 相关接口
+
+- [OpenAI Responses API](/zh/api-reference/responses)
+- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)
 
 ---
 
@@ -23146,6 +23497,188 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
           }
         ]
       }
+    },
+    "/v1/responses": {
+      "post": {
+        "summary": "Создать ответ через Responses API",
+        "description": "Отправляйте input в GPT Key group через OpenAI Responses API BetterToken. В Playground можно указать свой API Key и сразу протестировать запрос.",
+        "operationId": "createResponse",
+        "tags": [
+          "OpenAI Responses"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsesRequest"
+              },
+              "example": {
+                "model": "gpt-5.6-sol",
+                "input": "Привет"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ResponsesResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/responses' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"input\": \"Привет\"\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "summary": "Создать ответ через Chat Completions API",
+        "description": "Отправляйте диалоговые сообщения в GPT Key group через OpenAI-compatible Chat Completions API BetterToken. Подходит для внешних инструментов и приложений, которым нужен /v1/chat/completions.",
+        "operationId": "createChatCompletion",
+        "tags": [
+          "OpenAI Chat Completions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionsRequest"
+              },
+              "example": {
+                "model": "gpt-5.6-sol",
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Привет"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ChatCompletionResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/chat/completions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/messages": {
+      "post": {
+        "summary": "Создать ответ через Anthropic Messages API",
+        "description": "Отправляйте сообщения в Claude Key group через Anthropic-compatible Messages API BetterToken. Подходит для Claude Code, Anthropic SDK и приложений, использующих /v1/messages.",
+        "operationId": "createAnthropicMessage",
+        "tags": [
+          "Anthropic Messages"
+        ],
+        "security": [
+          {
+            "anthropicApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "anthropic-version",
+            "in": "header",
+            "required": true,
+            "description": "Заголовок версии Anthropic API.",
+            "schema": {
+              "type": "string",
+              "default": "2023-06-01",
+              "example": "2023-06-01"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnthropicMessagesRequest"
+              },
+              "example": {
+                "model": "claude-sonnet-4-6",
+                "max_tokens": 1024,
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Привет"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AnthropicMessageResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: 2023-06-01' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"claude-sonnet-4-6\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -23155,6 +23688,12 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
         "scheme": "bearer",
         "bearerFormat": "BetterToken API Key",
         "description": "Используйте API Key BetterToken как bearer token. Не публикуйте API keys во frontend-коде, скриншотах, логах, тикетах или Git-репозиториях."
+      },
+      "anthropicApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Передавайте API Key BetterToken в header x-api-key для Anthropic-compatible запросов."
       }
     },
     "schemas": {
@@ -23329,6 +23868,130 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
         },
         "additionalProperties": true
       },
+      "ResponsesRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "input"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "ID доступной модели из GPT Key group. Ориентируйтесь на актуальный список в model plaza.",
+            "example": "gpt-5.6-sol"
+          },
+          "input": {
+            "type": "string",
+            "description": "Текст, который будет отправлен модели.",
+            "example": "Привет"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ResponsesResponse": {
+        "type": "object",
+        "description": "Ответ OpenAI Responses API. Поля зависят от выбранной модели и параметров запроса.",
+        "additionalProperties": true
+      },
+      "ChatCompletionsRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "ID доступной модели из GPT Key group. Ориентируйтесь на актуальный список в model plaza.",
+            "example": "gpt-5.6-sol"
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Массив сообщений диалога. Каждый элемент должен содержать role и content.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "Привет"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "stream": {
+            "type": "boolean",
+            "description": "Запрашивать ли потоковый ответ.",
+            "default": false
+          }
+        },
+        "additionalProperties": true
+      },
+      "AnthropicMessagesRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "max_tokens",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "ID доступной модели из Claude Key group.",
+            "example": "claude-sonnet-4-6"
+          },
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Максимальное число токенов в одном ответе.",
+            "default": 1024,
+            "example": 1024
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Массив сообщений в формате Anthropic. Каждый элемент должен содержать role и content.",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "Привет"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "ChatCompletionResponse": {
+        "type": "object",
+        "description": "Ответ OpenAI-compatible Chat Completions API. Поля зависят от выбранной модели и параметров запроса.",
+        "additionalProperties": true
+      },
+      "AnthropicMessageResponse": {
+        "type": "object",
+        "description": "Ответ Anthropic-compatible Messages API. Поля зависят от выбранной модели и параметров запроса.",
+        "additionalProperties": true
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -23373,6 +24036,36 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
                   "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
                 }
               ]
+            }
+          }
+        }
+      },
+      "ResponsesResponse": {
+        "description": "Ответ Responses API от модели из GPT Key group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResponsesResponse"
+            }
+          }
+        }
+      },
+      "ChatCompletionResponse": {
+        "description": "Ответ Chat Completions API от модели из GPT Key group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ChatCompletionResponse"
+            }
+          }
+        }
+      },
+      "AnthropicMessageResponse": {
+        "description": "Ответ Anthropic Messages API от модели из Claude Key group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AnthropicMessageResponse"
             }
           }
         }

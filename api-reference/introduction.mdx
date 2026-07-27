@@ -16,6 +16,16 @@ BetterToken использует два endpoint в зависимости от 
   Не используйте один общий endpoint для всех протоколов.
 </Warning>
 
+## Тестирование endpoint
+
+Откройте отдельную страницу нужного endpoint, чтобы заполнить запрос в Playground справа и отправить его напрямую:
+
+- [OpenAI Responses API](/api-reference/responses) для Codex и приложений, использующих `/v1/responses`
+- [OpenAI Chat Completions API](/api-reference/chat-completions) для инструментов, использующих `/v1/chat/completions`
+- [Anthropic Messages API](/api-reference/messages) для Claude Code, Anthropic SDK и приложений, использующих `/v1/messages`
+
+В Playground указывайте только свой API Key. Перед тестом OpenAI-compatible endpoint сверяйте модель из GPT Key group с <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
 ## Авторизация и примеры
 
 Передавайте API Key BetterToken вместе с запросом:
@@ -38,8 +48,20 @@ BetterToken использует два endpoint в зависимости от 
     ```
 
     ```bash
-    curl {{anthropic-base-url}}/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    curl "{{anthropic-base-url}}/v1/messages" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 1024,
+        "messages": [
+          {"role": "user", "content": "Привет"}
+        ]
+      }'
     ```
+
+    `ANTHROPIC_BASE_URL` для SDK указывает на корневой адрес. В ручном curl-запросе используйте полный путь `/v1/messages`, а не `/messages`.
   </Tab>
   <Tab title="Codex / OpenAI Responses">
     ```python
@@ -57,8 +79,16 @@ BetterToken использует два endpoint в зависимости от 
     ```
 
     ```bash
-    curl {{chat-completions-url}}       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    curl "{{openai-base-url}}/responses" \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "YOUR_GPT_MODEL_ID",
+        "input": "Привет"
+      }'
     ```
+
+    Замените `YOUR_GPT_MODEL_ID` на актуальный ID из **группы GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>. Этот пример использует OpenAI Responses API, как и Codex.
   </Tab>
 </Tabs>
 

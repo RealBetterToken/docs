@@ -16,6 +16,16 @@ BetterToken 现在按协议区分两个地址：
   不要继续使用“一个地址适配所有协议”的旧写法。
 </Warning>
 
+## 测试接口
+
+打开对应接口页面，即可在右侧 Playground 填写请求并直接发送：
+
+- [OpenAI Responses API](/zh/api-reference/responses)，适用于 Codex 与使用 `/v1/responses` 的应用
+- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)，适用于使用 `/v1/chat/completions` 的工具
+- [Anthropic Messages API](/zh/api-reference/messages)，适用于 Claude Code、Anthropic SDK 与使用 `/v1/messages` 的应用
+
+Playground 中只填写你自己的 API Key。测试 OpenAI 类协议接口前，请先在<a href={"{{model-plaza-url}}"}>模型广场</a>确认 GPT 分组模型 ID。
+
 ## 认证与示例
 
 在请求中传入你的 BetterToken API Key：
@@ -38,8 +48,20 @@ BetterToken 现在按协议区分两个地址：
     ```
 
     ```bash
-    curl {{anthropic-base-url}}/messages       -H "x-api-key: YOUR_API_KEY"       -H "anthropic-version: 2023-06-01"       -H "content-type: application/json"       -d '{ ... }'
+    curl "{{anthropic-base-url}}/v1/messages" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 1024,
+        "messages": [
+          {"role": "user", "content": "你好"}
+        ]
+      }'
     ```
+
+    `ANTHROPIC_BASE_URL` 在 SDK 中只填写根地址；手动发送 curl 请求时必须使用完整的 `/v1/messages` 路径，不能写成 `/messages`。
   </Tab>
   <Tab title="Codex / OpenAI Responses">
     ```python
@@ -57,8 +79,16 @@ BetterToken 现在按协议区分两个地址：
     ```
 
     ```bash
-    curl {{chat-completions-url}}       -H "Authorization: Bearer YOUR_API_KEY"       -H "content-type: application/json"       -d '{ ... }'
+    curl "{{openai-base-url}}/responses" \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "content-type: application/json" \
+      -d '{
+        "model": "YOUR_GPT_MODEL_ID",
+        "input": "你好"
+      }'
     ```
+
+    将 `YOUR_GPT_MODEL_ID` 替换为<a href={"{{model-plaza-url}}"}>模型广场</a>中当前可用的 **GPT 分组**模型 ID。该示例使用的是 Codex 同样采用的 OpenAI Responses API。
   </Tab>
 </Tabs>
 

@@ -138,6 +138,188 @@
           }
         ]
       }
+    },
+    "/v1/responses": {
+      "post": {
+        "summary": "创建 Responses API 响应",
+        "description": "通过 BetterToken 的 OpenAI Responses API 向 GPT 分组模型发送输入。可在 Playground 中填写自己的 API Key 并直接测试请求。",
+        "operationId": "createResponse",
+        "tags": [
+          "OpenAI Responses"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsesRequest"
+              },
+              "example": {
+                "model": "gpt-5.6-sol",
+                "input": "Hello"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ResponsesResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/responses' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"input\": \"Hello\"\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "summary": "创建 Chat Completions 响应",
+        "description": "通过 BetterToken 的 OpenAI-compatible Chat Completions API 向 GPT 分组模型发送对话消息。适用于需要 /v1/chat/completions 的外部工具和应用。",
+        "operationId": "createChatCompletion",
+        "tags": [
+          "OpenAI Chat Completions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionsRequest"
+              },
+              "example": {
+                "model": "gpt-5.6-sol",
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Hello"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ChatCompletionResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/chat/completions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/messages": {
+      "post": {
+        "summary": "创建 Anthropic Messages 响应",
+        "description": "通过 BetterToken 的 Anthropic-compatible Messages API 向 Claude 分组模型发送消息。适用于 Claude Code、Anthropic SDK 和使用 /v1/messages 的应用。",
+        "operationId": "createAnthropicMessage",
+        "tags": [
+          "Anthropic Messages"
+        ],
+        "security": [
+          {
+            "anthropicApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "anthropic-version",
+            "in": "header",
+            "required": true,
+            "description": "Anthropic API version header.",
+            "schema": {
+              "type": "string",
+              "default": "2023-06-01",
+              "example": "2023-06-01"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnthropicMessagesRequest"
+              },
+              "example": {
+                "model": "claude-sonnet-4-6",
+                "max_tokens": 1024,
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Hello"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AnthropicMessageResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: 2023-06-01' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"claude-sonnet-4-6\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]\n  }'"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -147,6 +329,12 @@
         "scheme": "bearer",
         "bearerFormat": "BetterToken API Key",
         "description": "Use your BetterToken API Key as a bearer token. Do not expose API keys in frontend browser code, screenshots, logs, tickets, or Git repositories."
+      },
+      "anthropicApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Use your BetterToken API Key in the x-api-key header for Anthropic-compatible requests."
       }
     },
     "schemas": {
@@ -321,6 +509,130 @@
         },
         "additionalProperties": true
       },
+      "ResponsesRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "input"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "GPT 分组中可用的模型 ID。请以模型广场当前显示的模型为准。",
+            "example": "gpt-5.6-sol"
+          },
+          "input": {
+            "type": "string",
+            "description": "发送给模型的文本输入。",
+            "example": "Hello"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ResponsesResponse": {
+        "type": "object",
+        "description": "OpenAI Responses API 的响应。实际字段会随所选模型和请求参数变化。",
+        "additionalProperties": true
+      },
+      "ChatCompletionsRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "GPT 分组中可用的模型 ID。请以模型广场当前显示的模型为准。",
+            "example": "gpt-5.6-sol"
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "description": "对话消息数组。每项应包含 role 和 content。",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "Hello"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "stream": {
+            "type": "boolean",
+            "description": "是否请求流式响应。",
+            "default": false
+          }
+        },
+        "additionalProperties": true
+      },
+      "AnthropicMessagesRequest": {
+        "type": "object",
+        "required": [
+          "model",
+          "max_tokens",
+          "messages"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "Claude 分组中可用的模型 ID。",
+            "example": "claude-sonnet-4-6"
+          },
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "单次响应允许生成的最大 token 数。",
+            "default": 1024,
+            "example": 1024
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Anthropic 格式的消息数组。每项应包含 role 和 content。",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "content"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "Hello"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "ChatCompletionResponse": {
+        "type": "object",
+        "description": "OpenAI-compatible Chat Completions API 响应。实际字段会随所选模型和请求参数变化。",
+        "additionalProperties": true
+      },
+      "AnthropicMessageResponse": {
+        "type": "object",
+        "description": "Anthropic-compatible Messages API 响应。实际字段会随所选模型和请求参数变化。",
+        "additionalProperties": true
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -365,6 +677,36 @@
                   "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
                 }
               ]
+            }
+          }
+        }
+      },
+      "ResponsesResponse": {
+        "description": "GPT 分组模型返回的 Responses API 响应。",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ResponsesResponse"
+            }
+          }
+        }
+      },
+      "ChatCompletionResponse": {
+        "description": "GPT 分组模型返回的 Chat Completions API 响应。",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ChatCompletionResponse"
+            }
+          }
+        }
+      },
+      "AnthropicMessageResponse": {
+        "description": "Claude 分组模型返回的 Anthropic Messages API 响应。",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AnthropicMessageResponse"
             }
           }
         }
