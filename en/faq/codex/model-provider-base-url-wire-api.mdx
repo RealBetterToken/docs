@@ -1,7 +1,7 @@
 ---
-title: "What are model_provider, base_url, and wire_api in Codex CLI?"
+title: "Codex Custom Provider: model_provider, Base URL, and wire_api"
 sidebarTitle: "provider / base_url / wire_api"
-description: "Understand how Codex CLI relates model_provider, base_url, wire_api, model, and review_model in a custom provider setup."
+description: "Configure a Codex custom provider with model_provider, Base URL, wire_api, API Key, and Model ID, and fix provider, 401, and 404 errors."
 ---
 
 ## Short answer
@@ -43,25 +43,43 @@ model = "gpt-5.5"
 [model_providers.custom]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 ```
 
 This means Codex uses the provider named `custom`, sends model requests to `{{openai-base-url}}`, and communicates through the Responses API shape.
 
-## Common mistakes
+Do not put the API Key directly in `config.toml`. Set it in the terminal that launches Codex:
 
-- Writing the display name instead of the provider id in `model_provider`.
-- Treating `model` as the provider name.
-- Forgetting that `base_url` and the provider protocol must match.
-- Putting an Anthropic-compatible Base URL into an OpenAI-compatible provider.
-- Using a UI display name instead of an API-recognized model ID.
+```bash
+export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
 
-## About BetterToken
+On Windows PowerShell:
 
-BetterToken can be defined as a custom provider such as `[model_providers.custom]`. Use `{{openai-base-url}}` as the `base_url` and copy the model ID from the **GPT Key group**.
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
 
-On the BetterToken regional documentation, use the same `custom` provider id with the BetterToken regional Base URL.
+## Verify the setup
+
+1. Confirm that `model_provider = "custom"` exactly matches `[model_providers.custom]`.
+2. Confirm that the Base URL is `{{openai-base-url}}`, including `/v1`.
+3. Copy a current Model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. Fully exit Codex and relaunch it from a new terminal where the environment variable is set.
+5. Send a small code-explanation task and confirm that Codex returns a complete response.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Provider not found | The provider id and configuration table do not match | Use `custom` in both places |
+| Missing API Key at startup | The variable named by `env_key` is unavailable | Set `MODEL_PROVIDER_API_KEY`, then open a new terminal |
+| `401` or `403` | Invalid API Key or mixed OpenAI authentication | Copy the Key again and set `requires_openai_auth = false` |
+| `404` | The Base URL lacks `/v1` or points to an Anthropic endpoint | Use `{{openai-base-url}}` |
+| Model not found | The value is a display name, retired model, or non-GPT model | Copy a current Model ID from the model plaza |
+| Responses protocol error | `wire_api` is missing or incorrect | Set `wire_api = "responses"` |
 
 ## Related docs
 

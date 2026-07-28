@@ -1,15 +1,16 @@
 ---
-title: "Настройка кастомной модели Droid через BetterToken"
+title: "Кастомная модель в Droid: Base URL, API Key и GPT"
 sidebarTitle: "Droid"
-description: "Подключите BetterToken к Droid с ID моделей группы GPT."
+description: "Настройте кастомную модель BetterToken в Droid через OpenAI Responses Base URL, API Key и GPT model ID. Решения для ошибок 401, 404 и отсутствующей модели."
 icon: "robot"
 ---
 
-Droid — CLI coding assistant от Factory AI. Через BYOK можно подключить BetterToken как custom OpenAI-compatible provider.
+Droid — CLI coding assistant от Factory AI. Через BYOK вы можете добавить BetterToken в `~/.factory/settings.json`, а затем выбрать модель группы GPT в меню `/model`.
 
 ## Требования
 
 - API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+- Актуальный model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
 
 ## Установка Droid
 
@@ -29,17 +30,21 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
 ## Настройка
 
 <Steps>
-  <Step title="Очистите конфликтующие переменные окружения">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
-
   <Step title="Задайте API Key BetterToken">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Замените `YOUR_API_KEY` на ваш API Key BetterToken. Droid поддерживает подстановку `${BETTERTOKEN_API_KEY}` из переменной окружения в JSON-конфигурации.
   </Step>
 
   <Step title="Отредактируйте конфиг Droid">
@@ -53,8 +58,7 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
           "model": "YOUR_GPT_MODEL_ID",
           "baseUrl": "{{openai-base-url}}",
           "apiKey": "${BETTERTOKEN_API_KEY}",
-          "provider": "openai",
-          "maxOutputTokens": 64000
+          "provider": "openai"
         }
       ]
     }
@@ -63,27 +67,47 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
     Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
 
-  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
-    Мы не нашли официального требования Droid, по которому `User-Agent` обязателен для BetterToken. Начните с `Base URL`, API key и model ID на этой странице.
-
-    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
-  </Step>
-
-  <Step title="Перезапустите Droid">
-    После обновления конфигурации или переменных окружения остановите текущий процесс Droid и запустите его снова.
-  </Step>
-
-  <Step title="Запустите Droid">
+  <Step title="Запустите Droid и выберите модель">
     ```bash
     cd /path/to/your/project
     droid
     ```
+
+    Введите `/model` и выберите **BetterToken Codex**. Factory отслеживает изменения файла настроек. Если список моделей не обновился, полностью закройте и снова запустите Droid.
+  </Step>
+
+  <Step title="Проверьте на небольшой задаче">
+    Сначала отправьте короткую задачу, например «Объясни структуру каталогов этого проекта». После успешного ответа переходите к изменениям в нескольких файлах и длительным agent-задачам.
   </Step>
 </Steps>
 
 <Note>
-  Если ваша версия называет provider `OpenAI Compatible` вместо `openai`, следуйте текущему названию в UI. Extra headers добавляйте только по документации Droid или требованиям вашего upstream gateway.
+  Поле `provider` должно содержать `openai`. В BYOK-конфигурации Factory это значение выбирает OpenAI Responses API. Используйте `{{openai-base-url}}` и API Key из **группы ключа GPT**.
 </Note>
+
+## Частые ошибки
+
+| Симптом | Что проверить |
+| --- | --- |
+| Кастомной модели нет в `/model` | Проверьте синтаксис JSON и наличие полей `model`, `baseUrl`, `apiKey` и `provider` |
+| `Invalid provider` | Используйте точное значение `"openai"` в нижнем регистре, а не название из интерфейса |
+| `401` или `403` | Скопируйте API Key заново, убедитесь, что процесс Droid видит `BETTERTOKEN_API_KEY`, и проверьте баланс |
+| `404` или Model not found | Используйте `{{openai-base-url}}` и скопируйте актуальный GPT model ID из model plaza |
+| После изменения осталась старая модель | Снова откройте `/model`; если список не обновился, полностью перезапустите Droid |
+
+## FAQ
+
+### Почему нужна группа ключа GPT?
+
+`provider: "openai"` в Droid использует OpenAI Responses API. Группа ключа GPT в BetterToken предоставляет соответствующий OpenAI-compatible endpoint и model ID.
+
+### Нужны ли дополнительные headers?
+
+Для обычного подключения BetterToken дополнительные headers не нужны. Добавляйте tenant, routing или audit headers только в том случае, если их явно требует другой используемый вами gateway.
+
+### Где посмотреть цены и расход?
+
+Актуальные цены моделей смотрите в <a href={"{{model-plaza-url}}"}>model plaza</a>. Расход запросов и баланс доступны в Dashboard BetterToken.
 
 ## Связанные FAQ
 
@@ -91,3 +115,7 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+
+## References
+
+- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)

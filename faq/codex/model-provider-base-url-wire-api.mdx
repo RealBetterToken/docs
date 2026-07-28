@@ -1,7 +1,7 @@
 ---
-title: "Что такое model_provider, base_url и wire_api в Codex CLI?"
+title: "Custom provider в Codex: model_provider, Base URL и wire_api"
 sidebarTitle: "provider / base_url / wire_api"
-description: "Поймите связь между model_provider, base_url, wire_api, model и review_model в custom provider setup для Codex CLI."
+description: "Настройте custom provider в Codex через model_provider, Base URL, wire_api, API Key и Model ID. Решения для provider not found, 401 и 404."
 ---
 
 ## Короткий ответ
@@ -43,25 +43,43 @@ model = "gpt-5.5"
 [model_providers.custom]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 ```
 
 Это означает, что Codex использует provider `custom`, отправляет model requests на `{{openai-base-url}}` и общается через Responses API shape.
 
+Не записывайте API Key напрямую в `config.toml`. Задайте его в терминале, из которого запускается Codex:
+
+```bash
+export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+В Windows PowerShell:
+
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## Как проверить настройку
+
+1. Убедитесь, что `model_provider = "custom"` точно совпадает с `[model_providers.custom]`.
+2. Проверьте Base URL: `{{openai-base-url}}`, включая `/v1`.
+3. Скопируйте актуальный Model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. Полностью закройте Codex и запустите его из нового терминала, где задана переменная окружения.
+5. Отправьте небольшую задачу на объяснение кода и дождитесь полного ответа.
+
 ## Частые ошибки
 
-- Писать display name вместо provider id в `model_provider`.
-- Принимать `model` за provider name.
-- Забывать, что `base_url` и provider protocol должны совпадать.
-- Вставлять Anthropic-compatible Base URL в OpenAI-compatible provider.
-- Использовать UI display name вместо API-recognized model ID.
-
-## О BetterToken
-
-BetterToken можно определить как custom provider, например `[model_providers.custom]`. Используйте `{{openai-base-url}}` как `base_url` и копируйте model ID из **группы ключа GPT**.
-
-В региональной документации BetterToken используйте тот же provider id `custom` и региональный Base URL BetterToken.
+| Симптом | Причина | Решение |
+| --- | --- | --- |
+| Provider not found | Provider id не совпадает с названием таблицы | Используйте `custom` в обоих местах |
+| При запуске нет API Key | Переменная из `env_key` недоступна | Задайте `MODEL_PROVIDER_API_KEY` и откройте новый терминал |
+| `401` или `403` | Неверный API Key или смешана OpenAI-аутентификация | Скопируйте Key заново и задайте `requires_openai_auth = false` |
+| `404` | В Base URL нет `/v1` или указан Anthropic endpoint | Используйте `{{openai-base-url}}` |
+| Model not found | Указано display name, отключенная модель или модель не из GPT group | Скопируйте актуальный Model ID из model plaza |
+| Ошибка Responses protocol | `wire_api` отсутствует или задан неверно | Укажите `wire_api = "responses"` |
 
 ## Связанные материалы
 

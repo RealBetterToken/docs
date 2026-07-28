@@ -3008,17 +3008,18 @@ npm install -g @vibe-kit/grok-cli
 
 ---
 
-## Настройка кастомной модели Droid через BetterToken
+## Кастомная модель в Droid: Base URL, API Key и GPT
 
 Source: https://docs.bettertoken.ai/ai-tools/droid
 
-Description: Подключите BetterToken к Droid с ID моделей группы GPT.
+Description: Настройте кастомную модель BetterToken в Droid через OpenAI Responses Base URL, API Key и GPT model ID. Решения для ошибок 401, 404 и отсутствующей модели.
 
-Droid — CLI coding assistant от Factory AI. Через BYOK можно подключить BetterToken как custom OpenAI-compatible provider.
+Droid — CLI coding assistant от Factory AI. Через BYOK вы можете добавить BetterToken в `~/.factory/settings.json`, а затем выбрать модель группы GPT в меню `/model`.
 
 ## Требования
 
 - API Key BetterToken (<a href={"https://bettertoken.ai/register"}>зарегистрироваться</a>)
+- Актуальный model ID из **группы ключа GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
 
 ## Установка Droid
 
@@ -3038,17 +3039,21 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
 ## Настройка
 
 <Steps>
-  <Step title="Очистите конфликтующие переменные окружения">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
-
   <Step title="Задайте API Key BetterToken">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Замените `YOUR_API_KEY` на ваш API Key BetterToken. Droid поддерживает подстановку `${BETTERTOKEN_API_KEY}` из переменной окружения в JSON-конфигурации.
   </Step>
 
   <Step title="Отредактируйте конфиг Droid">
@@ -3062,8 +3067,7 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
           "model": "YOUR_GPT_MODEL_ID",
           "baseUrl": "https://bettertoken.ai/v1",
           "apiKey": "${BETTERTOKEN_API_KEY}",
-          "provider": "openai",
-          "maxOutputTokens": 64000
+          "provider": "openai"
         }
       ]
     }
@@ -3072,27 +3076,47 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
     Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
   </Step>
 
-  <Step title="Добавляйте extra headers только если это явно требует официальная документация">
-    Мы не нашли официального требования Droid, по которому `User-Agent` обязателен для BetterToken. Начните с `Base URL`, API key и model ID на этой странице.
-
-    Если вы также используете custom gateway, tenant routing, observability или кеширующий слой, добавляйте headers только по документации этого upstream-сервиса.
-  </Step>
-
-  <Step title="Перезапустите Droid">
-    После обновления конфигурации или переменных окружения остановите текущий процесс Droid и запустите его снова.
-  </Step>
-
-  <Step title="Запустите Droid">
+  <Step title="Запустите Droid и выберите модель">
     ```bash
     cd /path/to/your/project
     droid
     ```
+
+    Введите `/model` и выберите **BetterToken Codex**. Factory отслеживает изменения файла настроек. Если список моделей не обновился, полностью закройте и снова запустите Droid.
+  </Step>
+
+  <Step title="Проверьте на небольшой задаче">
+    Сначала отправьте короткую задачу, например «Объясни структуру каталогов этого проекта». После успешного ответа переходите к изменениям в нескольких файлах и длительным agent-задачам.
   </Step>
 </Steps>
 
 <Note>
-  Если ваша версия называет provider `OpenAI Compatible` вместо `openai`, следуйте текущему названию в UI. Extra headers добавляйте только по документации Droid или требованиям вашего upstream gateway.
+  Поле `provider` должно содержать `openai`. В BYOK-конфигурации Factory это значение выбирает OpenAI Responses API. Используйте `https://bettertoken.ai/v1` и API Key из **группы ключа GPT**.
 </Note>
+
+## Частые ошибки
+
+| Симптом | Что проверить |
+| --- | --- |
+| Кастомной модели нет в `/model` | Проверьте синтаксис JSON и наличие полей `model`, `baseUrl`, `apiKey` и `provider` |
+| `Invalid provider` | Используйте точное значение `"openai"` в нижнем регистре, а не название из интерфейса |
+| `401` или `403` | Скопируйте API Key заново, убедитесь, что процесс Droid видит `BETTERTOKEN_API_KEY`, и проверьте баланс |
+| `404` или Model not found | Используйте `https://bettertoken.ai/v1` и скопируйте актуальный GPT model ID из model plaza |
+| После изменения осталась старая модель | Снова откройте `/model`; если список не обновился, полностью перезапустите Droid |
+
+## FAQ
+
+### Почему нужна группа ключа GPT?
+
+`provider: "openai"` в Droid использует OpenAI Responses API. Группа ключа GPT в BetterToken предоставляет соответствующий OpenAI-compatible endpoint и model ID.
+
+### Нужны ли дополнительные headers?
+
+Для обычного подключения BetterToken дополнительные headers не нужны. Добавляйте tenant, routing или audit headers только в том случае, если их явно требует другой используемый вами gateway.
+
+### Где посмотреть цены и расход?
+
+Актуальные цены моделей смотрите в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Расход запросов и баланс доступны в Dashboard BetterToken.
 
 ## Связанные FAQ
 
@@ -3100,6 +3124,10 @@ Droid — CLI coding assistant от Factory AI. Через BYOK можно по�
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+
+## References
+
+- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
 
 ---
 
@@ -3385,23 +3413,23 @@ cn --config ./continue-bettertoken.yaml
 
 ## Связанные инструкции
 
-- [Настройка пользовательской модели в aider](/ai-tools/aider)
+- [Настройка пользовательской модели в Aider](/ai-tools/aider)
 - [Настройка custom provider в Codex CLI](/ai-tools/codex)
 - [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
 - [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
 
 ---
 
-## Настройка пользовательской модели в aider: API Key и Base URL
+## Настройка пользовательской модели в Aider: API Key и Base URL
 
 Source: https://docs.bettertoken.ai/ai-tools/aider
 
-Description: Настройте OpenAI-compatible API BetterToken, API Key группы GPT и модель в aider.
+Description: Настройте OpenAI-compatible API BetterToken, API Key группы GPT и модель в Aider.
 
-aider может подключаться к OpenAI-compatible API. Чтобы использовать BetterToken, задайте `OPENAI_API_BASE` и `OPENAI_API_KEY`, а затем запустите aider с именем модели в формате `openai/model-id`.
+Aider может подключаться к OpenAI-compatible API. Чтобы использовать BetterToken, задайте `OPENAI_API_BASE` и `OPENAI_API_KEY`, а затем запустите Aider с именем модели в формате `openai/model-id`.
 
 <Info>
-  aider использует OpenAI-compatible API BetterToken. Укажите Base URL `https://bettertoken.ai/v1`, API Key **группы ключа GPT** и модель из той же группы.
+  Aider использует OpenAI-compatible API BetterToken. Укажите Base URL `https://bettertoken.ai/v1`, API Key **группы ключа GPT** и модель из той же группы.
 </Info>
 
 ## Перед началом
@@ -3410,7 +3438,7 @@ aider может подключаться к OpenAI-compatible API. Чтобы �
 - Скопируйте актуальный ID модели из **группы ключа GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
 - Установите Python
 
-## Установите aider
+## Установите Aider
 
 Выполните в терминале:
 
@@ -3419,7 +3447,7 @@ python -m pip install aider-install
 aider-install
 ```
 
-После установки проверьте, что aider доступен:
+После установки проверьте, что Aider доступен:
 
 ```bash
 aider --help
@@ -3491,20 +3519,20 @@ aider --model openai/YOUR_GPT_MODEL_ID
 | Симптом | Что делать |
 | --- | --- |
 | `401`, `Unauthorized` или `Invalid API key` | Проверьте `OPENAI_API_KEY`, убедитесь, что это API Key **группы ключа GPT**, и удалите лишние пробелы. |
-| `model not found` или модель недоступна | Скопируйте актуальный ID из **группы ключа GPT** в model plaza и передайте его aider в формате `openai/model-id`. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID из **группы ключа GPT** в model plaza и передайте его Aider в формате `openai/model-id`. |
 | Неверный URL запроса или `404` | Проверьте, что `OPENAI_API_BASE` равен `https://bettertoken.ai/v1`. Не добавляйте `/chat/completions`. |
 | Windows не видит новые переменные | `setx` действует только в новых терминалах. Закройте текущее окно PowerShell и откройте новое. |
-| aider сообщает, что модель неизвестна | Сначала проверьте ID модели и группу API Key. aider может показать предупреждение для новой модели, но используйте только актуальный ID из model plaza. |
+| Aider сообщает, что модель неизвестна | Сначала проверьте ID модели и группу API Key. Aider может показать предупреждение для новой модели, но используйте только актуальный ID из model plaza. |
 
 ## FAQ по настройке
 
-**Какой Base URL использовать в aider?**
+**Какой Base URL использовать в Aider?**
 
 Используйте `https://bettertoken.ai/v1`. Это OpenAI-compatible Base URL BetterToken.
 
 **Почему перед названием модели нужен префикс `openai/`?**
 
-aider использует этот префикс для определения OpenAI-compatible модели. Без него aider может выбрать неправильный provider.
+Aider использует этот префикс для определения OpenAI-compatible модели. Без него Aider может выбрать неправильный provider.
 
 **Можно сохранить API Key в `.aider.conf.yml`?**
 
@@ -4241,6 +4269,19 @@ BetterToken добавил модели семейства GPT-5.6. Провер
   Не хардкодьте имя модели, если его нет в model plaza. Доступность моделей, цены и routing status определяются текущими данными в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 </Note>
 
+## Быстрый старт
+
+1. Создайте API Key в **группе ключа GPT**.
+2. Укажите `https://bettertoken.ai/v1` как Base URL в выбранном инструменте.
+3. Скопируйте актуальный ID `gpt-5.6-sol`, `gpt-5.6-terra` или `gpt-5.6-luna` из model plaza.
+4. Сначала выполните небольшую coding-задачу и проверьте расход в Dashboard.
+
+Готовые инструкции:
+
+- [Настройка Codex CLI и Codex App](/ai-tools/codex)
+- [Подключение OpenCode](/ai-tools/opencode)
+- [Настройка OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+
 ## Как выбрать
 
 Если вы не уверены, с какой модели начать, ориентируйтесь на сложность задачи:
@@ -4248,6 +4289,20 @@ BetterToken добавил модели семейства GPT-5.6. Провер
 - Используйте `gpt-5.6-sol` для понимания больших кодовых баз, правок в нескольких файлах, исправления тестов, длинных циклов отладки и agent-задач, где нужно более сильное reasoning
 - Используйте `gpt-5.6-terra` для ежедневного coding, объяснения кода, обычного refactoring, документации и большинства interactive development задач
 - Используйте `gpt-5.6-luna` для легких вопросов, batch assistance, простой обработки текста, low-latency tool calls и частых запросов, чувствительных к стоимости
+
+## FAQ
+
+### Какую модель выбрать для начала?
+
+Для большинства повседневных coding-задач начните с `gpt-5.6-terra`. Переходите на `gpt-5.6-sol`, когда задаче требуется более глубокое reasoning, или на `gpt-5.6-luna`, когда важнее скорость.
+
+### Где посмотреть актуальную цену?
+
+Смотрите текущую цену и доступность в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. В статье цены не фиксируются, потому что они могут меняться.
+
+### Что делать, если инструмент сообщает Model not found?
+
+Скопируйте model ID заново из model plaza, убедитесь, что API Key относится к группе GPT, и проверьте Base URL `https://bettertoken.ai/v1`. Дополнительные рекомендации есть в [руководстве по выбору модели](/faq/model-calling/model-selection-guide).
 
 ## Официальные источники
 
@@ -5793,11 +5848,11 @@ supports_websockets = false
 
 ---
 
-## Что такое model_provider, base_url и wire_api в Codex CLI?
+## Custom provider в Codex: model_provider, Base URL и wire_api
 
 Source: https://docs.bettertoken.ai/faq/codex/model-provider-base-url-wire-api
 
-Description: Поймите связь между model_provider, base_url, wire_api, model и review_model в custom provider setup для Codex CLI.
+Description: Настройте custom provider в Codex через model_provider, Base URL, wire_api, API Key и Model ID. Решения для provider not found, 401 и 404.
 
 ## Короткий ответ
 
@@ -5838,25 +5893,43 @@ model = "gpt-5.5"
 [model_providers.custom]
 name = "BetterToken"
 base_url = "https://bettertoken.ai/v1"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 ```
 
 Это означает, что Codex использует provider `custom`, отправляет model requests на `https://bettertoken.ai/v1` и общается через Responses API shape.
 
+Не записывайте API Key напрямую в `config.toml`. Задайте его в терминале, из которого запускается Codex:
+
+```bash
+
+```
+
+В Windows PowerShell:
+
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## Как проверить настройку
+
+1. Убедитесь, что `model_provider = "custom"` точно совпадает с `[model_providers.custom]`.
+2. Проверьте Base URL: `https://bettertoken.ai/v1`, включая `/v1`.
+3. Скопируйте актуальный Model ID из **группы ключа GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+4. Полностью закройте Codex и запустите его из нового терминала, где задана переменная окружения.
+5. Отправьте небольшую задачу на объяснение кода и дождитесь полного ответа.
+
 ## Частые ошибки
 
-- Писать display name вместо provider id в `model_provider`.
-- Принимать `model` за provider name.
-- Забывать, что `base_url` и provider protocol должны совпадать.
-- Вставлять Anthropic-compatible Base URL в OpenAI-compatible provider.
-- Использовать UI display name вместо API-recognized model ID.
-
-## О BetterToken
-
-BetterToken можно определить как custom provider, например `[model_providers.custom]`. Используйте `https://bettertoken.ai/v1` как `base_url` и копируйте model ID из **группы ключа GPT**.
-
-В региональной документации BetterToken используйте тот же provider id `custom` и региональный Base URL BetterToken.
+| Симптом | Причина | Решение |
+| --- | --- | --- |
+| Provider not found | Provider id не совпадает с названием таблицы | Используйте `custom` в обоих местах |
+| При запуске нет API Key | Переменная из `env_key` недоступна | Задайте `MODEL_PROVIDER_API_KEY` и откройте новый терминал |
+| `401` или `403` | Неверный API Key или смешана OpenAI-аутентификация | Скопируйте Key заново и задайте `requires_openai_auth = false` |
+| `404` | В Base URL нет `/v1` или указан Anthropic endpoint | Используйте `https://bettertoken.ai/v1` |
+| Model not found | Указано display name, отключенная модель или модель не из GPT group | Скопируйте актуальный Model ID из model plaza |
+| Ошибка Responses protocol | `wire_api` отсутствует или задан неверно | Укажите `wire_api = "responses"` |
 
 ## Связанные материалы
 
@@ -10640,17 +10713,18 @@ No. Configure the Base URL and API Key in your terminal to connect to BetterToke
 
 ---
 
-## Connect Droid to BetterToken with a custom model
+## Droid Custom Model Setup: Base URL, API Key, and GPT Models
 
 Source: https://docs.bettertoken.ai/en/ai-tools/droid
 
-Description: Connect BetterToken to Droid with GPT Key group model IDs.
+Description: Configure a BetterToken custom model in Droid with an OpenAI Responses Base URL, API Key, and GPT model ID, with fixes for missing models, 401, and 404 errors.
 
-Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterToken as a custom OpenAI-compatible provider.
+Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add BetterToken in `~/.factory/settings.json` and select a GPT Key group model from the `/model` menu.
 
 ## Prerequisites
 
 - BetterToken API Key (<a href={"https://bettertoken.ai/register"}>register here</a>)
+- A current **GPT Key group** model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
 
 ## Install Droid
 
@@ -10670,17 +10744,21 @@ Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterTok
 ## Setup
 
 <Steps>
-  <Step title="Clear conflicting environment variables">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
-
   <Step title="Set the BetterToken API Key">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Replace `YOUR_API_KEY` with your BetterToken API Key. Droid supports `${BETTERTOKEN_API_KEY}` environment-variable expansion in its JSON configuration.
   </Step>
 
   <Step title="Edit the Droid config file">
@@ -10694,8 +10772,7 @@ Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterTok
           "model": "YOUR_GPT_MODEL_ID",
           "baseUrl": "https://bettertoken.ai/v1",
           "apiKey": "${BETTERTOKEN_API_KEY}",
-          "provider": "openai",
-          "maxOutputTokens": 64000
+          "provider": "openai"
         }
       ]
     }
@@ -10704,27 +10781,47 @@ Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterTok
     Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID copied from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
   </Step>
 
-  <Step title="Only configure extra headers when the official docs explicitly require them">
-    We did not find an official Droid setup requirement that makes `User-Agent` mandatory for BetterToken. Start with the `Base URL`, API key, and model ID shown on this page.
-
-    If you are also using a custom gateway, tenant routing, observability, or caching layer, add headers only according to that upstream service's official docs.
-  </Step>
-
-  <Step title="Restart Droid">
-    After updating the config file or environment variables, stop the current Droid process and launch it again.
-  </Step>
-
-  <Step title="Start Droid">
+  <Step title="Start Droid and select the model">
     ```bash
     cd /path/to/your/project
     droid
     ```
+
+    Enter `/model` in Droid and select **BetterToken Codex**. Factory watches the settings file for changes; if the model list does not refresh, exit and relaunch Droid.
+  </Step>
+
+  <Step title="Run a small test task">
+    Start with a small task such as “Explain this project's directory structure.” Once Droid returns a result, continue with cross-file edits or longer agent tasks.
   </Step>
 </Steps>
 
 <Note>
-  If your version labels the provider as `OpenAI Compatible` instead of `openai`, follow the current UI label. If you need extra headers, follow the current Droid docs or your upstream gateway requirements instead of assuming `User-Agent` is mandatory for BetterToken.
+  Set `provider` to `openai`. In Factory's BYOK configuration, this value selects the OpenAI Responses API. Use `https://bettertoken.ai/v1` and an API Key from the **GPT Key group**.
 </Note>
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| The custom model is missing from `/model` | Validate the JSON and confirm that `model`, `baseUrl`, `apiKey`, and `provider` are all present |
+| `Invalid provider` | Use the exact lowercase value `"openai"`, not a UI display label |
+| `401` or `403` | Copy the API Key again, confirm the Droid process can read `BETTERTOKEN_API_KEY`, and check your account balance |
+| `404` or Model not found | Use `https://bettertoken.ai/v1` and copy a current GPT model ID from the model plaza |
+| The old model remains after editing | Open `/model` again; if it still does not refresh, fully exit and relaunch Droid |
+
+## FAQ
+
+### Why should I use the GPT Key group?
+
+Droid's `provider: "openai"` uses the OpenAI Responses API. BetterToken's GPT Key group provides the matching OpenAI-compatible endpoint and model IDs.
+
+### Do I need custom headers?
+
+No extra headers are required for a standard BetterToken setup. Add tenant, routing, or audit headers only when another gateway explicitly requires them.
+
+### Where can I check pricing and usage?
+
+Use the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a> for current model pricing. Request usage and balance are available in the BetterToken Dashboard.
 
 ## Related FAQ
 
@@ -10732,6 +10829,10 @@ Droid is Factory AI's CLI coding assistant. With BYOK, you can connect BetterTok
 - [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
 - [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
 - [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
+
+## References
+
+- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
 
 ---
 
@@ -11017,23 +11118,23 @@ Enter `/config` inside a Continue CLI session to view and choose local configura
 
 ## Related guides
 
-- [aider custom model setup](/en/ai-tools/aider)
+- [Aider custom model setup](/en/ai-tools/aider)
 - [Codex CLI custom provider setup](/en/ai-tools/codex)
 - [Cursor custom API, Base URL, and API Key setup](/en/ai-tools/cursor)
 - [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
 
 ---
 
-## aider custom model setup: API Key and Base URL
+## Aider custom model setup: API Key and Base URL
 
 Source: https://docs.bettertoken.ai/en/ai-tools/aider
 
-Description: Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in aider.
+Description: Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in Aider.
 
-aider can connect to OpenAI-compatible APIs. To use BetterToken, set `OPENAI_API_BASE` and `OPENAI_API_KEY`, then start aider with the `openai/model-id` format.
+Aider can connect to OpenAI-compatible APIs. To use BetterToken, set `OPENAI_API_BASE` and `OPENAI_API_KEY`, then start Aider with the `openai/model-id` format.
 
 <Info>
-  aider uses BetterToken's OpenAI-compatible API. Set Base URL to `https://bettertoken.ai/v1`, then use an API Key and model from the **GPT Key group**.
+  Aider uses BetterToken's OpenAI-compatible API. Set Base URL to `https://bettertoken.ai/v1`, then use an API Key and model from the **GPT Key group**.
 </Info>
 
 ## Before you start
@@ -11042,7 +11143,7 @@ aider can connect to OpenAI-compatible APIs. To use BetterToken, set `OPENAI_API
 - Copy a current **GPT Key group** model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
 - Install Python
 
-## Install aider
+## Install Aider
 
 Run the following commands in a terminal:
 
@@ -11051,7 +11152,7 @@ python -m pip install aider-install
 aider-install
 ```
 
-After installation, confirm that aider is available:
+After installation, confirm that Aider is available:
 
 ```bash
 aider --help
@@ -11123,20 +11224,20 @@ Do not remove the `openai/` prefix. The API Key and model must belong to the sam
 | Symptom | What to do |
 | --- | --- |
 | `401`, `Unauthorized`, or `Invalid API key` | Check `OPENAI_API_KEY`, confirm it is a **GPT Key group** API Key, and remove any extra spaces. |
-| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza and pass it to aider as `openai/model-id`. |
+| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza and pass it to Aider as `openai/model-id`. |
 | Wrong request URL or `404` | Confirm `OPENAI_API_BASE` is `https://bettertoken.ai/v1`. Do not append `/chat/completions`. |
 | Windows does not read the new variables | `setx` only affects newly opened terminals. Close the current PowerShell window and open a new one. |
-| aider reports an unknown model | Check the model ID and API Key group first. aider may show a warning for a new model, but you must still use a current ID from the model plaza. |
+| Aider reports an unknown model | Check the model ID and API Key group first. Aider may show a warning for a new model, but you must still use a current ID from the model plaza. |
 
 ## Setup FAQ
 
-**Which Base URL should aider use?**
+**Which Base URL should Aider use?**
 
 Use `https://bettertoken.ai/v1`. This is BetterToken's OpenAI-compatible Base URL.
 
 **Why does the model name need the `openai/` prefix?**
 
-aider uses this prefix to identify an OpenAI-compatible model. Omitting it can make aider select the wrong provider.
+Aider uses this prefix to identify an OpenAI-compatible model. Omitting it can make Aider select the wrong provider.
 
 **Can I put the API Key in `.aider.conf.yml`?**
 
@@ -11873,6 +11974,19 @@ For Codex or other OpenAI-compatible tools, follow the matching setup guide:
   Do not hardcode a model name that is not shown in the model plaza. Model availability, pricing, and routing status follow the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 </Note>
 
+## Quick start
+
+1. Create an API Key in the **GPT Key group**.
+2. Set `https://bettertoken.ai/v1` as the Base URL in your tool.
+3. Copy a current `gpt-5.6-sol`, `gpt-5.6-terra`, or `gpt-5.6-luna` model ID from the model plaza.
+4. Run a small coding task first, then verify the request usage in the Dashboard.
+
+Use one of these setup guides:
+
+- [Codex CLI and Codex App setup](/en/ai-tools/codex)
+- [OpenCode setup](/en/ai-tools/opencode)
+- [OpenAI-compatible API setup in Cline](/en/faq/cline/openai-compatible-api)
+
 ## How to choose
 
 If you are not sure where to start, choose by task complexity:
@@ -11880,6 +11994,20 @@ If you are not sure where to start, choose by task complexity:
 - Use `gpt-5.6-sol` for large codebase understanding, cross-file edits, test repair, long debugging loops, and agent tasks that need stronger reasoning
 - Use `gpt-5.6-terra` for everyday coding, code explanation, routine refactors, documentation, and most interactive development tasks
 - Use `gpt-5.6-luna` for lightweight Q&A, batch assistance, simple text processing, low-latency tool calls, and high-volume cost-sensitive requests
+
+## FAQ
+
+### Which model should I try first?
+
+Start with `gpt-5.6-terra` for most everyday coding. Move to `gpt-5.6-sol` when the task needs deeper reasoning, or use `gpt-5.6-luna` when latency matters more.
+
+### Where can I find the current price?
+
+Check the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a> for current pricing and availability. This page does not hardcode prices because they may change.
+
+### What should I do if the tool reports Model not found?
+
+Copy the model ID again from the model plaza, confirm that the API Key belongs to the GPT Key group, and verify `https://bettertoken.ai/v1`. See the [model selection guide](/en/faq/model-calling/model-selection-guide) for more checks.
 
 ## Official sources
 
@@ -13425,11 +13553,11 @@ Merge existing top-level fields and `[model_providers.custom]` content. Do not d
 
 ---
 
-## What are model_provider, base_url, and wire_api in Codex CLI?
+## Codex Custom Provider: model_provider, Base URL, and wire_api
 
 Source: https://docs.bettertoken.ai/en/faq/codex/model-provider-base-url-wire-api
 
-Description: Understand how Codex CLI relates model_provider, base_url, wire_api, model, and review_model in a custom provider setup.
+Description: Configure a Codex custom provider with model_provider, Base URL, wire_api, API Key, and Model ID, and fix provider, 401, and 404 errors.
 
 ## Short answer
 
@@ -13470,25 +13598,43 @@ model = "gpt-5.5"
 [model_providers.custom]
 name = "BetterToken"
 base_url = "https://bettertoken.ai/v1"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 ```
 
 This means Codex uses the provider named `custom`, sends model requests to `https://bettertoken.ai/v1`, and communicates through the Responses API shape.
 
-## Common mistakes
+Do not put the API Key directly in `config.toml`. Set it in the terminal that launches Codex:
 
-- Writing the display name instead of the provider id in `model_provider`.
-- Treating `model` as the provider name.
-- Forgetting that `base_url` and the provider protocol must match.
-- Putting an Anthropic-compatible Base URL into an OpenAI-compatible provider.
-- Using a UI display name instead of an API-recognized model ID.
+```bash
 
-## About BetterToken
+```
 
-BetterToken can be defined as a custom provider such as `[model_providers.custom]`. Use `https://bettertoken.ai/v1` as the `base_url` and copy the model ID from the **GPT Key group**.
+On Windows PowerShell:
 
-On the BetterToken regional documentation, use the same `custom` provider id with the BetterToken regional Base URL.
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## Verify the setup
+
+1. Confirm that `model_provider = "custom"` exactly matches `[model_providers.custom]`.
+2. Confirm that the Base URL is `https://bettertoken.ai/v1`, including `/v1`.
+3. Copy a current Model ID from the **GPT Key group** in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+4. Fully exit Codex and relaunch it from a new terminal where the environment variable is set.
+5. Send a small code-explanation task and confirm that Codex returns a complete response.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Provider not found | The provider id and configuration table do not match | Use `custom` in both places |
+| Missing API Key at startup | The variable named by `env_key` is unavailable | Set `MODEL_PROVIDER_API_KEY`, then open a new terminal |
+| `401` or `403` | Invalid API Key or mixed OpenAI authentication | Copy the Key again and set `requires_openai_auth = false` |
+| `404` | The Base URL lacks `/v1` or points to an Anthropic endpoint | Use `https://bettertoken.ai/v1` |
+| Model not found | The value is a display name, retired model, or non-GPT model | Copy a current Model ID from the model plaza |
+| Responses protocol error | `wire_api` is missing or incorrect | Set `wire_api = "responses"` |
 
 ## Related docs
 
@@ -18274,17 +18420,18 @@ Grok CLI 启动后，发送一条简短提示词。没有出现认证或模型 I
 
 ---
 
-## Droid 自定义模型接入 BetterToken 指南
+## Droid 自定义模型配置：Base URL、API Key 与 GPT 模型
 
 Source: https://docs.bettertoken.ai/zh/ai-tools/droid
 
-Description: 在 Droid 中使用 BetterToken，接入 GPT 分组模型。
+Description: 在 Droid 中配置 BetterToken 自定义模型，填写 OpenAI Responses Base URL、API Key 和 GPT 模型 ID，并解决模型不显示、401 与 404。
 
-Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 BetterToken 作为自定义 OpenAI 兼容提供商接入。
+Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory/settings.json` 中添加 BetterToken，然后在 `/model` 菜单选择 GPT 分组模型。
 
 ## 前置条件
 
 - 已获取 BetterToken API Key（<a href={"https://bettertoken.ai/register"}>注册并获取</a>）
+- 已从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制一个 **GPT 分组**模型 ID
 
 ## 安装 Droid
 
@@ -18304,17 +18451,21 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
 ## 配置步骤
 
 <Steps>
-  <Step title="清除冲突的环境变量">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
-
   <Step title="设置 BetterToken API Key">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。Droid 支持在 JSON 配置中通过 `${BETTERTOKEN_API_KEY}` 读取环境变量。
   </Step>
 
   <Step title="编辑 Droid 配置文件">
@@ -18328,8 +18479,7 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
           "model": "YOUR_GPT_MODEL_ID",
           "baseUrl": "https://bettertoken.ai/v1",
           "apiKey": "${BETTERTOKEN_API_KEY}",
-          "provider": "openai",
-          "maxOutputTokens": 64000
+          "provider": "openai"
         }
       ]
     }
@@ -18338,27 +18488,47 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
     将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制的 **GPT 分组模型 ID**。
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    当前我们没有查到 Droid 官方接入说明要求 BetterToken 额外配置 `User-Agent`。默认先按页面中的 `Base URL`、API Key 和模型 ID 完成接入即可。
-
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
-  </Step>
-
-  <Step title="重启 Droid">
-    修改配置文件或环境变量后，请退出当前 Droid 进程，再重新启动。
-  </Step>
-
-  <Step title="启动 Droid">
+  <Step title="启动 Droid 并选择模型">
     ```bash
     cd /path/to/your/project
     droid
     ```
+
+    在 Droid 中输入 `/model`，选择刚添加的 **BetterToken Codex**。Factory 会监听配置文件变化；如果模型列表没有刷新，再退出并重新启动 Droid。
+  </Step>
+
+  <Step title="发送测试任务">
+    先发送一个小型任务，例如“解释当前项目的目录结构”。确认 Droid 能返回结果后，再进行跨文件修改或长时间 agent 任务。
   </Step>
 </Steps>
 
 <Note>
-  如果当前版本把 provider 文案显示为 `OpenAI Compatible`，以当前界面显示为准。如需额外 headers，请以 Droid 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项。
+  `provider` 必须填写 `openai`。在 Factory 的 BYOK 配置中，这个值表示使用 OpenAI Responses API；Base URL 使用 `https://bettertoken.ai/v1`，API Key 必须来自 **GPT 分组**。
 </Note>
+
+## 常见错误
+
+| 现象 | 检查方法 |
+| --- | --- |
+| `/model` 中没有自定义模型 | 检查 `settings.json` 是否为有效 JSON，并确认 `model`、`baseUrl`、`apiKey`、`provider` 四个字段都存在 |
+| `Invalid provider` | `provider` 使用小写的 `"openai"`，不要填写界面展示名称 |
+| `401` 或 `403` | 重新复制 API Key，确认启动 Droid 的终端能读取 `BETTERTOKEN_API_KEY`，并检查账户余额 |
+| `404` 或 Model not found | Base URL 使用 `https://bettertoken.ai/v1`；从模型广场重新复制当前 GPT 模型 ID |
+| 修改配置后仍显示旧模型 | 再次打开 `/model`；如果列表仍未刷新，完全退出并重启 Droid |
+
+## 常见问题
+
+### 为什么要选择 GPT 分组？
+
+Droid 的 `provider: "openai"` 使用 OpenAI Responses API。BetterToken 的 GPT 分组提供对应的 OpenAI-compatible endpoint 和模型 ID。
+
+### 需要配置额外 headers 吗？
+
+普通 BetterToken 接入不需要额外 headers。只有你的其他网关明确要求租户、路由或审计 header 时，才按该服务的文档添加。
+
+### 如何查看模型价格和用量？
+
+模型价格以<a href={"https://bettertoken.ai/pricing"}>模型广场</a>实时信息为准。请求用量和余额可在 BetterToken Dashboard 查看。
 
 ## 相关 FAQ
 
@@ -18366,6 +18536,10 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
+
+## References
+
+- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
 
 ---
 
@@ -18651,23 +18825,23 @@ cn --config ./continue-bettertoken.yaml
 
 ## 相关指南
 
-- [aider 自定义模型配置](/zh/ai-tools/aider)
+- [Aider 自定义模型配置](/zh/ai-tools/aider)
 - [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
 - [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
 - [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
 
 ---
 
-## aider 自定义模型配置：API Key 与 Base URL
+## Aider 自定义模型配置：API Key 与 Base URL
 
 Source: https://docs.bettertoken.ai/zh/ai-tools/aider
 
-Description: 在 aider 中配置 BetterToken 的 OpenAI-compatible API、GPT 分组 API Key 和模型。
+Description: 在 Aider 中配置 BetterToken 的 OpenAI-compatible API、GPT 分组 API Key 和模型。
 
-aider 可以连接 OpenAI-compatible API。要使用 BetterToken，请设置 `OPENAI_API_BASE` 和 `OPENAI_API_KEY`，然后以 `openai/模型 ID` 的格式启动 aider。
+Aider 可以连接 OpenAI-compatible API。要使用 BetterToken，请设置 `OPENAI_API_BASE` 和 `OPENAI_API_KEY`，然后以 `openai/模型 ID` 的格式启动 Aider。
 
 <Info>
-  aider 使用 BetterToken 的 OpenAI-compatible API。Base URL 填写 `https://bettertoken.ai/v1`，并使用 **GPT 分组** API Key 和模型。
+  Aider 使用 BetterToken 的 OpenAI-compatible API。Base URL 填写 `https://bettertoken.ai/v1`，并使用 **GPT 分组** API Key 和模型。
 </Info>
 
 ## 准备工作
@@ -18676,7 +18850,7 @@ aider 可以连接 OpenAI-compatible API。要使用 BetterToken，请设置 `OP
 - 已从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
 - 已安装 Python
 
-## 安装 aider
+## 安装 Aider
 
 在终端中执行：
 
@@ -18685,7 +18859,7 @@ python -m pip install aider-install
 aider-install
 ```
 
-安装完成后，运行以下命令确认 aider 可用：
+安装完成后，运行以下命令确认 Aider 可用：
 
 ```bash
 aider --help
@@ -18757,20 +18931,20 @@ aider --model openai/YOUR_GPT_MODEL_ID
 | 现象 | 处理方式 |
 | --- | --- |
 | `401`、`Unauthorized` 或 `Invalid API key` | 检查 `OPENAI_API_KEY`，确认使用的是 **GPT 分组** API Key，且没有多余空格。 |
-| `model not found` 或模型不可用 | 从模型广场重新复制当前 **GPT 分组**模型 ID，并以 `openai/模型 ID` 格式传给 aider。 |
+| `model not found` 或模型不可用 | 从模型广场重新复制当前 **GPT 分组**模型 ID，并以 `openai/模型 ID` 格式传给 Aider。 |
 | 请求地址错误或 `404` | 确认 `OPENAI_API_BASE` 是 `https://bettertoken.ai/v1`，不要填写 `/chat/completions`。 |
 | 在 Windows 设置后仍读取不到变量 | `setx` 只对新打开的终端生效。关闭当前 PowerShell 后重新打开。 |
-| aider 提示不认识模型 | 先检查模型 ID 和 API Key 分组。aider 可能对新模型显示警告，但模型仍需使用模型广场中的当前 ID。 |
+| Aider 提示不认识模型 | 先检查模型 ID 和 API Key 分组。Aider 可能对新模型显示警告，但模型仍需使用模型广场中的当前 ID。 |
 
 ## 配置 FAQ
 
-**aider 的 Base URL 应该填写哪个地址？**
+**Aider 的 Base URL 应该填写哪个地址？**
 
 填写 `https://bettertoken.ai/v1`。这是 BetterToken 的 OpenAI-compatible Base URL。
 
 **为什么模型名前要加 `openai/`？**
 
-aider 用这个前缀识别 OpenAI-compatible 模型。省略前缀可能导致它使用错误的 provider。
+Aider 用这个前缀识别 OpenAI-compatible 模型。省略前缀可能导致它使用错误的 provider。
 
 **可以把 API Key 写进 `.aider.conf.yml` 吗？**
 
@@ -19565,6 +19739,19 @@ BetterToken 已上架 GPT-5.6 系列模型。你可以在<a href={"https://bette
   不要手写不在模型广场中的模型名。模型可用性、价格和路由状态请以<a href={"https://bettertoken.ai/pricing"}>模型广场</a>实时显示为准。
 </Note>
 
+## 快速开始
+
+1. 创建一个 **GPT 分组**API Key。
+2. 在工具中把 Base URL 设置为 `https://bettertoken.ai/v1`。
+3. 从模型广场复制当前可用的 `gpt-5.6-sol`、`gpt-5.6-terra` 或 `gpt-5.6-luna` 模型 ID。
+4. 先运行一个小型编程任务，再到 Dashboard 检查请求用量。
+
+可直接参考：
+
+- [Codex CLI 与 Codex App 接入指南](/zh/ai-tools/codex)
+- [OpenCode 接入指南](/zh/ai-tools/opencode)
+- [Cline 配置 OpenAI-compatible API](/zh/faq/cline/openai-compatible-api)
+
 ## 如何选择
 
 如果你不确定从哪个模型开始，可以按任务复杂度选择：
@@ -19572,6 +19759,20 @@ BetterToken 已上架 GPT-5.6 系列模型。你可以在<a href={"https://bette
 - 使用 `gpt-5.6-sol` 处理复杂代码库理解、跨文件修改、测试修复、长链路调试和需要更强推理的 Agent 任务
 - 使用 `gpt-5.6-terra` 处理日常编码、代码解释、常规重构、文档生成和多数交互式开发任务
 - 使用 `gpt-5.6-luna` 处理轻量问答、批量辅助、简单文本处理、低延迟工具调用和成本敏感的高频请求
+
+## 常见问题
+
+### 第一次使用应该选哪个模型？
+
+多数日常编程任务可先使用 `gpt-5.6-terra`。需要更深入推理时改用 `gpt-5.6-sol`；更重视响应速度时可选择 `gpt-5.6-luna`。
+
+### 在哪里查看当前价格？
+
+请以<a href={"https://bettertoken.ai/pricing"}>模型广场</a>显示的实时价格和可用状态为准。本文不写死价格，避免价格调整后产生过期信息。
+
+### 工具提示 Model not found 怎么办？
+
+从模型广场重新复制模型 ID，确认 API Key 属于 GPT 分组，并检查 Base URL 是否为 `https://bettertoken.ai/v1`。更多检查项见[模型选择指南](/zh/faq/model-calling/model-selection-guide)。
 
 ## 官方来源
 
@@ -21123,11 +21324,11 @@ supports_websockets = false
 
 ---
 
-## Codex CLI 中 model_provider、base_url 和 wire_api 是什么？
+## Codex custom provider：model_provider、Base URL 与 wire_api
 
 Source: https://docs.bettertoken.ai/zh/faq/codex/model-provider-base-url-wire-api
 
-Description: 解释 Codex CLI 自定义 provider 配置中的 model_provider、base_url、wire_api、model 和 review_model 的关系。
+Description: 解释 Codex CLI custom provider 的 model_provider、Base URL、wire_api、API Key 和 Model ID，并解决 provider 未找到、401、404 等错误。
 
 ## 简短答案
 
@@ -21168,25 +21369,43 @@ model = "gpt-5.5"
 [model_providers.custom]
 name = "BetterToken"
 base_url = "https://bettertoken.ai/v1"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 ```
 
 这表示：Codex 使用名为 `custom` 的 provider，把模型请求发送到 `https://bettertoken.ai/v1`，并按 Responses API 形态通信。
 
-## 常见误区
+API Key 不应直接写进 `config.toml`。先在运行 Codex 的终端设置：
 
-- 把 `model_provider` 写成显示名称，而不是 provider id。
-- 把 `model` 当作 provider 名称。
-- 忘记 `base_url` 和 provider 必须属于同一种协议。
-- 把 Anthropic-compatible Base URL 填到 Codex 的 OpenAI-compatible provider。
-- 用工具界面里的模型展示名替代 API 可识别的 Model ID。
+```bash
 
-## 关于 BetterToken
+```
 
-BetterToken 可以作为 `[model_providers.custom]` 这样的自定义 provider。`base_url` 使用 `https://bettertoken.ai/v1`，模型 ID 从 **GPT 分组**复制。
+Windows PowerShell 使用：
 
-在 BetterToken 区域站中，同样使用 `custom` 作为 provider id，Base URL 则使用 BetterToken 的区域地址。
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## 如何确认配置生效
+
+1. 确认 `model_provider = "custom"` 与 `[model_providers.custom]` 完全一致。
+2. 确认 Base URL 为 `https://bettertoken.ai/v1`，其中包含 `/v1`。
+3. 从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制 **GPT 分组**中当前可用的 Model ID。
+4. 完全退出 Codex，在已设置环境变量的新终端中重新启动。
+5. 发送一个小型代码解释任务，确认能收到完整响应。
+
+## 常见错误与解决方法
+
+| 现象 | 原因 | 处理方法 |
+| --- | --- | --- |
+| Provider 未找到 | provider id 与配置段名称不一致 | 两处都使用 `custom` |
+| 启动时提示缺少 API Key | `env_key` 指向的环境变量不存在 | 设置 `MODEL_PROVIDER_API_KEY` 后重新打开终端 |
+| `401` 或 `403` | API Key 无效或混用了 OpenAI 官方认证 | 重新复制 Key，并确认 `requires_openai_auth = false` |
+| `404` | Base URL 缺少 `/v1` 或填入 Anthropic endpoint | 使用 `https://bettertoken.ai/v1` |
+| Model not found | 使用了展示名、下线模型或非 GPT 分组模型 | 从模型广场重新复制当前 Model ID |
+| Responses 协议错误 | `wire_api` 缺失或值不正确 | 设置 `wire_api = "responses"` |
 
 ## Related docs
 

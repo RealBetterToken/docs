@@ -1,7 +1,7 @@
 ---
-title: "Codex CLI 中 model_provider、base_url 和 wire_api 是什么？"
+title: "Codex custom provider：model_provider、Base URL 与 wire_api"
 sidebarTitle: "provider / base_url / wire_api"
-description: "解释 Codex CLI 自定义 provider 配置中的 model_provider、base_url、wire_api、model 和 review_model 的关系。"
+description: "解释 Codex CLI custom provider 的 model_provider、Base URL、wire_api、API Key 和 Model ID，并解决 provider 未找到、401、404 等错误。"
 ---
 
 ## 简短答案
@@ -43,25 +43,43 @@ model = "gpt-5.5"
 [model_providers.custom]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 ```
 
 这表示：Codex 使用名为 `custom` 的 provider，把模型请求发送到 `{{openai-base-url}}`，并按 Responses API 形态通信。
 
-## 常见误区
+API Key 不应直接写进 `config.toml`。先在运行 Codex 的终端设置：
 
-- 把 `model_provider` 写成显示名称，而不是 provider id。
-- 把 `model` 当作 provider 名称。
-- 忘记 `base_url` 和 provider 必须属于同一种协议。
-- 把 Anthropic-compatible Base URL 填到 Codex 的 OpenAI-compatible provider。
-- 用工具界面里的模型展示名替代 API 可识别的 Model ID。
+```bash
+export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
 
-## 关于 BetterToken
+Windows PowerShell 使用：
 
-BetterToken 可以作为 `[model_providers.custom]` 这样的自定义 provider。`base_url` 使用 `{{openai-base-url}}`，模型 ID 从 **GPT 分组**复制。
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
 
-在 BetterToken 区域站中，同样使用 `custom` 作为 provider id，Base URL 则使用 BetterToken 的区域地址。
+## 如何确认配置生效
+
+1. 确认 `model_provider = "custom"` 与 `[model_providers.custom]` 完全一致。
+2. 确认 Base URL 为 `{{openai-base-url}}`，其中包含 `/v1`。
+3. 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**中当前可用的 Model ID。
+4. 完全退出 Codex，在已设置环境变量的新终端中重新启动。
+5. 发送一个小型代码解释任务，确认能收到完整响应。
+
+## 常见错误与解决方法
+
+| 现象 | 原因 | 处理方法 |
+| --- | --- | --- |
+| Provider 未找到 | provider id 与配置段名称不一致 | 两处都使用 `custom` |
+| 启动时提示缺少 API Key | `env_key` 指向的环境变量不存在 | 设置 `MODEL_PROVIDER_API_KEY` 后重新打开终端 |
+| `401` 或 `403` | API Key 无效或混用了 OpenAI 官方认证 | 重新复制 Key，并确认 `requires_openai_auth = false` |
+| `404` | Base URL 缺少 `/v1` 或填入 Anthropic endpoint | 使用 `{{openai-base-url}}` |
+| Model not found | 使用了展示名、下线模型或非 GPT 分组模型 | 从模型广场重新复制当前 Model ID |
+| Responses 协议错误 | `wire_api` 缺失或值不正确 | 设置 `wire_api = "responses"` |
 
 ## Related docs
 

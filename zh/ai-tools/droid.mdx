@@ -1,15 +1,16 @@
 ---
-title: "Droid 自定义模型接入 BetterToken 指南"
+title: "Droid 自定义模型配置：Base URL、API Key 与 GPT 模型"
 sidebarTitle: "Droid"
-description: "在 Droid 中使用 BetterToken，接入 GPT 分组模型。"
+description: "在 Droid 中配置 BetterToken 自定义模型，填写 OpenAI Responses Base URL、API Key 和 GPT 模型 ID，并解决模型不显示、401 与 404。"
 icon: "robot"
 ---
 
-Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 BetterToken 作为自定义 OpenAI 兼容提供商接入。
+Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory/settings.json` 中添加 BetterToken，然后在 `/model` 菜单选择 GPT 分组模型。
 
 ## 前置条件
 
 - 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制一个 **GPT 分组**模型 ID
 
 ## 安装 Droid
 
@@ -29,17 +30,21 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
 ## 配置步骤
 
 <Steps>
-  <Step title="清除冲突的环境变量">
-    ```bash
-    unset OPENAI_API_KEY
-    unset OPENAI_BASE_URL
-    ```
-  </Step>
-
   <Step title="设置 BetterToken API Key">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。Droid 支持在 JSON 配置中通过 `${BETTERTOKEN_API_KEY}` 读取环境变量。
   </Step>
 
   <Step title="编辑 Droid 配置文件">
@@ -53,8 +58,7 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
           "model": "YOUR_GPT_MODEL_ID",
           "baseUrl": "{{openai-base-url}}",
           "apiKey": "${BETTERTOKEN_API_KEY}",
-          "provider": "openai",
-          "maxOutputTokens": 64000
+          "provider": "openai"
         }
       ]
     }
@@ -63,27 +67,47 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
     将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    当前我们没有查到 Droid 官方接入说明要求 BetterToken 额外配置 `User-Agent`。默认先按页面中的 `Base URL`、API Key 和模型 ID 完成接入即可。
-
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
-  </Step>
-
-  <Step title="重启 Droid">
-    修改配置文件或环境变量后，请退出当前 Droid 进程，再重新启动。
-  </Step>
-
-  <Step title="启动 Droid">
+  <Step title="启动 Droid 并选择模型">
     ```bash
     cd /path/to/your/project
     droid
     ```
+
+    在 Droid 中输入 `/model`，选择刚添加的 **BetterToken Codex**。Factory 会监听配置文件变化；如果模型列表没有刷新，再退出并重新启动 Droid。
+  </Step>
+
+  <Step title="发送测试任务">
+    先发送一个小型任务，例如“解释当前项目的目录结构”。确认 Droid 能返回结果后，再进行跨文件修改或长时间 agent 任务。
   </Step>
 </Steps>
 
 <Note>
-  如果当前版本把 provider 文案显示为 `OpenAI Compatible`，以当前界面显示为准。如需额外 headers，请以 Droid 官方当前版本说明或上游网关要求为准，不要默认把 `User-Agent` 当作 BetterToken 必填项。
+  `provider` 必须填写 `openai`。在 Factory 的 BYOK 配置中，这个值表示使用 OpenAI Responses API；Base URL 使用 `{{openai-base-url}}`，API Key 必须来自 **GPT 分组**。
 </Note>
+
+## 常见错误
+
+| 现象 | 检查方法 |
+| --- | --- |
+| `/model` 中没有自定义模型 | 检查 `settings.json` 是否为有效 JSON，并确认 `model`、`baseUrl`、`apiKey`、`provider` 四个字段都存在 |
+| `Invalid provider` | `provider` 使用小写的 `"openai"`，不要填写界面展示名称 |
+| `401` 或 `403` | 重新复制 API Key，确认启动 Droid 的终端能读取 `BETTERTOKEN_API_KEY`，并检查账户余额 |
+| `404` 或 Model not found | Base URL 使用 `{{openai-base-url}}`；从模型广场重新复制当前 GPT 模型 ID |
+| 修改配置后仍显示旧模型 | 再次打开 `/model`；如果列表仍未刷新，完全退出并重启 Droid |
+
+## 常见问题
+
+### 为什么要选择 GPT 分组？
+
+Droid 的 `provider: "openai"` 使用 OpenAI Responses API。BetterToken 的 GPT 分组提供对应的 OpenAI-compatible endpoint 和模型 ID。
+
+### 需要配置额外 headers 吗？
+
+普通 BetterToken 接入不需要额外 headers。只有你的其他网关明确要求租户、路由或审计 header 时，才按该服务的文档添加。
+
+### 如何查看模型价格和用量？
+
+模型价格以<a href={"{{model-plaza-url}}"}>模型广场</a>实时信息为准。请求用量和余额可在 BetterToken Dashboard 查看。
 
 ## 相关 FAQ
 
@@ -91,3 +115,7 @@ Droid 是 Factory AI 的 CLI 编程助手。通过 BYOK 配置，可以将 Bette
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
+
+## References
+
+- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
