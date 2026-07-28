@@ -1,12 +1,12 @@
 ---
-title: "Codex CLI config.toml 如何配置自定义 provider？"
+title: "Codex config.toml：自定义 provider、Base URL 与 API Key"
 sidebarTitle: "config.toml"
-description: "配置 Codex CLI 自定义 provider：文件位置、最小可用示例、API Key 环境变量、配置层级、验证与常见错误。"
+description: "配置 Codex config.toml 自定义 provider：设置 model_provider、Base URL、API Key env_key、wire_api responses，并解决 401、404 和模型错误。"
 ---
 
 ## 直接答案
 
-把用户级配置写入 `~/.codex/config.toml`，让 `model_provider = "custom"` 对应 `[model_providers.custom]`。使用 BetterToken 时，`base_url` 填 `{{openai-base-url}}`，`wire_api` 填 `responses`，模型从 **GPT 分组**复制。API Key 推荐通过 `env_key` 指向本机环境变量，不要直接写进 TOML 或提交到仓库。
+要在 Codex CLI 使用自定义 provider，请编辑用户级 `~/.codex/config.toml`。设置 `model_provider = "custom"`，添加 `[model_providers.custom]`，Base URL 填 `{{openai-base-url}}`，并设置 `wire_api = "responses"`。BetterToken API Key 通过 `env_key` 读取，Model ID 从 **GPT 分组**复制。
 
 ## 先确认配置文件位置
 

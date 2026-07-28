@@ -556,6 +556,7 @@ CC Switch — кроссплатформенное desktop-приложение 
 
 ## Связанные FAQ
 
+- [Third-party модели и Codex в Claude Desktop](/faq/claude-desktop/third-party-models)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
@@ -4232,6 +4233,54 @@ Endpoint не возвращает `task_id`; отдельного status query 
 
 ---
 
+## Claude Opus 5 доступен в BetterToken
+
+Source: https://docs.bettertoken.ai/model-updates/claude-opus-5
+
+Description: Claude Opus 5 доступен в BetterToken под ID claude-opus-5: модель для сложного программирования, долгих агентных задач и контекста до 1M tokens.
+
+Дата релиза: 24 июля 2026 года
+
+В BetterToken стала доступна модель `claude-opus-5`. Она рассчитана на сложное программирование, долгие агентные задачи и многоэтапную работу с большими кодовыми базами. Для подключения создайте API Key в группе `Claude`, используйте Base URL `https://bettertoken.ai` и укажите ID модели `claude-opus-5`.
+
+Актуальную доступность и цену всегда проверяйте в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+## Главное
+
+- **Сложные задачи по программированию**: Anthropic рекомендует Opus 5 для complex agentic coding и профессиональных задач, где важны качество и устойчивость на длинных сценариях
+- **Контекст до `1M tokens`**: модель может работать с крупными репозиториями, длинной историей и большим набором входных материалов
+- **Вывод до `128K tokens`**: подходит для объемных изменений кода, отчетов и многоэтапных результатов
+- **Adaptive thinking включен по умолчанию**: модель сама регулирует глубину рассуждений в зависимости от задачи
+- **Расширенное управление effort**: поддерживаются уровни `low`, `medium`, `high`, `xhigh` и `max`
+
+## Как подключить
+
+1. <a href={"https://bettertoken.ai/register"}>Зарегистрируйтесь и получите API Key</a> в группе `Claude`.
+2. Укажите Base URL `https://bettertoken.ai`.
+3. В качестве модели выберите `claude-opus-5`.
+4. Для Claude Code следуйте [инструкции по подключению](/ai-tools/claude-code). Для управления несколькими провайдерами можно использовать [CC Switch](/ai-tools/cc-switch).
+
+Если вы выбираете модель для конкретной задачи, сравните Opus 5 с другими вариантами в [руководстве по выбору модели](/faq/model-calling/model-selection-guide).
+
+## Что проверить при переходе с Opus 4.8
+
+В большинстве конфигураций достаточно заменить ID модели `claude-opus-4-8` на `claude-opus-5`. Обратите внимание на два изменения:
+
+- **Thinking включен по умолчанию**. Если задан effort `xhigh` или `max`, отключение thinking вернет ошибку `400`.
+- **`max_tokens` включает thinking и видимый ответ**. Оставьте достаточный запас для задач, которым нужны длинные рассуждения и большой итоговый вывод.
+
+<Tip>
+  Для первого теста используйте реальную задачу из своего рабочего процесса: анализ репозитория, многофайловое изменение или длительный агентный сценарий. Так проще оценить качество, задержку и расход токенов до массового переключения.
+</Tip>
+
+## Официальные источники
+
+- [Claude Platform release notes](https://platform.claude.com/docs/en/release-notes/overview)
+- [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [Migration guide](https://platform.claude.com/docs/en/about-claude/models/migration-guide)
+
+---
+
 ## Модели GPT-5.6 доступны
 
 Source: https://docs.bettertoken.ai/model-updates/gpt-5.6
@@ -5248,13 +5297,13 @@ BetterToken отвечает за model API access, а не MCP servers. MCP в 
 
 ---
 
-## Third-party модели в Claude Desktop: настройка BetterToken через CC Switch
+## Third-party модели в Claude Desktop: custom API и Codex
 
 Source: https://docs.bettertoken.ai/faq/claude-desktop/third-party-models
 
-Description: Настройте custom API BetterToken в Claude Desktop через CC Switch: добавьте API Key, настройте model mapping, включите proxy и перезапустите приложение.
+Description: Подключите GPT и Codex к Claude Desktop: добавьте custom API Key BetterToken в CC Switch, настройте model mapping, включите Gateway и устраните ошибки 401.
 
-С CC Switch `v3.16.5` или новее вы можете использовать API Key BetterToken из **GPT Key group** в Claude Desktop. Создайте provider, включите proxy и перезапустите Claude Desktop. Конфигурация применится автоматически.
+Claude Desktop может использовать third-party модели GPT и Codex через Gateway в CC Switch. В CC Switch `v3.16.5` или новее добавьте API Key BetterToken из **группы ключа GPT**, выберите формат OpenAI Responses API, настройте model mapping, включите proxy и перезапустите Claude Desktop.
 
 <Info>
   Используйте актуальные версии Claude Desktop и CC Switch. Для настройки нужен API Key BetterToken из **GPT Key group**.
@@ -5709,15 +5758,15 @@ BetterToken не меняет runtime boundary между CLI, App и Web / Clou
 
 ---
 
-## Как настроить custom provider в config.toml Codex CLI
+## Codex config.toml: custom provider, Base URL и API Key
 
 Source: https://docs.bettertoken.ai/faq/codex/config-toml
 
-Description: Настройте custom provider Codex CLI: путь к файлу, Base URL, API Key через переменную окружения, уровни конфигурации, проверка и типовые ошибки.
+Description: Настройте custom provider в Codex config.toml: model_provider, Base URL, API Key через env_key, wire_api responses и решения ошибок 401, 404 и model not found.
 
 ## Короткий ответ
 
-Добавьте пользовательскую конфигурацию в `~/.codex/config.toml` и свяжите `model_provider = "custom"` с `[model_providers.custom]`. Для BetterToken укажите `https://bettertoken.ai/v1` в `base_url`, `responses` в `wire_api` и Model ID из **группы ключа GPT**. API Key безопаснее читать через `env_key` из локальной переменной окружения, а не хранить в TOML или репозитории.
+Чтобы использовать custom provider в Codex CLI, измените пользовательский файл `~/.codex/config.toml`. Задайте `model_provider = "custom"`, добавьте `[model_providers.custom]`, укажите Base URL `https://bettertoken.ai/v1` и `wire_api = "responses"`. API Key BetterToken передавайте через `env_key`, а Model ID копируйте из **группы ключа GPT**.
 
 ## Найдите правильный файл конфигурации
 
@@ -6397,17 +6446,15 @@ Description: Используйте CC Switch со сторонним API или
 
 ---
 
-## Как настроить custom OpenAI API Key и Base URL в Cursor
+## Cursor Custom OpenAI API: Base URL, API Key и модель
 
 Source: https://docs.bettertoken.ai/faq/cursor/custom-openai-api
 
-Description: Разберите Cursor OpenAI-compatible API Key, Override OpenAI Base URL, custom model и границы Model ID.
+Description: Настройте Custom OpenAI API в Cursor: укажите API Key, Override OpenAI Base URL и GPT Model ID BetterToken, затем устраните 401 и model not found.
 
 ## Короткий ответ
 
-Для custom OpenAI-compatible API в Cursor держите согласованными три поля: API Key, Base URL и Model ID.
-
-API Key авторизует запрос. Base URL определяет provider, куда уходит запрос. Model ID определяет модель. Все три значения должны относиться к одному provider или compatible gateway.
+Чтобы подключить BetterToken как Custom OpenAI API в Cursor, в настройках моделей укажите API Key из **группы ключа GPT**, включите Override OpenAI Base URL и введите `https://bettertoken.ai/v1`. Затем добавьте актуальный GPT Model ID из model plaza. API Key, Base URL и Model ID должны относиться к одному provider.
 
 ## Когда это важно
 
@@ -8265,6 +8312,7 @@ After saving and switching providers, restart the affected client or gateway bef
 
 ## Related FAQ
 
+- [Use third-party models and Codex in Claude Desktop](/en/faq/claude-desktop/third-party-models)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
 - [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
@@ -11937,6 +11985,54 @@ The endpoint does not return a `task_id`, and there is no separate status query 
 
 ---
 
+## Claude Opus 5 is now available on BetterToken
+
+Source: https://docs.bettertoken.ai/en/model-updates/claude-opus-5
+
+Description: Claude Opus 5 is available on BetterToken as claude-opus-5 for complex coding, long-running agent workflows, and context windows up to 1M tokens.
+
+Release date: July 24, 2026
+
+BetterToken now supports `claude-opus-5`. The model is designed for complex coding, long-running agent workflows, and multi-step work across large codebases. To connect it, create an API Key in the `Claude` group, use `https://bettertoken.ai` as the Base URL, and select `claude-opus-5` as the model ID.
+
+Always check the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> for current availability and pricing.
+
+## Highlights
+
+- **Complex coding workloads**: Anthropic recommends Opus 5 for complex agentic coding and professional work where quality and long-horizon reliability matter
+- **Up to `1M tokens` of context**: The model can work with large repositories, long histories, and extensive source material
+- **Up to `128K tokens` of output**: This supports large code changes, reports, and multi-step deliverables
+- **Adaptive thinking by default**: The model adjusts its reasoning depth to the task
+- **Expanded effort control**: Supported effort levels are `low`, `medium`, `high`, `xhigh`, and `max`
+
+## How to connect
+
+1. <a href={"https://bettertoken.ai/register"}>Register and create an API Key</a> in the `Claude` group.
+2. Set the Base URL to `https://bettertoken.ai`.
+3. Select `claude-opus-5` as the model.
+4. Follow the [Claude Code setup guide](/en/ai-tools/claude-code). To manage multiple providers, use the [CC Switch guide](/en/ai-tools/cc-switch).
+
+If you are choosing a model for a specific workload, compare Opus 5 with other options in the [model selection guide](/en/faq/model-calling/model-selection-guide).
+
+## What to check when moving from Opus 4.8
+
+For most configurations, you can replace `claude-opus-4-8` with `claude-opus-5`. Review these two behavior changes:
+
+- **Thinking is enabled by default**. If effort is set to `xhigh` or `max`, disabling thinking returns a `400` error.
+- **`max_tokens` covers thinking and visible output**. Leave enough headroom for tasks that require long reasoning and a large final response.
+
+<Tip>
+  Start with a real task from your workflow, such as repository analysis, a multi-file change, or a long-running agent task. This makes it easier to assess quality, latency, and token usage before switching more workloads.
+</Tip>
+
+## Official sources
+
+- [Claude Platform release notes](https://platform.claude.com/docs/en/release-notes/overview)
+- [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [Migration guide](https://platform.claude.com/docs/en/about-claude/models/migration-guide)
+
+---
+
 ## GPT-5.6 models are live
 
 Source: https://docs.bettertoken.ai/en/model-updates/gpt-5.6
@@ -12953,13 +13049,13 @@ If you need both tool access and unified model routing, configure MCP and API ac
 
 ---
 
-## Claude Desktop Third-Party Models: BetterToken Setup with CC Switch
+## Claude Desktop Third-Party Models: Custom API and Codex Setup
 
 Source: https://docs.bettertoken.ai/en/faq/claude-desktop/third-party-models
 
-Description: Configure the BetterToken custom API in Claude Desktop with CC Switch: enter an API Key, map models, enable the proxy, and restart the app.
+Description: Use third-party GPT and Codex models in Claude Desktop with a BetterToken custom API Key, CC Switch model mapping, Gateway setup, and 401 fixes.
 
-With CC Switch `v3.16.5` or later, you can use a BetterToken **GPT Key group** API Key in Claude Desktop. Create a provider, enable the proxy, and restart Claude Desktop. The configuration then takes effect automatically.
+Claude Desktop can use third-party GPT and Codex models through the CC Switch Gateway. With CC Switch `v3.16.5` or later, add a BetterToken **GPT Key group** API Key, select the OpenAI Responses API format, map the models, enable the proxy, and restart Claude Desktop.
 
 <Info>
   Use the latest versions of Claude Desktop and CC Switch. This setup requires a BetterToken API Key from the **GPT Key group**.
@@ -13414,15 +13510,15 @@ BetterToken does not change the runtime boundary between CLI, App, and Web / Clo
 
 ---
 
-## How to configure a custom provider in Codex CLI config.toml
+## Codex config.toml: Custom Provider, Base URL, and API Key
 
 Source: https://docs.bettertoken.ai/en/faq/codex/config-toml
 
-Description: Configure a Codex CLI custom provider with the correct file, Base URL, API Key environment variable, config precedence, verification, and troubleshooting.
+Description: Configure Codex config.toml for a custom provider: set model_provider, Base URL, API Key env_key, wire_api responses, and fix 401, 404, or model errors.
 
 ## Direct answer
 
-Put user-level settings in `~/.codex/config.toml` and make `model_provider = "custom"` point to `[model_providers.custom]`. For BetterToken, use `https://bettertoken.ai/v1` as `base_url`, `responses` as `wire_api`, and a Model ID from the **GPT Key group**. Use `env_key` to read the API Key from a local environment variable instead of storing it in TOML or a repository.
+To use a custom provider in Codex CLI, edit the user-level `~/.codex/config.toml`. Set `model_provider = "custom"`, define `[model_providers.custom]`, use `https://bettertoken.ai/v1` as the Base URL, and set `wire_api = "responses"`. Read the BetterToken API Key through `env_key`, and copy the Model ID from the **GPT Key group**.
 
 ## Find the correct config file
 
@@ -14102,17 +14198,15 @@ Manual setup is for advanced users who are comfortable editing local Codex files
 
 ---
 
-## How to configure a custom OpenAI API Key and Base URL in Cursor
+## Cursor Custom OpenAI API: Base URL, API Key, and Models
 
 Source: https://docs.bettertoken.ai/en/faq/cursor/custom-openai-api
 
-Description: Understand Cursor OpenAI-compatible API Key, Override OpenAI Base URL, custom model, and model ID boundaries.
+Description: Configure a Custom OpenAI API in Cursor with a BetterToken API Key, Override OpenAI Base URL, and GPT Model ID, with fixes for 401 and model not found.
 
 ## Short answer
 
-To configure a custom OpenAI-compatible API in Cursor, keep three fields aligned: API Key, Base URL, and Model ID.
-
-API Key authenticates the request. Base URL decides which provider receives the request. Model ID decides which model to use. All three should come from the same provider or compatible gateway.
+To connect BetterToken as a Custom OpenAI API in Cursor, enter an API Key from the **GPT Key group**, enable Override OpenAI Base URL, and set it to `https://bettertoken.ai/v1`. Then add a current GPT Model ID from the model plaza. The API Key, Base URL, and Model ID must all belong to the same provider.
 
 ## When this matters
 
@@ -15970,6 +16064,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Code
 
 ## 相关 FAQ
 
+- [在 Claude Desktop 使用第三方模型与 Codex](/zh/faq/claude-desktop/third-party-models)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
@@ -19702,6 +19797,54 @@ b64_json = result["data"][0]["b64_json"]
 
 ---
 
+## Claude Opus 5 已在 BetterToken 上线
+
+Source: https://docs.bettertoken.ai/zh/model-updates/claude-opus-5
+
+Description: Claude Opus 5 已在 BetterToken 上线，模型 ID 为 claude-opus-5，适合复杂编码、长时间 Agent 工作流和最高 1M tokens 上下文任务。
+
+发布日期：2026-07-24
+
+BetterToken 现已支持 `claude-opus-5`。该模型适合复杂编码、长时间 Agent 工作流，以及围绕大型代码库展开的多步骤任务。接入时，请创建 `Claude` 分组的 API Key，使用 Base URL `https://bettertoken.ai`，并将模型 ID 设置为 `claude-opus-5`。
+
+当前可用状态和实时价格请以<a href={"https://bettertoken.ai/pricing"}>模型广场</a>为准。
+
+## 更新亮点
+
+- **面向复杂编码任务**：Anthropic 推荐将 Opus 5 用于复杂的 Agent 编码和专业工作，尤其适合重视质量与长任务稳定性的场景
+- **最高 `1M tokens` 上下文**：可以处理大型代码仓库、长对话历史和大量输入资料
+- **最高 `128K tokens` 输出**：适合较大规模的代码修改、报告和多步骤交付内容
+- **默认启用 adaptive thinking**：模型会根据任务自动调整推理深度
+- **更完整的 effort 控制**：支持 `low`、`medium`、`high`、`xhigh` 和 `max`
+
+## 如何接入
+
+1. <a href={"https://bettertoken.ai/register"}>注册并创建 API Key</a>，Key group 选择 `Claude`。
+2. 将 Base URL 设置为 `https://bettertoken.ai`。
+3. 将模型设置为 `claude-opus-5`。
+4. 使用 Claude Code 时，请按照 [Claude Code 接入文档](/zh/ai-tools/claude-code)配置；需要管理多个 provider 时，可以参考 [CC Switch 接入文档](/zh/ai-tools/cc-switch)。
+
+如果你还在比较不同模型，可以查看[模型选择指南](/zh/faq/model-calling/model-selection-guide)，根据任务复杂度、响应速度和成本需求选择模型。
+
+## 从 Opus 4.8 迁移时要检查什么
+
+大多数配置只需要把模型 ID 从 `claude-opus-4-8` 改为 `claude-opus-5`。同时请注意以下两项变化：
+
+- **Thinking 默认开启**。当 effort 设置为 `xhigh` 或 `max` 时，如果同时关闭 thinking，请求会返回 `400` 错误。
+- **`max_tokens` 同时包含 thinking 和可见回答**。对于需要长推理和大量输出的任务，请预留足够的输出空间。
+
+<Tip>
+  首次测试时，建议使用真实工作流中的任务，例如分析代码仓库、修改多个文件或运行较长的 Agent 任务。这样更容易在批量切换前评估质量、延迟和 token 消耗。
+</Tip>
+
+## 官方资料
+
+- [Claude Platform release notes](https://platform.claude.com/docs/en/release-notes/overview)
+- [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [Migration guide](https://platform.claude.com/docs/en/about-claude/models/migration-guide)
+
+---
+
 ## GPT-5.6 模型上架
 
 Source: https://docs.bettertoken.ai/zh/model-updates/gpt-5.6
@@ -20722,13 +20865,13 @@ BetterToken 处理模型 API 接入，不负责 MCP server。Claude Desktop 的 
 
 ---
 
-## Claude Desktop 第三方模型配置：通过 CC Switch 接入 BetterToken
+## Claude Desktop 第三方模型：自定义 API 与 Codex 配置
 
 Source: https://docs.bettertoken.ai/zh/faq/claude-desktop/third-party-models
 
-Description: 通过 CC Switch 为 Claude Desktop 配置 BetterToken 自定义 API：填写 API Key、设置模型映射、开启代理并重启应用。
+Description: 在 Claude Desktop 使用 GPT 和 Codex 第三方模型：通过 CC Switch 配置 BetterToken 自定义 API Key、模型映射和 Gateway，并解决 401。
 
-通过 CC Switch `v3.16.5` 或更新版本，你可以将 BetterToken 的 **GPT 分组** API Key 接入 Claude Desktop。创建 provider、开启代理并重启 Claude Desktop 后，配置会自动生效。
+Claude Desktop 可以通过 CC Switch Gateway 使用 GPT、Codex 等第三方模型。在 CC Switch `v3.16.5` 或更新版本中添加 BetterToken **GPT 分组**API Key，选择 OpenAI Responses API 格式，完成模型映射并开启代理，重启 Claude Desktop 后即可生效。
 
 <Info>
   请使用最新版本的 Claude Desktop 和 CC Switch。此流程需要 BetterToken 的 **GPT 分组** API Key。
@@ -21183,15 +21326,15 @@ BetterToken 不改变 CLI、App、Web / Cloud 之间的运行位置和权限边�
 
 ---
 
-## Codex CLI config.toml 如何配置自定义 provider？
+## Codex config.toml：自定义 provider、Base URL 与 API Key
 
 Source: https://docs.bettertoken.ai/zh/faq/codex/config-toml
 
-Description: 配置 Codex CLI 自定义 provider：文件位置、最小可用示例、API Key 环境变量、配置层级、验证与常见错误。
+Description: 配置 Codex config.toml 自定义 provider：设置 model_provider、Base URL、API Key env_key、wire_api responses，并解决 401、404 和模型错误。
 
 ## 直接答案
 
-把用户级配置写入 `~/.codex/config.toml`，让 `model_provider = "custom"` 对应 `[model_providers.custom]`。使用 BetterToken 时，`base_url` 填 `https://bettertoken.ai/v1`，`wire_api` 填 `responses`，模型从 **GPT 分组**复制。API Key 推荐通过 `env_key` 指向本机环境变量，不要直接写进 TOML 或提交到仓库。
+要在 Codex CLI 使用自定义 provider，请编辑用户级 `~/.codex/config.toml`。设置 `model_provider = "custom"`，添加 `[model_providers.custom]`，Base URL 填 `https://bettertoken.ai/v1`，并设置 `wire_api = "responses"`。BetterToken API Key 通过 `env_key` 读取，Model ID 从 **GPT 分组**复制。
 
 ## 先确认配置文件位置
 
@@ -21873,17 +22016,15 @@ Description: 通过 CC Switch 使用第三方 API 或自定义模型，同时保
 
 ---
 
-## Cursor 如何配置自定义 OpenAI API Key 和 Base URL？
+## Cursor 自定义 OpenAI API：Base URL、API Key 与模型
 
 Source: https://docs.bettertoken.ai/zh/faq/cursor/custom-openai-api
 
-Description: 说明 Cursor 中 OpenAI-compatible API Key、Override OpenAI Base URL、custom model 和模型 ID 的配置边界。
+Description: 在 Cursor 配置自定义 OpenAI API：填写 BetterToken API Key、Override OpenAI Base URL 和 GPT 模型 ID，并解决 401 与模型不存在。
 
 ## 简短答案
 
-在 Cursor 中配置自定义 OpenAI-compatible API，核心是三项：API Key、Base URL、Model ID。
-
-API Key 用于鉴权，Base URL 决定请求发往哪个 provider，Model ID 决定使用哪个模型。三者必须来自同一个 provider 或兼容网关。
+要在 Cursor 接入 BetterToken 自定义 OpenAI API，请在模型设置中填写 **GPT 分组**API Key，开启 Override OpenAI Base URL，并填入 `https://bettertoken.ai/v1`。然后从模型广场添加当前可用的 GPT 模型 ID。API Key、Base URL 和 Model ID 必须属于同一个 provider。
 
 ## 什么时候需要它
 

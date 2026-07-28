@@ -1,0 +1,45 @@
+---
+title: "Claude Opus 5 已在 BetterToken 上线"
+description: "Claude Opus 5 已在 BetterToken 上线，模型 ID 为 claude-opus-5，适合复杂编码、长时间 Agent 工作流和最高 1M tokens 上下文任务。"
+tag: "NEW"
+---
+
+发布日期：2026-07-24
+
+BetterToken 现已支持 `claude-opus-5`。该模型适合复杂编码、长时间 Agent 工作流，以及围绕大型代码库展开的多步骤任务。接入时，请创建 `Claude` 分组的 API Key，使用 Base URL `{{anthropic-base-url}}`，并将模型 ID 设置为 `claude-opus-5`。
+
+当前可用状态和实时价格请以<a href={"{{model-plaza-url}}"}>模型广场</a>为准。
+
+## 更新亮点
+
+- **面向复杂编码任务**：Anthropic 推荐将 Opus 5 用于复杂的 Agent 编码和专业工作，尤其适合重视质量与长任务稳定性的场景
+- **最高 `1M tokens` 上下文**：可以处理大型代码仓库、长对话历史和大量输入资料
+- **最高 `128K tokens` 输出**：适合较大规模的代码修改、报告和多步骤交付内容
+- **默认启用 adaptive thinking**：模型会根据任务自动调整推理深度
+- **更完整的 effort 控制**：支持 `low`、`medium`、`high`、`xhigh` 和 `max`
+
+## 如何接入
+
+1. <a href={"{{register-url}}"}>注册并创建 API Key</a>，Key group 选择 `Claude`。
+2. 将 Base URL 设置为 `{{anthropic-base-url}}`。
+3. 将模型设置为 `claude-opus-5`。
+4. 使用 Claude Code 时，请按照 [Claude Code 接入文档](/zh/ai-tools/claude-code)配置；需要管理多个 provider 时，可以参考 [CC Switch 接入文档](/zh/ai-tools/cc-switch)。
+
+如果你还在比较不同模型，可以查看[模型选择指南](/zh/faq/model-calling/model-selection-guide)，根据任务复杂度、响应速度和成本需求选择模型。
+
+## 从 Opus 4.8 迁移时要检查什么
+
+大多数配置只需要把模型 ID 从 `claude-opus-4-8` 改为 `claude-opus-5`。同时请注意以下两项变化：
+
+- **Thinking 默认开启**。当 effort 设置为 `xhigh` 或 `max` 时，如果同时关闭 thinking，请求会返回 `400` 错误。
+- **`max_tokens` 同时包含 thinking 和可见回答**。对于需要长推理和大量输出的任务，请预留足够的输出空间。
+
+<Tip>
+  首次测试时，建议使用真实工作流中的任务，例如分析代码仓库、修改多个文件或运行较长的 Agent 任务。这样更容易在批量切换前评估质量、延迟和 token 消耗。
+</Tip>
+
+## 官方资料
+
+- [Claude Platform release notes](https://platform.claude.com/docs/en/release-notes/overview)
+- [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [Migration guide](https://platform.claude.com/docs/en/about-claude/models/migration-guide)
