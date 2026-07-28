@@ -8,106 +8,256 @@ import { fileURLToPath } from 'node:url';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = await readFile(path.join(rootDir, 'scripts', 'llmeasy-metrica-spa.js.template'), 'utf8');
-const listeners = new Map();
-const hits = [];
-let currentUrl = new URL('https://docs.bettertoken.ai/en/quickstart?_ym_debug=2');
-let currentPath = currentUrl.pathname;
+const docsConfig = JSON.parse(await readFile(path.join(rootDir, 'docs.json'), 'utf8'));
 
-const location = {
-  get href() {
-    return currentUrl.href;
-  },
-  get origin() {
-    return currentUrl.origin;
-  },
-  get pathname() {
-    return currentUrl.pathname;
-  },
-  get search() {
-    return currentUrl.search;
-  },
-};
+assert.equal(
+  docsConfig.integrations?.gtm,
+  undefined,
+  'GTM must not also be injected through docs.json'
+);
 
-const document = {
-  title: 'Quickstart | BetterToken',
-  documentElement: {
+function createHarness(initialUrl) {
+  const listeners = new Map();
+  const clarityCalls = [];
+  const metricaCalls = [];
+  const appendedScripts = [];
+  const maskedAttributes = new Map();
+  const playground = {
+    matches(selector) {
+      return selector === '[id^="api-playground-"]';
+    },
+    querySelectorAll() {
+      return [];
+    },
+    setAttribute(name, value) {
+      maskedAttributes.set(name, value);
+    },
+  };
+  let currentUrl = new URL(initialUrl);
+  let currentPath = currentUrl.pathname;
+
+  const location = {
+    get href() {
+      return currentUrl.href;
+    },
+    get hostname() {
+      return currentUrl.hostname;
+    },
+    get origin() {
+      return currentUrl.origin;
+    },
+    get pathname() {
+      return currentUrl.pathname;
+    },
+    get search() {
+      return currentUrl.search;
+    },
+  };
+
+  const documentElement = {
+    appendChild(script) {
+      appendedScripts.push(script);
+    },
     getAttribute(name) {
       return name === 'data-current-path' ? currentPath : null;
     },
-  },
-};
+    matches() {
+      return false;
+    },
+    querySelectorAll(selector) {
+      return selector === '[id^="api-playground-"]' ? [playground] : [];
+    },
+  };
 
-const history = {
-  pushState(_state, _unused, url) {
-    currentUrl = new URL(url, currentUrl);
-    currentPath = currentUrl.pathname;
-  },
-  replaceState(_state, _unused, url) {
-    currentUrl = new URL(url, currentUrl);
-    currentPath = currentUrl.pathname;
-  },
-};
+  const document = {
+    title: 'Quickstart | BetterToken',
+    documentElement,
+    head: {
+      appendChild(script) {
+        appendedScripts.push(script);
+      },
+    },
+    addEventListener(name, callback) {
+      listeners.set(name, callback);
+    },
+    createElement(tagName) {
+      assert.equal(tagName, 'script');
+      return {
+        async: false,
+        attributes: new Map(),
+        setAttribute(name, value) {
+          this.attributes.set(name, value);
+        },
+      };
+    },
+    querySelector(selector) {
+      if (!selector.includes('googletagmanager.com/gtm.js')) {
+        return null;
+      }
 
-const window = {
-  document,
-  history,
-  location,
-  addEventListener(name, callback) {
-    listeners.set(name, callback);
-  },
-  requestAnimationFrame(callback) {
-    queueMicrotask(() => callback(Date.now()));
-  },
-  setTimeout,
-  ym(...args) {
-    hits.push(JSON.parse(JSON.stringify(args)));
-  },
-};
+      return appendedScripts.find((script) => script.src?.includes('googletagmanager.com/gtm.js')) ?? null;
+    },
+  };
 
-vm.runInNewContext(source, {
-  Date,
-  URL,
-  console,
-  document,
-  window,
-});
+  const history = {
+    pushState(_state, _unused, url) {
+      currentUrl = new URL(url, currentUrl);
+      currentPath = currentUrl.pathname;
+    },
+    replaceState(_state, _unused, url) {
+      currentUrl = new URL(url, currentUrl);
+      currentPath = currentUrl.pathname;
+    },
+  };
 
-assert.equal(hits.length, 0, 'initial load must rely on the automatic Metrica page view');
+  class MutationObserver {
+    constructor(callback) {
+      this.callback = callback;
+    }
 
-history.pushState({}, '', '/en/ai-tools/codex?_ym_debug=2');
-assert.equal(hits.length, 0, 'route hit must wait until the document title is updated');
-document.title = 'Codex | BetterToken';
+    observe() {}
+  }
+
+  const window = {
+    MutationObserver,
+    clarity(...args) {
+      clarityCalls.push(structuredClone(args));
+    },
+    document,
+    history,
+    location,
+    addEventListener(name, callback) {
+      listeners.set(name, callback);
+    },
+    requestAnimationFrame(callback) {
+      queueMicrotask(() => callback(Date.now()));
+    },
+    setTimeout,
+    ym(...args) {
+      metricaCalls.push(structuredClone(args));
+    },
+  };
+
+  const context = {
+    Date,
+    URL,
+    console,
+    document,
+    window,
+  };
+
+  return {
+    appendedScripts,
+    clarityCalls,
+    context,
+    document,
+    history,
+    listeners,
+    maskedAttributes,
+    metricaCalls,
+    window,
+  };
+}
+
+function clickTarget({ href, copy = false }) {
+  const anchor = href ? { href } : null;
+  const copyButton = copy ? {} : null;
+
+  return {
+    closest(selector) {
+      if (selector === 'a[href]') return anchor;
+      if (selector === 'button[data-testid="copy-code-button"]') return copyButton;
+      return null;
+    },
+  };
+}
+
+function ga4Events(dataLayer) {
+  return dataLayer
+    .filter((entry) => typeof entry?.[0] === 'string' && entry[0] === 'event')
+    .map((entry) => JSON.parse(JSON.stringify(Array.from(entry))));
+}
+
+const blockedUrls = [
+  'http://localhost:3000/en/quickstart',
+  'http://127.0.0.1:3000/en/quickstart',
+  'https://bettertoken-d796114e.mintlify.app/en/quickstart',
+  'https://deployment-preview.mintlify.app/en/quickstart',
+];
+
+for (const blockedUrl of blockedUrls) {
+  const preview = createHarness(blockedUrl);
+  vm.runInNewContext(source, preview.context);
+
+  assert.equal(preview.appendedScripts.length, 0, `${blockedUrl} must not load GTM`);
+  assert.equal(preview.listeners.size, 0, `${blockedUrl} must not install analytics listeners`);
+  assert.equal(preview.window.dataLayer, undefined, `${blockedUrl} must not create an analytics queue`);
+}
+
+const production = createHarness('https://docs.bettertoken.ai/en/quickstart?api_key=secret');
+vm.runInNewContext(source, production.context);
+vm.runInNewContext(source, production.context);
+
+assert.equal(production.appendedScripts.length, 1, 'production must load GTM exactly once');
+assert.equal(
+  production.appendedScripts[0].src,
+  'https://www.googletagmanager.com/gtm.js?id=GTM-KXQ798MR'
+);
+assert.equal(
+  production.maskedAttributes.get('data-clarity-mask'),
+  'true',
+  'API Playground must be masked for Clarity'
+);
+assert.deepEqual(
+  production.clarityCalls,
+  [['set', 'site_surface', 'docs']],
+  'Clarity site surface must be set once'
+);
+assert.equal(
+  production.metricaCalls.length,
+  0,
+  'initial load must rely on the automatic Metrica page view'
+);
+
+production.history.pushState({}, '', '/en/ai-tools/codex?api_key=secret');
+assert.equal(production.metricaCalls.length, 0, 'route hit must wait for the new title');
+production.document.title = 'Codex | BetterToken';
 await new Promise((resolve) => setTimeout(resolve, 80));
 
-assert.deepEqual(hits, [[
+assert.deepEqual(production.metricaCalls, [[
   110565477,
   'hit',
-  'https://docs.bettertoken.ai/en/ai-tools/codex?_ym_debug=2',
+  'https://docs.bettertoken.ai/en/ai-tools/codex',
   { title: 'Codex | BetterToken' },
 ]]);
 
-history.replaceState({}, '', '/en/ai-tools/codex?_ym_debug=2');
-history.pushState({}, '', '/en/ai-tools/codex?_ym_debug=2');
-await new Promise((resolve) => setTimeout(resolve, 20));
-assert.equal(hits.length, 1, 'the same route must not be reported twice');
+const click = production.listeners.get('click');
+click({ target: clickTarget({ href: 'https://bettertoken.ai/register?email=private@example.com' }) });
+click({ target: clickTarget({ copy: true }) });
 
-history.pushState({}, '', '/en/faq/claude-desktop-llmeasy-api?_ym_debug=2');
-document.title = 'Claude Desktop | BetterToken';
-await new Promise((resolve) => setTimeout(resolve, 80));
-assert.equal(hits.length, 2, 'a second document route must produce one hit');
-
-currentUrl = new URL('https://docs.bettertoken.ai/en/ai-tools/codex?_ym_debug=2');
-currentPath = currentUrl.pathname;
-listeners.get('popstate')();
-document.title = 'Codex | BetterToken';
-await new Promise((resolve) => setTimeout(resolve, 80));
-
-assert.equal(hits.length, 3, 'back navigation must produce one hit');
-assert.deepEqual(hits[2], [
-  110565477,
-  'hit',
-  'https://docs.bettertoken.ai/en/ai-tools/codex?_ym_debug=2',
-  { title: 'Codex | BetterToken' },
+assert.deepEqual(production.clarityCalls, [
+  ['set', 'site_surface', 'docs'],
+  ['event', 'docs_to_register'],
+  ['event', 'docs_code_copied'],
 ]);
+assert.deepEqual(production.metricaCalls.slice(1), [
+  [110565477, 'reachGoal', 'docs_to_register'],
+  [110565477, 'reachGoal', 'docs_code_copied'],
+]);
+assert.equal(
+  JSON.stringify(ga4Events(production.window.dataLayer)),
+  JSON.stringify([
+    ['event', 'docs_to_register', { event_category: 'docs', site_surface: 'docs' }],
+    ['event', 'docs_code_copied', { event_category: 'docs', site_surface: 'docs' }],
+  ])
+);
 
-console.log('BetterToken Yandex Metrica SPA tracking check passed.');
+const serializedEvents = JSON.stringify({
+  clarity: production.clarityCalls.slice(1),
+  ga4: ga4Events(production.window.dataLayer),
+  metrica: production.metricaCalls.slice(1),
+});
+
+assert.doesNotMatch(serializedEvents, /secret|private@example\.com|api_key/i);
+
+console.log('BetterToken production-only analytics check passed.');
