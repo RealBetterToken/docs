@@ -7353,6 +7353,87 @@ BetterToken может централизовать API Key, баланс и usa
 
 ---
 
+## Почему Responses API и Messages API показывают разное число input tokens?
+
+Source: https://docs.bettertoken.ai/faq/token-cost/responses-vs-messages-input-tokens
+
+Description: Узнайте, почему одинаковые API Key и модель могут показывать разное число input tokens в Responses API и Messages API, и как корректно сравнить запросы.
+
+## Короткий ответ
+
+Даже при одинаковых API Key, модели и сообщении пользователя Responses API и Messages API могут показывать разное число input tokens. Usage зависит от полного контекста, который в итоге получает модель, а не только от отправленной вами фразы.
+
+Для некоторых GPT-моделей, доступных через Codex-compatible Responses route, upstream может подставить официальные базовые инструкции Codex, если поле `instructions` не было передано. Эти инструкции входят в model context и отображаются в поле `instructions` ответа. Messages API использует другой protocol path и не добавляет ту же базовую инструкцию автоматически, поэтому тот же короткий вопрос может показывать там всего несколько input tokens.
+
+BetterToken не добавляет этот prompt в обычные OpenAI-compatible запросы. Его наличие также не означает, что вы используете Codex App. Инструкция появляется из-за реализации Responses route выбранного upstream.
+
+## Что может входить в input tokens
+
+| Содержимое | Может учитываться как input tokens |
+| --- | --- |
+| Сообщение пользователя | Да |
+| `instructions`, system или developer prompts | Да |
+| История диалога и summaries | Да |
+| Содержимое файлов, code context и attachments | Да |
+| Tool definitions и tool results | Да |
+| Повторяющийся context из cache | Показывается как cache read tokens |
+
+В Responses API поле `instructions` попадает в model context как сообщение уровня system или developer. Если в записи запроса или response виден длинный `instructions`, это важная причина увеличения input tokens.
+
+## Как читать usage records
+
+- `input_tokens`: общий объем input, переданный в model context для этого запроса. Он может включать обычный input и cache reads.
+- `cache_read_input_tokens`: часть этого input, прочитанная из cache. Она остается частью context текущего запроса и означает, что сервер повторно использовал cached context processing. Правило billing определяется cached-input ценой модели.
+- `output_tokens`: содержимое, сгенерированное моделью в этом запросе.
+
+Например, запись Responses может показать `input_tokens` `4393`, из которых `cache_read_input_tokens` составляют `3840`. Все `4393` tokens участвовали в context, но `3840` были прочитаны из cache и не должны полностью рассчитываться как обычный input. Сравнивайте ordinary input, cache reads и output отдельно, используя актуальные правила billing в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+## Почему `instructions` может появиться при прямом API-вызове
+
+`instructions` — официальный field Responses API, который добавляет к модели инструкции уровня system или developer. Протокол Responses допускает это поле, но не предписывает prompt Codex только потому, что вы вызываете `/v1/responses`.
+
+Если модель работает через Codex-compatible Responses route, upstream implementation может загрузить официальные Codex `base_instructions`, отправить их финальной модели как default `instructions` и вернуть их в response. Поэтому исходный HTTP Body может содержать только `model` и `input`, а в ответе все равно появится длинное значение, начинающееся с `You are Codex...`.
+
+Разные upstream domains могут возвращать полностью одинаковый текст. Такие providers могут использовать одну и ту же Codex-compatible gateway implementation, одинаковые официальные model metadata или один и тот же финальный Codex Responses backend. Разные домены не гарантируют разные model routes или base instructions.
+
+Обычный OpenAI-compatible relay BetterToken не создает эти базовые инструкции Codex. BetterToken сохраняет `instructions`, которые вы передали сами, и возвращает upstream response. Chat Completions и Messages используют другие protocol entry points, поэтому одинаковая default instruction там появляется не обязательно.
+
+Чтобы найти источник, выполните следующие шаги:
+
+1. Сохраните redacted raw HTTP Body там, где создается запрос. Проверьте `instructions`, сообщения `system` или `developer` внутри `input`, историю диалога, tools и files.
+2. С теми же API Key и Model ID отправьте минимальный запрос только с `model` и одним `input`. Не передавайте `instructions`, history или tools.
+3. Сравните `instructions` и usage в двух responses.
+4. Если outbound Body не содержит `instructions`, но response все равно включает длинное значение, оно было добавлено в upstream Responses path. Для дополнительной проверки передайте поддержке BetterToken время запроса, request ID, модель и redacted Body.
+
+## Как корректно сравнить два протокола
+
+Проверьте следующее:
+
+1. Используйте один и тот же Model ID.
+2. Отправляйте абсолютно одинаковое пользовательское сообщение.
+3. Передавайте одинаковые system, developer или `instructions` в обоих запросах. Для минимального теста не передавайте дополнительный context ни в одном из них.
+4. Не добавляйте разную историю диалога, файлы, attachments, tools или MCP context.
+5. Сравнивайте input, cache и output отдельно, а не только общую cost.
+
+Отправьте минимальные запросы через оба endpoint с одинаковым ключом, Model ID и пользовательским сообщением. Так проще отделить различия протокола от контекста, который добавляет клиент.
+
+## Как выбрать API
+
+- Используйте `/v1/responses`, если вам нужны reasoning, tools или Codex-compatible возможности Responses API, и проверяйте ordinary input и cache reads отдельно.
+- Если нужен только простой чат и модель также поддерживает Chat Completions или Messages, сравните качество ответа, совместимость и cost перед выбором endpoint.
+- Не оценивайте cost только по общему `input_tokens`. Для cached input обычно действует отдельное правило billing.
+
+Удаление локального поля `instructions` не убирает default Codex instructions, добавленные upstream. Если нужен протокол без этой default instruction, сначала убедитесь, что целевая модель поддерживает Chat Completions или Messages.
+
+## Related docs
+
+- [Чем отличаются OpenAI-compatible и Anthropic-compatible API?](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Настройка Codex CLI с BetterToken](/ai-tools/codex)
+
+- [OpenAI Responses API reference](https://platform.openai.com/docs/api-reference/responses)
+
+---
+
 ## OpenAI-compatible API и Anthropic-compatible API: в чем разница?
 
 Source: https://docs.bettertoken.ai/faq/concepts/openai-compatible-vs-anthropic-compatible
@@ -7558,212 +7639,6 @@ BetterToken и MCP можно использовать вместе: BetterToken
 - [Claude Code MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
 - [Model Context Protocol introduction](https://modelcontextprotocol.io/docs/getting-started/intro)
 - [Anthropic MCP overview](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)
-
----
-
-## Справочник API
-
-Source: https://docs.bettertoken.ai/api-reference/introduction
-
-Description: Endpoint, авторизация и настройка BetterToken по протоколам.
-
-## Endpoint
-
-BetterToken использует два endpoint в зависимости от протокола:
-
-| Сценарий | Base URL | Протокол |
-|----------|----------|----------|
-| Claude Code / `ANTHROPIC_BASE_URL` | `https://bettertoken.ai` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / внешние инструменты | `https://bettertoken.ai/v1` | OpenAI-style / OpenAI Responses |
-
-<Warning>
-  Не используйте один общий endpoint для всех протоколов.
-</Warning>
-
-## Тестирование endpoint
-
-Откройте отдельную страницу нужного endpoint, чтобы заполнить запрос в Playground справа и отправить его напрямую:
-
-- [OpenAI Responses API](/api-reference/responses) для Codex и приложений, использующих `/v1/responses`
-- [OpenAI Chat Completions API](/api-reference/chat-completions) для инструментов, использующих `/v1/chat/completions`
-- [Anthropic Messages API](/api-reference/messages) для Claude Code, Anthropic SDK и приложений, использующих `/v1/messages`
-
-В Playground указывайте только свой API Key. Перед тестом OpenAI-compatible endpoint сверяйте модель из GPT Key group с <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
-
-## Авторизация и примеры
-
-Передавайте API Key BetterToken вместе с запросом:
-
-<Tabs>
-  <Tab title="Claude Code / Anthropic">
-    ```python
-    import anthropic
-
-    client = anthropic.Anthropic(
-        base_url="https://bettertoken.ai",
-        api_key="YOUR_API_KEY",
-    )
-
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": "Hello"}],
-    )
-    ```
-
-    ```bash
-    curl "https://bettertoken.ai/v1/messages" \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: 2023-06-01" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "claude-sonnet-4-6",
-        "max_tokens": 1024,
-        "messages": [
-          {"role": "user", "content": "Привет"}
-        ]
-      }'
-    ```
-
-    `ANTHROPIC_BASE_URL` для SDK указывает на корневой адрес. В ручном curl-запросе используйте полный путь `/v1/messages`, а не `/messages`.
-  </Tab>
-  <Tab title="Codex / OpenAI Responses">
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url="https://bettertoken.ai/v1",
-        api_key="YOUR_API_KEY",
-    )
-
-    response = client.responses.create(
-        model="ID модели группы GPT из https://bettertoken.ai/pricing",
-        input="Hello",
-    )
-    ```
-
-    ```bash
-    curl "https://bettertoken.ai/v1/responses" \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "YOUR_GPT_MODEL_ID",
-        "input": "Привет"
-      }'
-    ```
-
-    Замените `YOUR_GPT_MODEL_ID` на актуальный ID из **группы GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Этот пример использует OpenAI Responses API, как и Codex.
-  </Tab>
-</Tabs>
-
-## Правила выбора модели
-
-- **Claude Code + Группа ключа Claude**: не задавайте переменные моделей вручную; настройте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
-- **Claude Code + Группа ключа GPT**: добавьте сопоставления через `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` и `ANTHROPIC_DEFAULT_OPUS_MODEL`
-- **Codex**: используйте ID модели из группы **GPT** в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-- **Внешние инструменты**: также используйте модели группы **GPT**, а не фиксированные имена Claude-моделей
-
-<Note>
-  Для внешних инструментов обычно достаточно `Base URL`, API Key и модели, которые указаны в официальной документации инструмента. Добавляйте дополнительные headers только если сам инструмент или ваш upstream gateway явно требуют этого.
-</Note>
-
-## Справочник переменных окружения
-
-| Переменная | Значение | Где используется |
-|------------|----------|------------------|
-| `ANTHROPIC_BASE_URL` | `https://bettertoken.ai` | Claude Code |
-| `ANTHROPIC_AUTH_TOKEN` | Ваш API Key | Авторизация Claude Code |
-| `OPENAI_BASE_URL` | `https://bettertoken.ai/v1` | Codex и другие OpenAI-style инструменты |
-| `OPENAI_API_KEY` | Ваш API Key | Авторизация OpenAI-style инструментов |
-| `API_TIMEOUT_MS` | `3000000` | Рекомендуется для длинных задач |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Только Claude Code |
-
----
-
-## OpenAI Responses API
-
-Source: https://docs.bettertoken.ai/api-reference/responses
-
-Description: Тестируйте BetterToken OpenAI Responses API для Codex: Base URL, Bearer API Key и запрос POST /v1/responses.
-
-`POST /v1/responses`
-
-Используйте этот endpoint для Codex и приложений, работающих с OpenAI Responses API.
-
-<Note>
-  Base URL: `https://bettertoken.ai/v1`. Передавайте API Key через `Authorization: Bearer YOUR_API_KEY`.
-</Note>
-
-## Тест в Playground
-
-В Playground справа вставьте свой API Key, при необходимости замените `model` на актуальный ID из GPT Key group и отправьте запрос. Перед тестом проверьте модель в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
-
-<Warning>
-  Используйте только свой тестовый API Key. Не публикуйте ключ в коде, скриншотах, тикетах или Git-репозитории.
-</Warning>
-
-## Связанные endpoint
-
-- [OpenAI Chat Completions API](/api-reference/chat-completions)
-- [Anthropic Messages API](/api-reference/messages)
-
----
-
-## OpenAI Chat Completions API
-
-Source: https://docs.bettertoken.ai/api-reference/chat-completions
-
-Description: Тестируйте BetterToken OpenAI-compatible Chat Completions API: Base URL, Bearer API Key и POST /v1/chat/completions.
-
-`POST /v1/chat/completions`
-
-Используйте этот endpoint для внешних инструментов и приложений, которым нужен OpenAI-compatible Chat Completions API.
-
-<Note>
-  Base URL: `https://bettertoken.ai/v1`. Передавайте API Key через `Authorization: Bearer YOUR_API_KEY`.
-</Note>
-
-## Тест в Playground
-
-В Playground справа вставьте свой API Key, укажите доступную модель из GPT Key group и заполните `messages`. Перед тестом проверьте ID модели в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
-
-<Warning>
-  Не добавляйте `/chat/completions` к Base URL в настройках внешнего инструмента, если сам инструмент формирует путь endpoint. В Playground полный путь уже задан.
-</Warning>
-
-## Связанные endpoint
-
-- [OpenAI Responses API](/api-reference/responses)
-- [Anthropic Messages API](/api-reference/messages)
-
----
-
-## Anthropic Messages API
-
-Source: https://docs.bettertoken.ai/api-reference/messages
-
-Description: Тестируйте BetterToken Anthropic-compatible Messages API: x-api-key, anthropic-version и POST /v1/messages.
-
-`POST /v1/messages`
-
-Используйте этот endpoint для Claude Code, Anthropic SDK и приложений, работающих с Anthropic Messages API.
-
-<Note>
-  Для SDK укажите `https://bettertoken.ai` как Base URL. В ручном запросе и Playground используется полный путь `https://bettertoken.ai/v1/messages`.
-</Note>
-
-## Тест в Playground
-
-В Playground справа вставьте свой API Key в поле `x-api-key`, оставьте `anthropic-version` равным `2023-06-01`, укажите доступную модель из Claude Key group и отправьте запрос.
-
-<Warning>
-  Для этого endpoint не используйте `Authorization: Bearer ...`. Нужен header `x-api-key`.
-</Warning>
-
-## Связанные endpoint
-
-- [OpenAI Responses API](/api-reference/responses)
-- [OpenAI Chat Completions API](/api-reference/chat-completions)
 
 ---
 
@@ -15110,6 +14985,87 @@ It does not decide which files Claude Code reads, how large `CLAUDE.md` is, whic
 
 ---
 
+## Why Do Responses API and Messages API Use Different Input Tokens?
+
+Source: https://docs.bettertoken.ai/en/faq/token-cost/responses-vs-messages-input-tokens
+
+Description: Learn why the same API Key and model can report different input tokens through the Responses API and Messages API, and how to compare requests fairly.
+
+## Quick answer
+
+Even with the same API Key, model, and user message, the Responses API and Messages API can report different input token counts. Usage depends on the full context received by the model, not only on the sentence you send.
+
+For some GPT models served through a Codex-compatible Responses route, the upstream can supply the official Codex base instructions when `instructions` is omitted. Those instructions enter the model context and appear in the response's `instructions` field. The Messages API uses a different protocol path and does not automatically use the same Codex base instructions, so the same short question can report only a few input tokens there.
+
+BetterToken does not add this prompt to ordinary OpenAI-compatible requests, and its presence does not mean that you are using the Codex App. It comes from the selected upstream's implementation of the Responses route.
+
+## What can count as input tokens
+
+| Content | Can count as input tokens |
+| --- | --- |
+| User message | Yes |
+| `instructions`, system, or developer prompts | Yes |
+| Conversation history and summaries | Yes |
+| File content, code context, and attachments | Yes |
+| Tool definitions and tool results | Yes |
+| Repeated context served from cache | Reported as cache read tokens |
+
+In the Responses API, `instructions` enters the model context as a system or developer-level message. If a request record or response shows a long `instructions` value, it is a significant source of additional input tokens.
+
+## How to read usage records
+
+- `input_tokens`: the total input that entered the model context for this request. It can include ordinary input and cache reads.
+- `cache_read_input_tokens`: the part of that input retrieved from cache. It remains part of this request's context and indicates that the server reused cached context processing. The billing rule follows the model's cached-input price.
+- `output_tokens`: content generated by the model for this request.
+
+For example, a Responses record can show `input_tokens` of `4393`, including `cache_read_input_tokens` of `3840`. All `4393` tokens participated in the context, but `3840` were cache reads and are not all billed as ordinary input. Review ordinary input, cache reads, and output separately, using the current billing rules shown in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+## Why can a direct API call include `instructions`?
+
+`instructions` is an official Responses API field used to add system- or developer-level guidance for the model. The Responses protocol allows this field, but it does not prescribe a Codex prompt merely because you call `/v1/responses`.
+
+When a model is served through a Codex-compatible Responses route, the upstream implementation can load the official Codex `base_instructions`, send them to the final model as default `instructions`, and echo them in the response. Your original HTTP body can therefore contain only `model` and `input` while the response still includes a long value beginning with `You are Codex...`.
+
+Different upstream domains can return exactly the same text. Those providers can use the same Codex-compatible gateway implementation, the same official model metadata, or the same final Codex Responses backend. Different domain names do not guarantee different model routes or base instructions.
+
+BetterToken's ordinary OpenAI-compatible relay does not generate these Codex base instructions. BetterToken preserves any `instructions` you submit and returns the upstream response. Chat Completions and Messages use different protocol entry points, so they do not necessarily receive the same default.
+
+Use these steps to identify the source:
+
+1. Log the redacted raw HTTP body where the request is created. Check for `instructions`, `system` or `developer` messages inside `input`, conversation history, tools, or files.
+2. With the same API Key and Model ID, send a minimal request containing only `model` and one `input`. Do not send `instructions`, history, or tools.
+3. Compare `instructions` and usage in the two responses.
+4. If the outbound body has no `instructions` but the response still contains a long value, it was added in the upstream Responses path. For further verification, send the request time, request ID, model, and redacted body to BetterToken support.
+
+## How to compare the two protocols fairly
+
+Use this checklist when investigating:
+
+1. Use the same Model ID.
+2. Send exactly the same user message.
+3. Use the same system, developer, or `instructions` content in both requests. For a minimal test, omit that extra content from both.
+4. Do not include different conversation history, files, attachments, tools, or MCP context.
+5. Compare input, cache, and output separately instead of comparing total cost only.
+
+Send minimal requests to both endpoints with the same key, Model ID, and user message. This makes it easier to distinguish protocol behavior from client-supplied context.
+
+## How to choose an API
+
+- Use `/v1/responses` when you need Responses API reasoning, tools, or Codex-compatible behavior, and review ordinary input and cache reads separately.
+- If you only need simple chat and the model also supports Chat Completions or Messages, compare output quality, compatibility, and cost before choosing the endpoint.
+- Do not estimate cost from total `input_tokens` alone. Cached input normally follows a separate billing rule.
+
+Removing the local `instructions` field cannot remove default Codex instructions added by the upstream. If you need a protocol without that default, first confirm that the target model supports Chat Completions or Messages.
+
+## Related docs
+
+- [OpenAI-compatible vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Configure Codex CLI with BetterToken](/en/ai-tools/codex)
+
+- [OpenAI Responses API reference](https://platform.openai.com/docs/api-reference/responses)
+
+---
+
 ## OpenAI-Compatible API vs Anthropic-Compatible API
 
 Source: https://docs.bettertoken.ai/en/faq/concepts/openai-compatible-vs-anthropic-compatible
@@ -15315,212 +15271,6 @@ You can use BetterToken and MCP together: BetterToken handles model requests, wh
 - [Claude Code MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
 - [Model Context Protocol introduction](https://modelcontextprotocol.io/docs/getting-started/intro)
 - [Anthropic MCP overview](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)
-
----
-
-## API Reference
-
-Source: https://docs.bettertoken.ai/en/api-reference/introduction
-
-Description: BetterToken endpoints, authentication, and protocol-specific setup.
-
-## Endpoints
-
-BetterToken now uses two different endpoints by protocol:
-
-| Scenario | Base URL | Protocol |
-|----------|----------|----------|
-| Claude Code / `ANTHROPIC_BASE_URL` | `https://bettertoken.ai` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / external tools | `https://bettertoken.ai/v1` | OpenAI-style / OpenAI Responses |
-
-<Warning>
-  Do not keep using one shared endpoint for every protocol.
-</Warning>
-
-## Test an endpoint
-
-Open the page for the endpoint you need. Its Playground on the right lets you fill in the request and send it directly:
-
-- [OpenAI Responses API](/en/api-reference/responses) for Codex and applications that use `/v1/responses`
-- [OpenAI Chat Completions API](/en/api-reference/chat-completions) for tools that use `/v1/chat/completions`
-- [Anthropic Messages API](/en/api-reference/messages) for Claude Code, the Anthropic SDK, and applications that use `/v1/messages`
-
-Only enter your own API Key in the Playground. Before testing an OpenAI-compatible endpoint, confirm the GPT Key group model ID in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
-
-## Authentication and examples
-
-Pass your BetterToken API Key with the request:
-
-<Tabs>
-  <Tab title="Claude Code / Anthropic">
-    ```python
-    import anthropic
-
-    client = anthropic.Anthropic(
-        base_url="https://bettertoken.ai",
-        api_key="YOUR_API_KEY",
-    )
-
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": "Hello"}],
-    )
-    ```
-
-    ```bash
-    curl "https://bettertoken.ai/v1/messages" \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: 2023-06-01" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "claude-sonnet-4-6",
-        "max_tokens": 1024,
-        "messages": [
-          {"role": "user", "content": "Hello"}
-        ]
-      }'
-    ```
-
-    `ANTHROPIC_BASE_URL` points the SDK at the root address. A manual curl request must use the full `/v1/messages` path, not `/messages`.
-  </Tab>
-  <Tab title="Codex / OpenAI Responses">
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url="https://bettertoken.ai/v1",
-        api_key="YOUR_API_KEY",
-    )
-
-    response = client.responses.create(
-        model="model ID copied from the GPT Key group in https://bettertoken.ai/pricing",
-        input="Hello",
-    )
-    ```
-
-    ```bash
-    curl "https://bettertoken.ai/v1/responses" \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "YOUR_GPT_MODEL_ID",
-        "input": "Hello"
-      }'
-    ```
-
-    Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. This example uses the OpenAI Responses API, which is also used by Codex.
-  </Tab>
-</Tabs>
-
-## Model selection rules
-
-- **Claude Code + Claude Key group**: do not set model variables manually; only configure `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
-- **Claude Code + GPT Key group**: add model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`
-- **Codex**: use a model ID copied from the **GPT Key group** in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-- **External tools**: also use **GPT Key group** model IDs instead of fixed Claude model names
-
-<Note>
-  For external tools, you usually only need the `Base URL`, API key, and model specified by that tool's official docs. Only add extra headers when the tool itself or your upstream gateway explicitly requires them.
-</Note>
-
-## Environment variable reference
-
-| Variable | Value | Usage |
-|----------|-------|-------|
-| `ANTHROPIC_BASE_URL` | `https://bettertoken.ai` | Claude Code |
-| `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code auth |
-| `OPENAI_BASE_URL` | `https://bettertoken.ai/v1` | Codex and other OpenAI-style tools |
-| `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
-| `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |
-
----
-
-## OpenAI Responses API
-
-Source: https://docs.bettertoken.ai/en/api-reference/responses
-
-Description: Test BetterToken's OpenAI Responses API for Codex: Base URL, Bearer API Key, and POST /v1/responses.
-
-`POST /v1/responses`
-
-Use this endpoint for Codex and applications that use the OpenAI Responses API.
-
-<Note>
-  Base URL: `https://bettertoken.ai/v1`. Pass your API Key as `Authorization: Bearer YOUR_API_KEY`.
-</Note>
-
-## Test in the Playground
-
-In the Playground on the right, enter your API Key, replace `model` with a current GPT Key group model ID when needed, and send the request. Confirm the model in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before testing.
-
-<Warning>
-  Only use your own test API Key. Do not put keys in code, screenshots, tickets, or Git repositories.
-</Warning>
-
-## Related endpoints
-
-- [OpenAI Chat Completions API](/en/api-reference/chat-completions)
-- [Anthropic Messages API](/en/api-reference/messages)
-
----
-
-## OpenAI Chat Completions API
-
-Source: https://docs.bettertoken.ai/en/api-reference/chat-completions
-
-Description: Test BetterToken's OpenAI-compatible Chat Completions API: Base URL, Bearer API Key, and POST /v1/chat/completions.
-
-`POST /v1/chat/completions`
-
-Use this endpoint for external tools and applications that require the OpenAI-compatible Chat Completions API.
-
-<Note>
-  Base URL: `https://bettertoken.ai/v1`. Pass your API Key as `Authorization: Bearer YOUR_API_KEY`.
-</Note>
-
-## Test in the Playground
-
-In the Playground on the right, enter your API Key, choose an available GPT Key group model, fill in `messages`, and send the request. Confirm the model ID in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before testing.
-
-<Warning>
-  Do not append `/chat/completions` to the Base URL in an external tool when the tool constructs the endpoint path itself. The Playground already uses the full path.
-</Warning>
-
-## Related endpoints
-
-- [OpenAI Responses API](/en/api-reference/responses)
-- [Anthropic Messages API](/en/api-reference/messages)
-
----
-
-## Anthropic Messages API
-
-Source: https://docs.bettertoken.ai/en/api-reference/messages
-
-Description: Test BetterToken's Anthropic-compatible Messages API: x-api-key, anthropic-version, and POST /v1/messages.
-
-`POST /v1/messages`
-
-Use this endpoint for Claude Code, the Anthropic SDK, and applications that use the Anthropic Messages API.
-
-<Note>
-  For an SDK, use `https://bettertoken.ai` as the Base URL. A manual request and the Playground use the full `https://bettertoken.ai/v1/messages` path.
-</Note>
-
-## Test in the Playground
-
-In the Playground on the right, enter your API Key in the `x-api-key` field, leave `anthropic-version` as `2023-06-01`, choose an available Claude Key group model, and send the request.
-
-<Warning>
-  Do not use `Authorization: Bearer ...` for this endpoint. It requires the `x-api-key` header.
-</Warning>
-
-## Related endpoints
-
-- [OpenAI Responses API](/en/api-reference/responses)
-- [OpenAI Chat Completions API](/en/api-reference/chat-completions)
 
 ---
 
@@ -22937,6 +22687,87 @@ BetterToken 可以帮助你集中查看 API Key、余额和用量记录。它能
 
 ---
 
+## 为什么 Responses API 和 Messages API 的输入 Token 不同？
+
+Source: https://docs.bettertoken.ai/zh/faq/token-cost/responses-vs-messages-input-tokens
+
+Description: 了解为什么同一 API Key 和模型通过 Responses API 与 Messages API 会记录不同的输入 Token，以及如何进行公平对比。
+
+## 简短答案
+
+即使使用同一个 API Key、同一个模型和同一条用户消息，Responses API 与 Messages API 的输入 Token 也可能不同。用量取决于模型最终收到的完整上下文，而不只取决于你写的那一句话。
+
+对于部分 GPT 模型的 Codex-compatible Responses 路由，上游会在未显式传入 `instructions` 时补充官方 Codex 基础说明。该说明会进入模型上下文，并在响应的 `instructions` 字段中显示。Messages API 走的是另一条协议路径，不会自动使用这套 Codex 基础说明，因此同一条简短问题可能只记录十几个输入 Token。
+
+这不是 BetterToken 为普通 OpenAI-compatible 请求添加的提示词，也不代表你正在使用 Codex App。它来自所选上游对 Responses 路由的实现。
+
+## 哪些内容会计入输入 Token
+
+| 内容 | 是否可能计入输入 Token |
+| --- | --- |
+| 用户消息 | 是 |
+| `instructions`、system 或 developer 提示词 | 是 |
+| 会话历史和摘要 | 是 |
+| 文件内容、代码上下文和附件 | 是 |
+| 工具定义与工具调用结果 | 是 |
+| 缓存命中的重复上下文 | 会显示为缓存读取 Token |
+
+在 Responses API 中，`instructions` 会作为 system 或 developer 级别的消息进入模型上下文。若返回内容或请求记录中出现一大段 `instructions`，它就是输入 Token 增加的重要原因。
+
+## 如何看用量记录
+
+- `input_tokens`：本次请求进入模型上下文的输入总量，其中可能包含普通输入和缓存读取。
+- `cache_read_input_tokens`：上述输入中命中缓存、从缓存读取的 Token。它仍是本次上下文的一部分，表示服务端复用了已缓存的上下文处理；实际计费规则以模型的缓存输入价格为准。
+- `output_tokens`：模型本次生成的内容。
+
+例如，一条 Responses 记录显示 `input_tokens` 为 `4393`，其中 `cache_read_input_tokens` 为 `3840`。这表示 `4393` 个输入 Token 都参与了上下文，但其中 `3840` 个属于缓存读取，并不是全部按普通输入的规则计费。请在用量明细中分别查看普通输入、缓存读取和输出，并以<a href={"https://bettertoken.ai/pricing"}>模型广场</a>显示的实时计费规则为准。
+
+## 为什么纯 API 调用也会出现 `instructions`
+
+`instructions` 是 Responses API 的正式字段，用来向模型加入 system 或 developer 级别的说明。Responses 协议允许这个字段，但不会因为你调用了 `/v1/responses` 就自动规定一段 Codex 提示词。
+
+当所选模型通过 Codex-compatible Responses 路由提供时，上游实现可能读取该模型对应的官方 Codex `base_instructions`，把它作为默认 `instructions` 发送给最终模型，并在响应中回显。因此，即使你的原始 HTTP Body 只有 `model` 和 `input`，响应里仍可能出现以 `You are Codex...` 开头的长说明。
+
+不同上游域名也可能出现完全相同的内容。原因是这些供应商可能使用相同的 Codex-compatible 网关实现、相同的官方模型元数据，或者继续转发到同一个最终 Codex Responses 后端。域名不同不代表底层模型入口和基础说明一定不同。
+
+BetterToken 的普通 OpenAI-compatible 转发不会自行生成这段 Codex 基础说明。BetterToken 会保留你主动提交的 `instructions`，并把上游返回的响应传回给你。Chat Completions 和 Messages 使用不同的协议入口，因此不会必然出现相同的默认说明。
+
+要定位来源，请按下面步骤检查：
+
+1. 在发起请求的位置记录脱敏后的原始 HTTP Body，确认其中是否有 `instructions`、`input` 内的 `system` 或 `developer` 消息、历史消息、工具或文件。
+2. 用同一 API Key 和 Model ID 发送最小请求，只保留 `model` 与一条 `input`，不要传 `instructions`、历史或 tools。
+3. 对比两次响应中的 `instructions` 和 usage。
+4. 如果原始 Body 没有 `instructions`，但响应仍出现长说明，则说明它是在上游 Responses 链路中补充的。需要进一步核对时，请向 BetterToken 支持团队提供请求时间、请求 ID、模型和脱敏后的 Body。
+
+## 如何公平比较两个协议
+
+使用下面的方式排查：
+
+1. 选择同一个 Model ID。
+2. 使用完全相同的用户消息。
+3. 让两次请求使用相同的 system、developer 或 `instructions` 内容；若要做最小测试，则两边都不传这些额外内容。
+4. 不携带不同的历史消息、文件、附件、工具或 MCP 上下文。
+5. 分别查看 input、cache 与 output，而不是只比较总费用。
+
+请使用同一个 Key、Model ID 和用户消息，分别向两个接口发送最小请求。这样更容易区分协议差异与客户端附带上下文的差异。
+
+## 如何选择接口
+
+- 需要 Responses API 的 reasoning、tools 或 Codex-compatible 能力时，继续使用 `/v1/responses`，并在用量明细中区分普通输入与缓存读取。
+- 只需要简单对话，且目标模型同时支持 Chat Completions 或 Messages 时，可以比较对应接口的实际输出、兼容性和费用后再选择。
+- 不要仅根据 `input_tokens` 总数判断费用。缓存读取 Token 通常采用单独的计费规则。
+
+上游补充的默认 Codex 说明无法通过删除本地 `instructions` 字段消除。若你希望使用不带该默认说明的协议，请先确认目标模型是否支持 Chat Completions 或 Messages。
+
+## Related docs
+
+- [如何选择 Claude-compatible 或 OpenAI-compatible API？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Codex CLI 接入 BetterToken](/zh/ai-tools/codex)
+
+- [OpenAI Responses API reference](https://platform.openai.com/docs/api-reference/responses)
+
+---
+
 ## OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？
 
 Source: https://docs.bettertoken.ai/zh/faq/concepts/openai-compatible-vs-anthropic-compatible
@@ -23142,212 +22973,6 @@ BetterToken 是模型 API 层，不是 MCP server。它负责 API Key、Base URL
 - [Claude Code MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
 - [Model Context Protocol introduction](https://modelcontextprotocol.io/docs/getting-started/intro)
 - [Anthropic MCP overview](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)
-
----
-
-## API 参考
-
-Source: https://docs.bettertoken.ai/zh/api-reference/introduction
-
-Description: BetterToken 的接入地址、认证方式与协议区分。
-
-## 接入地址
-
-BetterToken 现在按协议区分两个地址：
-
-| 场景 | Base URL | 协议 |
-|------|----------|------|
-| Claude Code / `ANTHROPIC_BASE_URL` | `https://bettertoken.ai` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / 其他外部工具 | `https://bettertoken.ai/v1` | OpenAI 类协议 / OpenAI Responses |
-
-<Warning>
-  不要继续使用“一个地址适配所有协议”的旧写法。
-</Warning>
-
-## 测试接口
-
-打开对应接口页面，即可在右侧 Playground 填写请求并直接发送：
-
-- [OpenAI Responses API](/zh/api-reference/responses)，适用于 Codex 与使用 `/v1/responses` 的应用
-- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)，适用于使用 `/v1/chat/completions` 的工具
-- [Anthropic Messages API](/zh/api-reference/messages)，适用于 Claude Code、Anthropic SDK 与使用 `/v1/messages` 的应用
-
-Playground 中只填写你自己的 API Key。测试 OpenAI 类协议接口前，请先在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认 GPT 分组模型 ID。
-
-## 认证与示例
-
-在请求中传入你的 BetterToken API Key：
-
-<Tabs>
-  <Tab title="Claude Code / Anthropic">
-    ```python
-    import anthropic
-
-    client = anthropic.Anthropic(
-        base_url="https://bettertoken.ai",
-        api_key="YOUR_API_KEY",
-    )
-
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": "你好"}],
-    )
-    ```
-
-    ```bash
-    curl "https://bettertoken.ai/v1/messages" \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: 2023-06-01" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "claude-sonnet-4-6",
-        "max_tokens": 1024,
-        "messages": [
-          {"role": "user", "content": "你好"}
-        ]
-      }'
-    ```
-
-    `ANTHROPIC_BASE_URL` 在 SDK 中只填写根地址；手动发送 curl 请求时必须使用完整的 `/v1/messages` 路径，不能写成 `/messages`。
-  </Tab>
-  <Tab title="Codex / OpenAI Responses">
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url="https://bettertoken.ai/v1",
-        api_key="YOUR_API_KEY",
-    )
-
-    response = client.responses.create(
-        model="从 https://bettertoken.ai/pricing 复制的 GPT 分组模型 ID",
-        input="你好",
-    )
-    ```
-
-    ```bash
-    curl "https://bettertoken.ai/v1/responses" \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "YOUR_GPT_MODEL_ID",
-        "input": "你好"
-      }'
-    ```
-
-    将 `YOUR_GPT_MODEL_ID` 替换为<a href={"https://bettertoken.ai/pricing"}>模型广场</a>中当前可用的 **GPT 分组**模型 ID。该示例使用的是 Codex 同样采用的 OpenAI Responses API。
-  </Tab>
-</Tabs>
-
-## 模型选择规则
-
-- **Claude Code + Claude 分组**：不要手动设置模型变量，只配置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`
-- **Claude Code + GPT 分组**：通过 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` 配置模型映射
-- **Codex**：在配置里填入从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制的 **GPT 分组**模型 ID
-- **其他外部工具**：同样统一使用 **GPT 分组**模型 ID，不再沿用 Claude 系列固定模型名
-
-<Note>
-  对于外部工具，通常只需要按该工具官方文档填写 `Base URL`、API Key 和模型。只有当工具本身或你接入的上游网关明确要求额外 headers 时，再单独配置。
-</Note>
-
-## 环境变量速查
-
-| 变量 | 值 | 用途 |
-|------|----|------|
-| `ANTHROPIC_BASE_URL` | `https://bettertoken.ai` | Claude Code |
-| `ANTHROPIC_AUTH_TOKEN` | 你的 API Key | Claude Code 认证 |
-| `OPENAI_BASE_URL` | `https://bettertoken.ai/v1` | Codex 与其他 OpenAI 类协议工具 |
-| `OPENAI_API_KEY` | 你的 API Key | OpenAI 类协议工具认证 |
-| `API_TIMEOUT_MS` | `3000000` | 建议设置，防止长任务超时 |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code 专用，减少后台请求 |
-
----
-
-## OpenAI Responses API
-
-Source: https://docs.bettertoken.ai/zh/api-reference/responses
-
-Description: 测试 BetterToken 面向 Codex 的 OpenAI Responses API：Base URL、Bearer API Key 与 POST /v1/responses。
-
-`POST /v1/responses`
-
-适用于 Codex 与使用 OpenAI Responses API 的应用。
-
-<Note>
-  Base URL：`https://bettertoken.ai/v1`。通过 `Authorization: Bearer YOUR_API_KEY` 传入 API Key。
-</Note>
-
-## 在 Playground 中测试
-
-在右侧 Playground 填入你的 API Key；如有需要，将 `model` 改为当前可用的 GPT 分组模型 ID，然后发送请求。测试前请在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认模型。
-
-<Warning>
-  只使用你自己的测试 API Key。不要把 API Key 写入代码、截图、工单或 Git 仓库。
-</Warning>
-
-## 相关接口
-
-- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)
-- [Anthropic Messages API](/zh/api-reference/messages)
-
----
-
-## OpenAI Chat Completions API
-
-Source: https://docs.bettertoken.ai/zh/api-reference/chat-completions
-
-Description: 测试 BetterToken 的 OpenAI 类协议 Chat Completions API：Base URL、Bearer API Key 与 POST /v1/chat/completions。
-
-`POST /v1/chat/completions`
-
-适用于需要 OpenAI 类协议 Chat Completions API 的外部工具和应用。
-
-<Note>
-  Base URL：`https://bettertoken.ai/v1`。通过 `Authorization: Bearer YOUR_API_KEY` 传入 API Key。
-</Note>
-
-## 在 Playground 中测试
-
-在右侧 Playground 填入你的 API Key，选择可用的 GPT 分组模型，填写 `messages` 后发送请求。测试前请在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认模型 ID。
-
-<Warning>
-  若外部工具会自动拼接 endpoint 路径，就不要在它的 Base URL 后追加 `/chat/completions`。Playground 已经使用完整请求路径。
-</Warning>
-
-## 相关接口
-
-- [OpenAI Responses API](/zh/api-reference/responses)
-- [Anthropic Messages API](/zh/api-reference/messages)
-
----
-
-## Anthropic Messages API
-
-Source: https://docs.bettertoken.ai/zh/api-reference/messages
-
-Description: 测试 BetterToken 的 Anthropic 类协议 Messages API：x-api-key、anthropic-version 与 POST /v1/messages。
-
-`POST /v1/messages`
-
-适用于 Claude Code、Anthropic SDK 与使用 Anthropic Messages API 的应用。
-
-<Note>
-  SDK 的 Base URL 填 `https://bettertoken.ai`。手动请求和 Playground 使用完整路径 `https://bettertoken.ai/v1/messages`。
-</Note>
-
-## 在 Playground 中测试
-
-在右侧 Playground 的 `x-api-key` 字段填入你的 API Key，`anthropic-version` 保持 `2023-06-01`，选择可用的 Claude 分组模型后发送请求。
-
-<Warning>
-  此接口不要使用 `Authorization: Bearer ...`。它需要 `x-api-key` 请求头。
-</Warning>
-
-## 相关接口
-
-- [OpenAI Responses API](/zh/api-reference/responses)
-- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)
 
 ---
 
@@ -23626,8 +23251,8 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
             "description": "Заголовок версии Anthropic API.",
             "schema": {
               "type": "string",
-              "default": "2023-06-01",
-              "example": "2023-06-01"
+              "default": "claude-cli/2.0.76 (external, cli)",
+              "example": "claude-cli/2.0.76 (external, cli)"
             }
           }
         ],
@@ -23675,7 +23300,7 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
           {
             "lang": "cURL",
             "label": "cURL",
-            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: 2023-06-01' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"claude-sonnet-4-6\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: claude-cli/2.0.76 (external, cli)' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"claude-sonnet-4-6\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
           }
         ]
       }

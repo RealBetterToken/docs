@@ -1,0 +1,78 @@
+---
+title: "Почему Responses API и Messages API показывают разное число input tokens?"
+sidebarTitle: "Tokens: Responses и Messages"
+description: "Узнайте, почему одинаковые API Key и модель могут показывать разное число input tokens в Responses API и Messages API, и как корректно сравнить запросы."
+---
+
+## Короткий ответ
+
+Даже при одинаковых API Key, модели и сообщении пользователя Responses API и Messages API могут показывать разное число input tokens. Usage зависит от полного контекста, который в итоге получает модель, а не только от отправленной вами фразы.
+
+Для некоторых GPT-моделей, доступных через Codex-compatible Responses route, upstream может подставить официальные базовые инструкции Codex, если поле `instructions` не было передано. Эти инструкции входят в model context и отображаются в поле `instructions` ответа. Messages API использует другой protocol path и не добавляет ту же базовую инструкцию автоматически, поэтому тот же короткий вопрос может показывать там всего несколько input tokens.
+
+BetterToken не добавляет этот prompt в обычные OpenAI-compatible запросы. Его наличие также не означает, что вы используете Codex App. Инструкция появляется из-за реализации Responses route выбранного upstream.
+
+## Что может входить в input tokens
+
+| Содержимое | Может учитываться как input tokens |
+| --- | --- |
+| Сообщение пользователя | Да |
+| `instructions`, system или developer prompts | Да |
+| История диалога и summaries | Да |
+| Содержимое файлов, code context и attachments | Да |
+| Tool definitions и tool results | Да |
+| Повторяющийся context из cache | Показывается как cache read tokens |
+
+В Responses API поле `instructions` попадает в model context как сообщение уровня system или developer. Если в записи запроса или response виден длинный `instructions`, это важная причина увеличения input tokens.
+
+## Как читать usage records
+
+- `input_tokens`: общий объем input, переданный в model context для этого запроса. Он может включать обычный input и cache reads.
+- `cache_read_input_tokens`: часть этого input, прочитанная из cache. Она остается частью context текущего запроса и означает, что сервер повторно использовал cached context processing. Правило billing определяется cached-input ценой модели.
+- `output_tokens`: содержимое, сгенерированное моделью в этом запросе.
+
+Например, запись Responses может показать `input_tokens` `4393`, из которых `cache_read_input_tokens` составляют `3840`. Все `4393` tokens участвовали в context, но `3840` были прочитаны из cache и не должны полностью рассчитываться как обычный input. Сравнивайте ordinary input, cache reads и output отдельно, используя актуальные правила billing в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Почему `instructions` может появиться при прямом API-вызове
+
+`instructions` — официальный field Responses API, который добавляет к модели инструкции уровня system или developer. Протокол Responses допускает это поле, но не предписывает prompt Codex только потому, что вы вызываете `/v1/responses`.
+
+Если модель работает через Codex-compatible Responses route, upstream implementation может загрузить официальные Codex `base_instructions`, отправить их финальной модели как default `instructions` и вернуть их в response. Поэтому исходный HTTP Body может содержать только `model` и `input`, а в ответе все равно появится длинное значение, начинающееся с `You are Codex...`.
+
+Разные upstream domains могут возвращать полностью одинаковый текст. Такие providers могут использовать одну и ту же Codex-compatible gateway implementation, одинаковые официальные model metadata или один и тот же финальный Codex Responses backend. Разные домены не гарантируют разные model routes или base instructions.
+
+Обычный OpenAI-compatible relay BetterToken не создает эти базовые инструкции Codex. BetterToken сохраняет `instructions`, которые вы передали сами, и возвращает upstream response. Chat Completions и Messages используют другие protocol entry points, поэтому одинаковая default instruction там появляется не обязательно.
+
+Чтобы найти источник, выполните следующие шаги:
+
+1. Сохраните redacted raw HTTP Body там, где создается запрос. Проверьте `instructions`, сообщения `system` или `developer` внутри `input`, историю диалога, tools и files.
+2. С теми же API Key и Model ID отправьте минимальный запрос только с `model` и одним `input`. Не передавайте `instructions`, history или tools.
+3. Сравните `instructions` и usage в двух responses.
+4. Если outbound Body не содержит `instructions`, но response все равно включает длинное значение, оно было добавлено в upstream Responses path. Для дополнительной проверки передайте поддержке BetterToken время запроса, request ID, модель и redacted Body.
+
+## Как корректно сравнить два протокола
+
+Проверьте следующее:
+
+1. Используйте один и тот же Model ID.
+2. Отправляйте абсолютно одинаковое пользовательское сообщение.
+3. Передавайте одинаковые system, developer или `instructions` в обоих запросах. Для минимального теста не передавайте дополнительный context ни в одном из них.
+4. Не добавляйте разную историю диалога, файлы, attachments, tools или MCP context.
+5. Сравнивайте input, cache и output отдельно, а не только общую cost.
+
+Отправьте минимальные запросы через оба endpoint с одинаковым ключом, Model ID и пользовательским сообщением. Так проще отделить различия протокола от контекста, который добавляет клиент.
+
+## Как выбрать API
+
+- Используйте `/v1/responses`, если вам нужны reasoning, tools или Codex-compatible возможности Responses API, и проверяйте ordinary input и cache reads отдельно.
+- Если нужен только простой чат и модель также поддерживает Chat Completions или Messages, сравните качество ответа, совместимость и cost перед выбором endpoint.
+- Не оценивайте cost только по общему `input_tokens`. Для cached input обычно действует отдельное правило billing.
+
+Удаление локального поля `instructions` не убирает default Codex instructions, добавленные upstream. Если нужен протокол без этой default instruction, сначала убедитесь, что целевая модель поддерживает Chat Completions или Messages.
+
+## Related docs
+
+- [Чем отличаются OpenAI-compatible и Anthropic-compatible API?](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Настройка Codex CLI с BetterToken](/ai-tools/codex)
+
+- [OpenAI Responses API reference](https://platform.openai.com/docs/api-reference/responses)

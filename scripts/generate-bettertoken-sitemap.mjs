@@ -14,6 +14,12 @@ export const betterTokenLanguages = [
   { language: 'en', routePrefix: 'en/', hreflang: 'en' },
   { language: 'zh', routePrefix: 'zh/', hreflang: 'zh-CN' },
 ];
+export const hiddenApiReferenceRoutes = new Set([
+  'api-reference/introduction',
+  'api-reference/responses',
+  'api-reference/chat-completions',
+  'api-reference/messages',
+]);
 
 function collectNavPages(node, pages = []) {
   if (Array.isArray(node)) {
@@ -66,6 +72,8 @@ export function localizedRouteGroups(config) {
       }
 
       const route = definition.routePrefix ? page.slice(definition.routePrefix.length) : page;
+      if (hiddenApiReferenceRoutes.has(route)) continue;
+
       const url = `${betterTokenSiteUrl}${canonicalPath(definition.routePrefix, route)}`;
       const group = groups.get(route) ?? new Map();
       group.set(definition.hreflang, url);

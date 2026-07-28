@@ -1,0 +1,78 @@
+---
+title: "为什么 Responses API 和 Messages API 的输入 Token 不同？"
+sidebarTitle: "Responses 与 Messages Token"
+description: "了解为什么同一 API Key 和模型通过 Responses API 与 Messages API 会记录不同的输入 Token，以及如何进行公平对比。"
+---
+
+## 简短答案
+
+即使使用同一个 API Key、同一个模型和同一条用户消息，Responses API 与 Messages API 的输入 Token 也可能不同。用量取决于模型最终收到的完整上下文，而不只取决于你写的那一句话。
+
+对于部分 GPT 模型的 Codex-compatible Responses 路由，上游会在未显式传入 `instructions` 时补充官方 Codex 基础说明。该说明会进入模型上下文，并在响应的 `instructions` 字段中显示。Messages API 走的是另一条协议路径，不会自动使用这套 Codex 基础说明，因此同一条简短问题可能只记录十几个输入 Token。
+
+这不是 BetterToken 为普通 OpenAI-compatible 请求添加的提示词，也不代表你正在使用 Codex App。它来自所选上游对 Responses 路由的实现。
+
+## 哪些内容会计入输入 Token
+
+| 内容 | 是否可能计入输入 Token |
+| --- | --- |
+| 用户消息 | 是 |
+| `instructions`、system 或 developer 提示词 | 是 |
+| 会话历史和摘要 | 是 |
+| 文件内容、代码上下文和附件 | 是 |
+| 工具定义与工具调用结果 | 是 |
+| 缓存命中的重复上下文 | 会显示为缓存读取 Token |
+
+在 Responses API 中，`instructions` 会作为 system 或 developer 级别的消息进入模型上下文。若返回内容或请求记录中出现一大段 `instructions`，它就是输入 Token 增加的重要原因。
+
+## 如何看用量记录
+
+- `input_tokens`：本次请求进入模型上下文的输入总量，其中可能包含普通输入和缓存读取。
+- `cache_read_input_tokens`：上述输入中命中缓存、从缓存读取的 Token。它仍是本次上下文的一部分，表示服务端复用了已缓存的上下文处理；实际计费规则以模型的缓存输入价格为准。
+- `output_tokens`：模型本次生成的内容。
+
+例如，一条 Responses 记录显示 `input_tokens` 为 `4393`，其中 `cache_read_input_tokens` 为 `3840`。这表示 `4393` 个输入 Token 都参与了上下文，但其中 `3840` 个属于缓存读取，并不是全部按普通输入的规则计费。请在用量明细中分别查看普通输入、缓存读取和输出，并以<a href={"{{model-plaza-url}}"}>模型广场</a>显示的实时计费规则为准。
+
+## 为什么纯 API 调用也会出现 `instructions`
+
+`instructions` 是 Responses API 的正式字段，用来向模型加入 system 或 developer 级别的说明。Responses 协议允许这个字段，但不会因为你调用了 `/v1/responses` 就自动规定一段 Codex 提示词。
+
+当所选模型通过 Codex-compatible Responses 路由提供时，上游实现可能读取该模型对应的官方 Codex `base_instructions`，把它作为默认 `instructions` 发送给最终模型，并在响应中回显。因此，即使你的原始 HTTP Body 只有 `model` 和 `input`，响应里仍可能出现以 `You are Codex...` 开头的长说明。
+
+不同上游域名也可能出现完全相同的内容。原因是这些供应商可能使用相同的 Codex-compatible 网关实现、相同的官方模型元数据，或者继续转发到同一个最终 Codex Responses 后端。域名不同不代表底层模型入口和基础说明一定不同。
+
+BetterToken 的普通 OpenAI-compatible 转发不会自行生成这段 Codex 基础说明。BetterToken 会保留你主动提交的 `instructions`，并把上游返回的响应传回给你。Chat Completions 和 Messages 使用不同的协议入口，因此不会必然出现相同的默认说明。
+
+要定位来源，请按下面步骤检查：
+
+1. 在发起请求的位置记录脱敏后的原始 HTTP Body，确认其中是否有 `instructions`、`input` 内的 `system` 或 `developer` 消息、历史消息、工具或文件。
+2. 用同一 API Key 和 Model ID 发送最小请求，只保留 `model` 与一条 `input`，不要传 `instructions`、历史或 tools。
+3. 对比两次响应中的 `instructions` 和 usage。
+4. 如果原始 Body 没有 `instructions`，但响应仍出现长说明，则说明它是在上游 Responses 链路中补充的。需要进一步核对时，请向 BetterToken 支持团队提供请求时间、请求 ID、模型和脱敏后的 Body。
+
+## 如何公平比较两个协议
+
+使用下面的方式排查：
+
+1. 选择同一个 Model ID。
+2. 使用完全相同的用户消息。
+3. 让两次请求使用相同的 system、developer 或 `instructions` 内容；若要做最小测试，则两边都不传这些额外内容。
+4. 不携带不同的历史消息、文件、附件、工具或 MCP 上下文。
+5. 分别查看 input、cache 与 output，而不是只比较总费用。
+
+请使用同一个 Key、Model ID 和用户消息，分别向两个接口发送最小请求。这样更容易区分协议差异与客户端附带上下文的差异。
+
+## 如何选择接口
+
+- 需要 Responses API 的 reasoning、tools 或 Codex-compatible 能力时，继续使用 `/v1/responses`，并在用量明细中区分普通输入与缓存读取。
+- 只需要简单对话，且目标模型同时支持 Chat Completions 或 Messages 时，可以比较对应接口的实际输出、兼容性和费用后再选择。
+- 不要仅根据 `input_tokens` 总数判断费用。缓存读取 Token 通常采用单独的计费规则。
+
+上游补充的默认 Codex 说明无法通过删除本地 `instructions` 字段消除。若你希望使用不带该默认说明的协议，请先确认目标模型是否支持 Chat Completions 或 Messages。
+
+## Related docs
+
+- [如何选择 Claude-compatible 或 OpenAI-compatible API？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Codex CLI 接入 BetterToken](/zh/ai-tools/codex)
+
+- [OpenAI Responses API reference](https://platform.openai.com/docs/api-reference/responses)

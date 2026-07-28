@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
   betterTokenLanguages,
   buildBetterTokenSitemap,
+  hiddenApiReferenceRoutes,
   localizedRouteGroups,
 } from './generate-bettertoken-sitemap.mjs';
 
@@ -26,6 +27,12 @@ assert(sitemap.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"'), 'Sitemap 
 
 for (const legacyRoute of legacyRoutes) {
   assert(!sitemap.includes(`/${legacyRoute}<`), `Sitemap contains legacy URL /${legacyRoute}`);
+}
+
+for (const hiddenRoute of hiddenApiReferenceRoutes) {
+  assert(!sitemap.includes(`/${hiddenRoute}<`), `Sitemap contains hidden API URL /${hiddenRoute}`);
+  assert(!sitemap.includes(`/en/${hiddenRoute}<`), `Sitemap contains hidden API URL /en/${hiddenRoute}`);
+  assert(!sitemap.includes(`/zh/${hiddenRoute}<`), `Sitemap contains hidden API URL /zh/${hiddenRoute}`);
 }
 
 const expectedLanguages = [...betterTokenLanguages.map(({ hreflang }) => hreflang), 'x-default'];
