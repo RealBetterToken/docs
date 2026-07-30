@@ -1,166 +1,119 @@
 ---
-title: "How to configure a custom Base URL and API Key in the VS Code Codex extension"
-sidebarTitle: "VS Code Codex extension"
-description: "Open the shared config.toml from the VS Code Codex extension, configure BetterToken Base URL, API Key, and GPT Key group model, and fix config loading issues."
+title: "Codex VS Code Extension: Custom Base URL, API Key, and Official Login"
+sidebarTitle: "Codex VS Code Extension"
+description: "Configure the shared config.toml for the Codex VS Code Extension, use BetterToken Responses, and preserve official login, plugins, and Remote Control."
 icon: "/icons/codex-vscode.svg"
 ---
 
-## Direct answer
+The Codex VS Code Extension shares `~/.codex/config.toml` with Codex CLI/App. Use this page when you need to keep the official login, plugins, or Remote Control.
 
-The VS Code Codex extension has no separate Base URL or API Key fields. It shares configuration layers with Codex CLI. Click the gear icon, choose **Codex Settings → Open config.toml**, and add the BetterToken provider to your user config. Then run **Developer: Reload Window** so the extension reads the new endpoint, Key, and model.
+## Key settings
 
-<Info>
-  It is normal if you do not see `Base URL` or API Key fields in VS Code settings. Do not put the custom endpoint in the general VS Code proxy settings.
-</Info>
+| Field | Value |
+| --- | --- |
+| API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
 ## Prerequisites
 
-- VS Code is installed
-- The **Codex - OpenAI's coding agent** extension is installed
-- You have a BetterToken API Key (<a href={"{{register-url}}"}>sign up and get one</a>)
-- You have copied an available model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>
+- Install the latest Codex VS Code Extension
+- Complete the official login in the Extension or Codex App
+- <a href={"{{register-url}}"}>Create a BetterToken API Key</a>
+- Copy a Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> or key **Setup** dialog
 
-<Warning>
-  Do not put your API Key in project files, `AGENTS.md`, sample `.env` files, or public repositories. The configuration below should stay in your local Codex configuration directory.
-</Warning>
+## Install
 
-## Setup methods
+Install the extension from the VS Code Marketplace, then restart VS Code.
 
-<Tabs>
-  <Tab title="Recommended: use the Setup dialog">
-    After you create an API Key, the console opens a **Setup** dialog. From that dialog, copy **API Key** and **Base URL**, then choose a Codex setup method.
+## Manual setup
 
-    <Steps>
-      <Step title="Select Codex">
-        Select **Codex** under **Available tools**.
-      </Step>
+### Configure the Extension
 
-      <Step title="Choose a setup method">
-        You can choose:
+Edit `~/.codex/config.toml`:
 
-        - **One-click Bash Configuration**: copy the command and run it in your local terminal. Use this for quick setup.
-        - **CC Switch Integration**: import the provider into CC Switch. Use this when you manage multiple tools.
-        - **Manual Configuration**: copy API Key and Base URL, then write them into `config.toml`.
-      </Step>
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
 
-      <Step title="Restart VS Code">
-        After the configuration is written, restart VS Code or run **Developer: Reload Window** so the Codex extension reads the local configuration again.
-      </Step>
-    </Steps>
-  </Tab>
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+experimental_bearer_token = "YOUR_API_KEY"
+```
 
-  <Tab title="Manual configuration">
-    <Steps>
-      <Step title="Find config.toml">
-        Click the gear icon in the Codex extension and choose **Codex Settings → Open config.toml**. You can also open:
-
-        | System | Configuration file |
-        | --- | --- |
-        | macOS / Linux | `~/.codex/config.toml` |
-        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
-        | Windows + WSL | `~/.codex/config.toml` inside WSL |
-
-        Codex CLI and the IDE extension read the same config layers. For a project opened through WSL, edit the file inside WSL rather than a separate file in the Windows user directory.
-      </Step>
-
-      <Step title="Add the BetterToken provider">
-        Add the configuration below to `config.toml`. If the file already contains the same top-level fields, merge the configuration instead of writing duplicate `model_provider` entries.
-
-        ```toml
-        model_provider = "{{codex-provider-id}}"
-        model = "gpt-5.5"
-        review_model = "gpt-5.4"
-        model_reasoning_effort = "high"
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
-        windows_wsl_setup_acknowledged = true
-
-        [model_providers]
-        [model_providers.{{codex-provider-id}}]
-        name = "{{codex-provider-name}}"
-        base_url = "{{openai-base-url}}"
-        wire_api = "responses"
-        requires_openai_auth = true
-        experimental_bearer_token = "YOUR_API_KEY"
-        request_max_retries = 4
-        stream_max_retries = 8
-        stream_idle_timeout_ms = 300000
-        supports_websockets = false
-        ```
-
-        Replace `YOUR_API_KEY` with your BetterToken API Key.
-      </Step>
-
-      <Step title="Confirm the key fields">
-        Check these fields first:
-
-        | Field | Value |
-        | --- | --- |
-        | `base_url` | `{{openai-base-url}}` |
-        | `wire_api` | `responses` |
-        | `model` | A model ID copied from the **GPT Key group** |
-        | `experimental_bearer_token` | Your BetterToken API Key |
-
-        <Warning>
-          For the VS Code Codex extension, do not convert `auth.json` into an API Key-only structure. `auth.json` keeps the official Codex login state; the third-party API Key belongs in `experimental_bearer_token`.
-        </Warning>
-      </Step>
-
-      <Step title="Restart VS Code">
-        After editing the file, close the current Codex session and restart VS Code.
-
-        You can also run this from the command palette:
-
-        ```text
-        Developer: Reload Window
-        ```
-      </Step>
-    </Steps>
-  </Tab>
-</Tabs>
-
-## Why keep the official login state?
-
-The VS Code Codex extension depends on Codex app-side capabilities such as the extension UI, session management, and VS Code integration. Keep the official login state while routing model requests through BetterToken.
-
-In this configuration:
-
-| Setting | What it does |
-| --- | --- |
-| `requires_openai_auth = true` | Keeps the official Codex login state |
-| `experimental_bearer_token = "YOUR_API_KEY"` | Uses your BetterToken API Key for model requests |
-| `base_url = "{{openai-base-url}}"` | Sends model requests to BetterToken's OpenAI-compatible / Responses API endpoint |
+Save the file, run **Developer: Reload Window** in VS Code, and reopen the Codex panel.
 
 <Note>
-  The official Codex config reference recommends `env_key` for ordinary custom-provider API Keys. This page uses `experimental_bearer_token` because this scenario also preserves the official Codex login. If you only use Codex CLI and do not need plugins, Remote Control, or the official login state, use the [ordinary custom-provider config.toml setup](/en/faq/codex/config-toml).
+  `requires_openai_auth = true` preserves the official login. `experimental_bearer_token` authenticates BetterToken model requests. Do not write the BetterToken API Key to `auth.json`.
 </Note>
 
-## Verify which config the extension reads
+### Do not combine CLI/App and Extension authentication
 
-After setup, open the Codex extension in VS Code and send a short test message.
+| Scenario | Authentication fields |
+| --- | --- |
+| Codex CLI/App custom provider only | `env_key = "BETTERTOKEN_API_KEY"` and `requires_openai_auth = false` |
+| Extension with official login | `requires_openai_auth = true` and `experimental_bearer_token = "YOUR_API_KEY"` |
 
-If you get a normal response, the configuration is active. You can also open `config.toml` from the extension gear again and confirm it is the file you edited.
+Both alternatives use `[model_providers.custom]`. Keep only one table in a TOML file.
+
+## Verify the connection
+
+Create a new Extension session and send a short task. A response from `YOUR_MODEL_ID` while plugins and Remote Control remain available confirms the setup.
+
+## Switch models
+
+Change `model` and, optionally, `review_model`, then run **Developer: Reload Window**. Use a Model ID from the Setup dialog or model plaza.
 
 ## Common errors
 
-| Symptom | Cause | Fix |
-| --- | --- | --- |
-| Codex CLI works but the VS Code extension fails | The extension runs in another environment or has stale state | Open the actual config from the gear icon; edit the WSL file for WSL projects; run **Developer: Reload Window** |
-| The extension still asks for official login | The Codex IDE extension needs its application-side login | Complete official sign-in, then keep `requires_openai_auth = true` and the third-party bearer token |
-| `401` or `403` | Wrong API Key or unchanged `experimental_bearer_token` | Copy the Key again and do not replace the official login data in `auth.json` |
-| `404` | Base URL is missing `/v1` | Use `{{openai-base-url}}` |
-| Model not found | The Model ID is not in the GPT Key group | Copy a current ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
-| TOML parse error | A field or table is declared twice | Merge the existing config and keep one `[model_providers.{{codex-provider-id}}]` table |
+| Error | Fix |
+| --- | --- |
+| Extension asks you to sign in again | Restore the official login and keep `requires_openai_auth = true`. |
+| `401` or `403` | Copy `experimental_bearer_token` again; do not overwrite `auth.json`. |
+| Duplicate table | Remove the other `[model_providers.custom]` table and keep one authentication mode. |
+| Model not found | Replace `YOUR_MODEL_ID` with a current complete Model ID. |
+| Configuration not applied | Save the file and run **Developer: Reload Window**. |
 
-## Related docs
+## Advanced setup
 
-- [Codex setup guide](/en/ai-tools/codex)
-- [How to keep the official Codex login state with a third-party API](/en/faq/codex/official-login-third-party-api)
-- [How to configure Codex CLI config.toml](/en/faq/codex/config-toml)
-- [What are model_provider, base_url, and wire_api in Codex CLI?](/en/faq/codex/model-provider-base-url-wire-api)
+{/* tool-provider-support:start */}
+### Supported providers
 
-## References
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Related guides
+
+- [Codex CLI/App custom provider](/en/ai-tools/codex)
+- [Preserve the official Codex login with a third-party API](/en/faq/codex/official-login-third-party-api)
+- [Codex config.toml setup guide](/en/faq/codex/config-toml)
+- [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+
+### Official references
 
 - [Codex IDE extension](https://developers.openai.com/codex/ide)
 - [Codex basic configuration](https://developers.openai.com/codex/config-basic)
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+
+## Technical details
+
+<Accordion title="Why Extension authentication differs from CLI/App">
+  The Extension uses the official login for some Codex product features, so this setup keeps `requires_openai_auth = true`. A pure CLI/App custom provider uses an environment variable and `requires_openai_auth = false`. Both send OpenAI Responses requests through `{{openai-base-url}}`.
+</Accordion>

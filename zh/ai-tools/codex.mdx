@@ -1,184 +1,155 @@
 ---
-title: "Codex 自定义 provider：config.toml、Base URL 与 API Key"
+title: "Codex CLI/App 自定义 provider：config.toml、API Key 与 Base URL"
 sidebarTitle: "Codex"
-description: "在 Codex 中将 BetterToken 配置为自定义 provider，包含 config.toml、OpenAI-compatible Base URL、API Key、Responses API 与错误排查。"
+description: "配置 Codex CLI/App 的 custom provider、config.toml、BETTERTOKEN_API_KEY、Responses Base URL 与 Model ID。"
 icon: "code"
 ---
 
-要在 Codex CLI 中使用 BetterToken，请在 `config.toml` 中添加自定义 provider，设置 `base_url = "{{openai-base-url}}"`、`wire_api = "responses"`，并填写 BetterToken API Key。这个 OpenAI-compatible 接入需要使用 **GPT 分组** API Key。
+Codex CLI 和 Codex App 通过 OpenAI Responses 接入 BetterToken。配置文件是 `~/.codex/config.toml`，API Key 通过 `BETTERTOKEN_API_KEY` 环境变量提供。
 
-需要逐项核对字段或复制完整示例时，请查看 [Codex config.toml 配置指南](/zh/faq/codex/config-toml)。
+## 重点信息
 
-<Info>
-  如果你希望在使用第三方 API 的同时保留 Codex App 官方登录态、插件或 Remote Control，请使用 [保留 Codex 登录态的配置方式](/zh/faq/codex/official-login-third-party-api)。
-</Info>
-
-## 选择一种配置方式
-
-| 方式 | 适合场景 |
+| 字段 | 填写内容 |
 | --- | --- |
-| 自动脚本 | 希望在一台电脑上快速写入 provider 配置。 |
-| CC Switch | 希望在 CC Switch 中管理 provider，或保留 Codex App 官方登录态。 |
-| 手动 `config.toml` | 希望清晰查看配置，并控制模型 ID、重试等参数。 |
+| API Key | 环境变量 `BETTERTOKEN_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
-## GPT-5.5 与 GPT-5.6 模型
+## 准备工作
 
-下面的 `config.toml` 示例默认使用 `gpt-5.5` 和 `gpt-5.4`。如需使用 GPT-5.6，请将 `model` 和按需将 `review_model` 改为当前可用的 **GPT 分组**模型 ID；例如模型广场出现 `gpt-5.6-luna` 时可直接填写。不要在 Codex 自定义 provider 中使用 Claude 分组模型 ID。
+- 安装 Node.js
+- <a href={"{{register-url}}"}>创建 BetterToken API Key</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>或 Key 的 **Setup** 弹窗复制 Model ID
 
-## 前置条件
-
-- 已安装 Node.js
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-
-<Warning>
-  配置前请先清除 OpenAI 相关环境变量，避免它们覆盖 `config.toml` 中的设置。
-
-  需要清除的变量包括：
-
-  - `OPENAI_API_KEY`
-  - `OPENAI_BASE_URL`
-
-  macOS / Linux 执行：
-
-  ```bash
-  unset OPENAI_API_KEY
-  unset OPENAI_BASE_URL
-  ```
-
-  Windows PowerShell 执行：
-
-  ```powershell
-  Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
-  Remove-Item Env:OPENAI_BASE_URL -ErrorAction SilentlyContinue
-  [Environment]::SetEnvironmentVariable("OPENAI_API_KEY", $null, "User")
-  [Environment]::SetEnvironmentVariable("OPENAI_BASE_URL", $null, "User")
-  ```
-</Warning>
-
-## 安装 Codex
+## 安装
 
 ```bash
 npm install -g @openai/codex
 ```
 
-## 配置步骤
+## 命令行配置
+
+BetterToken Automatic setup 脚本会写入 Codex provider 配置。脚本需要 Node.js；如果没有通过参数提供 API Key 或 Model ID，运行时会交互式提示输入。
 
 <Tabs>
-  <Tab title="自动配置">
-    你可以直接运行 BetterToken 提供的自动配置脚本。它只负责写入 BetterToken provider 配置，不替代页面上方的安装前置条件。脚本需要 `Node.js`。如果你没有显式传入 API Key 或模型，脚本会按工具能力提示你交互输入。
-
-    按你的操作系统执行对应步骤。你只需要执行其中一项。
-
-    <Steps>
-      <Step title="如果你使用 macOS / Linux">
-        ```bash
-        curl -fsSL {{install-codex-provider-sh-url}} | bash
-        ```
-      </Step>
-      <Step title="如果你使用 Windows">
-        ```powershell
-        iwr {{install-codex-provider-ps1-url}} -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
-        ```
-      </Step>
-    </Steps>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-codex-provider-sh-url}}" | bash
+    ```
   </Tab>
-
-  <Tab title="通过 CC-Switch 配置">
-    这条接入路径由 [CC Switch 接入文档](/zh/ai-tools/cc-switch#codex-cli) 统一维护。
-
-    直接查看 [CC Switch 中的 Codex 配置步骤](/zh/ai-tools/cc-switch#codex-cli)。
-
-    通过 CC Switch 完成配置后，再回到本页继续参考启动、验证或生效说明。
-  </Tab>
-
-  <Tab title="手动配置">
-    <Steps>
-      <Step title="确认默认模型">
-        下方配置默认使用 `gpt-5.5`，并将 review model 设置为 `gpt-5.4`。如果你需要切换模型，请从 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 复制 **GPT 分组**下当前可用的模型 ID。
-      </Step>
-
-      <Step title="确认配置文件位置">
-        手动配置需要修改 Codex 的 `config.toml`。
-
-        | 系统 | `config.toml` |
-        | --- | --- |
-        | macOS / Linux | `~/.codex/config.toml` |
-        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
-      </Step>
-
-      <Step title="编辑 Codex 配置文件">
-        打开 `config.toml`（不存在则新建）。
-
-        <Warning>
-          这里的配置只适用于手动修改 `~/.codex/config.toml`。如果你使用 CC Switch 配置 Codex，请严格按照 [CC Switch 接入文档](/zh/ai-tools/cc-switch#codex-cli) 操作，不要直接复制这里的信息去替换 CC Switch 管理的配置。
-        </Warning>
-
-        添加以下内容：
-
-        ```toml
-        model_provider = "{{codex-provider-id}}"
-        model = "gpt-5.5"
-        review_model = "gpt-5.4"
-        model_reasoning_effort = "high"
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
-        windows_wsl_setup_acknowledged = true
-
-        [model_providers]
-        [model_providers.{{codex-provider-id}}]
-        name = "{{codex-provider-name}}"
-        base_url = "{{openai-base-url}}"
-        wire_api = "responses"
-        requires_openai_auth = false
-        request_max_retries = 4
-        stream_max_retries = 8
-        stream_idle_timeout_ms = 300000
-        supports_websockets = false
-        ```
-      </Step>
-
-      <Step title="重启终端中的 Codex">
-        修改 `config.toml` 后，请结束当前 Codex 进程，并在新终端会话中重新启动。
-      </Step>
-
-      <Step title="启动 Codex">
-        ```bash
-        codex
-        ```
-      </Step>
-    </Steps>
-
-    ### 配置参数说明
-
-    [Codex 官方配置参考](https://developers.openai.com/codex/config-reference)说明，`model_provider` 指向 `model_providers` 里的 provider id，自定义 provider 通过 `[model_providers.<id>]` 定义；`wire_api = "responses"` 是当前支持的 provider 协议值。
-
-    | 配置 | 意义 | 推荐值 |
-    | --- | --- | --- |
-    | `model_provider` | 指定 Codex 当前使用哪个模型供应商；值要对应下面的 `[model_providers.{{codex-provider-id}}]`。 | `"{{codex-provider-id}}"` |
-    | `model` | Codex 默认使用的主模型，日常写代码、改代码、执行任务都会优先用它。 | `"gpt-5.5"` |
-    | `review_model` | `/review` 代码审查命令使用的模型；不配置时默认使用当前主模型。 | `"gpt-5.4"` |
-    | `model_reasoning_effort` | 控制支持 Responses API 的模型使用多少推理强度；可选值包括 `minimal`、`low`、`medium`、`high`、`xhigh`。 | `"high"` |
-    | `model_context_window` | 告诉 Codex 当前模型可用的上下文窗口大小，单位是 token。 | `1000000` |
-    | `model_auto_compact_token_limit` | 当会话历史达到这个 token 阈值时，自动触发上下文压缩。 | `900000` |
-    | `windows_wsl_setup_acknowledged` | Windows / WSL 环境下的初始化确认标记；主要用于避免重复提示 Windows onboarding。 | `true` |
-    | `[model_providers]` | 自定义模型供应商配置的父级配置段。 | `[model_providers]` |
-    | `[model_providers.{{codex-provider-id}}]` | 定义一个 id 为 `{{codex-provider-id}}` 的自定义模型供应商；上面的 `model_provider = "{{codex-provider-id}}"` 会引用它。 | `[model_providers.{{codex-provider-id}}]` |
-    | `name` | 供应商显示名称，只影响展示，不影响请求逻辑。 | `"{{codex-provider-name}}"` |
-    | `base_url` | API 基础地址，Codex 会向这个地址发起模型请求。 | `"{{openai-base-url}}"` |
-    | `wire_api` | 指定 provider 使用的协议；Codex 当前 provider 配置里 `responses` 是支持值，也是默认值。 | `"responses"` |
-    | `requires_openai_auth` | 是否使用 OpenAI 官方认证；这里使用自定义中转 provider，因此关闭 OpenAI auth。 | `false` |
-    | `request_max_retries` | 普通 HTTP 请求失败后的最大重试次数；官方默认值是 `4`。 | `4` |
-    | `stream_max_retries` | SSE 流式输出中断后的最大重试次数；官方默认值是 `5`，中转链路可以适当提高。 | `8` |
-    | `stream_idle_timeout_ms` | SSE 流式输出多久没有新内容就判定为空闲超时，单位毫秒；`300000` 等于 5 分钟。 | `300000` |
-    | `supports_websockets` | 是否声明该 provider 支持 Responses API 的 WebSocket 传输。 | `false` |
-
-    补充：[`gpt-5.5` 官方模型页](https://developers.openai.com/api/docs/models/gpt-5.5)显示它支持 `high` 推理强度，并且上下文窗口是 `1,050,000` tokens，所以这里写 `model_context_window = 1000000` 是合理的；`model_auto_compact_token_limit = 900000` 会让上下文较晚才压缩，更适合重度长任务。
-
-    如果你通过 CC Switch 写入配置，请优先以 CC Switch 生成的配置为准。只有在手动配置或排障时，才建议自行修改这些参数。
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-codex-provider-ps1-url}}" -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+    ```
   </Tab>
 </Tabs>
 
-## 相关 FAQ
+运行后打开 `~/.codex/config.toml`（Windows 为 `%USERPROFILE%\.codex\config.toml`），确认 `model`、`review_model` 和 BetterToken provider 已正确写入，然后完全重启 Codex。
+
+## 手动配置
+
+GPT、Kimi 和 GLM 使用同一份 `config.toml` 结构，只需要把 `YOUR_MODEL_ID` 换成对应提供商的实际 Model ID。命令行一键配置目前仅用于 GPT。
+
+### 设置 API Key
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    需要长期生效时，把这一行加入 `~/.zshrc` 或 `~/.bashrc`。
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
+    $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  不要把 BetterToken API Key 写入 `~/.codex/auth.json`。该文件用于 Codex 官方登录；自定义 provider 应通过 `env_key` 读取环境变量。
+</Warning>
+
+### 配置 config.toml
+
+编辑 `~/.codex/config.toml`：
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "BETTERTOKEN_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+`model_provider = "custom"` 必须与 `[model_providers.custom]` 的 table 名一致。将两个 `YOUR_MODEL_ID` 替换为当前可用的完整 Model ID。
+
+## 验证连接
+
+打开新终端并运行：
+
+```bash
+codex
+```
+
+发送一条简短任务。能正常流式返回内容，且没有登录、`401` 或模型不存在错误，即表示配置成功。
+
+## 切换模型
+
+修改 `model` 和可选的 `review_model`，保存后结束当前 Codex 进程并重新启动。模型 ID 以 Setup 弹窗或模型广场为准。
+
+## 常见错误
+
+| 错误 | 处理方式 |
+| --- | --- |
+| `401` 或要求 OpenAI 登录 | 检查 `BETTERTOKEN_API_KEY`，并确认 `requires_openai_auth = false`。 |
+| 找不到 provider | 确认 `model_provider = "custom"` 与 `[model_providers.custom]` 完全一致。 |
+| API mode 错误 | 保留 `wire_api = "responses"`，不要改成 Chat Completions。 |
+| 找不到模型 | 用 Setup 弹窗或模型广场中的完整 ID 替换 `YOUR_MODEL_ID`。 |
+| 配置未生效 | 打开新终端，确认环境变量存在，并完全重启 Codex。 |
+
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 命令行配置 + 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **命令行配置 + 手动配置**：可以使用生成的一键命令，也可以按照完整步骤手动配置。
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Codex Extension
+
+Codex VS Code Extension 与 CLI/App 共享 `config.toml`，但保留官方登录时使用不同鉴权配置。请查看 [Codex Extension 配置指南](/zh/ai-tools/codex-vscode)。
+
+<Warning>
+  CLI/App 配置与 Extension 保留官方登录配置是两个方案。不要把两个同名 `[model_providers.custom]` table 同时粘贴到一个 TOML 文件。
+</Warning>
+
+### 相关 FAQ
 
 - [Codex CLI 是什么？](/zh/faq/codex/what-is-codex-cli)
 - [Codex CLI、Codex App 和 Codex Web 有什么区别？](/zh/faq/codex/codex-cli-vs-app-vs-web)
@@ -187,28 +158,17 @@ npm install -g @openai/codex
 - [review_model 和 reasoning_effort 是什么？](/zh/faq/codex/review-model-reasoning-effort)
 - [AGENTS.md 是什么？应该怎么写？](/zh/faq/codex/agents-md)
 - [Codex CLI sandbox 和 approval mode 是什么？](/zh/faq/codex/sandbox-approval)
+- [使用第三方 API 时如何保留 Codex 官方登录？](/zh/faq/codex/official-login-third-party-api)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [Claude Code 和 Codex CLI 有什么区别？](/zh/faq/concepts/claude-code-vs-codex-cli)
+- [使用 CC Switch 管理 Codex provider](/zh/ai-tools/cc-switch#codex-cli)
 
-## 验证配置
+### 官方参考
 
-启动后，向 Codex 发送一条测试消息，确认收到正常回复即表示配置成功。
+- [Codex 配置参考](https://developers.openai.com/codex/config-reference)
 
-如遇到连接问题，请检查：
-1. `base_url` 是否填写为 `{{openai-base-url}}`
-2. `wire_api` 是否保持为 `responses`
-3. `model` 是否为从 <a href={"{{model-plaza-url}}"}>模型广场</a> 复制的 **GPT 分组**模型 ID
-4. `model_provider` 是否与 `[model_providers.{{codex-provider-id}}]` 中的 provider id 保持一致
-5. 是否有旧的 `OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 环境变量在干扰配置
+## 技术说明
 
-## Codex 自定义 provider 常见错误
-
-修改单个字段前，请先用 [Codex config.toml 配置指南](/zh/faq/codex/config-toml)核对 `model_provider`、`base_url`、鉴权和重试配置。
-
-| 现象 | 排查方式 |
-| --- | --- |
-| Codex 仍使用官方 provider，没有使用 BetterToken | 检查 `model_provider = "{{codex-provider-id}}"`，并确认 `[model_providers.{{codex-provider-id}}]` 段名完全一致。然后完全重启 Codex。 |
-| 出现 API mode 或协议错误 | 自定义 provider 中必须保留 `wire_api = "responses"`，不要改为 `chat_completions`。 |
-| `401`、`Unauthorized` 或 OpenAI 登录错误 | 确认 `requires_openai_auth = false`、BetterToken API Key 有效，并且没有旧的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`。 |
-| 找不到模型 | 从模型广场复制当前 **GPT 分组**模型 ID，并分别检查 `model` 和 `review_model`。 |
-| 流式响应中断 | 先检查 Base URL 和网络，再保留示例中的 `stream_max_retries` 与 `stream_idle_timeout_ms`，然后重启 Codex。 |
+<Accordion title="Responses 协议">
+  Codex 使用 OpenAI Responses。`base_url` 填写 `{{openai-base-url}}`，`wire_api` 固定为 `responses`。Codex 会自行请求 `/responses`。
+</Accordion>

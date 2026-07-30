@@ -1,22 +1,33 @@
 ---
-title: "Cursor 自定义 API：OpenAI Base URL 与 API Key 配置"
+title: "Cursor 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Cursor"
-description: "在 Cursor 中配置 BetterToken 自定义 API、OpenAI Base URL 和 API Key，选择 GPT 分组模型并排查常见错误。"
+description: "安装 Cursor，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
 icon: "arrow-pointer"
 ---
 
-要在 Cursor 中接入 BetterToken 自定义 API，请打开 **Override OpenAI Base URL**，填写 `{{openai-base-url}}`，在 **OpenAI API Key** 中粘贴 API Key，并选择 **GPT 分组**模型。当前模型 ID 请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制。
+要在 Cursor 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-需要集中查看这些字段的填写方法时，请参考 [Cursor 自定义 OpenAI API 配置](/zh/faq/cursor/custom-openai-api)。
+## 重点信息
 
-## Cursor 快速填写值
-
-| Cursor 字段 | 填写内容 |
+| 字段 | 填写内容 |
 | --- | --- |
-| **Override OpenAI Base URL** | 打开 |
-| **Base URL** | `{{openai-base-url}}` |
-| **OpenAI API Key** | 你的 **GPT 分组** BetterToken API Key |
-| 自定义模型 | 同一 **GPT 分组**下当前可用的模型 ID |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+## 准备工作
+
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+
+### 工具特定要求
+
+- 已安装 Cursor（前往 [Cursor 官网](https://www.cursor.com) 下载）
+
+## 安装
+
+从 [Cursor 官网](https://www.cursor.com)下载并安装当前版本。安装后登录支持自定义模型的 Cursor 账号，再进入下方配置。
 
 <Warning>
   Cursor 仅支持订阅高级会员及以上的用户配置自定义模型。如果你的账号或当前客户端版本没有显示自定义模型、API Key 或 Base URL 选项，请先确认 Cursor 账号套餐与客户端版本。
@@ -28,13 +39,18 @@ icon: "arrow-pointer"
   如果开启 **Override OpenAI Base URL** 后 Cursor 自带的 Claude / GPT 模型停止工作，请在不使用 BetterToken 时关闭 **Override OpenAI Base URL**。Cursor 目前不支持按模型设置不同 Base URL，相关能力仍在功能请求中（[feature request](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219)）。
 </Warning>
 
-## 前置条件
+## 手动配置
 
-- 已安装 Cursor（前往 [Cursor 官网](https://www.cursor.com) 下载）
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- API Key 属于 **GPT 分组**，并且你准备选择同一分组下的模型
+主要通过 Cursor 的设置界面完成以下配置，不需要手动编辑配置文件。
 
-## 配置步骤
+| Cursor 字段 | 填写内容 |
+| --- | --- |
+| **Override OpenAI Base URL** | 打开 |
+| **Base URL** | `{{openai-base-url}}` |
+| **OpenAI API Key** | BetterToken API Key |
+| 自定义模型 | 从受支持提供商复制的完整 Model ID |
+
+### 配置步骤
 
 <Steps>
   <Step title="打开模型配置页面">
@@ -75,7 +91,7 @@ icon: "arrow-pointer"
   <Step title="刷新模型列表并启用模型">
     回到 **Models** 区域后，一定要先点击右侧的刷新按钮。等待模型列表刷新完成后，再选择模型。
 
-    只能选择当前 BetterToken API Key 对应分组下的模型。使用 GPT 分组 API Key 时，请选择模型广场里 **GPT 分组**下的模型 ID，并打开对应模型右侧的开关。
+    请选择与 OpenAI-compatible endpoint 兼容的模型。请从模型广场复制 受支持提供商的模型 ID，并打开对应模型右侧的开关。
 
     <Frame>
       <img
@@ -99,19 +115,29 @@ icon: "arrow-pointer"
   </Step>
 
   <Step title="选择模型并开始对话">
-    在模型选择器中选择刚启用的 GPT 分组模型，然后开始对话。
+    在模型选择器中选择刚启用的 受支持提供商的模型，然后开始对话。
 
     <Frame>
       <img
         src="/images/cursor/chat-select-model.png"
-        alt="Cursor 对话界面中选择 GPT-5.5 等已启用模型后开始对话。"
+        alt="Cursor 对话界面中选择 YOUR_MODEL_ID 等已启用模型后开始对话。"
         style={{ borderRadius: '0.5rem' }}
       />
     </Frame>
   </Step>
 </Steps>
 
-## 自定义 API 和 API Key 常见错误
+## 验证连接
+
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+
+## 常见错误
+
+### 自定义 API 和 API Key 常见错误
 
 更换模型或 API Key 前，请先对照 [Cursor 自定义 OpenAI API 配置](/zh/faq/cursor/custom-openai-api)核对当前设置。
 
@@ -121,11 +147,11 @@ icon: "arrow-pointer"
 
 ### API Key 无法启用或验证失败
 
-先填写 Base URL `{{openai-base-url}}` 和 API Key，再打开 **OpenAI API Key** 开关。Base URL 不要附加 `/chat/completions`，也不要填写 Claude 分组 Key。
+先填写 Base URL `{{openai-base-url}}` 和 API Key，再打开 **OpenAI API Key** 开关。Base URL 不要附加 `/chat/completions`，也不要填写与当前 endpoint 不兼容的 Model ID。
 
 ### 刷新后没有需要的模型
 
-确认 API Key 属于 **GPT 分组**，等待刷新完成后，只启用同一分组下的模型。当前模型 ID 以模型广场为准。
+确认 所选 Model ID 来自 **受支持提供商**，等待刷新完成后，只启用与当前 endpoint 兼容的模型。当前模型 ID 以模型广场为准。
 
 ### Cursor 自带模型停止工作
 
@@ -135,7 +161,7 @@ icon: "arrow-pointer"
 
 打开模型选择器并关闭 **Auto**，再手动选择已启用的模型。
 
-## 相关 FAQ
+### 相关 FAQ
 
 - [Cursor 自定义 OpenAI API 配置](/zh/faq/cursor/custom-openai-api)
 - [Cursor Rules、AGENTS.md 和 .cursorignore 是什么？](/zh/faq/cursor/rules-agents-cursorignore)
@@ -145,7 +171,33 @@ icon: "arrow-pointer"
 - [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
-## 注意事项
+## 进阶配置
 
-- 不要把 Claude 分组模型 ID 填到 Codex / OpenAI-compatible 流程中
-- 不要继续填写固定 Claude 模型名；请使用<a href={"{{model-plaza-url}}"}>模型广场</a>中当前可用的 GPT 分组模型 ID
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
+
+### 注意事项
+
+- 不要把 Claude 提供商模型 ID 填到 Codex / OpenAI-compatible 流程中
+- 不要继续填写固定 Claude 模型名；请使用<a href={"{{model-plaza-url}}"}>模型广场</a>中当前可用的 受支持提供商的模型 ID
+</Accordion>

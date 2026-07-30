@@ -1,115 +1,62 @@
 ---
 title: "API Reference"
-description: "BetterToken endpoints, authentication, and protocol-specific setup."
+description: "Request URL, authentication, and testing entry point for the BetterToken OpenAI-compatible Chat Completions API."
 ---
 
-## Endpoints
+The public BetterToken API reference currently covers the **OpenAI-compatible Chat Completions API** only. Support for other protocols is not yet consistent across all channels, so the Responses API and Anthropic Messages API are not published as public interfaces.
 
-BetterToken now uses two different endpoints by protocol:
+## Supported providers
 
-| Scenario | Base URL | Protocol |
-|----------|----------|----------|
-| Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / external tools | `{{openai-base-url}}` | OpenAI-style / OpenAI Responses |
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+## Connection details
+
+| Field | Value |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| Full request URL | `{{chat-completions-url}}` |
+| Method | `POST` |
+| Authorization | `Bearer YOUR_API_KEY` |
+| Model | `YOUR_MODEL_ID` |
+
+Copy a current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> or the API Key **Setup** dialog in Console.
 
 <Warning>
-  Do not keep using one shared endpoint for every protocol.
+  When a tool asks for a **Base URL**, enter `{{openai-base-url}}`. Use `{{chat-completions-url}}` only when the tool explicitly asks for a full request URL.
 </Warning>
 
-## Test an endpoint
+## Quick test
 
-Open the page for the endpoint you need. Its Playground on the right lets you fill in the request and send it directly:
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
 
-- [OpenAI Responses API](/en/api-reference/responses) for Codex and applications that use `/v1/responses`
-- [OpenAI Chat Completions API](/en/api-reference/chat-completions) for tools that use `/v1/chat/completions`
-- [Anthropic Messages API](/en/api-reference/messages) for Claude Code, the Anthropic SDK, and applications that use `/v1/messages`
+A successful response contains `choices[0].message.content`.
 
-Only enter your own API Key in the Playground. Before testing an OpenAI-compatible endpoint, confirm the GPT Key group model ID in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+## Interactive testing and SDK examples
 
-## Authentication and examples
+Open [OpenAI Chat Completions API](/en/api-reference/chat-completions) to:
 
-Pass your BetterToken API Key with the request:
-
-<Tabs>
-  <Tab title="Claude Code / Anthropic">
-    ```python
-    import anthropic
-
-    client = anthropic.Anthropic(
-        base_url="{{anthropic-base-url}}",
-        api_key="YOUR_API_KEY",
-    )
-
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": "Hello"}],
-    )
-    ```
-
-    ```bash
-    curl "{{anthropic-base-url}}/v1/messages" \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: claude-cli/2.0.76 (external, cli)" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "claude-sonnet-4-6",
-        "max_tokens": 1024,
-        "messages": [
-          {"role": "user", "content": "Hello"}
-        ]
-      }'
-    ```
-
-    `ANTHROPIC_BASE_URL` points the SDK at the root address. A manual curl request must use the full `/v1/messages` path, not `/messages`.
-  </Tab>
-  <Tab title="Codex / OpenAI Responses">
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url="{{openai-base-url}}",
-        api_key="YOUR_API_KEY",
-    )
-
-    response = client.responses.create(
-        model="model ID copied from the GPT Key group in {{model-plaza-url}}",
-        input="Hello",
-    )
-    ```
-
-    ```bash
-    curl "{{openai-base-url}}/responses" \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "YOUR_GPT_MODEL_ID",
-        "input": "Hello"
-      }'
-    ```
-
-    Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>. This example uses the OpenAI Responses API, which is also used by Codex.
-  </Tab>
-</Tabs>
-
-## Model selection rules
-
-- **Claude Code + Claude Key group**: do not set model variables manually; only configure `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
-- **Claude Code + GPT Key group**: add model mappings through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_OPUS_MODEL`
-- **Codex**: use a model ID copied from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>
-- **External tools**: also use **GPT Key group** model IDs instead of fixed Claude model names
+- Send a request from the Playground
+- Review request parameters and the response schema
+- Copy curl, Python, and JavaScript examples
 
 <Note>
-  For external tools, you usually only need the `Base URL`, API key, and model specified by that tool's official docs. Only add extra headers when the tool itself or your upstream gateway explicitly requires them.
+  Never store a real API Key in documentation, screenshots, or public code. Replace `YOUR_API_KEY` and `YOUR_MODEL_ID` with your own values.
 </Note>
-
-## Environment variable reference
-
-| Variable | Value | Usage |
-|----------|-------|-------|
-| `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Claude Code |
-| `ANTHROPIC_AUTH_TOKEN` | Your API Key | Claude Code auth |
-| `OPENAI_BASE_URL` | `{{openai-base-url}}` | Codex and other OpenAI-style tools |
-| `OPENAI_API_KEY` | Your API Key | OpenAI-style tool auth |
-| `API_TIMEOUT_MS` | `3000000` | Recommended for long tasks |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Claude Code only |

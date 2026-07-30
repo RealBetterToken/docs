@@ -1,17 +1,41 @@
 ---
-title: "TRAE 自定义模型接入 BetterToken 指南"
+title: "TRAE 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "TRAE"
-description: "在 TRAE 中使用 BetterToken，接入 GPT 分组模型。"
+description: "安装 TRAE，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
 icon: "bolt"
 ---
 
-在 TRAE 中接入 BetterToken 时，请选择 OpenAI 类提供商，并使用 GPT 分组模型 ID。
+要在 TRAE 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-## 前置条件
+## 重点信息
 
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| 完整请求 URL | `{{chat-completions-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
 
-## 配置步骤
+## 准备工作
+
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+
+### 工具特定要求
+
+## 安装
+
+安装或打开 TRAE，然后继续完成下方手动配置。
+
+## 手动配置
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| 完整请求 URL | `{{chat-completions-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+### 配置步骤
 
 <Steps>
   <Step title="进入设置中心">
@@ -37,7 +61,7 @@ icon: "bolt"
     |--------|-----|
     | 服务商 | `OpenAI` |
     | 模型 | `自定义模型` |
-    | 模型 ID | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID** |
+    | 模型 ID | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **受支持提供商的模型 ID** |
     | API 密钥 | 从 BetterToken 控制台复制的 API Key |
     | 自定义请求地址 | `{{chat-completions-url}}` |
 
@@ -45,17 +69,59 @@ icon: "bolt"
   </Step>
 
   <Step title="保存并开始使用">
-    点击 **确认** 保存配置，然后选择刚添加的 GPT 分组模型开始使用。
+    点击 **确认** 保存配置，然后选择刚添加的 受支持提供商的模型开始使用。
   </Step>
 </Steps>
 
 <Note>
-  TRAE 接入 BetterToken 时，只有 **GPT 分组**模型支持使用。请不要填写 Claude 系列固定模型名，也不要把自定义请求地址写成 `{{openai-base-url}}`。
+  TRAE 接入 BetterToken 时，只有 **受支持提供商**模型支持使用。请不要填写 Claude 系列固定模型名，也不要把自定义请求地址写成 `{{openai-base-url}}`。
 </Note>
 
-## 相关 FAQ
+## 验证连接
+
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+
+## 常见错误
+
+| 错误 | 排查方式 |
+| --- | --- |
+| `401` 或 `Unauthorized` | 检查 BetterToken API Key，并删除首尾空格。 |
+| `404` | 检查 Base URL，不要附加具体 endpoint 路径。 |
+| `model not found` | 从模型广场重新复制当前 Model ID。 |
+| 配置未生效 | 保存配置，并完全退出后重新启动工具。 |
+
 
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
+
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  TRAE 的自定义请求地址必须填写完整地址 `{{chat-completions-url}}`，不能只填写 Base URL。
+</Accordion>

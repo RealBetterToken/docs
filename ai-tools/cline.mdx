@@ -1,22 +1,47 @@
 ---
-title: "Настройка кастомной модели Cline через BetterToken"
+title: "Cline: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Cline"
-description: "Подключите BetterToken к Cline с ID моделей группы GPT."
+description: "Установите Cline, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "c"
 ---
 
-Cline — это AI-расширение для разработки в VS Code. Для подключения BetterToken выберите provider `OpenAI Compatible` и используйте ID модели из группы **GPT**.
+Чтобы подключить Cline к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-## Требования
+## Ключевые параметры
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
 
 - Установленный VS Code
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## Установка Cline
+## Установка
+
+### Установка Cline
 
 Откройте VS Code, найдите **Cline** в marketplace расширений и установите его.
 
-## Настройка
+## Ручная настройка
+
+Выполните эту настройку в интерфейсе Cline. Редактировать конфигурационный файл вручную не требуется.
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройка
 
 <Steps>
   <Step title="Очистите конфликтующие переменные окружения">
@@ -36,7 +61,7 @@ Cline — это AI-расширение для разработки в VS Code.
     - **API Provider** → `OpenAI Compatible`
     - **Base URL** → `{{openai-base-url}}`
     - **API Key** → ваш API Key BetterToken
-    - **Model** → ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
+    - **Model** → Model ID провайдера **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
   </Step>
 
   <Step title="Добавляйте extra headers только если это явно требует официальная документация">
@@ -54,7 +79,15 @@ Cline — это AI-расширение для разработки в VS Code.
   </Step>
 </Steps>
 
-## Связанные FAQ
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+
+## Частые ошибки
 
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
@@ -64,3 +97,29 @@ Cline — это AI-расширение для разработки в VS Code.
 <Note>
   Сначала проверьте `Base URL`, API key, model ID и версию инструмента. Не считайте `User-Agent` обязательной настройкой BetterToken.
 </Note>
+
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+</Accordion>

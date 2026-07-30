@@ -6,7 +6,7 @@ description: "Configure Codex config.toml for a custom provider: set model_provi
 
 ## Direct answer
 
-To use a custom provider in Codex CLI, edit the user-level `~/.codex/config.toml`. Set `model_provider = "custom"`, define `[model_providers.custom]`, use `{{openai-base-url}}` as the Base URL, and set `wire_api = "responses"`. Read the BetterToken API Key through `env_key`, and copy the Model ID from the **GPT Key group**.
+To use a custom provider in Codex CLI, edit the user-level `~/.codex/config.toml`. Set `model_provider = "custom"`, define `[model_providers.custom]`, use `{{openai-base-url}}` as the Base URL, and set `wire_api = "responses"`. Read the BetterToken API Key through `env_key`, and copy the Model ID from the **GPT provider**.
 
 ## Find the correct config file
 
@@ -54,7 +54,7 @@ In the VS Code Codex extension, click the gear icon and choose **Codex Settings 
     requires_openai_auth = false
     ```
 
-    `model` is an example. Copy a currently available Model ID from the **GPT Key group** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+    `model` is an example. Copy a currently available Model ID from the **GPT provider** in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
   <Step title="Restart and test">
     Exit Codex completely, open a new terminal, and run:
@@ -104,7 +104,7 @@ Merge existing top-level fields and `[model_providers.custom]` content. Do not d
 | `env_key` | Names the environment variable containing the API Key | `MODEL_PROVIDER_API_KEY` |
 | `wire_api` | Provider protocol | `"responses"` |
 | `requires_openai_auth` | Uses official OpenAI authentication | `false` for ordinary third-party API setup |
-| `model` | Default Model ID | A current GPT Key group ID |
+| `model` | Default Model ID | A current GPT provider ID |
 
 <Note>
   To keep the official Codex App login, plugins, and Remote Control while using a third-party API, use the dedicated [official login and unified session setup](/en/faq/codex/official-login-third-party-api) instead of this ordinary authentication example.
@@ -118,7 +118,7 @@ Merge existing top-level fields and `[model_providers.custom]` content. Do not d
 | Missing API Key at startup | The environment variable is missing or the terminal has not reloaded it | Set `MODEL_PROVIDER_API_KEY` and open a new terminal |
 | `401` or `403` | Wrong Key or mixed authentication methods | Copy the Key again; keep the `env_key` name aligned and `requires_openai_auth = false` |
 | `404` | The Base URL lacks `/v1` or uses the wrong protocol | Use `{{openai-base-url}}` |
-| Model not found | The Model ID is unavailable or not in the GPT Key group | Copy a current ID from the model plaza |
+| Model not found | The Model ID is unavailable or not in the GPT provider | Copy a current ID from the model plaza |
 | Changes do not apply | Wrong config layer, path, or WSL environment | Edit the user config in the environment that runs Codex, then restart Codex |
 | TOML parse error | Duplicate table, quote, or nesting error | Remove duplicate `[model_providers.custom]` tables and check string quotes |
 

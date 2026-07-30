@@ -10,20 +10,20 @@ description: "Исправьте сбои Cowork и ошибки Code mode по�
 - Code mode показывает `Claude Code process exited with code 1`
 - Тот же API Key работает в Claude Code CLI из терминала
 
-Обычно у этих проблем две разные причины: desktop Gateway auth scheme не соответствует группе API Key, или bundled Claude Code version внутри Claude Desktop еще не завершила обновление.
+Обычно у этих проблем две разные причины: desktop Gateway auth scheme не соответствует провайдеру, или bundled Claude Code version внутри Claude Desktop еще не завершила обновление.
 
-Если Gateway еще не настроен, начните с [использования BetterToken API в Claude Desktop](/faq/claude-desktop-llmeasy-api).
+Если Gateway еще не настроен, начните с [использования BetterToken API в Claude Desktop](/faq/claude-desktop-bettertoken-api).
 
 ## Сначала исправьте Cowork mode
 
-**Причина**: **Gateway auth scheme** не соответствует группе API Key.
+**Причина**: **Gateway auth scheme** не соответствует провайдеру.
 
-В настройках Claude Desktop Gateway выберите auth scheme по группе API Key:
+В настройках Claude Desktop Gateway выберите auth scheme по provider:
 
-- Если в поле **Группа ключа** выбрано **Claude**, установите **Gateway auth scheme** в `x-api-key`
-- Если в поле **Группа ключа** выбрано **GPT**, установите **Gateway auth scheme** в `bearer`
+- Для provider **Claude** установите **Gateway auth scheme** в `x-api-key`
+- Для provider **GPT** установите **Gateway auth scheme** в `bearer`
 
-После выбора правильной scheme Claude Desktop автоматически получает доступные модели для этой группы. Если auth scheme неверная, Cowork mode может не пройти Gateway authentication.
+После выбора правильной scheme Claude Desktop автоматически получает доступные модели provider. Если auth scheme неверная, Cowork mode может не пройти Gateway authentication.
 
 <Steps>
   <Step title="Откройте настройки third-party inference">
@@ -31,7 +31,7 @@ description: "Исправьте сбои Cowork и ошибки Code mode по�
   </Step>
 
   <Step title="Измените auth scheme">
-    Выберите **Gateway auth scheme** по группе API Key: `x-api-key` для группы **Claude** и `bearer` для группы **GPT**.
+    Выберите **Gateway auth scheme** по provider: `x-api-key` для **Claude** и `bearer` для **GPT**.
   </Step>
 
   <Step title="Сохраните config">
@@ -71,5 +71,5 @@ description: "Исправьте сбои Cowork и ошибки Code mode по�
 
 | Симптом | Частая причина | Исправление |
 |---------|----------------|-------------|
-| Cowork mode не работает | **Gateway auth scheme** не соответствует группе API Key | Используйте `x-api-key` для группы **Claude** или `bearer` для группы **GPT**, затем нажмите **Apply locally** |
+| Cowork mode не работает | **Gateway auth scheme** не соответствует провайдеру | Используйте `x-api-key` для провайдера **Claude** или `bearer` для провайдера **GPT**, затем нажмите **Apply locally** |
 | Code mode показывает `Claude Code process exited with code 1` | Claude Desktop fallback на старую Claude Code version | Дождитесь скачивания новой версии, полностью закройте через **Cmd+Q**, затем откройте снова |

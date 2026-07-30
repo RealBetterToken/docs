@@ -1,22 +1,47 @@
 ---
-title: "Connect Cline to BetterToken with a custom model"
+title: "Cline setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Cline"
-description: "Connect BetterToken to Cline with GPT Key group model IDs."
+description: "Install Cline, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors."
 icon: "c"
 ---
 
-Cline is a VS Code AI coding extension. To connect BetterToken, choose the OpenAI Compatible provider and use a model ID from the GPT Key group.
+To connect Cline to BetterToken, prepare an API key, enter the Base URL shown below, and choose a current Model ID from the model plaza.
+
+## Key settings
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
 
 ## Prerequisites
 
-- VS Code installed
-- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
+- The current version of the tool is installed
+- A BetterToken API key: <a href={"{{register-url}}"}>register and get one</a>
+- A Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-## Install Cline
+### Additional requirements
+
+- VS Code installed
+
+## Install
+
+### Install Cline
 
 Open VS Code, search for **Cline** in the extensions marketplace, and install it.
 
-## Setup
+## Manual setup
+
+Complete this setup in the Cline configuration UI. You do not need to edit a configuration file.
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Setup
 
 <Steps>
   <Step title="Clear conflicting environment variables">
@@ -36,7 +61,7 @@ Open VS Code, search for **Cline** in the extensions marketplace, and install it
     - **API Provider** → `OpenAI Compatible`
     - **Base URL** → `{{openai-base-url}}`
     - **API Key** → your BetterToken API Key
-    - **Model** → a **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+    - **Model** → a **model ID from a supported provider** copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
   </Step>
 
   <Step title="Only configure extra headers when the official docs explicitly require them">
@@ -54,7 +79,23 @@ Open VS Code, search for **Cline** in the extensions marketplace, and install it
   </Step>
 </Steps>
 
-## Related FAQ
+## Verify the connection
+
+Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
+
+## Switch models
+
+Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
+
+## Common errors
+
+| Error | What to check |
+| --- | --- |
+| `401` or `Unauthorized` | Check the BetterToken API key and remove leading or trailing spaces. |
+| `404` | Check the Base URL and do not append a specific endpoint path. |
+| `model not found` | Copy a current Model ID from the model plaza. |
+| Changes do not apply | Save the configuration and fully restart the tool. |
+
 
 - [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
@@ -64,3 +105,29 @@ Open VS Code, search for **Cline** in the extensions marketplace, and install it
 <Note>
   Check the `Base URL`, API key, model ID, and tool version first. Do not assume `User-Agent` is a required BetterToken setting.
 </Note>
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Technical details
+
+<Accordion title="Protocol, endpoint, and internal provider fields">
+  This setup uses `{{openai-base-url}}`. The tool appends the OpenAI-compatible endpoint path. Do not add `/chat/completions` or `/responses` unless a specific field explicitly requires it.
+</Accordion>

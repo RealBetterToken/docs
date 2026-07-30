@@ -1,184 +1,155 @@
 ---
-title: "Codex Custom Provider: config.toml, Base URL, and API Key"
+title: "Codex CLI/App Custom Provider: config.toml, API Key, and Base URL"
 sidebarTitle: "Codex"
-description: "Configure BetterToken as a Codex custom provider with config.toml, an OpenAI-compatible Base URL, API Key, Responses API, and error fixes."
+description: "Configure a Codex CLI/App custom provider with config.toml, BETTERTOKEN_API_KEY, a Responses Base URL, and a current Model ID."
 icon: "code"
 ---
 
-To use BetterToken in Codex CLI, add a custom provider to `config.toml`, set `base_url = "{{openai-base-url}}"`, use `wire_api = "responses"`, and add your BetterToken API Key. This OpenAI-compatible connection requires an API Key from the **GPT Key group**.
+Codex CLI and Codex App connect to BetterToken through OpenAI Responses. The configuration file is `~/.codex/config.toml`, and the API Key is supplied through `BETTERTOKEN_API_KEY`.
 
-For a field-by-field configuration and copyable examples, open the [Codex config.toml setup guide](/en/faq/codex/config-toml).
+## Key settings
 
-<Info>
-  If you want to keep the official Codex App login state, plugins, or Remote Control while using a third-party API, use the [login-preserving Codex setup](/en/faq/codex/official-login-third-party-api).
-</Info>
-
-## Choose a setup method
-
-| Method | Choose it when |
+| Field | Value |
 | --- | --- |
-| Automatic script | You want a fast provider setup on one computer. |
-| CC Switch | You want to manage the provider in CC Switch or keep the official Codex App login state. |
-| Manual `config.toml` | You need a transparent config and control over model IDs, retries, and other settings. |
-
-## GPT-5.5 and GPT-5.6 models
-
-The `config.toml` example below starts with `gpt-5.5` and `gpt-5.4`. To use a GPT-5.6 model, replace `model` and, if needed, `review_model` with a current **GPT Key group** ID, such as `gpt-5.6-luna` when it appears in the <a href={"{{model-plaza-url}}"}>model plaza</a>. Do not use a Claude Key group model ID in a Codex custom provider.
+| API Key | `BETTERTOKEN_API_KEY` environment variable |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
 ## Prerequisites
 
-- Node.js installed
-- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
+- Install Node.js
+- <a href={"{{register-url}}"}>Create a BetterToken API Key</a>
+- Copy a Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> or the key **Setup** dialog
 
-<Warning>
-  Clear OpenAI-related environment variables before setup so they do not override the settings in `config.toml`.
-
-  Clear these variables:
-
-  - `OPENAI_API_KEY`
-  - `OPENAI_BASE_URL`
-
-  Run on macOS / Linux:
-
-  ```bash
-  unset OPENAI_API_KEY
-  unset OPENAI_BASE_URL
-  ```
-
-  Run in Windows PowerShell:
-
-  ```powershell
-  Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
-  Remove-Item Env:OPENAI_BASE_URL -ErrorAction SilentlyContinue
-  [Environment]::SetEnvironmentVariable("OPENAI_API_KEY", $null, "User")
-  [Environment]::SetEnvironmentVariable("OPENAI_BASE_URL", $null, "User")
-  ```
-</Warning>
-
-## Install Codex
+## Install
 
 ```bash
 npm install -g @openai/codex
 ```
 
-## Setup
+## Command-line setup
+
+The BetterToken Automatic setup script writes the Codex provider configuration. It requires Node.js and prompts for the API Key or Model ID when they are not passed as arguments.
 
 <Tabs>
-  <Tab title="Automatic setup">
-    You can run the BetterToken automatic setup script directly. It only writes the BetterToken provider configuration and does not replace the installation prerequisites above. The script requires `Node.js`. If you do not pass an API Key or model explicitly, the script prompts for them when the tool supports interactive input.
-
-    Follow the step for your operating system. You only need one of them.
-
-    <Steps>
-      <Step title="If you use macOS / Linux">
-        ```bash
-        curl -fsSL {{install-codex-provider-sh-url}} | bash
-        ```
-      </Step>
-      <Step title="If you use Windows">
-        ```powershell
-        iwr {{install-codex-provider-ps1-url}} -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
-        ```
-      </Step>
-    </Steps>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-codex-provider-sh-url}}" | bash
+    ```
   </Tab>
-
-  <Tab title="Configure via CC Switch">
-    This setup path is maintained in the [CC Switch guide](/en/ai-tools/cc-switch#codex-cli).
-
-    Go straight to [the Codex tab in the CC Switch guide](/en/ai-tools/cc-switch#codex-cli).
-
-    After you finish in CC Switch, come back to this page for the remaining startup, verification, or activation notes.
-  </Tab>
-
-  <Tab title="Manual setup">
-    <Steps>
-      <Step title="Confirm the default models">
-        The config below uses `gpt-5.5` as the default model and `gpt-5.4` as the review model. If you need to switch models, open the <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a> and copy a currently available model ID from the **GPT Key group**.
-      </Step>
-
-      <Step title="Confirm the config file locations">
-        Manual setup requires the Codex `config.toml` file.
-
-        | System | `config.toml` |
-        | --- | --- |
-        | macOS / Linux | `~/.codex/config.toml` |
-        | Windows | `C:\Users\YOUR_USER\.codex\config.toml` |
-      </Step>
-
-      <Step title="Edit the Codex config file">
-        Open `config.toml`. Create it if it does not exist.
-
-        <Warning>
-          This config only applies when you manually edit `~/.codex/config.toml`. If you configure Codex through CC Switch, follow the [CC Switch guide](/en/ai-tools/cc-switch#codex-cli) exactly. Do not copy this block to replace configuration managed by CC Switch.
-        </Warning>
-
-        Add the following config:
-
-        ```toml
-        model_provider = "{{codex-provider-id}}"
-        model = "gpt-5.5"
-        review_model = "gpt-5.4"
-        model_reasoning_effort = "high"
-        model_context_window = 1000000
-        model_auto_compact_token_limit = 900000
-        windows_wsl_setup_acknowledged = true
-
-        [model_providers]
-        [model_providers.{{codex-provider-id}}]
-        name = "{{codex-provider-name}}"
-        base_url = "{{openai-base-url}}"
-        wire_api = "responses"
-        requires_openai_auth = false
-        request_max_retries = 4
-        stream_max_retries = 8
-        stream_idle_timeout_ms = 300000
-        supports_websockets = false
-        ```
-      </Step>
-
-      <Step title="Restart Codex in the terminal">
-        After changing `config.toml`, stop the current Codex process and start it again in a new terminal session.
-      </Step>
-
-      <Step title="Start Codex">
-        ```bash
-        codex
-        ```
-      </Step>
-    </Steps>
-
-    ### Config parameter reference
-
-    The [official Codex config reference](https://developers.openai.com/codex/config-reference) explains that `model_provider` points to a provider id under `model_providers`, custom providers are defined with `[model_providers.<id>]`, and `wire_api = "responses"` is the supported provider protocol value.
-
-    | Config | Meaning | Recommended value |
-    | --- | --- | --- |
-    | `model_provider` | Selects the model provider Codex uses. The value must match `[model_providers.{{codex-provider-id}}]`. | `"{{codex-provider-id}}"` |
-    | `model` | The default main model Codex uses for everyday coding, editing, and agent tasks. | `"gpt-5.5"` |
-    | `review_model` | The model used by the `/review` command. If unset, Codex uses the current main model. | `"gpt-5.4"` |
-    | `model_reasoning_effort` | Controls reasoning strength for models that support the Responses API. Valid values include `minimal`, `low`, `medium`, `high`, and `xhigh`. | `"high"` |
-    | `model_context_window` | Tells Codex the active model context window size in tokens. | `1000000` |
-    | `model_auto_compact_token_limit` | Automatically compacts conversation history when it reaches this token threshold. | `900000` |
-    | `windows_wsl_setup_acknowledged` | A Windows / WSL onboarding acknowledgement flag, mainly used to avoid repeated setup prompts. | `true` |
-    | `[model_providers]` | Parent table for custom model provider configuration. | `[model_providers]` |
-    | `[model_providers.{{codex-provider-id}}]` | Defines a custom provider with the id `{{codex-provider-id}}`; `model_provider = "{{codex-provider-id}}"` references this table. | `[model_providers.{{codex-provider-id}}]` |
-    | `name` | Provider display name. It only affects presentation, not request behavior. | `"{{codex-provider-name}}"` |
-    | `base_url` | API base URL. Codex sends model requests to this endpoint. | `"{{openai-base-url}}"` |
-    | `wire_api` | Provider protocol. In Codex provider config, `responses` is the supported value and the default. | `"responses"` |
-    | `requires_openai_auth` | Whether to use official OpenAI authentication. This custom proxy provider disables OpenAI auth. | `false` |
-    | `request_max_retries` | Maximum retry count for ordinary failed HTTP requests. The official default is `4`. | `4` |
-    | `stream_max_retries` | Maximum retry count for interrupted SSE streams. The official default is `5`; proxy chains can use a higher value. | `8` |
-    | `stream_idle_timeout_ms` | Idle timeout for SSE streams in milliseconds. `300000` equals 5 minutes. | `300000` |
-    | `supports_websockets` | Whether this provider declares support for the Responses API WebSocket transport. | `false` |
-
-    Note: The [`gpt-5.5` model page](https://developers.openai.com/api/docs/models/gpt-5.5) shows that it supports `high` reasoning effort and has a `1,050,000` token context window. Setting `model_context_window = 1000000` is a reasonable conservative value, while `model_auto_compact_token_limit = 900000` delays compaction and fits heavy long-running tasks.
-
-    If you write the config through CC Switch, prefer the config generated by CC Switch. Only edit these values yourself for manual setup or troubleshooting.
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-codex-provider-ps1-url}}" -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+    ```
   </Tab>
 </Tabs>
 
-## Related FAQ
+After it finishes, open `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows), confirm that `model`, `review_model`, and the BetterToken provider were written correctly, and fully restart Codex.
+
+## Manual setup
+
+GPT, Kimi, and GLM use the same `config.toml` structure. Only replace `YOUR_MODEL_ID` with a current Model ID from the selected provider. One-click command-line setup is currently available for GPT only.
+
+### Set the API Key
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    Add this line to `~/.zshrc` or `~/.bashrc` to persist it.
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
+    $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Do not put a BetterToken API Key in `~/.codex/auth.json`. That file is for the official Codex login; a custom provider should read the environment variable through `env_key`.
+</Warning>
+
+### Configure config.toml
+
+Edit `~/.codex/config.toml`:
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "BETTERTOKEN_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+`model_provider = "custom"` must match the `[model_providers.custom]` table. Replace both `YOUR_MODEL_ID` values with a current complete Model ID.
+
+## Verify the connection
+
+Open a new terminal and run:
+
+```bash
+codex
+```
+
+Send a short task. A streamed response without login, `401`, or model errors confirms the setup.
+
+## Switch models
+
+Change `model` and, optionally, `review_model`. Save the file, stop the current Codex process, and start it again. Use the Model ID from the Setup dialog or model plaza.
+
+## Common errors
+
+| Error | Fix |
+| --- | --- |
+| `401` or an OpenAI sign-in prompt | Check `BETTERTOKEN_API_KEY` and confirm `requires_openai_auth = false`. |
+| Provider not found | Make `model_provider = "custom"` match `[model_providers.custom]`. |
+| API mode error | Keep `wire_api = "responses"`; do not switch to Chat Completions. |
+| Model not found | Replace `YOUR_MODEL_ID` with a current complete ID from Setup or the model plaza. |
+| Configuration not applied | Open a new terminal, verify the environment variable, and fully restart Codex. |
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Command-line + manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Command-line + manual setup**: use a generated command or follow the complete manual steps.
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Codex Extension
+
+The Codex VS Code Extension shares `config.toml`, but preserving the official login uses a different authentication configuration. See the [Codex Extension setup guide](/en/ai-tools/codex-vscode).
+
+<Warning>
+  CLI/App setup and Extension setup with an official login are alternatives. Do not paste two `[model_providers.custom]` tables into the same TOML file.
+</Warning>
+
+### Related FAQ
 
 - [What is Codex CLI?](/en/faq/codex/what-is-codex-cli)
 - [Codex CLI vs Codex App vs Codex Web](/en/faq/codex/codex-cli-vs-app-vs-web)
@@ -187,28 +158,17 @@ npm install -g @openai/codex
 - [What do review_model and reasoning_effort mean?](/en/faq/codex/review-model-reasoning-effort)
 - [What is AGENTS.md and how should you write it?](/en/faq/codex/agents-md)
 - [What are Codex CLI sandbox and approval modes?](/en/faq/codex/sandbox-approval)
+- [How to keep the official Codex login with a third-party API](/en/faq/codex/official-login-third-party-api)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [Claude Code vs Codex CLI](/en/faq/concepts/claude-code-vs-codex-cli)
+- [Manage the Codex provider with CC Switch](/en/ai-tools/cc-switch#codex-cli)
 
-## Verify the setup
+### Official reference
 
-After startup, send a test message. A normal reply means the connection is working.
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
 
-If something fails, check:
-1. `base_url` is `{{openai-base-url}}`
-2. `wire_api` is still `responses`
-3. `model` is a model ID copied from the **GPT Key group**
-4. `model_provider` matches the provider id in `[model_providers.{{codex-provider-id}}]`
-5. No old `OPENAI_API_KEY` or `OPENAI_BASE_URL` variables are interfering
+## Technical details
 
-## Codex custom provider errors
-
-Use the [Codex config.toml setup guide](/en/faq/codex/config-toml) to compare `model_provider`, `base_url`, authentication, and retry settings before changing individual fields.
-
-| Symptom | What to check |
-| --- | --- |
-| Codex uses the official provider instead of BetterToken | Check `model_provider = "{{codex-provider-id}}"` and the exact `[model_providers.{{codex-provider-id}}]` table name. Then fully restart Codex. |
-| API mode or protocol error | Keep `wire_api = "responses"` in the custom provider. Do not change it to `chat_completions`. |
-| `401`, `Unauthorized`, or an OpenAI sign-in error | Confirm `requires_openai_auth = false`, the BetterToken API Key is valid, and old `OPENAI_API_KEY` / `OPENAI_BASE_URL` values are absent. |
-| Model not found | Copy a current ID from the **GPT Key group** in the model plaza. Check `model` and `review_model` separately. |
-| The response stream stops | First check the Base URL and network. Then retain the example `stream_max_retries` and `stream_idle_timeout_ms` values and restart Codex. |
+<Accordion title="Responses protocol">
+  Codex uses OpenAI Responses. Set `base_url` to `{{openai-base-url}}` and keep `wire_api = "responses"`. Codex appends `/responses`.
+</Accordion>

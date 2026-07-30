@@ -1,22 +1,34 @@
 ---
-title: "Cursor custom API: OpenAI Base URL и API Key BetterToken"
+title: "Cursor: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Cursor"
-description: "Настройте в Cursor custom API, OpenAI Base URL и API Key BetterToken, выберите модель группы GPT и устраните частые ошибки."
+description: "Установите Cursor, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "arrow-pointer"
 ---
 
-Чтобы подключить BetterToken как custom API в Cursor, включите **Override OpenAI Base URL**, укажите `{{openai-base-url}}`, вставьте API Key в поле **OpenAI API Key** и выберите модель из группы **GPT**. ID моделей берите из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+Чтобы подключить Cursor к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-Для пошаговой проверки этих полей используйте [настройку Cursor custom OpenAI API](/faq/cursor/custom-openai-api).
+## Ключевые параметры
 
-## Быстрые значения для Cursor
-
-| Поле Cursor | Значение |
+| Поле | Значение |
 | --- | --- |
-| **Override OpenAI Base URL** | Включить |
-| **Base URL** | `{{openai-base-url}}` |
-| **OpenAI API Key** | Ваш API Key BetterToken из группы **GPT** |
-| Custom model | Актуальный ID модели из той же группы **GPT** |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
+
+- Установленный Cursor ([скачать Cursor](https://www.cursor.com))
+- Вы будете использовать provider **GPT** и модель, совместимую с настроенным endpoint
+
+## Установка
+
+Скачайте и установите актуальную версию с [сайта Cursor](https://www.cursor.com). Войдите в аккаунт Cursor, который поддерживает custom models, затем перейдите к настройке ниже.
 
 <Warning>
   Cursor позволяет настраивать custom models только пользователям платного advanced tier или выше. Если в вашем аккаунте или версии клиента нет опций custom model, API Key или Base URL, сначала проверьте план Cursor и версию клиента.
@@ -28,13 +40,18 @@ icon: "arrow-pointer"
   Если встроенные Claude / GPT модели Cursor перестали работать после включения **Override OpenAI Base URL**, выключайте **Override OpenAI Base URL**, когда не используете BetterToken. Cursor пока не поддерживает отдельный Base URL для каждой модели; эта возможность отслеживается как feature request ([feature request](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219)).
 </Warning>
 
-## Требования
+## Ручная настройка
 
-- Установленный Cursor ([скачать Cursor](https://www.cursor.com))
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
-- В поле **Группа ключа** выбрано **GPT**, и вы будете выбирать модель из той же группы
+Выполните эту настройку в интерфейсе Cursor. Редактировать конфигурационный файл вручную не требуется.
 
-## Настройка
+| Поле Cursor | Значение |
+| --- | --- |
+| **Override OpenAI Base URL** | Включить |
+| **Base URL** | `{{openai-base-url}}` |
+| **OpenAI API Key** | API Key BetterToken |
+| Custom model | Полный Model ID поддерживаемого провайдера |
+
+### Настройка
 
 <Steps>
   <Step title="Откройте страницу настроек моделей">
@@ -75,7 +92,7 @@ icon: "arrow-pointer"
   <Step title="Обновите список моделей и включите модели">
     В **Models** нажмите кнопку refresh справа перед выбором модели. Дождитесь завершения обновления списка.
 
-    Выбирайте только модели из той же группы BetterToken, что и ваш API Key. Если в поле **Группа ключа** выбрано **GPT**, выберите ID модели из группы **GPT** в model plaza, затем включите toggle для этой модели.
+    Выбирайте модели provider **GPT**, совместимые с OpenAI-compatible endpoint. Скопируйте Model ID из model plaza, затем включите toggle для этой модели.
 
     <Frame>
       <img
@@ -99,7 +116,7 @@ icon: "arrow-pointer"
   </Step>
 
   <Step title="Выберите модель и начните чат">
-    Выберите включенную модель группы GPT и начните общение.
+    Выберите включенную модель поддерживаемого провайдера и начните общение.
 
     <Frame>
       <img
@@ -111,7 +128,17 @@ icon: "arrow-pointer"
   </Step>
 </Steps>
 
-## Ошибки custom API и API Key
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+
+## Частые ошибки
+
+### Ошибки custom API и API Key
 
 Перед сменой модели или API Key сравните текущие параметры с [настройкой Cursor custom OpenAI API](/faq/cursor/custom-openai-api).
 
@@ -121,11 +148,11 @@ icon: "arrow-pointer"
 
 ### API Key не включается или не проходит проверку
 
-Проверьте, что вы сначала ввели Base URL `{{openai-base-url}}` и API Key, а уже затем включили toggle **OpenAI API Key**. Не добавляйте `/chat/completions` к Base URL и не используйте ключ из группы Claude.
+Проверьте, что вы сначала ввели Base URL `{{openai-base-url}}` и API Key, а уже затем включили toggle **OpenAI API Key**. Не добавляйте `/chat/completions` к Base URL и не используйте Model ID, несовместимый с endpoint.
 
 ### После refresh нет нужной модели
 
-Убедитесь, что API Key принадлежит группе **GPT**, дождитесь окончания refresh и включите только модель из той же группы. Текущий список ID всегда доступен в model plaza.
+Убедитесь, что выбранный Model ID доступен у провайдера **GPT**, дождитесь окончания refresh и включите только модель, совместимую с настроенным endpoint. Текущий список ID всегда доступен в model plaza.
 
 ### Встроенные модели Cursor перестали работать
 
@@ -135,7 +162,7 @@ icon: "arrow-pointer"
 
 Откройте model picker и выключите **Auto**. Затем выберите включенную модель вручную.
 
-## Связанные FAQ
+### Связанные FAQ
 
 - [Настройка Cursor custom OpenAI API](/faq/cursor/custom-openai-api)
 - [Cursor Rules, AGENTS.md и .cursorignore](/faq/cursor/rules-agents-cursorignore)
@@ -145,7 +172,33 @@ icon: "arrow-pointer"
 - [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 
-## Примечания
+## Расширенная настройка
 
-- Не используйте ID моделей группы **Claude** в Codex / OpenAI-compatible flow
-- Не используйте жестко заданные имена Claude-моделей; берите актуальный ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+
+### Примечания
+
+- Не используйте ID моделей провайдера **Claude** в Codex / OpenAI-compatible flow
+- Не используйте жестко заданные имена Claude-моделей; берите актуальный Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>
+</Accordion>

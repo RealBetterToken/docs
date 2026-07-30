@@ -1,64 +1,138 @@
 ---
-title: "Zed 如何配置 BetterToken OpenAI-compatible API？"
+title: "Zed 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Zed"
-description: "在 Zed 中填写 BetterToken API URL、API Key 和 GPT 分组模型 ID，完成 OpenAI-compatible provider 配置。"
+description: "在 Zed 中添加 BetterToken OpenAI-compatible provider，配置 Base URL、API Key 和自定义模型，并将 Key 安全保存在系统 Keychain。"
 icon: "z"
 ---
 
-Zed 支持添加自定义 LLM Provider。通过 BetterToken 接入时，请使用 OpenAI 方案，并粘贴 GPT 分组模型 ID。
+在 Zed 的 **Agent Settings** 中添加 OpenAI-compatible provider，填写 BetterToken API Key、Base URL 和 Model ID。通过设置页保存的 API Key 会存入系统 Keychain，不会写入 `settings.json`。
 
-## 前置条件
+## 重点信息
 
-- 已安装 Zed（参考 [Zed 官方文档](https://zed.dev/docs) 安装）
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
+| 字段 | 填写内容 |
+| --- | --- |
+| Provider | `BetterToken` |
+| API Key | `YOUR_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
-## 配置步骤
+## 准备工作
+
+- 安装当前版本的 [Zed](https://zed.dev/docs)
+- <a href={"{{register-url}}"}>创建 BetterToken API Key</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 `YOUR_MODEL_ID`
+
+## 安装
+
+从 [Zed 官网](https://zed.dev)安装或更新到当前版本。启动 Zed 后，再按下方步骤打开 Agent 设置。
+
+## 手动配置
 
 <Steps>
-  <Step title="打开 AI 面板">
-    点击 Zed 右下角的 ✨ 图标。
+  <Step title="添加 OpenAI-compatible provider">
+    点击 **Add Provider**，选择 **OpenAI Compatible**，Provider Name 填写 `BetterToken`。
   </Step>
 
-  <Step title="进入配置页面">
-    点击右上角菜单，选择 **Settings**。
-  </Step>
-
-  <Step title="添加 Provider">
-    在 **LLM Provider** 中点击 **+ Add Provider**，并选择 **OpenAI**。
-  </Step>
-
-  <Step title="填写 BetterToken 配置">
+  <Step title="填写连接信息">
 
     | 配置项 | 值 |
-    |--------|-----|
-    | Provider Name | `BetterToken` |
+    | --- | --- |
     | API URL | `{{openai-base-url}}` |
-    | API Key | 你的 BetterToken API Key |
-    | Model Name | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID** |
+    | API Key | `YOUR_API_KEY` |
+    | Model ID | `YOUR_MODEL_ID` |
+
+    API URL 只填写 Base URL。Zed 会自行请求 Chat Completions endpoint。
   </Step>
 
-  <Step title="仅在官方文档明确要求时再配置额外 headers">
-    我们查到的 Zed 官方 OpenAI Compatible / 自定义 provider 文档默认聚焦 `api_url`、`available_models` 和 API Key，没有把额外 `User-Agent` 列为 BetterToken 接入的必填项。
-
-    如果你还接了自定义网关、租户路由或审计服务，再按对应上游服务的官方文档补充所需 headers。
+  <Step title="保存 API Key">
+    在 Zed 设置页中保存 provider。Zed 会把 API Key 存入本机系统 Keychain，不会把它写入 `settings.json`。
   </Step>
 
-  <Step title="保存配置">
-    点击 **Save Provider** 保存，然后在模型列表中选择刚配置的模型。
-  </Step>
-
-  <Step title="重启 Zed">
-    修改配置后，请重启 Zed，再从模型列表中选择刚配置的模型。
+  <Step title="选择模型">
+    打开 Agent Panel 的模型选择器，选择 `BetterToken` 下的 `YOUR_MODEL_ID`。
   </Step>
 </Steps>
 
-<Note>
-  优先检查 `API URL`、API Key、模型 ID 和工具版本；不要默认把 `User-Agent` 当作 BetterToken 必填项。
-</Note>
+<Warning>
+  不要把 `YOUR_API_KEY` 写进 `settings.json`、项目文件或 Git 仓库。
+</Warning>
 
-## 相关 FAQ
+### 可选：使用 `settings.json` 声明 provider 和模型
+
+如果你需要用文件管理模型声明，请打开 `zed: open settings file`，只写 provider、`api_url` 和模型信息：
+
+```json
+{
+  "language_models": {
+    "openai_compatible": {
+      "BetterToken": {
+        "api_url": "{{openai-base-url}}",
+        "available_models": [
+          {
+            "name": "YOUR_MODEL_ID",
+            "display_name": "YOUR_MODEL_ID",
+            "max_tokens": 128000
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+`max_tokens` 是 Zed 要求的模型上下文窗口声明。请按你选择的模型能力调整该数值。API Key 仍应在 **Agent Settings** 中输入，由系统 Keychain 保存。
+
+## 验证连接
+
+1. 在 Agent Panel 选择 `BetterToken / YOUR_MODEL_ID`。
+2. 发送一条简短测试消息。
+3. Zed 正常返回内容且没有认证或模型错误，即表示配置成功。
+
+修改 provider 或模型配置后，请完全退出并重新启动 Zed。
+
+## 切换模型
+
+在 Agent Panel 的模型选择器中选择另一个 BetterToken 模型。新增 Model ID 时，先从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前值，再更新 provider 设置或 `available_models`。
+
+## 常见错误
+
+| 错误 | 排查方式 |
+| --- | --- |
+| `401` 或 `Unauthorized` | 在 Agent Settings 中重新输入 BetterToken API Key，确认没有首尾空格。 |
+| `404` | API URL 应为 `{{openai-base-url}}`，不要追加 `/chat/completions`。 |
+| `model not found` | 从模型广场重新复制 `YOUR_MODEL_ID`。 |
+| 配置未生效 | 保存 provider，完全退出并重新启动 Zed。 |
+| 使用了旧 Key | 检查并移除可能覆盖 Keychain 的 provider 环境变量，然后重启 Zed。 |
+
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技术说明
+
+<Accordion title="Keychain、配置文件与 endpoint">
+  Zed 通过 OpenAI-compatible provider 请求 BetterToken。设置页保存的 Key 位于系统 Keychain；`settings.json` 只声明 provider、`api_url` 和模型。Base URL 使用 `{{openai-base-url}}`，Zed 会自行拼接 Chat Completions 路径。
+</Accordion>
+
+### 相关 FAQ
 
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
-- [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
+- [model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)

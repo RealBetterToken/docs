@@ -1,23 +1,35 @@
 ---
-title: "n8n 如何接入 BetterToken 自定义模型？"
+title: "n8n 接入 BetterToken：API Key、Base URL 与自定义模型配置"
 sidebarTitle: "n8n"
-description: "在 n8n 中创建 OpenAI credential，填写 BetterToken Base URL、API Key 和 GPT 分组模型 ID，并连接 OpenAI Chat Model。"
+description: "在 n8n 中配置 BetterToken Base URL、API Key 和兼容的提供商模型，验证连接并排查常见错误。"
 icon: "diagram-project"
 ---
 
-在 n8n 中接入 BetterToken 时，使用内置 **OpenAI credential** 和 **OpenAI Chat Model**。Base URL 填 `{{openai-base-url}}`，API Key 使用 **GPT 分组**密钥，然后从模型列表中选择对应模型。
+要在 n8n 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-## 开始前准备
+## 重点信息
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+## 准备工作
+
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+
+### 工具特定要求
 
 - 可用的 n8n Cloud 或自托管实例
-- BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
 
 | 配置项 | 值 |
 |---|---|
 | Credential 类型 | `OpenAI` |
 | Base URL | `{{openai-base-url}}` |
-| API Key | 你的 BetterToken GPT 分组 API Key |
+| API Key | 你的 BetterToken API Key |
 | Organization ID | 留空 |
 | Custom Header | 关闭 |
 
@@ -25,7 +37,21 @@ icon: "diagram-project"
   Base URL 必须保留末尾的 `/v1`。不要填写 `/chat/completions` 或 `/responses`，n8n 会根据节点功能自动拼接具体路径。
 </Note>
 
-## 配置步骤
+## 安装
+
+安装或打开 n8n，然后继续完成下方手动配置。
+
+## 手动配置
+
+主要通过 n8n 的节点配置界面完成以下设置，不需要手动编辑 n8n 配置文件。
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+### 配置步骤
 
 <Steps>
   <Step title="添加 AI Agent 和 OpenAI Chat Model">
@@ -54,7 +80,7 @@ icon: "diagram-project"
   </Step>
 
   <Step title="选择模型">
-    回到 **OpenAI Chat Model**，打开 **Model** 列表，选择与<a href={"{{model-plaza-url}}"}>模型广场</a>一致的 GPT 分组模型 ID。
+    回到 **OpenAI Chat Model**，打开 **Model** 列表，选择与<a href={"{{model-plaza-url}}"}>模型广场</a>一致的 受支持提供商的模型 ID。
 
     如果刚保存凭证后列表没有刷新，重新打开节点或 credential，再次加载模型列表。
   </Step>
@@ -76,12 +102,20 @@ icon: "diagram-project"
   </Step>
 </Steps>
 
-## 常见问题
+## 验证连接
+
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+
+## 常见错误
 
 ### Credential test 返回 401
 
 - 确认 API Key 完整，没有多余空格
-- 确认密钥属于 **GPT 分组**
+- 确认Model ID 来自 **受支持提供商**
 - 在 BetterToken Dashboard 检查密钥状态和余额
 
 ### Credential test 返回 404
@@ -104,13 +138,39 @@ icon: "diagram-project"
 
 在 **OpenAI Chat Model > Options** 中提高 **Timeout**，并保留有限的 **Max Retries**。不要无限重试 `400`、`401` 或配置错误。
 
-## 使用范围
+## 进阶配置
 
-本指南只确认通过 OpenAI-compatible 协议接入 LLM Chat。不要把 GPT 聊天模型当作 embedding、rerank、语音或图片模型使用。
+{/* tool-provider-support:start */}
+### 支持的提供商
 
-## 相关文档
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 相关指南
 
 - [n8n OpenAI credentials](https://docs.n8n.io/integrations/builtin/credentials/openai/)
 - [n8n OpenAI Chat Model](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [如何选择模型？](/zh/faq/model-calling/model-selection-guide)
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
+
+### 使用范围
+
+本指南只确认通过 OpenAI-compatible 协议接入 LLM Chat。不要把 GPT 聊天模型当作 embedding、rerank、语音或图片模型使用。
+</Accordion>

@@ -1,24 +1,38 @@
 ---
-title: "Dify 如何接入 BetterToken 自定义模型？"
+title: "Dify 接入 BetterToken：API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Dify"
-description: "通过 Dify 官方 OpenAI-API-compatible 插件添加 BetterToken GPT 分组模型，配置 API Base URL、API Key 和模型 ID。"
+description: "在 Dify 中配置 BetterToken Base URL、API Key 和兼容的提供商模型，验证连接并排查常见错误。"
 icon: "layer-group"
 ---
 
-在 Dify 中接入 BetterToken 时，安装官方 **OpenAI-API-compatible** 模型插件，然后为每个要使用的 GPT 分组模型添加一条自定义 LLM 配置。API Base URL 填 `{{openai-base-url}}`。
+要在 Dify 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-## 开始前准备
+## 重点信息
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+## 准备工作
+
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+
+### 工具特定要求
 
 - Dify Cloud 或已启用插件的自托管 Dify
-- BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**
 - 有权限安装模型插件并管理 workspace 模型的 Dify 账号
 
 <Note>
   本指南只配置 **LLM Chat**。不要把 GPT 聊天模型添加成 Text Embedding、Rerank、Speech-to-Text 或 Text-to-Speech 模型。
 </Note>
 
-## 安装 OpenAI-compatible 模型插件
+## 安装
+
+### 安装 OpenAI-compatible 模型插件
 
 <Steps>
   <Step title="打开 Model Providers">
@@ -36,16 +50,26 @@ icon: "layer-group"
   </Step>
 </Steps>
 
-## 填写模型配置
+## 手动配置
+
+主要通过 Dify 的模型供应商界面完成以下设置，不需要手动编辑配置文件。
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+### 填写模型配置
 
 按照下表填写首个模型：
 
 | Dify 字段 | 推荐值 |
 |---|---|
 | Model Type | `LLM` |
-| Model Name | 从模型广场复制的 GPT 分组模型 ID |
+| Model Name | 从模型广场复制的 受支持提供商的模型 ID |
 | Model display name | 可填写与 Model Name 相同的值 |
-| API Key | 你的 BetterToken GPT 分组 API Key |
+| API Key | 你的 BetterToken API Key |
 | API Base URL | `{{openai-base-url}}` |
 | model name for API endpoint | 与 Model Name 使用相同的模型 ID |
 | Completion mode | `Chat` |
@@ -68,7 +92,7 @@ icon: "layer-group"
 
 点击 **Save**。Dify 会验证 API Key、Base URL 和模型 ID。
 
-## 在应用中使用模型
+### 在应用中使用模型
 
 <Steps>
   <Step title="创建或打开 Dify 应用">
@@ -92,16 +116,22 @@ icon: "layer-group"
   </Step>
 </Steps>
 
-## 添加更多模型
+## 验证连接
 
-Dify 的自定义模型按模型 ID 单独配置。需要另一个 GPT 分组模型时，在同一个 provider 下再次点击 **Add Model**，使用新的 **Model Name** 和 **model name for API endpoint**，Base URL 与 API Key 可以继续复用。
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
 
-## 常见问题
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+
+Dify 的自定义模型按模型 ID 单独配置。需要另一个 受支持提供商的模型时，在同一个 provider 下再次点击 **Add Model**，使用新的 **Model Name** 和 **model name for API endpoint**，Base URL 与 API Key 可以继续复用。
+
+## 常见错误
 
 ### 保存时返回 401
 
 - 检查 API Key 是否完整
-- 确认密钥属于 **GPT 分组**
+- 确认Model ID 来自 **受支持提供商**
 - 检查 BetterToken Dashboard 中的密钥状态和余额
 
 ### 保存时返回 404
@@ -112,7 +142,7 @@ Dify 的自定义模型按模型 ID 单独配置。需要另一个 GPT 分组模
 
 ### 显示 model not found
 
-**Model Name** 可以影响 Dify 中的显示和选择，而实际请求使用的模型名称由 **model name for API endpoint** 决定。建议两个字段都填写同一个 GPT 分组模型 ID。
+**Model Name** 可以影响 Dify 中的显示和选择，而实际请求使用的模型名称由 **model name for API endpoint** 决定。建议两个字段都填写同一个 受支持提供商的模型 ID。
 
 ### 普通对话成功，但 Agent 工具失败
 
@@ -122,9 +152,35 @@ Dify 的自定义模型按模型 ID 单独配置。需要另一个 GPT 分组模
 
 这是正常的。聊天 LLM 不能替代 embedding 模型。本指南没有确认 BetterToken 提供 Dify 所需的 embedding 或 rerank 接口，请为 Knowledge 单独配置受支持的 embedding provider。
 
-## 相关文档
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 相关指南
 
 - [Dify Model Providers](https://docs.dify.ai/en/cloud/use-dify/workspace/model-providers)
 - [Dify 官方 OpenAI-API-compatible 插件](https://github.com/langgenius/dify-official-plugins/tree/main/models/openai_api_compatible)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [如何选择模型？](/zh/faq/model-calling/model-selection-guide)
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
+</Accordion>

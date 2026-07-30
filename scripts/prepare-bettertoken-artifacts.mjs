@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateBetterTokenSitemap } from './generate-bettertoken-sitemap.mjs';
 import { indexNowKey, indexNowKeyFileName } from './indexnow-config.mjs';
+import { syncToolProviderSupport } from './sync-tool-provider-support.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const configPath = path.join(rootDir, 'docs.json');
@@ -100,6 +101,7 @@ async function generateLlmsFull() {
   await writeFile(path.join(wellKnownDir, 'llms-full.txt'), output);
 }
 
+await syncToolProviderSupport();
 await generateBetterTokenSitemap({
   configPath,
   outputPath: path.join(rootDir, 'sitemap.xml'),

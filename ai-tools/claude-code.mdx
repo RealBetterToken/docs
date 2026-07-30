@@ -1,262 +1,190 @@
 ---
-title: "Настройка кастомной модели Claude Code через BetterToken"
+title: "Claude Code: подключение моделей Claude, API Key и Base URL"
 sidebarTitle: "Claude Code"
-description: "Подключите BetterToken к Claude Code через ANTHROPIC_BASE_URL без суффикса /v1."
+description: "Установите Claude Code, задайте API Key и Base URL BetterToken командой или через файл и настройте mapping моделей Kimi или GLM."
 icon: "terminal"
 ---
 
-Для подключения BetterToken к Claude Code нужны только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. **Не добавляйте** `/v1` к Claude Code Base URL.
+Модели Claude подключаются напрямую через переменные терминала или файл настроек. Kimi и GLM используют тот же Base URL с явным mapping моделей. Для GPT нужна [расширенная настройка](#расширенная-настройка).
 
-## Требования
+## Ключевые параметры
 
-- Установленный Claude Code (см. [документацию Claude Code](https://docs.anthropic.com/en/docs/claude-code))
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{anthropic-base-url}}` |
+| Model | Выбирается Claude Code |
 
-<Warning>
-  Перед настройкой очистите эти переменные окружения, чтобы они не переопределили ваш config file:
+## Подготовка
 
-  ```bash
-  unset ANTHROPIC_AUTH_TOKEN
-  unset ANTHROPIC_BASE_URL
-  ```
-</Warning>
+- Установите последнюю версию [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+- Установите Node.js
+- <a href={"{{register-url}}"}>Создайте и скопируйте API Key BetterToken</a>
 
-## Настройка
+## Установка
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+## Настройка командой
+
+Скрипт Automatic setup от BetterToken записывает конфигурацию provider для Claude Code. Для него нужен Node.js; если API Key не передан параметром, скрипт запросит его интерактивно.
 
 <Tabs>
-  <Tab title="Автоматическая настройка">
-    Можно запустить автоматический скрипт BetterToken. Он записывает только provider-конфигурацию BetterToken и не заменяет предварительные требования выше. Скрипту нужен `Node.js`. Если API Key или модель не переданы явно, скрипт запросит их интерактивно, когда это поддерживается.
-
-    Выберите шаг для своей ОС. Нужен только один вариант.
-
-    <Steps>
-      <Step title="macOS / Linux">
-        ```bash
-        curl -fsSL {{anthropic-base-url}}/install-claudecode-provider.sh | bash
-        ```
-      </Step>
-      <Step title="Windows">
-        ```powershell
-        iwr {{anthropic-base-url}}/install-claudecode-provider.ps1 -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
-        ```
-      </Step>
-    </Steps>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-claudecode-provider-sh-url}}" | bash
+    ```
   </Tab>
-
-  <Tab title="Настройка через CC Switch">
-    Этот путь поддерживается в [инструкции CC Switch](/ai-tools/cc-switch#claude-code).
-
-    Перейдите сразу к [вкладке Claude Code в инструкции CC Switch](/ai-tools/cc-switch#claude-code).
-
-    После настройки в CC Switch вернитесь на эту страницу, чтобы проверить запуск, first launch и activation notes.
-  </Tab>
-
-  <Tab title="Ручная настройка">
-    <Steps>
-      <Step title="Проверьте группу API Key">
-        Сначала проверьте, какую группу API Key BetterToken вы используете:
-
-        - `Claude`: задайте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
-        - `GPT`: задайте auth fields и добавьте Claude Code model mappings
-
-        Обе группы используют Anthropic-протокол. В обоих случаях `ANTHROPIC_BASE_URL` должен быть `{{anthropic-base-url}}` без `/v1`.
-      </Step>
-
-      <Step title="Отредактируйте config file Claude Code">
-        Расположение config file:
-
-        - macOS / Linux: `~/.claude/settings.json`
-        - Windows: `%USERPROFILE%\.claude\settings.json`
-
-        Если вы используете группу ключа **Claude**, замените `YOUR_API_KEY` на API Key BetterToken:
-
-        ```json
-        {
-          "env": {
-            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-            "API_TIMEOUT_MS": "3000000"
-          }
-        }
-        ```
-
-        <Note>
-          С группой ключа **Claude** вам не нужны `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` или другие model variables. Claude Code сам управляет выбором модели.
-        </Note>
-      </Step>
-
-      <Step title="Добавьте model mappings для группы ключа GPT">
-        Если ваш API Key относится к группе `GPT`, используйте эту конфигурацию:
-
-        <Tip>
-          Если вы используете группу ключа **GPT**, мы рекомендуем сначала настроить Claude Code через [CC Switch](/ai-tools/cc-switch#claude-code). Он надежнее обрабатывает Claude Code model mappings и proxy toggle. Используйте ручной config ниже только если хотите поддерживать файл конфигурации самостоятельно.
-        </Tip>
-
-        ```json
-        {
-          "env": {
-            "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-            "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.4",
-            "ANTHROPIC_DEFAULT_SONNET_MODEL": "gpt-5.4",
-            "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.4",
-            "API_TIMEOUT_MS": "3000000"
-          },
-          "model": "opus"
-        }
-        ```
-
-        Справочник полей:
-
-        | Поле | Описание |
-        | --- | --- |
-        | `ANTHROPIC_AUTH_TOKEN` | Ваш API Key BetterToken |
-        | `ANTHROPIC_BASE_URL` | BetterToken `Base URL` для Claude Code |
-        | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Установите `1`, чтобы уменьшить фоновый трафик |
-        | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Модель для задач уровня Haiku |
-        | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Модель для задач уровня Sonnet |
-        | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Модель для задач уровня Opus |
-        | `model` | Model tier Claude Code по умолчанию; `opus` использует `ANTHROPIC_DEFAULT_OPUS_MODEL` |
-
-        <Note>
-          `gpt-5.4` — пример ID модели группы **GPT**. Используйте актуальные ID моделей группы **GPT** из <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>. Можно сопоставить все три уровня с одной моделью или выбрать разные модели.
-        </Note>
-      </Step>
-
-      <Step title="Перезапустите Claude Code">
-        После обновления config file полностью закройте Claude Code и запустите его снова, чтобы загрузилась новая конфигурация.
-      </Step>
-
-      <Step title="Завершите первый запуск">
-        Если вы впервые используете Claude Code, выполните `claude` и пройдите onboarding prompts.
-      </Step>
-
-      <Step title="Запустите Claude Code">
-        Откройте директорию проекта и выполните:
-
-        ```bash
-        claude
-        ```
-      </Step>
-    </Steps>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-claudecode-provider-ps1-url}}" -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+    ```
   </Tab>
 </Tabs>
 
-## Использование расширения VS Code
+После выполнения проверьте `~/.claude/settings.json` (в Windows — `%USERPROFILE%\.claude\settings.json`) и полностью перезапустите Claude Code. Если нужен контроль каждого поля, используйте ручную настройку ниже.
 
-Если вы используете Claude Code VS Code extension:
+## Ручная настройка
 
-<Steps>
-  <Step title="Установите расширение">
-    Найдите **Claude Code** в VS Code marketplace и установите его.
-  </Step>
-  <Step title="Откройте настройки">
-    Откройте UI настроек расширения.
-  </Step>
-  <Step title="Задайте переменные окружения">
-    Если вы используете группу ключа **Claude**, нажмите **Edit in settings.json** и обновите `claudeCode.environmentVariables`:
+### Настройка провайдера Claude
 
-    ```json
+Claude Code CLI читает:
+
+| Система | Файл |
+| --- | --- |
+| macOS / Linux | `~/.claude/settings.json` |
+| Windows | `%USERPROFILE%\.claude\settings.json` |
+
+Добавьте:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+Для провайдера Claude нужны только эти четыре переменные. Не добавляйте `ANTHROPIC_MODEL` или `ANTHROPIC_DEFAULT_*_MODEL`.
+
+### Настройка провайдера Kimi или GLM
+
+Для Kimi и GLM добавьте mapping моделей в тот же `settings.json`. Замените каждый `YOUR_MODEL_ID` на Model ID из окна Setup или model plaza:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
+  }
+}
+```
+
+Можно использовать один Model ID во всех трёх полях или разные модели одного провайдера. Не указывайте здесь GPT: для него используйте расширенную настройку в конце страницы.
+
+### Настройка расширения Claude Code для VS Code
+
+Расширение использует `settings.json` VS Code. Добавьте отдельную настройку `claudeCode.environmentVariables`:
+
+```json
+{
+  "claudeCode.environmentVariables": [
     {
-      "claudeCode.environmentVariables": [
-        {
-          "name": "ANTHROPIC_BASE_URL",
-          "value": "{{anthropic-base-url}}"
-        },
-        {
-          "name": "ANTHROPIC_AUTH_TOKEN",
-          "value": "YOUR_API_KEY"
-        },
-        {
-          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
-          "value": "1"
-        },
-        {
-          "name": "API_TIMEOUT_MS",
-          "value": "3000000"
-        }
-      ]
-    }
-    ```
-  </Step>
-
-  <Step title="Добавьте model mappings для группы ключа GPT">
-    Если ваш API Key относится к группе `GPT`, используйте:
-
-    ```json
+      "name": "ANTHROPIC_BASE_URL",
+      "value": "{{anthropic-base-url}}"
+    },
     {
-      "claudeCode.environmentVariables": [
-        {
-          "name": "ANTHROPIC_BASE_URL",
-          "value": "{{anthropic-base-url}}"
-        },
-        {
-          "name": "ANTHROPIC_AUTH_TOKEN",
-          "value": "YOUR_API_KEY"
-        },
-        {
-          "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
-          "value": "1"
-        },
-        {
-          "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
-          "value": "gpt-5.4"
-        },
-        {
-          "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
-          "value": "gpt-5.4"
-        },
-        {
-          "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
-          "value": "gpt-5.4"
-        },
-        {
-          "name": "API_TIMEOUT_MS",
-          "value": "3000000"
-        }
-      ]
+      "name": "ANTHROPIC_AUTH_TOKEN",
+      "value": "YOUR_API_KEY"
+    },
+    {
+      "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+      "value": "1"
+    },
+    {
+      "name": "API_TIMEOUT_MS",
+      "value": "3000000"
     }
-    ```
+  ]
+}
+```
 
-    <Note>
-      `gpt-5.4` — только пример ID модели группы **GPT**. Скопируйте актуальный model ID из <a href={"{{model-plaza-url}}"}>BetterToken model plaza</a>. Когда расширение использует Opus tier по умолчанию, оно будет разрешаться через `ANTHROPIC_DEFAULT_OPUS_MODEL`.
-    </Note>
-  </Step>
+Выполните **Developer: Reload Window** или полностью перезапустите VS Code.
 
-  <Step title="Перезапустите расширение VS Code">
-    После редактирования `settings.json` перезапустите VS Code или перезагрузите расширение Claude Code, чтобы новые настройки вступили в силу.
-  </Step>
-</Steps>
+## Проверка подключения
 
-## Связанные FAQ
+Запустите Claude Code в проекте:
 
-- Не уверены, что такое Claude Code и что он умеет? См.: [Что такое Claude Code и как он работает?](/faq/claude-code/what-is-claude-code)
-- Не уверены, использует ли Claude Code Claude.ai account или API Key? См.: [Claude Code использует Claude.ai account или API Key?](/faq/claude-code/claude-account-or-api-key)
-- Не понимаете, как связаны API Key, Base URL и protocol? См.: [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
-- Не знаете, какой endpoint использовать: OpenAI-compatible или Anthropic-compatible? См.: [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- Хотите контролировать context и token cost? См.: [Что такое CLAUDE.md в Claude Code?](/faq/claude-code/claude-md) и [Почему Claude Code расходует много tokens и как снизить cost](/faq/token-cost/claude-code-token-usage)
-- Сравниваете инструменты? См.: [Claude Code или Cursor для локальной разработки](/faq/claude-code/claude-code-vs-cursor) и [Claude Code и Codex CLI: в чем разница?](/faq/concepts/claude-code-vs-codex-cli)
-- Хотите понять models, permissions или MCP? См.: [Как переключать Sonnet и Opus в Claude Code](/faq/claude-code/switch-sonnet-opus), [Permissions и hooks в Claude Code](/faq/claude-code/permissions-and-hooks) и [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+```bash
+claude
+```
 
-## Проверка
+Отправьте короткое сообщение. Обычный ответ без ошибок `401`, соединения или модели подтверждает настройку. После изменения файла полностью перезапустите Claude Code.
 
-Запустите Claude Code и отправьте сообщение. Обычный ответ означает, что подключение работает.
+## Смена модели
 
-Если авторизация не проходит, проверьте:
+- Провайдер Claude: выбором модели управляет Claude Code. Не добавляйте `ANTHROPIC_MODEL` или `ANTHROPIC_DEFAULT_*_MODEL`.
+- Провайдер Kimi или GLM: измените `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` и `ANTHROPIC_DEFAULT_OPUS_MODEL`, затем полностью перезапустите Claude Code.
+- Провайдер GPT: для смены модели используйте [расширенную настройку](#расширенная-настройка) ниже.
 
-1. `ANTHROPIC_AUTH_TOKEN` содержит правильный API Key BetterToken
-2. `ANTHROPIC_BASE_URL` равен `{{anthropic-base-url}}`
-3. Группа ключа **Claude** не задает model variables, а группа ключа **GPT** содержит mappings `ANTHROPIC_DEFAULT_*_MODEL`
-4. Старые переменные окружения не переопределяют ваш config
+## Частые ошибки
 
-## FAQ
+| Ошибка | Решение |
+| --- | --- |
+| `401` или ошибка авторизации | Проверьте `ANTHROPIC_AUTH_TOKEN` и удалите пробелы вокруг API Key. |
+| `ConnectionRefused` | Используйте точно `{{anthropic-base-url}}`, не добавляя `/v1`. |
+| Модель не найдена | Для Claude не задавайте модель вручную. Для Kimi или GLM проверьте актуальность всех трёх значений `ANTHROPIC_DEFAULT_*_MODEL`. |
+| Конфигурация не применилась | Проверьте путь, очистите конфликтующие переменные окружения и полностью перезапустите Claude Code. |
 
-<AccordionGroup>
-  <Accordion title="Что делать, если появляется API Error: Unable to connect to API (ConnectionRefused)?">
-    Обычно это означает, что Claude Code не может подключиться к BetterToken API. Чаще всего причина в сети, proxy или firewall, а не в API Key или model mapping.
+## Расширенная настройка
 
-    Проверьте, что локальная сеть работает, затем убедитесь, что system proxy, корпоративная сеть, router или security software не блокируют `{{anthropic-base-url}}`. Если вы используете firewall, разрешите Claude Code доступ к этому адресу.
-  </Accordion>
-</AccordionGroup>
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Настройка командой + вручную |
+| GPT | Расширенная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Расширенная настройка**: установите CC Switch и используйте локальный proxy, преобразование протокола или mapping моделей.
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Настройка командой + вручную**: доступна готовая команда и полная ручная настройка.
+</Accordion>
+{/* tool-provider-support:end */}
+
+Чтобы использовать GPT в Claude Code, настройте его через [CC Switch с BetterToken](/ai-tools/cc-switch#claude-code). В разделе Claude Code укажите API Key, Base URL и Model Mapping, затем включите proxy.
+
+### Связанные FAQ
+
+- [Что такое Claude Code и как он работает?](/faq/claude-code/what-is-claude-code)
+- [Claude Code использует Claude.ai account или API Key?](/faq/claude-code/claude-account-or-api-key)
+- [Как настроить API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Что такое CLAUDE.md в Claude Code?](/faq/claude-code/claude-md)
+- [Почему Claude Code расходует много tokens и как снизить cost](/faq/token-cost/claude-code-token-usage)
+- [Claude Code или Cursor для локальной разработки](/faq/claude-code/claude-code-vs-cursor)
+- [Claude Code и Codex CLI: в чем разница?](/faq/concepts/claude-code-vs-codex-cli)
+- [Как переключать Sonnet и Opus в Claude Code](/faq/claude-code/switch-sonnet-opus)
+- [Permissions и hooks в Claude Code](/faq/claude-code/permissions-and-hooks)
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+
+## Технические детали
+
+<Accordion title="Протокол и endpoint">
+  Claude Code использует Anthropic Messages. Укажите `ANTHROPIC_BASE_URL` как `{{anthropic-base-url}}`; клиент сам добавляет `/v1/messages`, поэтому `/v1` в Base URL не нужен.
+</Accordion>

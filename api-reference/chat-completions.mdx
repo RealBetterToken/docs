@@ -1,26 +1,147 @@
 ---
 title: "OpenAI Chat Completions API"
-description: "Тестируйте BetterToken OpenAI-compatible Chat Completions API: Base URL, Bearer API Key и POST /v1/chat/completions."
-openapi: "POST /v1/chat/completions"
+description: "Используйте OpenAI-compatible Chat Completions API BetterToken: полный URL запроса, Bearer API Key и примеры для curl, Python и JavaScript."
+openapi: "api-reference/openapi.json POST /v1/chat/completions"
 ---
 
-`POST /v1/chat/completions`
+Вызывайте OpenAI-compatible Chat Completions через `POST {{chat-completions-url}}`. Большинству внешних инструментов нужен только Base URL `{{openai-base-url}}`: путь `/chat/completions` они добавляют самостоятельно.
 
-Используйте этот endpoint для внешних инструментов и приложений, которым нужен OpenAI-compatible Chat Completions API.
+## Ключевые параметры
 
-<Note>
-  Base URL: `{{openai-base-url}}`. Передавайте API Key через `Authorization: Bearer YOUR_API_KEY`.
-</Note>
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Полный URL запроса | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
-## Тест в Playground
+## Подготовка
 
-В Playground справа вставьте свой API Key, укажите доступную модель из GPT Key group и заполните `messages`. Перед тестом проверьте ID модели в <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- <a href={"{{register-url}}"}>Создайте API Key BetterToken</a>
+- Скопируйте Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a> или окна **Setup** для ключа
+- Подготовьте терминал с `curl`, либо Python 3 / Node.js
 
-<Warning>
-  Не добавляйте `/chat/completions` к Base URL в настройках внешнего инструмента, если сам инструмент формирует путь endpoint. В Playground полный путь уже задан.
-</Warning>
+## Установка
 
-## Связанные endpoint
+<Tabs>
+  <Tab title="curl">
+    Для `curl` не нужен SDK. Проверьте команду `curl --version`.
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
 
-- [OpenAI Responses API](/api-reference/responses)
-- [Anthropic Messages API](/api-reference/messages)
+## Ручная настройка
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Привет"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Привет"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Привет" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## Проверка подключения
+
+В Playground справа:
+
+1. Укажите `YOUR_API_KEY` в разделе **Authorization**.
+2. Замените `model` на `YOUR_MODEL_ID`.
+3. Измените `messages` и отправьте запрос.
+
+Playground уже использует полный URL `{{chat-completions-url}}`.
+
+Ответ `200` с текстом модели в `choices[0].message.content` подтверждает подключение.
+
+## Смена модели
+
+Замените `YOUR_MODEL_ID` на полный Model ID из model plaza или окна **Setup**. Не сокращайте Model ID по отображаемому названию.
+
+## Частые ошибки
+
+| Ошибка | Решение |
+| --- | --- |
+| `401` | Проверьте `Authorization: Bearer YOUR_API_KEY` и снова скопируйте API Key BetterToken. |
+| `404` | Для прямого HTTP-запроса используйте `{{chat-completions-url}}`; для `base_url` SDK — `{{openai-base-url}}`. |
+| Модель не найдена | Используйте полный Model ID из model plaza или окна **Setup**. |
+| Неверный запрос | Проверьте, что `messages` — массив, а каждый элемент содержит `role` и `content`. |
+
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Технические детали
+
+<Accordion title="Base URL и полный URL запроса">
+  Инструментам, которым нужен полный URL запроса, например GitHub Copilot и TRAE, укажите `{{chat-completions-url}}`. В Cursor, Cline, OpenCode, n8n и Dify, которые сами добавляют путь, укажите только `{{openai-base-url}}`.
+</Accordion>

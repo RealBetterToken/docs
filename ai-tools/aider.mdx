@@ -1,23 +1,33 @@
 ---
-title: "Настройка пользовательской модели в Aider: API Key и Base URL"
+title: "Aider: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Aider"
-description: "Настройте OpenAI-compatible API BetterToken, API Key группы GPT и модель в Aider."
+description: "Установите Aider, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "wrench"
 ---
 
-Aider может подключаться к OpenAI-compatible API. Чтобы использовать BetterToken, задайте `OPENAI_API_BASE` и `OPENAI_API_KEY`, а затем запустите Aider с именем модели в формате `openai/model-id`.
+Чтобы подключить Aider к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-<Info>
-  Aider использует OpenAI-compatible API BetterToken. Укажите Base URL `{{openai-base-url}}`, API Key **группы ключа GPT** и модель из той же группы.
-</Info>
+## Ключевые параметры
 
-## Перед началом
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
 
-- Получите API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и начать</a>
-- Скопируйте актуальный ID модели из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
+
 - Установите Python
 
-## Установите Aider
+## Установка
+
+### Установите Aider
 
 Выполните в терминале:
 
@@ -32,7 +42,15 @@ aider-install
 aider --help
 ```
 
-## Настройте BetterToken для текущего терминала
+## Ручная настройка
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройте BetterToken для текущего терминала
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -41,7 +59,7 @@ aider --help
     export OPENAI_API_KEY="YOUR_API_KEY"
 
     cd /path/to/your/project
-    aider --model openai/gpt-5.6-sol
+    aider --model openai/YOUR_MODEL_ID
     ```
   </Tab>
 
@@ -54,21 +72,21 @@ aider --help
     После `setx` закройте и снова откройте PowerShell. Затем перейдите в каталог проекта и выполните:
 
     ```powershell
-    aider --model openai/gpt-5.6-sol
+    aider --model openai/YOUR_MODEL_ID
     ```
   </Tab>
 </Tabs>
 
-Замените `YOUR_API_KEY` на ваш API Key из **группы ключа GPT**. `gpt-5.6-sol` приведён только как пример. Замените его на актуальный ID из model plaza и сохраните префикс `openai/`.
+Замените `YOUR_API_KEY` на ваш API Key BetterToken. `YOUR_MODEL_ID` приведён только как пример. Замените его на актуальный ID из model plaza и сохраните префикс `openai/`.
 
-## Сохраните конфигурацию в .env
+### Сохраните конфигурацию в .env
 
 Чтобы не задавать переменные при каждом запуске терминала, создайте файл `.env` в Git-корне проекта:
 
 ```dotenv
 OPENAI_API_BASE={{openai-base-url}}
 OPENAI_API_KEY=YOUR_API_KEY
-AIDER_MODEL=openai/gpt-5.6-sol
+AIDER_MODEL=openai/YOUR_MODEL_ID
 ```
 
 Добавьте `.env` в `.gitignore`, чтобы API Key не попал в Git. Затем перейдите в каталог проекта и выполните:
@@ -83,27 +101,44 @@ aider
 aider --env-file ./aider-bettertoken.env
 ```
 
-## Как сменить модель
+### Опционально: .aider.conf.yml
 
-Замените модель в команде запуска на актуальный ID из **группы ключа GPT**:
+Чтобы сохранить только несекретные настройки, создайте `.aider.conf.yml` в домашнем каталоге или корне проекта:
 
-```bash
-aider --model openai/YOUR_GPT_MODEL_ID
+```yaml
+model: openai/YOUR_MODEL_ID
+openai-api-base: "{{openai-base-url}}"
 ```
 
-Не удаляйте префикс `openai/`. API Key и модель должны относиться к одной **группе ключа GPT**.
+API Key по-прежнему передавайте через переменную `OPENAI_API_KEY`, а не через общий YAML-файл.
+
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+
+Замените модель в команде запуска на актуальный ID у провайдера **GPT**:
+
+```bash
+aider --model openai/YOUR_MODEL_ID
+```
+
+Не удаляйте префикс `openai/`. Model ID должен быть совместим с OpenAI-compatible endpoint.
 
 ## Частые ошибки
 
 | Симптом | Что делать |
 | --- | --- |
-| `401`, `Unauthorized` или `Invalid API key` | Проверьте `OPENAI_API_KEY`, убедитесь, что это API Key **группы ключа GPT**, и удалите лишние пробелы. |
-| `model not found` или модель недоступна | Скопируйте актуальный ID из **группы ключа GPT** в model plaza и передайте его Aider в формате `openai/model-id`. |
+| `401`, `Unauthorized` или `Invalid API key` | Проверьте `OPENAI_API_KEY`, убедитесь, что это API Key BetterToken, и удалите лишние пробелы. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID у провайдера **GPT** в model plaza и передайте его Aider в формате `openai/model-id`. |
 | Неверный URL запроса или `404` | Проверьте, что `OPENAI_API_BASE` равен `{{openai-base-url}}`. Не добавляйте `/chat/completions`. |
 | Windows не видит новые переменные | `setx` действует только в новых терминалах. Закройте текущее окно PowerShell и откройте новое. |
-| Aider сообщает, что модель неизвестна | Сначала проверьте ID модели и группу API Key. Aider может показать предупреждение для новой модели, но используйте только актуальный ID из model plaza. |
+| Aider сообщает, что модель неизвестна | Сначала проверьте ID модели и провайдер. Aider может показать предупреждение для новой модели, но используйте только актуальный ID из model plaza. |
 
-## FAQ по настройке
+### FAQ по настройке
 
 **Какой Base URL использовать в Aider?**
 
@@ -117,9 +152,35 @@ Aider использует этот префикс для определения
 
 Не рекомендуем. Используйте переменные окружения или `.env`, который добавлен в `.gitignore`, чтобы снизить риск раскрытия API Key в файлах проекта.
 
-## Связанные инструкции
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Связанные материалы
 
 - [Настройка пользовательской модели в Continue CLI](/ai-tools/continue-cli)
 - [Настройка custom provider в Codex CLI](/ai-tools/codex)
 - [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
 - [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+</Accordion>

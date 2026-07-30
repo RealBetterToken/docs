@@ -1,27 +1,29 @@
 ---
-title: "Grok CLI setup: install, API Key, and Base URL"
+title: "Grok CLI setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Grok CLI"
-description: "Install Grok CLI, configure BetterToken Base URL and API Key, choose a GPT Key group model, and fix common setup errors."
+description: "Install Grok CLI, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors."
 icon: "g"
 ---
 
-To connect a custom API to Grok CLI, install the CLI, set the BetterToken Base URL to `{{openai-base-url}}`, add your API Key, and start the tool with a model ID from the **GPT Key group**. This connection does not require a separate VPN endpoint or local proxy.
+To connect Grok CLI to BetterToken, prepare an API key, enter the Base URL shown below, and choose a current Model ID from the model plaza.
 
-<Info>
-  Grok CLI uses BetterToken's OpenAI-compatible API. Enter only `{{openai-base-url}}`; do not append `/chat/completions` to `GROK_BASE_URL`.
-</Info>
+## Key settings
 
-<Warning>
-  Grok CLI is best for lightweight terminal tasks. For a full agent workflow, use Claude Code, Codex CLI, or OpenClaw.
-</Warning>
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
 
-## What you need
+## Prerequisites
 
-- Node.js and `npm`
-- A BetterToken API Key: <a href={"{{register-url}}"}>register here</a>
-- A currently available **GPT Key group** model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+- The current version of the tool is installed
+- A BetterToken API key: <a href={"{{register-url}}"}>register and get one</a>
+- A Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-## Install Grok CLI
+## Install
+
+### Install Grok CLI
 
 Run this on Windows, macOS, or Linux:
 
@@ -31,7 +33,21 @@ npm install -g @vibe-kit/grok-cli
 
 If `grok` is not found after installation, close and reopen the terminal, then run `grok --help`. Check that the global `npm` package directory is on your `PATH`.
 
-## Configure the Base URL and API Key
+## Manual setup
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### What you need
+
+- Node.js and `npm`
+- A BetterToken API Key: <a href={"{{register-url}}"}>register here</a>
+- A currently available **model ID from a supported provider** from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Configure the Base URL and API Key
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -52,10 +68,10 @@ If `grok` is not found after installation, close and reopen the terminal, then r
 
       <Step title="Start Grok CLI with a model">
         ```bash
-        grok --model YOUR_GPT_MODEL_ID
+        grok --model YOUR_MODEL_ID
         ```
 
-        Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID from the model plaza.
+        Replace `YOUR_MODEL_ID` with a current **model ID from a supported provider** from the model plaza.
       </Step>
     </Steps>
   </Tab>
@@ -71,7 +87,7 @@ If `grok` is not found after installation, close and reopen the terminal, then r
 
       <Step title="Start Grok CLI with a model">
         ```powershell
-        grok --model YOUR_GPT_MODEL_ID
+        grok --model YOUR_MODEL_ID
         ```
 
         These variables apply only to the current PowerShell window. Set them again through your team's approved secret-storage approach when you open a new window.
@@ -82,7 +98,13 @@ If `grok` is not found after installation, close and reopen the terminal, then r
 
 ## Verify the connection
 
+Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
+
 After Grok CLI starts, send a short prompt. If it replies without an authentication or model ID error, the connection is ready. Whenever you change environment variables, end the current Grok CLI session and start a new one.
+
+## Switch models
+
+Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
 
 ## Common errors
 
@@ -90,11 +112,11 @@ After Grok CLI starts, send a short prompt. If it replies without an authenticat
 | --- | --- |
 | `grok: command not found` | Install again, open a new terminal, and check `grok --help`. |
 | `401`, `Unauthorized`, or `Invalid API key` | Check `GROK_API_KEY`, make sure no extra whitespace was copied, and start Grok CLI in the same terminal where the variable is set. |
-| `model not found` or unavailable model | Copy a current model ID from the **GPT Key group** in the model plaza. Do not use an ID from the Claude Key group. |
+| `model not found` or unavailable model | Copy a current model ID from the **supported provider** in the model plaza. Do not use an ID from the Claude provider. |
 | Requests still use a previous service | Check `GROK_BASE_URL`, do not append `/chat/completions`, then restart the terminal and Grok CLI. |
 | Connection error | Confirm the Base URL is `{{openai-base-url}}` and that your network can reach `bettertoken.ai` over HTTPS. |
 
-## Setup FAQ
+### Setup FAQ
 
 **Which Base URL should I use in Grok CLI?**
 
@@ -102,16 +124,42 @@ Use `{{openai-base-url}}`. This is BetterToken's OpenAI-compatible Base URL.
 
 **Which API Key and model should I select?**
 
-Use a **GPT Key group** API Key and a model from the same group.
+Use a BetterToken API Key and a model from the same group.
 
 **Do I need to change a system proxy or enable a VPN?**
 
 No. Configure the Base URL and API Key in your terminal to connect to BetterToken.
 
-## Related guides
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Related guides
 
 - [Configure Codex CLI with a custom provider](/en/ai-tools/codex)
 - [Configure a custom API, Base URL, and API Key in Cursor](/en/ai-tools/cursor)
 - [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
+
+## Technical details
+
+<Accordion title="Protocol, endpoint, and internal provider fields">
+  This setup uses `{{openai-base-url}}`. The tool appends the OpenAI-compatible endpoint path. Do not add `/chat/completions` or `/responses` unless a specific field explicitly requires it.
+</Accordion>

@@ -6,14 +6,14 @@ description: "给出 Cline 接入 BetterToken 时应填写的 Provider、Base UR
 
 ## 直接答案
 
-在 Cline 中选择 **OpenAI Compatible**，将 **Base URL** 填为 `{{openai-base-url}}`，粘贴你的 BetterToken API Key，再填写 **GPT 分组**中的 Model ID。不要使用 Claude Code 的 Anthropic-compatible 地址，也不要选择官方 **OpenAI** provider。
+在 Cline 中选择 **OpenAI Compatible**，将 **Base URL** 填为 `{{openai-base-url}}`，粘贴你的 BetterToken API Key，再填写 **GPT 提供商**中的 Model ID。不要使用 Claude Code 的 Anthropic-compatible 地址，也不要选择官方 **OpenAI** provider。
 
 | Cline 字段 | BetterToken 配置 |
 | --- | --- |
 | API Provider | `OpenAI Compatible` |
 | Base URL | `{{openai-base-url}}` |
 | API Key | 你的 BetterToken API Key |
-| Model ID | <a href={"{{model-plaza-url}}"}>模型广场</a>中 **GPT 分组**的模型 ID |
+| Model ID | <a href={"{{model-plaza-url}}"}>模型广场</a>中 **GPT 提供商**的模型 ID |
 
 <Info>
   这篇 FAQ 解决的是“每个字段应该填什么”和连接失败时如何排查。需要从安装 Cline 开始操作时，请使用 [Cline 完整接入指南](/zh/ai-tools/cline)。
@@ -23,7 +23,7 @@ description: "给出 Cline 接入 BetterToken 时应填写的 Provider、Base UR
 
 <Steps>
   <Step title="准备 API Key 和模型 ID">
-    创建 API Key 后，从 <a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**中当前可用的模型 ID。Model ID 必须原样填写，不能使用页面上的模型展示名称代替。
+    创建 API Key 后，从 <a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 提供商**中当前可用的模型 ID。Model ID 必须原样填写，不能使用页面上的模型展示名称代替。
   </Step>
 
   <Step title="打开 Cline 设置">
@@ -56,14 +56,14 @@ Cline 还可能显示 Context Window、Max Output Tokens、Image Support 或 Com
 | 现象 | 优先检查 | 处理方法 |
 | --- | --- | --- |
 | `Invalid API Key` 或 `401` | API Key 是否完整、是否属于当前账号 | 重新复制 API Key，确认前后没有空格；不要混用官方 OpenAI Key |
-| `Model Not Found` | Model ID 是否属于 GPT 分组 | 从模型广场重新复制当前可用的 Model ID，不要手动改写大小写或后缀 |
+| `Model Not Found` | Model ID 是否属于 GPT 提供商 | 从模型广场重新复制当前可用的 Model ID，不要手动改写大小写或后缀 |
 | `404` 或 endpoint not found | Base URL 是否缺少 `/v1` | 改为 `{{openai-base-url}}`，不要填 Claude Code 使用的 Anthropic-compatible 地址 |
 | 连接超时 | 本机网络、防火墙或旧代理设置 | 确认浏览器可访问 BetterToken，关闭失效代理后重新 **Verify** |
 | 修改后仍使用旧配置 | Cline 会话未刷新 | 保存设置，关闭当前任务并重新打开 Cline；必要时执行 **Developer: Reload Window** |
 
 ## 这套配置适用于什么场景？
 
-这套字段适用于 Cline 通过 BetterToken 的 OpenAI-compatible endpoint 调用 **GPT 分组**模型。它不会修改 Cline Rules、Memory Bank、MCP 或本地工具权限；这些功能仍由 Cline 自己管理。
+这套字段适用于 Cline 通过 BetterToken 的 OpenAI-compatible endpoint 调用 **GPT 提供商**模型。它不会修改 Cline Rules、Memory Bank、MCP 或本地工具权限；这些功能仍由 Cline 自己管理。
 
 如果你要配置 Claude Code，请使用不带 `/v1` 的 Anthropic-compatible 地址，并参考 [Claude Code 接入指南](/zh/ai-tools/claude-code)。
 

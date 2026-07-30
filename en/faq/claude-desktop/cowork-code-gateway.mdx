@@ -10,18 +10,18 @@ After you configure the BetterToken Gateway in Claude Desktop, the following sym
 - Code mode shows `Claude Code process exited with code 1`
 - The same API Key works in Claude Code CLI from a terminal
 
-These issues usually come from two separate causes: the desktop Gateway auth scheme does not match the Key group, or the bundled Claude Code version in Claude Desktop has not finished updating.
+These issues usually come from two separate causes: the desktop Gateway auth scheme does not match the provider, or the bundled Claude Code version in Claude Desktop has not finished updating.
 
-If you have not configured the Gateway yet, start with [Use BetterToken API in Claude Desktop](/en/faq/claude-desktop-llmeasy-api).
+If you have not configured the Gateway yet, start with [Use BetterToken API in Claude Desktop](/en/faq/claude-desktop-bettertoken-api).
 
 ## Fix Cowork mode first
 
-**Root cause**: **Gateway auth scheme** does not match the Key group.
+**Root cause**: **Gateway auth scheme** does not match the provider.
 
-In Claude Desktop Gateway settings, choose the auth scheme based on the Key group:
+In Claude Desktop Gateway settings, choose the auth scheme based on the provider:
 
-- If the API Key belongs to a **Claude Key group**, set **Gateway auth scheme** to `x-api-key`
-- If the API Key belongs to a **GPT Key group**, set **Gateway auth scheme** to `bearer`
+- If the BetterToken API Key is valid, set **Gateway auth scheme** to `x-api-key`
+- If the BetterToken API Key is valid, set **Gateway auth scheme** to `bearer`
 
 After you select the correct scheme, Claude Desktop automatically fetches the available models for that group. If the auth scheme is wrong, Cowork mode may fail Gateway authentication.
 
@@ -31,7 +31,7 @@ After you select the correct scheme, Claude Desktop automatically fetches the av
   </Step>
 
   <Step title="Change the auth scheme">
-    Choose **Gateway auth scheme** based on the Key group: use `x-api-key` for a **Claude Key group** and `bearer` for a **GPT Key group**.
+    Choose **Gateway auth scheme** based on the provider: use `x-api-key` for a **Claude provider** and `bearer` for a **GPT provider**.
   </Step>
 
   <Step title="Save the config">
@@ -71,5 +71,5 @@ If Cowork works but Code mode, the `</>` tab, still shows `Claude Code process e
 
 | Symptom | Common root cause | Fix |
 |---------|-------------------|-----|
-| Cowork mode does not work | **Gateway auth scheme** does not match the Key group | Use `x-api-key` for a **Claude Key group** or `bearer` for a **GPT Key group**, then click **Apply locally** |
+| Cowork mode does not work | **Gateway auth scheme** does not match the provider | Use `x-api-key` for a **Claude provider** or `bearer` for a **GPT provider**, then click **Apply locally** |
 | Code mode shows `Claude Code process exited with code 1` | Claude Desktop falls back to an older Claude Code version | Wait for the newer version to finish downloading, fully quit with **Cmd+Q**, then reopen |

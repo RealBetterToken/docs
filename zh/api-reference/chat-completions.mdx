@@ -1,26 +1,147 @@
 ---
 title: "OpenAI Chat Completions API"
-description: "测试 BetterToken 的 OpenAI 类协议 Chat Completions API：Base URL、Bearer API Key 与 POST /v1/chat/completions。"
+description: "使用 BetterToken OpenAI-compatible Chat Completions API：完整请求 URL、Bearer API Key、curl、Python 和 JavaScript 示例。"
 openapi: "api-reference/openapi.json POST /v1/chat/completions"
 ---
 
-`POST /v1/chat/completions`
+通过 `POST {{chat-completions-url}}` 调用 OpenAI-compatible Chat Completions。外部工具通常只填写 Base URL `{{openai-base-url}}`，由工具自行追加 `/chat/completions`。
 
-适用于需要 OpenAI 类协议 Chat Completions API 的外部工具和应用。
+## 重点信息
 
-<Note>
-  Base URL：`{{openai-base-url}}`。通过 `Authorization: Bearer YOUR_API_KEY` 传入 API Key。
-</Note>
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| 完整请求 URL | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
-## 在 Playground 中测试
+## 准备工作
 
-在右侧 Playground 填入你的 API Key，选择可用的 GPT 分组模型，填写 `messages` 后发送请求。测试前请在<a href={"{{model-plaza-url}}"}>模型广场</a>确认模型 ID。
+- <a href={"{{register-url}}"}>创建 BetterToken API Key</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>或 Console 中对应 Key 的 **Setup** 弹窗复制 Model ID
+- 准备支持 `curl` 的终端，或 Python 3 / Node.js
 
-<Warning>
-  若外部工具会自动拼接 endpoint 路径，就不要在它的 Base URL 后追加 `/chat/completions`。Playground 已经使用完整请求路径。
-</Warning>
+## 安装
 
-## 相关接口
+<Tabs>
+  <Tab title="curl">
+    `curl` 无需额外 SDK。确认终端可以运行 `curl --version`。
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
 
-- [OpenAI Responses API](/zh/api-reference/responses)
-- [Anthropic Messages API](/zh/api-reference/messages)
+## 手动配置
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Hello"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Hello" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## 验证连接
+
+在右侧 Playground 中：
+
+1. 在 **Authorization** 中输入 `YOUR_API_KEY`。
+2. 将 `model` 替换为 `YOUR_MODEL_ID`。
+3. 修改 `messages` 后发送请求。
+
+Playground 使用完整路径 `{{chat-completions-url}}`，无需手动拼接 endpoint。
+
+收到 `200` 响应且 `choices[0].message.content` 包含模型回复，即表示连接成功。
+
+## 切换模型
+
+把请求中的 `YOUR_MODEL_ID` 替换为模型广场或 **Setup** 弹窗中的完整 Model ID。不要根据展示名称自行缩写 Model ID。
+
+## 常见错误
+
+| 错误 | 处理方式 |
+| --- | --- |
+| `401` | 检查 `Authorization` 是否为 `Bearer YOUR_API_KEY`，并重新复制 BetterToken API Key。 |
+| `404` | 直接调用使用完整 URL `{{chat-completions-url}}`；SDK 的 `base_url` 使用 `{{openai-base-url}}`。 |
+| 模型不存在 | 使用模型广场或 **Setup** 弹窗中的完整 Model ID。 |
+| 请求格式错误 | 确认 `messages` 是数组，并且每项包含 `role` 和 `content`。 |
+
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技术说明
+
+<Accordion title="Base URL 与完整请求 URL">
+  GitHub Copilot 和 TRAE 等要求完整请求 URL 的工具使用 `{{chat-completions-url}}`。Cursor、Cline、OpenCode、n8n 和 Dify 等会自行追加路径的工具只填写 `{{openai-base-url}}`。
+</Accordion>

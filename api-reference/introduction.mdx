@@ -1,115 +1,62 @@
 ---
 title: "Справочник API"
-description: "Endpoint, авторизация и настройка BetterToken по протоколам."
+description: "URL запроса, авторизация и интерактивное тестирование OpenAI-compatible Chat Completions API BetterToken."
 ---
 
-## Endpoint
+Публичный справочник BetterToken сейчас содержит только **OpenAI-compatible Chat Completions API**. Поддержка других протоколов пока различается между каналами, поэтому Responses API и Anthropic Messages API временно не публикуются как открытые интерфейсы.
 
-BetterToken использует два endpoint в зависимости от протокола:
+## Поддерживаемые провайдеры
 
-| Сценарий | Base URL | Протокол |
-|----------|----------|----------|
-| Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Anthropic |
-| Codex / `OPENAI_BASE_URL` / внешние инструменты | `{{openai-base-url}}` | OpenAI-style / OpenAI Responses |
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+## Параметры подключения
+
+| Поле | Значение |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| Полный URL запроса | `{{chat-completions-url}}` |
+| Метод | `POST` |
+| Authorization | `Bearer YOUR_API_KEY` |
+| Model | `YOUR_MODEL_ID` |
+
+Скопируйте актуальный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a> или окна **Setup** для нужного API Key в Console.
 
 <Warning>
-  Не используйте один общий endpoint для всех протоколов.
+  Если инструмент запрашивает **Base URL**, укажите `{{openai-base-url}}`. Используйте `{{chat-completions-url}}` только тогда, когда инструмент требует полный URL запроса.
 </Warning>
 
-## Тестирование endpoint
+## Быстрая проверка
 
-Откройте отдельную страницу нужного endpoint, чтобы заполнить запрос в Playground справа и отправить его напрямую:
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
 
-- [OpenAI Responses API](/api-reference/responses) для Codex и приложений, использующих `/v1/responses`
-- [OpenAI Chat Completions API](/api-reference/chat-completions) для инструментов, использующих `/v1/chat/completions`
-- [Anthropic Messages API](/api-reference/messages) для Claude Code, Anthropic SDK и приложений, использующих `/v1/messages`
+Успешный ответ содержит `choices[0].message.content`.
 
-В Playground указывайте только свой API Key. Перед тестом OpenAI-compatible endpoint сверяйте модель из GPT Key group с <a href={"{{model-plaza-url}}"}>model plaza</a>.
+## Интерактивное тестирование и примеры SDK
 
-## Авторизация и примеры
+Откройте [OpenAI Chat Completions API](/api-reference/chat-completions), чтобы:
 
-Передавайте API Key BetterToken вместе с запросом:
-
-<Tabs>
-  <Tab title="Claude Code / Anthropic">
-    ```python
-    import anthropic
-
-    client = anthropic.Anthropic(
-        base_url="{{anthropic-base-url}}",
-        api_key="YOUR_API_KEY",
-    )
-
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": "Hello"}],
-    )
-    ```
-
-    ```bash
-    curl "{{anthropic-base-url}}/v1/messages" \
-      -H "x-api-key: YOUR_API_KEY" \
-      -H "anthropic-version: claude-cli/2.0.76 (external, cli)" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "claude-sonnet-4-6",
-        "max_tokens": 1024,
-        "messages": [
-          {"role": "user", "content": "Привет"}
-        ]
-      }'
-    ```
-
-    `ANTHROPIC_BASE_URL` для SDK указывает на корневой адрес. В ручном curl-запросе используйте полный путь `/v1/messages`, а не `/messages`.
-  </Tab>
-  <Tab title="Codex / OpenAI Responses">
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url="{{openai-base-url}}",
-        api_key="YOUR_API_KEY",
-    )
-
-    response = client.responses.create(
-        model="ID модели группы GPT из {{model-plaza-url}}",
-        input="Hello",
-    )
-    ```
-
-    ```bash
-    curl "{{openai-base-url}}/responses" \
-      -H "Authorization: Bearer YOUR_API_KEY" \
-      -H "content-type: application/json" \
-      -d '{
-        "model": "YOUR_GPT_MODEL_ID",
-        "input": "Привет"
-      }'
-    ```
-
-    Замените `YOUR_GPT_MODEL_ID` на актуальный ID из **группы GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>. Этот пример использует OpenAI Responses API, как и Codex.
-  </Tab>
-</Tabs>
-
-## Правила выбора модели
-
-- **Claude Code + Группа ключа Claude**: не задавайте переменные моделей вручную; настройте только `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`
-- **Claude Code + Группа ключа GPT**: добавьте сопоставления через `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` и `ANTHROPIC_DEFAULT_OPUS_MODEL`
-- **Codex**: используйте ID модели из группы **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
-- **Внешние инструменты**: также используйте модели группы **GPT**, а не фиксированные имена Claude-моделей
+- Отправить запрос из Playground
+- Посмотреть параметры запроса и схему ответа
+- Скопировать примеры curl, Python и JavaScript
 
 <Note>
-  Для внешних инструментов обычно достаточно `Base URL`, API Key и модели, которые указаны в официальной документации инструмента. Добавляйте дополнительные headers только если сам инструмент или ваш upstream gateway явно требуют этого.
+  Не сохраняйте настоящий API Key в документации, скриншотах или публичном коде. Замените `YOUR_API_KEY` и `YOUR_MODEL_ID` своими значениями.
 </Note>
-
-## Справочник переменных окружения
-
-| Переменная | Значение | Где используется |
-|------------|----------|------------------|
-| `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` | Claude Code |
-| `ANTHROPIC_AUTH_TOKEN` | Ваш API Key | Авторизация Claude Code |
-| `OPENAI_BASE_URL` | `{{openai-base-url}}` | Codex и другие OpenAI-style инструменты |
-| `OPENAI_API_KEY` | Ваш API Key | Авторизация OpenAI-style инструментов |
-| `API_TIMEOUT_MS` | `3000000` | Рекомендуется для длинных задач |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | Только Claude Code |

@@ -1,18 +1,31 @@
 ---
-title: "Кастомная модель в Droid: Base URL, API Key и GPT"
+title: "Droid: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Droid"
-description: "Настройте кастомную модель BetterToken в Droid через OpenAI Responses Base URL, API Key и GPT model ID. Решения для ошибок 401, 404 и отсутствующей модели."
+description: "Установите Droid, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "robot"
 ---
 
-Droid — CLI coding assistant от Factory AI. Через BYOK вы можете добавить BetterToken в `~/.factory/settings.json`, а затем выбрать модель группы GPT в меню `/model`.
+Чтобы подключить Droid к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-## Требования
+## Ключевые параметры
 
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
-- Актуальный model ID из **группы ключа GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
 
-## Установка Droid
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
+
+## Установка
+
+### Установка Droid
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -27,7 +40,15 @@ Droid — CLI coding assistant от Factory AI. Через BYOK вы может�
   </Tab>
 </Tabs>
 
-## Настройка
+## Ручная настройка
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройка
 
 <Steps>
   <Step title="Задайте API Key BetterToken">
@@ -55,7 +76,7 @@ Droid — CLI coding assistant от Factory AI. Через BYOK вы может�
       "customModels": [
         {
           "displayName": "BetterToken Codex",
-          "model": "YOUR_GPT_MODEL_ID",
+          "model": "YOUR_MODEL_ID",
           "baseUrl": "{{openai-base-url}}",
           "apiKey": "${BETTERTOKEN_API_KEY}",
           "provider": "openai"
@@ -64,7 +85,7 @@ Droid — CLI coding assistant от Factory AI. Через BYOK вы может�
     }
     ```
 
-    Замените `YOUR_GPT_MODEL_ID` на актуальный ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+    Замените `YOUR_MODEL_ID` на актуальный Model ID провайдера **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
 
   <Step title="Запустите Droid и выберите модель">
@@ -82,8 +103,16 @@ Droid — CLI coding assistant от Factory AI. Через BYOK вы может�
 </Steps>
 
 <Note>
-  Поле `provider` должно содержать `openai`. В BYOK-конфигурации Factory это значение выбирает OpenAI Responses API. Используйте `{{openai-base-url}}` и API Key из **группы ключа GPT**.
+  Поле `provider` должно содержать `openai`. В BYOK-конфигурации Factory это значение выбирает OpenAI Responses API. Используйте `{{openai-base-url}}` и API Key BetterToken.
 </Note>
+
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
 
 ## Частые ошибки
 
@@ -95,11 +124,11 @@ Droid — CLI coding assistant от Factory AI. Через BYOK вы может�
 | `404` или Model not found | Используйте `{{openai-base-url}}` и скопируйте актуальный GPT model ID из model plaza |
 | После изменения осталась старая модель | Снова откройте `/model`; если список не обновился, полностью перезапустите Droid |
 
-## FAQ
+### FAQ
 
-### Почему нужна группа ключа GPT?
+### Почему нужна поддерживаемый провайдер?
 
-`provider: "openai"` в Droid использует OpenAI Responses API. Группа ключа GPT в BetterToken предоставляет соответствующий OpenAI-compatible endpoint и model ID.
+`provider: "openai"` в Droid использует OpenAI Responses API. поддерживаемый провайдер в BetterToken предоставляет соответствующий OpenAI-compatible endpoint и model ID.
 
 ### Нужны ли дополнительные headers?
 
@@ -109,13 +138,39 @@ Droid — CLI coding assistant от Factory AI. Через BYOK вы может�
 
 Актуальные цены моделей смотрите в <a href={"{{model-plaza-url}}"}>model plaza</a>. Расход запросов и баланс доступны в Dashboard BetterToken.
 
-## Связанные FAQ
+### Связанные FAQ
 
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 
-## References
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Связанные материалы
 
 - [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+</Accordion>

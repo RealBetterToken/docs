@@ -1,27 +1,33 @@
 ---
-title: "Grok CLI: установка, API Key и настройка BetterToken"
+title: "Grok CLI: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Grok CLI"
-description: "Установите Grok CLI, задайте Base URL и API Key BetterToken, выберите модель группы GPT и устраните частые ошибки."
+description: "Установите Grok CLI, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "g"
 ---
 
-Чтобы подключить кастомный API к Grok CLI, установите CLI, задайте Base URL `{{openai-base-url}}` и API Key BetterToken, затем запустите инструмент с ID модели из группы **GPT**. Для этого подключения не нужен отдельный VPN endpoint или локальный proxy.
+Чтобы подключить Grok CLI к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-<Info>
-  Grok CLI использует OpenAI-compatible API BetterToken. Введите только базовый адрес `{{openai-base-url}}`; не добавляйте `/chat/completions` в переменную `GROK_BASE_URL`.
-</Info>
+## Ключевые параметры
 
-<Warning>
-  Grok CLI лучше подходит для легких задач в терминале. Для полноценного agent workflow используйте Claude Code, Codex CLI или OpenClaw.
-</Warning>
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
 
-## Что нужно подготовить
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
 
 - Node.js и `npm`
-- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться</a>
-- ID доступной модели из группы **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-## Установите Grok CLI
+## Установка
+
+### Установите Grok CLI
 
 В Windows, macOS и Linux выполните:
 
@@ -31,7 +37,15 @@ npm install -g @vibe-kit/grok-cli
 
 Если после установки команда `grok` не найдена, закройте терминал, откройте его снова и выполните `grok --help`. Проверьте, что каталог глобальных пакетов `npm` добавлен в `PATH`.
 
-## Настройте Base URL и API Key
+## Ручная настройка
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройте Base URL и API Key
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -52,10 +66,10 @@ npm install -g @vibe-kit/grok-cli
 
       <Step title="Запустите Grok CLI с моделью">
         ```bash
-        grok --model YOUR_GPT_MODEL_ID
+        grok --model YOUR_MODEL_ID
         ```
 
-        Замените `YOUR_GPT_MODEL_ID` на текущий ID модели из группы **GPT** в model plaza.
+        Замените `YOUR_MODEL_ID` на текущий ID модели у провайдера **GPT** в model plaza.
       </Step>
     </Steps>
   </Tab>
@@ -71,7 +85,7 @@ npm install -g @vibe-kit/grok-cli
 
       <Step title="Запустите Grok CLI с моделью">
         ```powershell
-        grok --model YOUR_GPT_MODEL_ID
+        grok --model YOUR_MODEL_ID
         ```
 
         Переменные в этом примере действуют только в текущем окне PowerShell. После открытия нового окна задайте их снова через безопасный способ хранения секретов, принятый в вашей команде.
@@ -80,9 +94,17 @@ npm install -g @vibe-kit/grok-cli
   </Tab>
 </Tabs>
 
-## Проверьте подключение
+### Проверьте подключение
 
 После запуска отправьте короткий запрос в Grok CLI. Если инструмент отвечает без ошибки авторизации или model ID, подключение готово. При изменении переменных окружения всегда завершайте текущую сессию Grok CLI и запускайте новую.
+
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
 
 ## Частые ошибки
 
@@ -90,11 +112,11 @@ npm install -g @vibe-kit/grok-cli
 | --- | --- |
 | `grok: command not found` | Выполните установку еще раз, затем откройте новый терминал и проверьте `grok --help`. |
 | `401`, `Unauthorized` или `Invalid API key` | Проверьте `GROK_API_KEY`, убедитесь, что в ключ не попал пробел, и запустите Grok CLI в том же окне терминала, где задана переменная. |
-| `model not found` или модель недоступна | Скопируйте актуальный ID модели из группы **GPT** в model plaza. Не используйте ID из группы Claude. |
+| `model not found` или модель недоступна | Скопируйте актуальный ID модели у провайдера **GPT** в model plaza. Не используйте ID у провайдера Claude. |
 | Запрос уходит на прежний сервис | Проверьте `GROK_BASE_URL`, не добавляйте путь `/chat/completions`, затем перезапустите терминал и Grok CLI. |
 | Ошибка соединения | Убедитесь, что Base URL равен `{{openai-base-url}}`, и что сеть разрешает HTTPS-соединения с `bettertoken.ai`. |
 
-## Вопросы по настройке
+### Вопросы по настройке
 
 **Какой Base URL нужен для Grok CLI?**
 
@@ -102,16 +124,42 @@ npm install -g @vibe-kit/grok-cli
 
 **Какой API Key и модель выбрать?**
 
-Для Grok CLI используйте API Key из группы **GPT** и модель из той же группы.
+Для Grok CLI используйте API Key BetterToken и модель, совместимую с настроенным endpoint.
 
 **Нужно ли менять системный proxy или включать VPN?**
 
 Нет. Для подключения BetterToken достаточно настроить Base URL и API Key в терминале.
 
-## Связанные инструкции
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Связанные материалы
 
 - [Настройка Codex CLI с custom provider](/ai-tools/codex)
 - [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
 - [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+</Accordion>

@@ -6,7 +6,7 @@ description: "配置 Codex config.toml 自定义 provider：设置 model_provide
 
 ## 直接答案
 
-要在 Codex CLI 使用自定义 provider，请编辑用户级 `~/.codex/config.toml`。设置 `model_provider = "custom"`，添加 `[model_providers.custom]`，Base URL 填 `{{openai-base-url}}`，并设置 `wire_api = "responses"`。BetterToken API Key 通过 `env_key` 读取，Model ID 从 **GPT 分组**复制。
+要在 Codex CLI 使用自定义 provider，请编辑用户级 `~/.codex/config.toml`。设置 `model_provider = "custom"`，添加 `[model_providers.custom]`，Base URL 填 `{{openai-base-url}}`，并设置 `wire_api = "responses"`。BetterToken API Key 通过 `env_key` 读取，Model ID 从 **GPT 提供商**复制。
 
 ## 先确认配置文件位置
 
@@ -55,7 +55,7 @@ description: "配置 Codex config.toml 自定义 provider：设置 model_provide
     requires_openai_auth = false
     ```
 
-    `model` 只是示例。实际值请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 分组**中当前可用的模型 ID。
+    `model` 只是示例。实际值请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 提供商**中当前可用的模型 ID。
   </Step>
 
   <Step title="重启并测试">
@@ -106,7 +106,7 @@ supports_websockets = false
 | `env_key` | 指定从哪个环境变量读取 API Key | `MODEL_PROVIDER_API_KEY` |
 | `wire_api` | Provider 协议 | `"responses"` |
 | `requires_openai_auth` | 是否使用 OpenAI 官方认证 | 普通第三方 API 配置为 `false` |
-| `model` | 默认模型 ID | GPT 分组中的当前可用 ID |
+| `model` | 默认模型 ID | GPT 提供商中的当前可用 ID |
 
 <Note>
   如果你的目标是在使用第三方 API 时继续保留 Codex App 官方登录态、插件和 Remote Control，不要直接套用普通鉴权配置。请改用 [保留 Codex 官方登录态和会话历史](/zh/faq/codex/official-login-third-party-api) 的专用方案。
@@ -120,7 +120,7 @@ supports_websockets = false
 | 启动时提示缺少 API Key | 环境变量未设置或新终端未读取 | 重新设置 `MODEL_PROVIDER_API_KEY`，再打开新终端 |
 | `401` 或 `403` | API Key 错误，或认证方式混用 | 重新复制 Key，确认 `env_key` 名称一致且 `requires_openai_auth = false` |
 | `404` | Base URL 缺少 `/v1` 或协议地址填错 | 使用 `{{openai-base-url}}` |
-| Model not found | 模型 ID 不属于 GPT 分组或已下线 | 从模型广场重新复制当前 Model ID |
+| Model not found | 模型 ID 不属于 GPT 提供商或已下线 | 从模型广场重新复制当前 Model ID |
 | 修改后没有生效 | 改错配置层、文件路径或 WSL 环境 | 确认编辑的是运行 Codex 所在环境的用户级配置，并重启 Codex |
 | TOML 解析失败 | 重复表、引号或层级错误 | 删除重复的 `[model_providers.custom]`，检查字符串引号 |
 

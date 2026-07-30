@@ -1,7 +1,7 @@
 ---
 title: "Как настроить API Key и Base URL в Claude Code"
 sidebarTitle: "API Key и Base URL"
-description: "Как связаны API Key, Base URL, Anthropic-compatible endpoint и группы ключей Claude/GPT при настройке Claude Code."
+description: "Как связаны API Key, Base URL, Anthropic-compatible endpoint и провайдеры Claude и GPT при настройке Claude Code."
 ---
 
 ## Короткий ответ
@@ -10,7 +10,7 @@ description: "Как связаны API Key, Base URL, Anthropic-compatible endp
 
 API Key подтверждает запрос. Base URL говорит Claude Code, куда отправлять model requests. Оба значения должны относиться к одному provider и одному protocol.
 
-С группой **Claude** обычно нужны `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. С группой **GPT** дополнительно нужны model mappings Claude Code из инструкции по настройке.
+С провайдером **Claude** обычно нужны `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. С провайдером **GPT** дополнительно нужны model mappings Claude Code из инструкции по настройке.
 
 ## Когда это важно
 
@@ -18,7 +18,7 @@ API Key подтверждает запрос. Base URL говорит Claude Co
 - У вас есть API Key, но непонятно, какой Base URL указать
 - Claude Code показывает auth или endpoint error
 - Вы выбираете между `{{anthropic-base-url}}` и `{{openai-base-url}}`
-- Нужно понять группы ключей Claude и GPT
+- Нужно понять различия provider Claude и GPT
 
 ## Ключевые понятия
 
@@ -32,9 +32,9 @@ API Key подтверждает запрос. Base URL говорит Claude Co
 
 ## Рекомендуемая настройка
 
-Выберите путь по группе API Key.
+Выберите путь по провайдеру.
 
-Группа Claude:
+провайдер Claude:
 
 ```json
 {
@@ -45,7 +45,7 @@ API Key подтверждает запрос. Base URL говорит Claude Co
 }
 ```
 
-Группа GPT требует дополнительных Claude Code model mappings. Используйте полную [инструкцию Claude Code](/ai-tools/claude-code), а не только короткий пример с этой страницы.
+провайдер GPT требует дополнительных Claude Code model mappings. Используйте полную [инструкцию Claude Code](/ai-tools/claude-code), а не только короткий пример с этой страницы.
 
 После редактирования config перезапустите Claude Code и отправьте короткое тестовое сообщение. Если оно не проходит, сначала проверьте, не был ли Base URL случайно заменен на `{{openai-base-url}}`.
 
@@ -53,7 +53,7 @@ API Key подтверждает запрос. Base URL говорит Claude Co
 
 - Добавлять `/v1` к Base URL Claude Code.
 - Менять API Key, но оставлять requests на default endpoint.
-- Использовать Model ID группы GPT как модель группы Claude.
+- Использовать Model ID провайдера GPT как модель провайдера Claude.
 - Вставлять OpenAI-compatible endpoint в Anthropic-compatible поля Claude Code.
 - Оставлять старые environment variables в shell profile, которые перекрывают новую config.
 

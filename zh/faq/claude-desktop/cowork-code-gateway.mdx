@@ -10,20 +10,20 @@ description: "解决 Claude 桌面端接入 BetterToken Gateway 后 Cowork 模�
 - Code 模式提示 `Claude Code process exited with code 1`
 - 同一套 API Key 在 Claude Code CLI 中可以正常使用
 
-这类问题通常由两个独立原因引起：桌面端 Gateway 认证方式与 API Key 分组不匹配，或桌面端内置 Claude Code 版本尚未更新完成。
+这类问题通常由两个独立原因引起：桌面端 Gateway 认证方式与 提供商不匹配，或桌面端内置 Claude Code 版本尚未更新完成。
 
-如果你还没有完成 Gateway 配置，请先参考 [Claude 桌面端使用 BetterToken API](/zh/faq/claude-desktop-llmeasy-api)。
+如果你还没有完成 Gateway 配置，请先参考 [Claude 桌面端使用 BetterToken API](/zh/faq/claude-desktop-bettertoken-api)。
 
 ## 先修复 Cowork 模式
 
-**根因**：**Gateway auth scheme** 与 API Key 对应的分组不匹配。
+**根因**：**Gateway auth scheme** 与所选 provider 不匹配。
 
-在 Claude 桌面端的 Gateway 配置中，认证方式需要按 API Key 分组选择：
+在 Claude 桌面端的 Gateway 配置中，认证方式需要按 提供商选择：
 
-- 如果 API Key 对应 **Claude 分组**，**Gateway auth scheme** 选择 `x-api-key`
-- 如果 API Key 对应 **GPT 分组**，**Gateway auth scheme** 选择 `bearer`
+- 如果 API Key 对应 **Claude 提供商**，**Gateway auth scheme** 选择 `x-api-key`
+- 如果 API Key 对应 **GPT 提供商**，**Gateway auth scheme** 选择 `bearer`
 
-选择正确后，Claude 桌面端会自动获取该分组下可用的模型。如果认证方式选错，Cowork 模式可能无法通过 Gateway 认证。
+选择正确后，Claude 桌面端会自动获取该 provider 的可用模型。如果认证方式选错，Cowork 模式可能无法通过 Gateway 认证。
 
 <Steps>
   <Step title="打开第三方推理配置">
@@ -31,7 +31,7 @@ description: "解决 Claude 桌面端接入 BetterToken Gateway 后 Cowork 模�
   </Step>
 
   <Step title="切换认证方式">
-    按 API Key 分组选择 **Gateway auth scheme**：**Claude 分组** 使用 `x-api-key`，**GPT 分组** 使用 `bearer`。
+    按 提供商选择 **Gateway auth scheme**：**Claude 提供商** 使用 `x-api-key`，**GPT 提供商** 使用 `bearer`。
   </Step>
 
   <Step title="保存配置">
@@ -71,5 +71,5 @@ description: "解决 Claude 桌面端接入 BetterToken Gateway 后 Cowork 模�
 
 | 现象 | 常见根因 | 解决方式 |
 |------|----------|----------|
-| Cowork 模式不可用 | **Gateway auth scheme** 与 API Key 分组不匹配 | **Claude 分组** 选择 `x-api-key`，**GPT 分组** 选择 `bearer`，并点击 **Apply locally** |
+| Cowork 模式不可用 | **Gateway auth scheme** 与 提供商不匹配 | **Claude 提供商** 选择 `x-api-key`，**GPT 提供商** 选择 `bearer`，并点击 **Apply locally** |
 | Code 模式提示 `Claude Code process exited with code 1` | 桌面端回退使用旧版 Claude Code | 等待新版下载完成，使用 **Cmd+Q** 完全退出后重新打开 |

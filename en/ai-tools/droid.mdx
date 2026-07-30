@@ -1,18 +1,31 @@
 ---
-title: "Droid Custom Model Setup: Base URL, API Key, and GPT Models"
+title: "Droid setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Droid"
-description: "Configure a BetterToken custom model in Droid with an OpenAI Responses Base URL, API Key, and GPT model ID, with fixes for missing models, 401, and 404 errors."
+description: "Install Droid, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors."
 icon: "robot"
 ---
 
-Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add BetterToken in `~/.factory/settings.json` and select a GPT Key group model from the `/model` menu.
+To connect Droid to BetterToken, prepare an API key, enter the Base URL shown below, and choose a current Model ID from the model plaza.
+
+## Key settings
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
 
 ## Prerequisites
 
-- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
-- A current **GPT Key group** model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+- The current version of the tool is installed
+- A BetterToken API key: <a href={"{{register-url}}"}>register and get one</a>
+- A Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
 
-## Install Droid
+### Additional requirements
+
+## Install
+
+### Install Droid
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -27,7 +40,15 @@ Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add Better
   </Tab>
 </Tabs>
 
-## Setup
+## Manual setup
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Setup
 
 <Steps>
   <Step title="Set the BetterToken API Key">
@@ -55,7 +76,7 @@ Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add Better
       "customModels": [
         {
           "displayName": "BetterToken Codex",
-          "model": "YOUR_GPT_MODEL_ID",
+          "model": "YOUR_MODEL_ID",
           "baseUrl": "{{openai-base-url}}",
           "apiKey": "${BETTERTOKEN_API_KEY}",
           "provider": "openai"
@@ -64,7 +85,7 @@ Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add Better
     }
     ```
 
-    Replace `YOUR_GPT_MODEL_ID` with a current **GPT Key group** model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+    Replace `YOUR_MODEL_ID` with a current **model ID from a supported provider** copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
   </Step>
 
   <Step title="Start Droid and select the model">
@@ -82,10 +103,20 @@ Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add Better
 </Steps>
 
 <Note>
-  Set `provider` to `openai`. In Factory's BYOK configuration, this value selects the OpenAI Responses API. Use `{{openai-base-url}}` and an API Key from the **GPT Key group**.
+  Set `provider` to `openai`. In Factory's BYOK configuration, this value selects the OpenAI Responses API. Use `{{openai-base-url}}` and an BetterToken API Key.
 </Note>
 
-## Troubleshooting
+## Verify the connection
+
+Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
+
+## Switch models
+
+Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
+
+## Common errors
+
+### Troubleshooting
 
 | Symptom | What to check |
 | --- | --- |
@@ -95,11 +126,11 @@ Droid is Factory AI's CLI coding assistant. Its BYOK support lets you add Better
 | `404` or Model not found | Use `{{openai-base-url}}` and copy a current GPT model ID from the model plaza |
 | The old model remains after editing | Open `/model` again; if it still does not refresh, fully exit and relaunch Droid |
 
-## FAQ
+### FAQ
 
-### Why should I use the GPT Key group?
+### Why should I use the supported provider?
 
-Droid's `provider: "openai"` uses the OpenAI Responses API. BetterToken's GPT Key group provides the matching OpenAI-compatible endpoint and model IDs.
+Droid's `provider: "openai"` uses the OpenAI Responses API. BetterToken's supported provider provides the matching OpenAI-compatible endpoint and model IDs.
 
 ### Do I need custom headers?
 
@@ -109,13 +140,39 @@ No extra headers are required for a standard BetterToken setup. Add tenant, rout
 
 Use the live <a href={"{{model-plaza-url}}"}>model plaza</a> for current model pricing. Request usage and balance are available in the BetterToken Dashboard.
 
-## Related FAQ
+### Related FAQ
 
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP vs API Key and Base URL](/en/faq/concepts/mcp-vs-api-key-base-url)
 - [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
 - [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
 
-## References
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Related guides
 
 - [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
+
+## Technical details
+
+<Accordion title="Protocol, endpoint, and internal provider fields">
+  This setup uses `{{openai-base-url}}`. The tool appends the OpenAI-compatible endpoint path. Do not add `/chat/completions` or `/responses` unless a specific field explicitly requires it.
+</Accordion>

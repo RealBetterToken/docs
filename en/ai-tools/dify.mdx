@@ -1,24 +1,38 @@
 ---
-title: "How to connect Dify to BetterToken custom models"
+title: "Dify BetterToken setup: API key, Base URL, and custom models"
 sidebarTitle: "Dify"
-description: "Add a BetterToken GPT Key group model through Dify's official OpenAI-API-compatible plugin with the API Base URL, API Key, and model ID."
+description: "Connect Dify to BetterToken with a Base URL, API key, and compatible provider model, then verify the connection and fix common errors."
 icon: "layer-group"
 ---
 
-To connect Dify to BetterToken, install the official **OpenAI-API-compatible** model plugin and add a custom LLM configuration for each GPT Key group model you want to use. Set the API Base URL to `{{openai-base-url}}`.
+To connect Dify to BetterToken, prepare an API key, enter the Base URL shown below, and choose a current Model ID from the model plaza.
+
+## Key settings
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
 
 ## Prerequisites
 
+- The current version of the tool is installed
+- A BetterToken API key: <a href={"{{register-url}}"}>register and get one</a>
+- A Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Additional requirements
+
 - Dify Cloud or a self-hosted Dify instance with plugins enabled
-- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
-- A **GPT Key group model ID** copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
 - Permission to install model plugins and manage workspace models
 
 <Note>
   This guide configures **LLM Chat** only. Do not add a GPT chat model as Text Embedding, Rerank, Speech-to-Text, or Text-to-Speech.
 </Note>
 
-## Install the OpenAI-compatible model plugin
+## Install
+
+### Install the OpenAI-compatible model plugin
 
 <Steps>
   <Step title="Open Model Providers">
@@ -36,16 +50,26 @@ To connect Dify to BetterToken, install the official **OpenAI-API-compatible** m
   </Step>
 </Steps>
 
-## Enter the model configuration
+## Manual setup
+
+Complete this setup in the Dify model-provider UI. You do not need to edit a configuration file.
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Enter the model configuration
 
 Use these values for the first model:
 
 | Dify field | Recommended value |
 |---|---|
 | Model Type | `LLM` |
-| Model Name | a GPT Key group model ID from the model plaza |
+| Model Name | a model ID from a supported provider from the model plaza |
 | Model display name | the same value as Model Name is fine |
-| API Key | your BetterToken GPT Key group API Key |
+| API Key | your BetterToken API key |
 | API Base URL | `{{openai-base-url}}` |
 | model name for API endpoint | the same model ID as Model Name |
 | Completion mode | `Chat` |
@@ -68,7 +92,7 @@ Use conservative values for the remaining optional capabilities:
 
 Click **Save**. Dify validates the API Key, Base URL, and model ID.
 
-## Use the model in an app
+### Use the model in an app
 
 <Steps>
   <Step title="Create or open a Dify app">
@@ -92,16 +116,22 @@ Click **Save**. Dify validates the API Key, Base URL, and model ID.
   </Step>
 </Steps>
 
-## Add more models
+## Verify the connection
 
-Dify stores custom configuration per model ID. To add another GPT Key group model, click **Add Model** again under the same provider. Use the new ID for both **Model Name** and **model name for API endpoint**. You can reuse the Base URL and API Key.
+Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
 
-## Troubleshooting
+## Switch models
+
+Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
+
+Dify stores custom configuration per model ID. To add another model from a supported provider, click **Add Model** again under the same provider. Use the new ID for both **Model Name** and **model name for API endpoint**. You can reuse the Base URL and API Key.
+
+## Common errors
 
 ### Saving returns 401
 
 - Check that the API Key is complete
-- Confirm that it belongs to the **GPT Key group**
+- confirm that the Model ID comes from the **supported provider**
 - Check the key status and balance in the BetterToken Dashboard
 
 ### Saving returns 404
@@ -112,7 +142,7 @@ Dify stores custom configuration per model ID. To add another GPT Key group mode
 
 ### Dify reports model not found
 
-**Model Name** can affect how Dify displays and selects the model. The actual request model is controlled by **model name for API endpoint**. Use the same GPT Key group model ID in both fields.
+**Model Name** can affect how Dify displays and selects the model. The actual request model is controlled by **model name for API endpoint**. Use the same model ID from a supported provider in both fields.
 
 ### Plain chat works, but Agent tools fail
 
@@ -122,9 +152,35 @@ Set **Function Call Type** back to `Not Support` and verify a basic LLM node. Ch
 
 This is expected. A chat LLM cannot replace an embedding model. This guide does not confirm BetterToken embedding or rerank endpoints for Dify; configure a supported embedding provider separately for Knowledge.
 
-## Related docs
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Related guides
 
 - [Dify Model Providers](https://docs.dify.ai/en/cloud/use-dify/workspace/model-providers)
 - [Dify official OpenAI-API-compatible plugin](https://github.com/langgenius/dify-official-plugins/tree/main/models/openai_api_compatible)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [How to choose a model](/en/faq/model-calling/model-selection-guide)
+
+## Technical details
+
+<Accordion title="Protocol, endpoint, and internal provider fields">
+  This setup uses `{{openai-base-url}}`. The tool appends the OpenAI-compatible endpoint path. Do not add `/chat/completions` or `/responses` unless a specific field explicitly requires it.
+</Accordion>

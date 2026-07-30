@@ -1,25 +1,45 @@
 ---
-title: "Connect Kodacode to BetterToken with a custom model"
+title: "Kodacode setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Kodacode"
-description: "Configure a custom OpenAI-compatible model in the Kodacode / Koda VS Code extension."
+description: "Install Kodacode, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors."
 icon: "/icons/kodacode.svg"
 ---
 
-The Kodacode VS Code extension can use models in chat, agent, and edit workflows. To connect BetterToken, add an **Any OpenAI-compatible API** model and use a GPT Key group API Key.
+To connect Kodacode to BetterToken, prepare an API key, enter the Base URL shown below, and choose a current Model ID from the model plaza.
 
-<Info>
-  This guide uses the VS Code extension as the example. The Kodacode installation docs list VS Code `1.75` or newer as the minimum version, and the extension ID is `Koda.koda`.
-</Info>
+## Key settings
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
 
 ## Prerequisites
 
+- The current version of the tool is installed
+- A BetterToken API key: <a href={"{{register-url}}"}>register and get one</a>
+- A Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Additional requirements
+
 - VS Code is installed
 - The Kodacode / Koda extension is installed
-- BetterToken API Key (<a href={"{{register-url}}"}>register here</a>)
-- The API Key belongs to the **GPT Key group**
-- A GPT Key group model ID copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>, for example `gpt-5.5`
+- The selected Model ID comes from the **supported provider**
 
-## Setup
+## Install
+
+Install or open Kodacode, then continue with the manual setup below.
+
+## Manual setup
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Setup
 
 <Steps>
   <Step title="Open the Koda panel and add a model">
@@ -41,7 +61,7 @@ The Kodacode VS Code extension can use models in chat, agent, and edit workflows
     | --- | --- |
     | Provider | `Any OpenAI-compatible API` |
     | API Base | `{{openai-base-url}}/` |
-    | Model ID | A GPT Key group model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, for example `gpt-5.5` |
+    | Model ID | A model ID from a supported provider from the <a href={"{{model-plaza-url}}"}>model plaza</a>, for example `YOUR_MODEL_ID` |
     | API Key | Your BetterToken API Key |
 
     Click **Подключить** / **Connect** after filling in the fields.
@@ -56,7 +76,7 @@ The Kodacode VS Code extension can use models in chat, agent, and edit workflows
   </Step>
 
   <Step title="Confirm that the model is active">
-    After the connection succeeds, select the new model, such as `gpt-5.5`, from the model selector under the Koda input box. Send a short message to confirm that it returns a response.
+    After the connection succeeds, select the new model, such as `YOUR_MODEL_ID`, from the model selector under the Koda input box. Send a short message to confirm that it returns a response.
   </Step>
 
   <Step title="Check config.yaml">
@@ -72,7 +92,7 @@ The Kodacode VS Code extension can use models in chat, agent, and edit workflows
   </Step>
 </Steps>
 
-## config.yaml example
+### config.yaml example
 
 Use this full structure as a reference. Replace `YOUR_API_KEY` with your BetterToken API Key, and do not commit a real API Key to your repository.
 
@@ -88,9 +108,9 @@ models:
       - agent
       - chat
       - edit
-  - name: gpt-5.5
+  - name: YOUR_MODEL_ID
     provider: openai
-    model: gpt-5.5
+    model: YOUR_MODEL_ID
     apiKey: YOUR_API_KEY
     apiBase: {{openai-base-url}}/
     roles:
@@ -108,18 +128,60 @@ context:
 ```
 
 <Note>
-  If you use a model other than `gpt-5.5`, update both `name` and `model` so they match the GPT Key group model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  If you use a model other than `YOUR_MODEL_ID`, update both `name` and `model` so they match the model ID from a supported provider from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 </Note>
 
-## Troubleshooting
+## Verify the connection
+
+Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
+
+## Switch models
+
+Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
+
+## Common errors
+
+| Error | What to check |
+| --- | --- |
+| `401` or `Unauthorized` | Check the BetterToken API key and remove leading or trailing spaces. |
+| `404` | Check the Base URL and do not append a specific endpoint path. |
+| `model not found` | Copy a current Model ID from the model plaza. |
+| Changes do not apply | Save the configuration and fully restart the tool. |
+
 
 - If the connection fails, confirm that **API Base** is `{{openai-base-url}}/` and keep the trailing `/`.
-- If the model is unavailable, confirm that **Model ID** comes from the GPT Key group.
+- If the model is unavailable, confirm that **Model ID** comes from the supported provider.
 - If authentication fails, copy the API Key again and avoid extra spaces or line breaks.
 - If `config.yaml` changes do not apply, restart VS Code or run **Developer: Reload Window**.
 - BetterToken usually does not require an extra `User-Agent` or custom headers.
 
-## References
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Related guides
 
 - [Kodacode plugin overview](https://docs.kodacode.ru/plugin/overview.html)
 - [Kodacode plugin installation guide](https://docs.kodacode.ru/plugin/install.html)
+
+## Technical details
+
+<Accordion title="Protocol, endpoint, and internal provider fields">
+  This setup uses `{{openai-base-url}}`. The tool appends the OpenAI-compatible endpoint path. Do not add `/chat/completions` or `/responses` unless a specific field explicitly requires it.
+</Accordion>

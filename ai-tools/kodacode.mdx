@@ -1,25 +1,45 @@
 ---
-title: "Настройка кастомной модели Kodacode через BetterToken"
+title: "Kodacode: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Kodacode"
-description: "Настройте кастомную OpenAI-compatible модель в расширении Kodacode / Koda для VS Code."
+description: "Установите Kodacode, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "/icons/kodacode.svg"
 ---
 
-Расширение Kodacode для VS Code может использовать модели в chat, agent и edit workflows. Для подключения BetterToken добавьте модель **Any OpenAI-compatible API** и используйте API Key из группы GPT.
+Чтобы подключить Kodacode к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-<Info>
-  В этом руководстве показан пример для расширения VS Code. В документации Kodacode указано, что нужна версия VS Code `1.75` или новее, а ID расширения — `Koda.koda`.
-</Info>
+## Ключевые параметры
 
-## Требования
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
 
 - Установлен VS Code
 - Установлено расширение Kodacode / Koda
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
-- API Key относится к группе **GPT**
-- ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>, например `gpt-5.5`
+- выбранный Model ID доступен у провайдера **GPT**
 
-## Настройка
+## Установка
+
+Установите или откройте Kodacode, затем перейдите к ручной настройке ниже.
+
+## Ручная настройка
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройка
 
 <Steps>
   <Step title="Откройте панель Koda и добавьте модель">
@@ -41,7 +61,7 @@ icon: "/icons/kodacode.svg"
     | --- | --- |
     | Provider | `Any OpenAI-compatible API` |
     | API Base | `{{openai-base-url}}/` |
-    | Model ID | ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>, например `gpt-5.5` |
+    | Model ID | Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>, например `YOUR_MODEL_ID` |
     | API Key | Ваш API Key BetterToken |
 
     После заполнения нажмите **Подключить** / **Connect**.
@@ -56,7 +76,7 @@ icon: "/icons/kodacode.svg"
   </Step>
 
   <Step title="Проверьте, что модель активна">
-    После успешного подключения выберите новую модель, например `gpt-5.5`, в selector модели под полем ввода Koda. Отправьте короткое сообщение и проверьте, что ответ приходит.
+    После успешного подключения выберите новую модель, например `YOUR_MODEL_ID`, в selector модели под полем ввода Koda. Отправьте короткое сообщение и проверьте, что ответ приходит.
   </Step>
 
   <Step title="Проверьте config.yaml">
@@ -72,7 +92,7 @@ icon: "/icons/kodacode.svg"
   </Step>
 </Steps>
 
-## Пример config.yaml
+### Пример config.yaml
 
 Ниже полная структура для проверки. Замените `YOUR_API_KEY` на ваш API Key BetterToken и не коммитьте реальный API Key в репозиторий.
 
@@ -88,9 +108,9 @@ models:
       - agent
       - chat
       - edit
-  - name: gpt-5.5
+  - name: YOUR_MODEL_ID
     provider: openai
-    model: gpt-5.5
+    model: YOUR_MODEL_ID
     apiKey: YOUR_API_KEY
     apiBase: {{openai-base-url}}/
     roles:
@@ -108,18 +128,61 @@ context:
 ```
 
 <Note>
-  Если вы используете не `gpt-5.5`, измените и `name`, и `model`, чтобы они совпадали с ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  Если вы используете не `YOUR_MODEL_ID`, измените и `name`, и `model`, чтобы они совпадали с Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 </Note>
 
-## Troubleshooting
+### Troubleshooting
 
 - Если подключение не работает, проверьте, что **API Base** равен `{{openai-base-url}}/`, включая завершающий `/`.
-- Если модель недоступна, проверьте, что **Model ID** относится к группе GPT.
+- Если модель недоступна, проверьте, что **Model ID** относится к поддерживаемый провайдер.
 - Если возникает ошибка авторизации, скопируйте API Key заново и проверьте, что нет лишних пробелов или переносов строки.
 - Если изменения в `config.yaml` не применились, перезапустите VS Code или выполните **Developer: Reload Window**.
 - BetterToken обычно не требует дополнительного `User-Agent` или custom headers.
 
-## Ссылки
+### Ссылки
 
 - [Обзор расширения Kodacode](https://docs.kodacode.ru/plugin/overview.html)
 - [Установка расширения Kodacode](https://docs.kodacode.ru/plugin/install.html)
+
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+
+## Частые ошибки
+
+| Ошибка | Что проверить |
+| --- | --- |
+| `401` или `Unauthorized` | Проверьте API Key и удалите лишние пробелы. |
+| `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
+| `model not found` | Скопируйте актуальный Model ID из каталога моделей. |
+| Настройки не применились | Сохраните файл и полностью перезапустите инструмент. |
+
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+</Accordion>

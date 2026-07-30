@@ -1,23 +1,33 @@
 ---
-title: "Continue CLI custom model setup: API Key and Base URL"
+title: "Continue CLI setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Continue CLI"
-description: "Configure BetterToken's OpenAI-compatible API, a GPT Key group API Key, and a model in Continue CLI through config.yaml."
+description: "Install Continue CLI, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors."
 icon: "terminal"
 ---
 
-To use a BetterToken custom model in Continue CLI (`cn`), set your API Key as an environment variable, then add the BetterToken OpenAI-compatible Base URL and a GPT Key group model ID to `config.yaml`.
+To connect Continue CLI to BetterToken, prepare an API key, enter the Base URL shown below, and choose a current Model ID from the model plaza.
 
-<Info>
-  Continue CLI uses BetterToken's OpenAI-compatible API. Set Base URL to `{{openai-base-url}}`, then use an API Key and model from the **GPT Key group**.
-</Info>
+## Key settings
 
-## Before you start
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
 
-- Get a BetterToken API Key: <a href={"{{register-url}}"}>register and get started</a>
-- Copy a current **GPT Key group** model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+## Prerequisites
+
+- The current version of the tool is installed
+- A BetterToken API key: <a href={"{{register-url}}"}>register and get one</a>
+- A Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Additional requirements
+
 - Install Node.js 20 or later when using the npm installation method
 
-## Install Continue CLI
+## Install
+
+### Install Continue CLI
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -45,7 +55,15 @@ After installation, confirm that `cn` is available:
 cn --version
 ```
 
-## Configure API Key and Base URL
+## Manual setup
+
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| Model | A current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Configure API Key and Base URL
 
 <Steps>
   <Step title="Set the API Key environment variable">
@@ -67,7 +85,7 @@ cn --version
       </Tab>
     </Tabs>
 
-    Replace `YOUR_API_KEY` with your **GPT Key group** API Key. Do not commit the key to Git or put it in a shared configuration file.
+    Replace `YOUR_API_KEY` with your BetterToken API Key. Do not commit the key to Git or put it in a shared configuration file.
   </Step>
 
   <Step title="Create config.yaml">
@@ -86,12 +104,13 @@ cn --version
     models:
       - name: BetterToken GPT
         provider: openai
-        model: gpt-5.6-sol
+        model: YOUR_MODEL_ID
         apiBase: "{{openai-base-url}}"
         apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+        useResponsesApi: false
     ```
 
-    `gpt-5.6-sol` is only an example. Replace it with a current **GPT Key group** model ID from the model plaza.
+    `YOUR_MODEL_ID` is only an example. Replace it with a current **model ID from a supported provider** from the model plaza.
   </Step>
 
   <Step title="Start Continue CLI">
@@ -113,9 +132,9 @@ cn --version
   </Step>
 </Steps>
 
-## Change the model
+### Change the model
 
-After changing `model` in `config.yaml`, end the current `cn` session and start it again. The model ID must belong to the same **GPT Key group** as the API Key.
+After changing `model` in `config.yaml`, end the current `cn` session and start it again. the Model ID must be compatible with the configured endpoint.
 
 To use a separate configuration for one project, save it in that project and provide its path explicitly:
 
@@ -123,33 +142,67 @@ To use a separate configuration for one project, save it in that project and pro
 cn --config ./continue-bettertoken.yaml
 ```
 
+## Verify the connection
+
+Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
+
+## Switch models
+
+Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
+
 ## Common errors
 
 | Symptom | What to do |
 | --- | --- |
-| `401`, `Unauthorized`, or an API Key error | Confirm `BETTERTOKEN_API_KEY` is set in the current terminal and is a **GPT Key group** API Key. |
-| `model not found` or model unavailable | Copy a current **GPT Key group** model ID from the model plaza. Do not use a Claude Key group model. |
+| `401`, `Unauthorized`, or an API Key error | Confirm `BETTERTOKEN_API_KEY` is set in the current terminal and is a BetterToken API Key. |
+| `model not found` or model unavailable | Copy a current **model ID from a supported provider** from the model plaza. Do not use a Claude provider model. |
 | Continue still uses an old configuration | Start with `cn --config` and the explicit file path. Check that the filename is `config.yaml`. |
 | Wrong request URL or `404` | Confirm `apiBase` is `{{openai-base-url}}`. Do not append `/chat/completions` or a model name. |
 | The API Key variable is not resolved | Set `BETTERTOKEN_API_KEY` in the same terminal that starts `cn`, then launch it again. |
 
-## Setup FAQ
+### Setup FAQ
 
 **Which Base URL should Continue CLI use?**
 
 Use `{{openai-base-url}}`. This is BetterToken's OpenAI-compatible Base URL.
 
-**Can I use a Claude Key group API Key?**
+**Can I use a BetterToken API key?**
 
-No. This Continue CLI setup uses the OpenAI-compatible API, so use a **GPT Key group** API Key and a model from the same group.
+Yes. `provider: openai` with `useResponsesApi: false` uses OpenAI-compatible Chat Completions. Get both the API Key and Model ID from BetterToken.
 
 **How do I view or switch saved configurations?**
 
 Enter `/config` inside a Continue CLI session to view and choose local configurations.
 
-## Related guides
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Related guides
 
 - [Aider custom model setup](/en/ai-tools/aider)
 - [Codex CLI custom provider setup](/en/ai-tools/codex)
 - [Cursor custom API, Base URL, and API Key setup](/en/ai-tools/cursor)
 - [Configure an OpenAI-compatible API in Cline](/en/ai-tools/cline)
+
+## Technical details
+
+<Accordion title="Protocol, endpoint, and internal provider fields">
+  This setup uses `provider: openai`, `apiBase: "{{openai-base-url}}"`, and `useResponsesApi: false`. Continue calls Chat Completions, so do not append `/chat/completions` to `apiBase`.
+</Accordion>

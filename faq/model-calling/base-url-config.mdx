@@ -28,27 +28,27 @@ Base URL должен соответствовать protocol, который о
 | Anthropic-compatible SDK | Обычно сам добавляет путь messages endpoint, поэтому не нужно повторно добавлять `/v1` |
 | Встроенный provider в инструменте | Может добавлять путь автоматически или требовать полный Base URL |
 
-Одинаковое имя модели не значит, что везде подойдет один Base URL. Нужно сопоставить protocol инструмента, Base URL, API Key, группу ключа и Model ID.
+Одинаковое имя модели не значит, что везде подойдет один Base URL. Нужно сопоставить protocol инструмента, Base URL, API Key, провайдера и Model ID.
 
 ## Быстрая таблица
 
 | Инструмент | Рекомендуемая настройка |
 | --- | --- |
-| Claude Code | `{{anthropic-base-url}}`, API Key из группы Claude |
+| Claude Code | `{{anthropic-base-url}}`, API Key BetterToken |
 | Claude Desktop Gateway | По инструкции Gateway, включая auth scheme |
-| Codex CLI | `{{openai-base-url}}`, API Key из группы GPT |
-| Cursor | `{{openai-base-url}}`, API Key из группы GPT |
+| Codex CLI | `{{openai-base-url}}`, API Key BetterToken |
+| Cursor | `{{openai-base-url}}`, API Key BetterToken |
 | Cline | `{{openai-base-url}}`, provider OpenAI Compatible |
-| OpenCode / OpenClaw | `{{openai-base-url}}`, API Key из группы GPT |
+| OpenCode / OpenClaw | `{{openai-base-url}}`, API Key BetterToken |
 
 ## Частые ошибки
 
 | Ошибка или симптом | Возможная причина |
 | --- | --- |
 | `404 Not Found` | Путь в Base URL не совпадает с тем, что ожидает SDK |
-| `model not found` | Model ID не относится к текущей группе ключа или provider |
+| `model not found` | Model ID не поддерживается выбранным провайдером |
 | `invalid_api_key` | API Key и Base URL взяты из разных сервисов |
-| Авторизация проходит, но модель недоступна | Группа ключа и Model ID не совпадают |
+| Авторизация проходит, но модель недоступна | Model ID не совместим с выбранным provider или endpoint |
 | Запросы постоянно падают | Anthropic-compatible адрес указан в OpenAI-compatible инструменте или наоборот |
 
 ## Рекомендуемый порядок проверки
@@ -56,7 +56,7 @@ Base URL должен соответствовать protocol, который о
 1. Проверьте, какой API ожидает инструмент: OpenAI-compatible или Anthropic-compatible.
 2. Проверьте, соответствует ли Base URL этому protocol.
 3. Проверьте, что API Key относится к тому же сервису.
-4. Проверьте, что Model ID взят из <a href={"{{model-plaza-url}}"}>model plaza</a> и относится к текущей группе ключа.
+4. Проверьте, что Model ID взят из <a href={"{{model-plaza-url}}"}>model plaza</a> и поддерживается выбранным провайдером.
 5. Отправьте минимальный тестовый запрос, например `hello`.
 
 ## Примеры кода

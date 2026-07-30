@@ -14,12 +14,7 @@ export const betterTokenLanguages = [
   { language: 'en', routePrefix: 'en/', hreflang: 'en' },
   { language: 'zh', routePrefix: 'zh/', hreflang: 'zh-CN' },
 ];
-export const hiddenApiReferenceRoutes = new Set([
-  'api-reference/introduction',
-  'api-reference/responses',
-  'api-reference/chat-completions',
-  'api-reference/messages',
-]);
+export const hiddenApiReferenceRoutes = new Set();
 
 function collectNavPages(node, pages = []) {
   if (Array.isArray(node)) {

@@ -1,26 +1,34 @@
 ---
-title: "Настройка кастомной модели Hermes Agent через BetterToken"
+title: "Hermes Agent: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "Hermes Agent"
-description: "Подключите BetterToken к Hermes Agent через модели группы GPT и OpenAI-compatible протокол."
+description: "Установите Hermes Agent, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "user-astronaut"
 ---
 
-Hermes Agent — это AI-agent для локальных terminal workflows. Его можно использовать как помощника для разработки, а также комбинировать skills, MCP, scheduled tasks и subagents для более длинных автоматизированных задач.
+Чтобы подключить Hermes Agent к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-При подключении BetterToken используйте API Key из группы **GPT** и OpenAI-compatible endpoint.
+## Ключевые параметры
 
-<Info>
-  Эта страница описывает только подключение Hermes Agent через группу GPT. ID модели копируйте из <a href={"{{model-plaza-url}}"}>model plaza</a>.
-</Info>
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
 
-## Требования
+## Подготовка
 
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
-- API Key относится к группе **GPT**
-- ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
+
+- выбранный Model ID доступен у провайдера **GPT**
 - macOS, Linux или Windows WSL2
 
-## Установка Hermes Agent
+## Установка
+
+### Установка Hermes Agent
 
 <Tabs>
   <Tab title="macOS / Linux / WSL2">
@@ -34,7 +42,17 @@ Hermes Agent — это AI-agent для локальных terminal workflows. �
   </Tab>
 </Tabs>
 
-## Настройка
+## Ручная настройка
+
+Основной способ — интерактивный интерфейс настройки моделей Hermes Agent. Команды и переменные окружения остаются дополнительными вариантами.
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройка
 
 <Tabs>
   <Tab title="Интерактивная настройка">
@@ -54,7 +72,7 @@ Hermes Agent — это AI-agent для локальных terminal workflows. �
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: ваш API Key BetterToken
-        - **Model**: ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
+        - **Model**: Model ID провайдера **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
       </Step>
 
       <Step title="Перезапустите Hermes Agent">
@@ -75,11 +93,11 @@ Hermes Agent — это AI-agent для локальных terminal workflows. �
     ```bash
     hermes config set llm.provider openai
     hermes config set llm.base_url "{{openai-base-url}}"
-    hermes config set llm.api_key "YOUR_BETTERTOKEN_API_KEY"
-    hermes config set llm.model "YOUR_GPT_MODEL_ID"
+    hermes config set llm.api_key "YOUR_API_KEY"
+    hermes config set llm.model "YOUR_MODEL_ID"
     ```
 
-    Замените `YOUR_BETTERTOKEN_API_KEY` на ваш API Key BetterToken, а `YOUR_GPT_MODEL_ID` — на ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+    Замените `YOUR_API_KEY` на ваш API Key BetterToken, а `YOUR_MODEL_ID` — на Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
     Затем запустите Hermes Agent:
 
@@ -93,8 +111,8 @@ Hermes Agent — это AI-agent для локальных terminal workflows. �
 
     ```bash
     export OPENAI_API_BASE="{{openai-base-url}}"
-    export OPENAI_API_KEY="YOUR_BETTERTOKEN_API_KEY"
-    export HERMES_MODEL="YOUR_GPT_MODEL_ID"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+    export HERMES_MODEL="YOUR_MODEL_ID"
     hermes
     ```
 
@@ -102,7 +120,7 @@ Hermes Agent — это AI-agent для локальных terminal workflows. �
   </Tab>
 </Tabs>
 
-## Кратко о возможностях
+### Кратко о возможностях
 
 | Возможность | Для чего нужна |
 | --- | --- |
@@ -113,7 +131,59 @@ Hermes Agent — это AI-agent для локальных terminal workflows. �
 | Subagents | Разделение сложной работы между специализированными agents |
 | Message gateway | Подключение agent к дополнительным message entry points |
 
-## Миграция с OpenClaw
+### Troubleshooting
+
+- Если запросы не отвечают или завершаются ошибкой, проверьте, что **Base URL** равен `{{openai-base-url}}`. Обычно здесь не нужно добавлять `/chat/completions`.
+- Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что Model ID доступен у провайдера **GPT**.
+- Если после изменения настроек Hermes все еще использует старую модель, завершите текущую сессию Hermes Agent и снова выполните `hermes`.
+- BetterToken обычно не требует дополнительного `User-Agent` или custom headers. Добавляйте headers только если этого явно требует ваш custom gateway, tenant routing, observability или caching layer.
+
+<Note>
+  Не коммитьте реальные API Keys в репозиторий. Для командных конфигураций используйте environment variables или локальную конфигурацию.
+</Note>
+
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+
+## Частые ошибки
+
+- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
+- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
+- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+- [Настройка OpenClaw с BetterToken](/ai-tools/openclaw)
+
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+
+### Миграция с OpenClaw
 
 Если вы уже используете OpenClaw, сначала проверьте, есть ли в вашей текущей версии Hermes Agent команда миграции. Перед изменениями запустите dry run.
 
@@ -127,23 +197,5 @@ hermes claw migrate --dry-run
 hermes claw migrate
 ```
 
-После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `{{openai-base-url}}`, вашему API Key BetterToken и ID модели группы GPT.
-
-## Troubleshooting
-
-- Если запросы не отвечают или завершаются ошибкой, проверьте, что **Base URL** равен `{{openai-base-url}}`. Обычно здесь не нужно добавлять `/chat/completions`.
-- Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это ID модели группы GPT из <a href={"{{model-plaza-url}}"}>model plaza</a>.
-- Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что ключ относится к группе **GPT**.
-- Если после изменения настроек Hermes все еще использует старую модель, завершите текущую сессию Hermes Agent и снова выполните `hermes`.
-- BetterToken обычно не требует дополнительного `User-Agent` или custom headers. Добавляйте headers только если этого явно требует ваш custom gateway, tenant routing, observability или caching layer.
-
-<Note>
-  Не коммитьте реальные API Keys в репозиторий. Для командных конфигураций используйте environment variables или локальную конфигурацию.
-</Note>
-
-## Связанные FAQ
-
-- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
-- [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
-- [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
-- [Настройка OpenClaw с BetterToken](/ai-tools/openclaw)
+После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `{{openai-base-url}}`, вашему API Key BetterToken и Model ID поддерживаемого провайдера.
+</Accordion>

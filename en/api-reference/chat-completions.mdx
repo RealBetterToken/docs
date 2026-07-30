@@ -1,26 +1,147 @@
 ---
 title: "OpenAI Chat Completions API"
-description: "Test BetterToken's OpenAI-compatible Chat Completions API: Base URL, Bearer API Key, and POST /v1/chat/completions."
+description: "Use BetterToken's OpenAI-compatible Chat Completions API with a complete request URL, Bearer API Key, curl, Python, and JavaScript examples."
 openapi: "api-reference/openapi.json POST /v1/chat/completions"
 ---
 
-`POST /v1/chat/completions`
+Call OpenAI-compatible Chat Completions with `POST {{chat-completions-url}}`. Most external tools take the Base URL `{{openai-base-url}}` and append `/chat/completions` themselves.
 
-Use this endpoint for external tools and applications that require the OpenAI-compatible Chat Completions API.
+## Key settings
 
-<Note>
-  Base URL: `{{openai-base-url}}`. Pass your API Key as `Authorization: Bearer YOUR_API_KEY`.
-</Note>
+| Field | Value |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Full request URL | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
 
-## Test in the Playground
+## Prerequisites
 
-In the Playground on the right, enter your API Key, choose an available GPT Key group model, fill in `messages`, and send the request. Confirm the model ID in the <a href={"{{model-plaza-url}}"}>model plaza</a> before testing.
+- <a href={"{{register-url}}"}>Create a BetterToken API Key</a>
+- Copy a Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> or the key **Setup** dialog
+- Prepare a terminal with `curl`, or Python 3 / Node.js
 
-<Warning>
-  Do not append `/chat/completions` to the Base URL in an external tool when the tool constructs the endpoint path itself. The Playground already uses the full path.
-</Warning>
+## Install
 
-## Related endpoints
+<Tabs>
+  <Tab title="curl">
+    `curl` needs no SDK. Confirm that `curl --version` works in your terminal.
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
 
-- [OpenAI Responses API](/en/api-reference/responses)
-- [Anthropic Messages API](/en/api-reference/messages)
+## Manual setup
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Hello"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Hello" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## Verify the connection
+
+In the Playground on the right:
+
+1. Enter `YOUR_API_KEY` under **Authorization**.
+2. Replace `model` with `YOUR_MODEL_ID`.
+3. Edit `messages` and send the request.
+
+The Playground already uses the complete URL `{{chat-completions-url}}`.
+
+A `200` response with model output in `choices[0].message.content` confirms the connection.
+
+## Switch models
+
+Replace `YOUR_MODEL_ID` with the complete Model ID from the model plaza or **Setup** dialog. Do not shorten the Model ID based on its display name.
+
+## Common errors
+
+| Error | Fix |
+| --- | --- |
+| `401` | Confirm `Authorization: Bearer YOUR_API_KEY`, then copy the BetterToken API Key again. |
+| `404` | Direct HTTP calls use `{{chat-completions-url}}`; SDK `base_url` uses `{{openai-base-url}}`. |
+| Model not found | Use the complete Model ID from the model plaza or **Setup** dialog. |
+| Invalid request | Confirm that `messages` is an array and every item has `role` and `content`. |
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+### Supported providers
+
+| Provider | Status |
+| --- | --- |
+| Claude | Not supported |
+| GPT | Manual setup |
+| Kimi | Manual setup |
+| GLM | Manual setup |
+
+<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
+
+<Accordion title="What the setup methods mean">
+  - **Manual setup**: enter the API Key, Base URL, and Model.
+  - **Not supported**: no verified direct setup is currently available.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Technical details
+
+<Accordion title="Base URL and full request URL">
+  Tools that require a complete request URL, such as GitHub Copilot and TRAE, use `{{chat-completions-url}}`. Tools that append the path themselves, such as Cursor, Cline, OpenCode, n8n, and Dify, use only `{{openai-base-url}}`.
+</Accordion>

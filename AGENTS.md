@@ -19,7 +19,8 @@
 
 - Use `Claude Code` and `Codex CLI` as product names. Do not invent shortened names.
 - Use `external tools` / `外部工具` for tools such as Cursor, Cline, Zed, Roo Code, OpenClaw, and similar clients.
-- Use `Codex group` / `Codex 分组` for model-group wording tied to OpenAI-compatible tools.
+- Treat `GPT`, `Kimi`, `GLM`, and `Claude` as model providers, not API Key groups. Use `提供商` in Chinese, `provider` in English, and `провайдер` in Russian.
+- Call the credential a `BetterToken API Key`; do not use `GPT group`, `Claude group`, `Key group`, or their Chinese/Russian equivalents.
 - Use `model plaza` / `模型广场` when referring users to the model selection page.
 - Use `Base URL` exactly in both Chinese and English pages when describing endpoints.
 - Distinguish the two access modes clearly:
@@ -83,7 +84,8 @@
 - For behavior changes in docs, update nearby examples, troubleshooting notes, and FAQ entries if needed.
 - Use linear, monochrome sidebar icons for custom product pages. Custom SVG icons should use `currentColor` strokes and avoid filled brand colors so they match the rest of the navigation.
 - Every page listed in the Coding Agent setup navigation group must include a frontmatter `icon`. Configuration-tool pages under Getting started, such as CC Switch, are not part of this requirement.
-- Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-llmeasy-api.mdx`.
+- Provider compatibility tables are maintained in `data/tool-provider-support.json`. Run `node scripts/sync-tool-provider-support.mjs` after changing the matrix and `node scripts/check-tool-doc-structure.mjs` before publishing.
+- Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-bettertoken-api.mdx`.
 - Store screenshots and other page-specific images under a dedicated folder in `images/<page-slug>/`. Follow the same pattern as `images/quickstart/`.
 - Use `images/temp/` only as a temporary holding area while collecting assets. Before finishing a docs change, move any referenced image into its final page-specific folder and update the MDX path.
 - If a change affects links or navigation wording, run `mint broken-links` after editing.

@@ -1,23 +1,33 @@
 ---
-title: "Aider 自定义模型配置：API Key 与 Base URL"
+title: "Aider 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Aider"
-description: "在 Aider 中配置 BetterToken 的 OpenAI-compatible API、GPT 分组 API Key 和模型。"
+description: "安装 Aider，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
 icon: "wrench"
 ---
 
-Aider 可以连接 OpenAI-compatible API。要使用 BetterToken，请设置 `OPENAI_API_BASE` 和 `OPENAI_API_KEY`，然后以 `openai/模型 ID` 的格式启动 Aider。
+要在 Aider 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-<Info>
-  Aider 使用 BetterToken 的 OpenAI-compatible API。Base URL 填写 `{{openai-base-url}}`，并使用 **GPT 分组** API Key 和模型。
-</Info>
+## 重点信息
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
 
 ## 准备工作
 
-- 已获取 BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
-- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+
+### 工具特定要求
+
 - 已安装 Python
 
-## 安装 Aider
+## 安装
+
+### 安装 Aider
 
 在终端中执行：
 
@@ -32,7 +42,15 @@ aider-install
 aider --help
 ```
 
-## 为当前终端配置 BetterToken
+## 手动配置
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+### 为当前终端配置 BetterToken
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -41,7 +59,7 @@ aider --help
     export OPENAI_API_KEY="YOUR_API_KEY"
 
     cd /path/to/your/project
-    aider --model openai/gpt-5.6-sol
+    aider --model openai/YOUR_MODEL_ID
     ```
   </Tab>
 
@@ -54,21 +72,21 @@ aider --help
     执行 `setx` 后，请关闭并重新打开 PowerShell，再进入项目目录并运行：
 
     ```powershell
-    aider --model openai/gpt-5.6-sol
+    aider --model openai/YOUR_MODEL_ID
     ```
   </Tab>
 </Tabs>
 
-将 `YOUR_API_KEY` 替换为你的 **GPT 分组** API Key。`gpt-5.6-sol` 只是示例；请改为模型广场中当前可用的 **GPT 分组**模型 ID，并保留 `openai/` 前缀。
+将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。`YOUR_MODEL_ID` 只是示例；请改为模型广场中当前可用的 **受支持提供商的模型 ID**，并保留 `openai/` 前缀。
 
-## 使用 .env 持久保存配置
+### 使用 .env 持久保存配置
 
 如果不想每次打开终端都设置变量，可在项目 Git 根目录创建 `.env`：
 
 ```dotenv
 OPENAI_API_BASE={{openai-base-url}}
 OPENAI_API_KEY=YOUR_API_KEY
-AIDER_MODEL=openai/gpt-5.6-sol
+AIDER_MODEL=openai/YOUR_MODEL_ID
 ```
 
 将 `.env` 加入 `.gitignore`，避免 API Key 被提交。之后进入项目目录并直接运行：
@@ -83,27 +101,44 @@ aider
 aider --env-file ./aider-bettertoken.env
 ```
 
-## 切换模型
+### 可选：使用 .aider.conf.yml
 
-将启动命令中的模型替换为当前可用的 **GPT 分组**模型 ID：
+如果只想保存非敏感设置，可在用户目录或项目根目录创建 `.aider.conf.yml`：
 
-```bash
-aider --model openai/YOUR_GPT_MODEL_ID
+```yaml
+model: openai/YOUR_MODEL_ID
+openai-api-base: "{{openai-base-url}}"
 ```
 
-`openai/` 前缀不能省略。API Key 与模型必须属于同一个 **GPT 分组**。
+API Key 仍通过 `OPENAI_API_KEY` 环境变量提供，不要写入共享 YAML 文件。
+
+## 验证连接
+
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+
+将启动命令中的模型替换为当前可用的 **受支持提供商的模型 ID**：
+
+```bash
+aider --model openai/YOUR_MODEL_ID
+```
+
+`openai/` 前缀不能省略。API Key 与模型必须属于当前配置使用的接口。
 
 ## 常见错误
 
 | 现象 | 处理方式 |
 | --- | --- |
-| `401`、`Unauthorized` 或 `Invalid API key` | 检查 `OPENAI_API_KEY`，确认使用的是 **GPT 分组** API Key，且没有多余空格。 |
-| `model not found` 或模型不可用 | 从模型广场重新复制当前 **GPT 分组**模型 ID，并以 `openai/模型 ID` 格式传给 Aider。 |
+| `401`、`Unauthorized` 或 `Invalid API key` | 检查 `OPENAI_API_KEY`，确认使用的是 BetterToken API Key，且没有多余空格。 |
+| `model not found` 或模型不可用 | 从模型广场重新复制当前 **受支持提供商的模型 ID**，并以 `openai/模型 ID` 格式传给 Aider。 |
 | 请求地址错误或 `404` | 确认 `OPENAI_API_BASE` 是 `{{openai-base-url}}`，不要填写 `/chat/completions`。 |
 | 在 Windows 设置后仍读取不到变量 | `setx` 只对新打开的终端生效。关闭当前 PowerShell 后重新打开。 |
-| Aider 提示不认识模型 | 先检查模型 ID 和 API Key 分组。Aider 可能对新模型显示警告，但模型仍需使用模型广场中的当前 ID。 |
+| Aider 提示不认识模型 | 先检查模型 ID 和 提供商。Aider 可能对新模型显示警告，但模型仍需使用模型广场中的当前 ID。 |
 
-## 配置 FAQ
+### 配置 FAQ
 
 **Aider 的 Base URL 应该填写哪个地址？**
 
@@ -117,9 +152,35 @@ Aider 用这个前缀识别 OpenAI-compatible 模型。省略前缀可能导致�
 
 不建议。优先使用环境变量或已加入 `.gitignore` 的 `.env`，避免 API Key 随项目文件泄露。
 
-## 相关指南
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 相关指南
 
 - [Continue CLI 自定义模型配置](/zh/ai-tools/continue-cli)
 - [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
 - [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
 - [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
+</Accordion>

@@ -1,18 +1,45 @@
 ---
-title: "Настройка кастомной модели MonkeyCode через BetterToken"
+title: "MonkeyCode: установка, API Key, Base URL и настройка моделей"
 sidebarTitle: "MonkeyCode"
-description: "Подключите BetterToken к MonkeyCode с ID моделей группы GPT."
+description: "Установите MonkeyCode, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
 icon: "monkey"
 ---
 
-MonkeyCode — enterprise-платформа для AI-разработки. При подключении BetterToken используйте группу **GPT** с OpenAI-style протоколом.
+Чтобы подключить MonkeyCode к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
 
-## Требования
+## Ключевые параметры
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+## Подготовка
+
+- Установленная актуальная версия инструмента
+- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
+- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+
+### Дополнительные требования
 
 - Аккаунт MonkeyCode ([регистрация в MonkeyCode](https://monkeycode.ai))
-- API Key BetterToken (<a href={"{{register-url}}"}>зарегистрироваться</a>)
 
-## Настройка
+## Установка
+
+Установите или откройте MonkeyCode, затем перейдите к ручной настройке ниже.
+
+## Ручная настройка
+
+Выполните эту настройку в интерфейсе MonkeyCode. Редактировать конфигурационный файл вручную не требуется.
+
+| Поле | Значение |
+| --- | --- |
+| API Key | API Key BetterToken |
+| Base URL | `{{openai-base-url}}` |
+| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+
+### Настройка
 
 <Steps>
   <Step title="Войдите в MonkeyCode">
@@ -34,7 +61,7 @@ MonkeyCode — enterprise-платформа для AI-разработки. П�
     | Model API URL | `{{openai-base-url}}` |
     | API Key | ваш API Key BetterToken |
     | API format | `OpenAI` или `OpenAI Compatible` по текущему названию в UI |
-    | Model name | ID модели группы **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a> |
+    | Model name | Model ID провайдера **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a> |
   </Step>
 
   <Step title="Добавляйте extra headers только если это явно требует официальная документация">
@@ -56,9 +83,51 @@ MonkeyCode — enterprise-платформа для AI-разработки. П�
   Если вам нужны extra headers, следуйте текущей документации MonkeyCode или требованиям вашего upstream gateway.
 </Note>
 
-## Связанные FAQ
+## Проверка подключения
+
+Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+
+## Смена модели
+
+Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+
+## Частые ошибки
+
+| Ошибка | Что проверить |
+| --- | --- |
+| `401` или `Unauthorized` | Проверьте API Key BetterToken и удалите лишние пробелы. |
+| `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
+| `model not found` | Скопируйте актуальный Model ID из model plaza. |
+| Настройки не применились | Сохраните конфигурацию и полностью перезапустите инструмент. |
+
 
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
+
+## Расширенная настройка
+
+{/* tool-provider-support:start */}
+### Поддерживаемые провайдеры
+
+| Провайдер | Статус |
+| --- | --- |
+| Claude | Не поддерживается |
+| GPT | Ручная настройка |
+| Kimi | Ручная настройка |
+| GLM | Ручная настройка |
+
+<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
+
+<Accordion title="Что означают способы настройки">
+  - **Ручная настройка**: укажите API Key, Base URL и Model.
+  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Технические детали
+
+<Accordion title="Протокол, endpoint и внутренние параметры provider">
+  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
+</Accordion>

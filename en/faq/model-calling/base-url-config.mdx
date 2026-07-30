@@ -28,27 +28,27 @@ Different SDKs append paths in different ways.
 | Anthropic-compatible SDK | Usually appends message endpoint paths itself, so you should not add `/v1` again |
 | Built-in tool provider | May append paths automatically, or may ask you for a complete Base URL |
 
-The same model name does not mean the same Base URL works everywhere. The real match is between tool protocol, Base URL, API Key, Key group, and Model ID.
+The same model name does not mean the same Base URL works everywhere. The real match is between tool protocol, Base URL, API Key, provider, and Model ID.
 
 ## Quick reference
 
 | Tool | Recommended setup |
 | --- | --- |
-| Claude Code | `{{anthropic-base-url}}`, with a Claude group API Key |
+| Claude Code | `{{anthropic-base-url}}`, with a BetterToken API key |
 | Claude Desktop Gateway | Follow the Gateway page, including the auth scheme |
-| Codex CLI | `{{openai-base-url}}`, with a GPT group API Key |
-| Cursor | `{{openai-base-url}}`, with a GPT group API Key |
+| Codex CLI | `{{openai-base-url}}`, with a BetterToken API key |
+| Cursor | `{{openai-base-url}}`, with a BetterToken API key |
 | Cline | `{{openai-base-url}}`, using an OpenAI Compatible provider |
-| OpenCode / OpenClaw | `{{openai-base-url}}`, with a GPT group API Key |
+| OpenCode / OpenClaw | `{{openai-base-url}}`, with a BetterToken API key |
 
 ## Common errors
 
 | Error or symptom | Possible cause |
 | --- | --- |
 | `404 Not Found` | The Base URL path does not match the SDK’s expected path |
-| `model not found` | The Model ID does not belong to the current Key group or provider |
+| `model not found` | The Model ID does not belong to the current provider or provider |
 | `invalid_api_key` | The API Key and Base URL are from different services |
-| Authentication works, but the model is unavailable | The Key group and Model ID do not match |
+| Authentication works, but the model is unavailable | The provider and Model ID do not match |
 | Requests keep failing | An Anthropic-compatible address was used in an OpenAI-compatible tool, or the reverse |
 
 ## Recommended troubleshooting order
@@ -56,7 +56,7 @@ The same model name does not mean the same Base URL works everywhere. The real m
 1. Confirm whether the tool expects OpenAI-compatible or Anthropic-compatible API.
 2. Check whether the Base URL matches that protocol.
 3. Check whether the API Key is from the same service.
-4. Check whether the Model ID comes from the <a href={"{{model-plaza-url}}"}>model plaza</a> and belongs to the current Key group.
+4. Check whether the Model ID comes from the <a href={"{{model-plaza-url}}"}>model plaza</a> and belongs to the current provider.
 5. Send a minimal test request, such as `hello`.
 
 ## Code examples

@@ -1,18 +1,31 @@
 ---
-title: "Droid 自定义模型配置：Base URL、API Key 与 GPT 模型"
+title: "Droid 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Droid"
-description: "在 Droid 中配置 BetterToken 自定义模型，填写 OpenAI Responses Base URL、API Key 和 GPT 模型 ID，并解决模型不显示、401 与 404。"
+description: "安装 Droid，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
 icon: "robot"
 ---
 
-Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory/settings.json` 中添加 BetterToken，然后在 `/model` 菜单选择 GPT 分组模型。
+要在 Droid 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-## 前置条件
+## 重点信息
 
-- 已获取 BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
-- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制一个 **GPT 分组**模型 ID
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
 
-## 安装 Droid
+## 准备工作
+
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+
+### 工具特定要求
+
+## 安装
+
+### 安装 Droid
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -27,7 +40,15 @@ Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory
   </Tab>
 </Tabs>
 
-## 配置步骤
+## 手动配置
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+### 配置步骤
 
 <Steps>
   <Step title="设置 BetterToken API Key">
@@ -55,7 +76,7 @@ Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory
       "customModels": [
         {
           "displayName": "BetterToken Codex",
-          "model": "YOUR_GPT_MODEL_ID",
+          "model": "YOUR_MODEL_ID",
           "baseUrl": "{{openai-base-url}}",
           "apiKey": "${BETTERTOKEN_API_KEY}",
           "provider": "openai"
@@ -64,7 +85,7 @@ Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory
     }
     ```
 
-    将 `YOUR_GPT_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **GPT 分组模型 ID**。
+    将 `YOUR_MODEL_ID` 替换为从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **受支持提供商的模型 ID**。
   </Step>
 
   <Step title="启动 Droid 并选择模型">
@@ -82,8 +103,20 @@ Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory
 </Steps>
 
 <Note>
-  `provider` 必须填写 `openai`。在 Factory 的 BYOK 配置中，这个值表示使用 OpenAI Responses API；Base URL 使用 `{{openai-base-url}}`，API Key 必须来自 **GPT 分组**。
+  `provider` 必须填写 `openai`。在 Factory 的 BYOK 配置中，这个值表示使用 OpenAI Responses API；Base URL 使用 `{{openai-base-url}}`，Model ID 必须来自 **受支持提供商**。
 </Note>
+
+### References
+
+- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
+
+## 验证连接
+
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
 
 ## 常见错误
 
@@ -95,11 +128,11 @@ Droid 是 Factory AI 的 CLI 编程助手。你可以通过 BYOK 在 `~/.factory
 | `404` 或 Model not found | Base URL 使用 `{{openai-base-url}}`；从模型广场重新复制当前 GPT 模型 ID |
 | 修改配置后仍显示旧模型 | 再次打开 `/model`；如果列表仍未刷新，完全退出并重启 Droid |
 
-## 常见问题
+### 常见问题
 
-### 为什么要选择 GPT 分组？
+### 为什么要选择 受支持提供商？
 
-Droid 的 `provider: "openai"` 使用 OpenAI Responses API。BetterToken 的 GPT 分组提供对应的 OpenAI-compatible endpoint 和模型 ID。
+Droid 的 `provider: "openai"` 使用 OpenAI Responses API。BetterToken 的 受支持提供商提供对应的 OpenAI-compatible endpoint 和模型 ID。
 
 ### 需要配置额外 headers 吗？
 
@@ -109,13 +142,35 @@ Droid 的 `provider: "openai"` 使用 OpenAI Responses API。BetterToken 的 GPT
 
 模型价格以<a href={"{{model-plaza-url}}"}>模型广场</a>实时信息为准。请求用量和余额可在 BetterToken Dashboard 查看。
 
-## 相关 FAQ
+### 相关 FAQ
 
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
 
-## References
+## 进阶配置
 
-- [Factory BYOK overview](https://docs.factory.ai/cli/byok/overview)
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
+</Accordion>

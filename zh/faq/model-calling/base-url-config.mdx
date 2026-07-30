@@ -28,27 +28,27 @@ Base URL 要跟工具协议匹配。Claude Code 通常使用 Anthropic-compatibl
 | Anthropic-compatible SDK | 通常由 SDK 拼接消息接口路径，不应重复添加 `/v1` |
 | 工具内置 provider | 可能自动补路径，也可能要求你填写完整 Base URL |
 
-同一个模型名不代表可以使用同一个 Base URL。真正需要匹配的是：工具协议、Base URL、API Key、Key group 和 Model ID。
+同一个模型名不代表可以使用同一个 Base URL。真正需要匹配的是：工具协议、Base URL、API Key、提供商 和 Model ID。
 
 ## 推荐速查
 
 | 工具 | 推荐配置 |
 | --- | --- |
-| Claude Code | `{{anthropic-base-url}}`，使用 Claude 分组 API Key |
+| Claude Code | `{{anthropic-base-url}}`，使用 BetterToken API Key |
 | Claude Desktop Gateway | 按 Gateway 页面说明填写，注意 auth scheme |
-| Codex CLI | `{{openai-base-url}}`，使用 GPT 分组 API Key |
-| Cursor | `{{openai-base-url}}`，使用 GPT 分组 API Key |
+| Codex CLI | `{{openai-base-url}}`，使用 BetterToken API Key |
+| Cursor | `{{openai-base-url}}`，使用 BetterToken API Key |
 | Cline | `{{openai-base-url}}`，选择 OpenAI Compatible provider |
-| OpenCode / OpenClaw | `{{openai-base-url}}`，使用 GPT 分组 API Key |
+| OpenCode / OpenClaw | `{{openai-base-url}}`，使用 BetterToken API Key |
 
 ## 常见错误
 
 | 报错或现象 | 可能原因 |
 | --- | --- |
 | `404 Not Found` | Base URL 路径和 SDK 期望不一致 |
-| `model not found` | Model ID 不属于当前 Key group 或 provider |
+| `model not found` | Model ID 不属于当前 提供商 或 provider |
 | `invalid_api_key` | API Key 和 Base URL 不属于同一服务 |
-| 认证通过但模型不可用 | Key group 和 Model ID 不匹配 |
+| 认证通过但模型不可用 | 提供商 和 Model ID 不匹配 |
 | 请求一直失败 | 把 Anthropic-compatible 地址填进 OpenAI-compatible 工具，或反过来 |
 
 ## 推荐排查顺序
@@ -56,7 +56,7 @@ Base URL 要跟工具协议匹配。Claude Code 通常使用 Anthropic-compatibl
 1. 先确认工具要求 OpenAI-compatible 还是 Anthropic-compatible。
 2. 检查 Base URL 是否和工具协议匹配。
 3. 检查 API Key 是否来自同一个服务。
-4. 检查 Model ID 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>，并属于当前 Key group。
+4. 检查 Model ID 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>，并属于当前 提供商。
 5. 发送一个最小请求测试，例如只问一句 `hello`。
 
 ## 代码示例

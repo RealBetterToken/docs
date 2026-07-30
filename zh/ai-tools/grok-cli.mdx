@@ -1,27 +1,33 @@
 ---
-title: "Grok CLI 安装、API Key 与 Base URL 配置"
+title: "Grok CLI 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Grok CLI"
-description: "安装 Grok CLI，配置 BetterToken 的 Base URL 和 API Key，选择 GPT 分组模型并排查常见错误。"
+description: "安装 Grok CLI，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
 icon: "g"
 ---
 
-要在 Grok CLI 中使用自定义 API，请先安装 CLI，将 BetterToken Base URL 设为 `{{openai-base-url}}`，填写 API Key，再用 **GPT 分组**的模型 ID 启动工具。这个接入不需要额外配置 VPN 地址或本地代理。
+要在 Grok CLI 中使用 BetterToken，请准备 API Key，填写下表中的 Base URL，并从模型广场选择当前可用的 Model ID。
 
-<Info>
-  Grok CLI 使用 BetterToken 的 OpenAI-compatible API。`GROK_BASE_URL` 只填写 `{{openai-base-url}}`，不要附加 `/chat/completions`。
-</Info>
+## 重点信息
 
-<Warning>
-  Grok CLI 更适合轻量终端任务。如需完整 Agent 工作流，优先使用 Claude Code、Codex CLI 或 OpenClaw。
-</Warning>
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
 
 ## 准备工作
 
-- 已安装 Node.js 和 `npm`
-- 已获取 BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
-- 已从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 **GPT 分组**模型 ID
+- 已安装该工具的当前版本
+- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
 
-## 安装 Grok CLI
+### 工具特定要求
+
+- 已安装 Node.js 和 `npm`
+
+## 安装
+
+### 安装 Grok CLI
 
 Windows、macOS 和 Linux 都可以执行：
 
@@ -31,7 +37,15 @@ npm install -g @vibe-kit/grok-cli
 
 如果安装后找不到 `grok` 命令，请关闭并重新打开终端，再运行 `grok --help`。同时检查全局 `npm` 包目录是否已加入 `PATH`。
 
-## 配置 Base URL 和 API Key
+## 手动配置
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+
+### 配置 Base URL 和 API Key
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -52,10 +66,10 @@ npm install -g @vibe-kit/grok-cli
 
       <Step title="指定模型启动 Grok CLI">
         ```bash
-        grok --model YOUR_GPT_MODEL_ID
+        grok --model YOUR_MODEL_ID
         ```
 
-        将 `YOUR_GPT_MODEL_ID` 替换为模型广场中当前可用的 **GPT 分组**模型 ID。
+        将 `YOUR_MODEL_ID` 替换为模型广场中当前可用的 **受支持提供商的模型 ID**。
       </Step>
     </Steps>
   </Tab>
@@ -71,7 +85,7 @@ npm install -g @vibe-kit/grok-cli
 
       <Step title="指定模型启动 Grok CLI">
         ```powershell
-        grok --model YOUR_GPT_MODEL_ID
+        grok --model YOUR_MODEL_ID
         ```
 
         上述变量只在当前 PowerShell 窗口中有效。重新打开窗口后，请按团队认可的安全密钥管理方式再次设置。
@@ -82,7 +96,13 @@ npm install -g @vibe-kit/grok-cli
 
 ## 验证连接
 
+发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+
 Grok CLI 启动后，发送一条简短提示词。没有出现认证或模型 ID 错误，就说明连接已生效。每次修改环境变量后，都应结束当前 Grok CLI 会话并重新启动。
+
+## 切换模型
+
+打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
 
 ## 常见错误
 
@@ -90,11 +110,11 @@ Grok CLI 启动后，发送一条简短提示词。没有出现认证或模型 I
 | --- | --- |
 | `grok: command not found` | 重新执行安装命令，打开新的终端后运行 `grok --help`。 |
 | `401`、`Unauthorized` 或 `Invalid API key` | 检查 `GROK_API_KEY`，确认复制的 Key 没有多余空格，并确保在设置变量的同一个终端中启动 Grok CLI。 |
-| `model not found` 或模型不可用 | 从模型广场复制当前 **GPT 分组**模型 ID。不要使用 Claude 分组模型 ID。 |
+| `model not found` 或模型不可用 | 从模型广场复制当前 **受支持提供商的模型 ID**。不要使用 Claude 提供商模型 ID。 |
 | 请求仍发往旧服务 | 检查 `GROK_BASE_URL`，不要填写 `/chat/completions`，然后重启终端和 Grok CLI。 |
 | 连接失败 | 确认 Base URL 是 `{{openai-base-url}}`，并确认网络可通过 HTTPS 访问 `bettertoken.ai`。 |
 
-## 配置 FAQ
+### 配置 FAQ
 
 **Grok CLI 应该填写哪个 Base URL？**
 
@@ -102,16 +122,42 @@ Grok CLI 启动后，发送一条简短提示词。没有出现认证或模型 I
 
 **应该使用哪个 API Key 和模型？**
 
-使用 **GPT 分组** API Key，并选择同一分组下的模型。
+使用 BetterToken API Key，并选择与当前 endpoint 兼容的模型。
 
 **需要修改系统代理或开启 VPN 吗？**
 
 不需要。只要在终端中设置 Base URL 和 API Key，即可连接 BetterToken。
 
-## 相关指南
+## 进阶配置
+
+{/* tool-provider-support:start */}
+### 支持的提供商
+
+| 提供商 | 状态 |
+| --- | --- |
+| Claude | 暂不支持 |
+| GPT | 手动配置 |
+| Kimi | 手动配置 |
+| GLM | 手动配置 |
+
+<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
+
+<Accordion title="配置方式说明">
+  - **手动配置**：填写 API Key、Base URL 和 Model。
+  - **不支持**：当前没有经过验证的直接配置方式。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 相关指南
 
 - [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
 - [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
 - [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
+
+## 技术说明
+
+<Accordion title="协议、endpoint 与 provider 内部字段">
+  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
+</Accordion>

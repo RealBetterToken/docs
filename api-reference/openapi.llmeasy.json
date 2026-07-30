@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://bettertoken.ai"
+      "url": "https://www.bettertoken.ai"
     }
   ],
   "security": [
@@ -32,7 +32,7 @@
                 "$ref": "#/components/schemas/TextToImageRequest"
               },
               "example": {
-                "model": "gpt-image-2",
+                "model": "YOUR_MODEL_ID",
                 "prompt": "Футуристичный постер AI-продукта на светлом фоне, стеклянная фактура, чистая композиция, премиальный технологичный стиль",
                 "n": 1,
                 "size": "1024x1024",
@@ -66,7 +66,7 @@
           {
             "lang": "cURL",
             "label": "cURL",
-            "source": "curl 'https://bettertoken.ai/v1/images/generations' \\\n  -H 'Authorization: Bearer sk-***REDACTED***' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-image-2\",\n    \"prompt\": \"Футуристичный постер AI-продукта на светлом фоне, стеклянная фактура, чистая композиция, премиальный технологичный стиль\",\n    \"n\": 1,\n    \"size\": \"1024x1024\",\n    \"response_format\": \"b64_json\",\n    \"output_format\": \"png\"\n  }'"
+            "source": "curl 'https://www.bettertoken.ai/v1/images/generations' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"prompt\": \"Футуристичный постер AI-продукта на светлом фоне, стеклянная фактура, чистая композиция, премиальный технологичный стиль\",\n    \"n\": 1,\n    \"size\": \"1024x1024\",\n    \"response_format\": \"b64_json\",\n    \"output_format\": \"png\"\n  }'"
           }
         ]
       }
@@ -95,7 +95,7 @@
                 }
               },
               "example": {
-                "model": "gpt-image-2",
+                "model": "YOUR_MODEL_ID",
                 "prompt": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.",
                 "n": "1",
                 "size": "1024x1024",
@@ -129,12 +129,12 @@
           {
             "lang": "cURL",
             "label": "cURL single image",
-            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer sk-***REDACTED***' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
+            "source": "curl 'https://www.bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
           },
           {
             "lang": "cURL",
             "label": "cURL multiple images",
-            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer sk-***REDACTED***' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Объедини эти reference images и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+            "source": "curl 'https://www.bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=Объедини эти reference images и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
           }
         ]
       }
@@ -142,7 +142,7 @@
     "/v1/responses": {
       "post": {
         "summary": "Создать ответ через Responses API",
-        "description": "Отправляйте input в GPT Key group через OpenAI Responses API BetterToken. В Playground можно указать свой API Key и сразу протестировать запрос.",
+        "description": "Отправляйте input провайдерам, совместимым с OpenAI через OpenAI Responses API BetterToken. В Playground можно указать свой API Key и сразу протестировать запрос.",
         "operationId": "createResponse",
         "tags": [
           "OpenAI Responses"
@@ -155,7 +155,7 @@
                 "$ref": "#/components/schemas/ResponsesRequest"
               },
               "example": {
-                "model": "gpt-5.6-sol",
+                "model": "YOUR_MODEL_ID",
                 "input": "Привет"
               }
             }
@@ -185,7 +185,7 @@
           {
             "lang": "cURL",
             "label": "cURL",
-            "source": "curl 'https://bettertoken.ai/v1/responses' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"input\": \"Привет\"\n  }'"
+            "source": "curl 'https://www.bettertoken.ai/v1/responses' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"input\": \"Привет\"\n  }'"
           }
         ]
       }
@@ -193,7 +193,7 @@
     "/v1/chat/completions": {
       "post": {
         "summary": "Создать ответ через Chat Completions API",
-        "description": "Отправляйте диалоговые сообщения в GPT Key group через OpenAI-compatible Chat Completions API BetterToken. Подходит для внешних инструментов и приложений, которым нужен /v1/chat/completions.",
+        "description": "Отправляйте диалоговые сообщения провайдерам, совместимым с OpenAI через OpenAI-compatible Chat Completions API BetterToken. Подходит для внешних инструментов и приложений, которым нужен /v1/chat/completions.",
         "operationId": "createChatCompletion",
         "tags": [
           "OpenAI Chat Completions"
@@ -206,7 +206,7 @@
                 "$ref": "#/components/schemas/ChatCompletionsRequest"
               },
               "example": {
-                "model": "gpt-5.6-sol",
+                "model": "YOUR_MODEL_ID",
                 "messages": [
                   {
                     "role": "user",
@@ -241,7 +241,7 @@
           {
             "lang": "cURL",
             "label": "cURL",
-            "source": "curl 'https://bettertoken.ai/v1/chat/completions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-5.6-sol\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+            "source": "curl 'https://www.bettertoken.ai/v1/chat/completions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
           }
         ]
       }
@@ -249,7 +249,7 @@
     "/v1/messages": {
       "post": {
         "summary": "Создать ответ через Anthropic Messages API",
-        "description": "Отправляйте сообщения в Claude Key group через Anthropic-compatible Messages API BetterToken. Подходит для Claude Code, Anthropic SDK и приложений, использующих /v1/messages.",
+        "description": "Отправляйте сообщения провайдеру Claude через Anthropic-compatible Messages API BetterToken. Подходит для Claude Code, Anthropic SDK и приложений, использующих /v1/messages.",
         "operationId": "createAnthropicMessage",
         "tags": [
           "Anthropic Messages"
@@ -280,7 +280,7 @@
                 "$ref": "#/components/schemas/AnthropicMessagesRequest"
               },
               "example": {
-                "model": "claude-sonnet-4-6",
+                "model": "YOUR_MODEL_ID",
                 "max_tokens": 1024,
                 "messages": [
                   {
@@ -316,7 +316,7 @@
           {
             "lang": "cURL",
             "label": "cURL",
-            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: claude-cli/2.0.76 (external, cli)' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"claude-sonnet-4-6\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
+            "source": "curl 'https://www.bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: claude-cli/2.0.76 (external, cli)' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Привет\"}]\n  }'"
           }
         ]
       }
@@ -347,12 +347,12 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "Используйте фиксированное значение gpt-image-2.",
+            "description": "Используйте фиксированное значение YOUR_MODEL_ID.",
             "enum": [
-              "gpt-image-2"
+              "YOUR_MODEL_ID"
             ],
-            "default": "gpt-image-2",
-            "example": "gpt-image-2"
+            "default": "YOUR_MODEL_ID",
+            "example": "YOUR_MODEL_ID"
           },
           "prompt": {
             "type": "string",
@@ -400,12 +400,12 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "Используйте фиксированное значение gpt-image-2.",
+            "description": "Используйте фиксированное значение YOUR_MODEL_ID.",
             "enum": [
-              "gpt-image-2"
+              "YOUR_MODEL_ID"
             ],
-            "default": "gpt-image-2",
-            "example": "gpt-image-2"
+            "default": "YOUR_MODEL_ID",
+            "example": "YOUR_MODEL_ID"
           },
           "prompt": {
             "type": "string",
@@ -518,8 +518,8 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "ID доступной модели из GPT Key group. Ориентируйтесь на актуальный список в model plaza.",
-            "example": "gpt-5.6-sol"
+            "description": "ID доступной модели OpenAI-compatible провайдера. Ориентируйтесь на актуальный список в model plaza.",
+            "example": "YOUR_MODEL_ID"
           },
           "input": {
             "type": "string",
@@ -543,8 +543,8 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "ID доступной модели из GPT Key group. Ориентируйтесь на актуальный список в model plaza.",
-            "example": "gpt-5.6-sol"
+            "description": "ID доступной модели OpenAI-compatible провайдера. Ориентируйтесь на актуальный список в model plaza.",
+            "example": "YOUR_MODEL_ID"
           },
           "messages": {
             "type": "array",
@@ -587,8 +587,8 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "ID доступной модели из Claude Key group.",
-            "example": "claude-sonnet-4-6"
+            "description": "ID доступной модели провайдера Claude.",
+            "example": "YOUR_MODEL_ID"
           },
           "max_tokens": {
             "type": "integer",
@@ -682,7 +682,7 @@
         }
       },
       "ResponsesResponse": {
-        "description": "Ответ Responses API от модели из GPT Key group.",
+        "description": "Ответ Responses API от модели OpenAI-compatible провайдера.",
         "content": {
           "application/json": {
             "schema": {
@@ -692,7 +692,7 @@
         }
       },
       "ChatCompletionResponse": {
-        "description": "Ответ Chat Completions API от модели из GPT Key group.",
+        "description": "Ответ Chat Completions API от модели OpenAI-compatible провайдера.",
         "content": {
           "application/json": {
             "schema": {
@@ -702,7 +702,7 @@
         }
       },
       "AnthropicMessageResponse": {
-        "description": "Ответ Anthropic Messages API от модели из Claude Key group.",
+        "description": "Ответ Anthropic Messages API от модели провайдера Claude.",
         "content": {
           "application/json": {
             "schema": {
