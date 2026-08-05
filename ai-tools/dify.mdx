@@ -1,11 +1,18 @@
 ---
-title: "Dify: подключение BetterToken, API Key, Base URL и модели"
+title: "Dify OpenAI API: Base URL и устранение timeout"
 sidebarTitle: "Dify"
-description: "Подключите Dify к BetterToken: укажите Base URL, API Key и совместимую модель, затем проверьте подключение и устраните частые ошибки."
+description: "Подключите Dify к OpenAI API-compatible endpoint BetterToken, задайте API Key и Model ID и устраните timeout, 401 или 404."
+keywords:
+  - "dify openai-api"
+  - "dify openai-api-compatible timeout"
 icon: "layer-group"
 ---
 
-Чтобы подключить Dify к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить Dify к OpenAI API-compatible endpoint BetterToken, установите плагин модели, укажите Base URL `{{openai-base-url}}`, API Key и точный Model ID.
+
+## Dify OpenAI API-compatible timeout
+
+При timeout сначала проверьте обычный чат без Agent tools, затем увеличьте timeout в настройках Dify и повторите короткий запрос. Сравните интеграцию с [n8n](/ai-tools/n8n), проверьте [правильный Base URL](/faq/model-calling/base-url-config) и выберите модель по [руководству](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -159,6 +166,8 @@ Dify хранит отдельную custom-конфигурацию для ка
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key и удалите лишние пробелы. |
+| `403` | Проверьте, доступен ли выбранный Model ID для API Key. |
+| `timeout` | Сначала проверьте обычный чат без Agent tools, затем увеличьте timeout и повторите короткий запрос. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из каталога моделей. |
 | Настройки не применились | Сохраните файл и полностью перезапустите инструмент. |

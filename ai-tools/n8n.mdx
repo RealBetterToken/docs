@@ -1,11 +1,18 @@
 ---
-title: "n8n: подключение BetterToken, API Key, Base URL и модели"
+title: "n8n OpenAI API Key: Base URL и условия оплаты API"
 sidebarTitle: "n8n"
-description: "Подключите n8n к BetterToken: укажите Base URL, API Key и совместимую модель, затем проверьте подключение и устраните частые ошибки."
+description: "Настройте n8n OpenAI API Key и Base URL BetterToken, выберите Model ID, проверьте credential и актуальные условия использования API."
+keywords:
+  - "n8n openai api key"
+  - "n8n openai api free"
 icon: "diagram-project"
 ---
 
-Чтобы подключить n8n к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить n8n OpenAI API Key, создайте credential **OpenAI**, укажите Base URL `{{openai-base-url}}` и выберите точный Model ID в узле **OpenAI Chat Model**.
+
+## n8n OpenAI API Key и бесплатный API
+
+BetterToken не заявляется как постоянно бесплатный OpenAI API для n8n. Актуальные условия и стоимость проверяйте на [странице цен](https://bettertoken.ai/pricing). Для настройки workflow смотрите шаги ниже, сравнение с [Dify](/ai-tools/dify) и [руководство по выбору модели](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -147,6 +154,8 @@ icon: "diagram-project"
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key и удалите лишние пробелы. |
+| `403` | Проверьте доступ API Key к выбранному Model ID. |
+| `timeout` | Увеличьте Timeout в OpenAI Chat Model и сначала проверьте обычный запрос без Agent tools. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из каталога моделей. |
 | Настройки не применились | Сохраните файл и полностью перезапустите инструмент. |

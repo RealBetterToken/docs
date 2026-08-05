@@ -1,11 +1,18 @@
 ---
-title: "Cline: установка, API Key, Base URL и настройка моделей"
+title: "Cline OpenAI-compatible provider: custom Base URL и API Key"
 sidebarTitle: "Cline"
-description: "Установите Cline, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
+description: "Настройте в Cline OpenAI-compatible provider, custom Base URL и API Key BetterToken, затем устраните API request failed и connection error."
+keywords:
+  - "cline docs openai compatible provider custom base url"
+  - "cline api request failed connection error"
 icon: "c"
 ---
 
-Чтобы подключить Cline к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить Cline, выберите **OpenAI Compatible**, укажите custom Base URL `{{openai-base-url}}`, API Key BetterToken и точный Model ID. При `API request failed` сначала проверьте адрес и доступность соединения.
+
+## Cline OpenAI-compatible provider и custom Base URL
+
+В Cline не нужен официальный аккаунт OpenAI: custom provider принимает API Key BetterToken и OpenAI-compatible Base URL. Пошаговые поля также разобраны в [FAQ по Cline](/faq/cline/openai-compatible-api). Для сравнения интерфейсов откройте инструкции по [Cursor](/ai-tools/cursor) и [Roo Code](/ai-tools/roo-code).
 
 ## Ключевые параметры
 
@@ -29,7 +36,7 @@ icon: "c"
 
 ### Установка Cline
 
-Откройте VS Code, найдите **Cline** в marketplace расширений и установите его.
+Установите Cline по [официальной инструкции](https://docs.cline.bot/getting-started/installing-cline), затем откройте расширение в VS Code.
 
 ## Ручная настройка
 
@@ -88,6 +95,13 @@ icon: "c"
 Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
 
 ## Частые ошибки
+
+| Ошибка | Что проверить |
+| --- | --- |
+| `API request failed` или `connection error` | Проверьте доступ к `{{openai-base-url}}`, отключите конфликтующий локальный прокси и перезапустите VS Code. |
+| `401` или `403` | Повторно введите API Key BetterToken и проверьте доступ к выбранному Model ID. |
+| `404` | Используйте Base URL `{{openai-base-url}}` без `/chat/completions`. |
+| `429` | Проверьте доступность модели и состояние баланса, затем повторите один короткий запрос. |
 
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)

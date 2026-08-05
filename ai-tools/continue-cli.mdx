@@ -1,11 +1,20 @@
 ---
-title: "Continue CLI: установка, API Key, Base URL и настройка моделей"
+title: "Continue CLI: скачать, установить и добавить API Key"
 sidebarTitle: "Continue CLI"
-description: "Установите Continue CLI, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
+description: "Скачайте и установите Continue CLI, настройте API Key BetterToken, apiBase и Model ID в config.yaml и устраните ошибки подключения."
+keywords:
+  - "continue cli install"
+  - "continue cli download"
 icon: "terminal"
 ---
 
-Чтобы подключить Continue CLI к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы выполнить Continue CLI install, установите официальный пакет Continue, затем добавьте API Key BetterToken, `apiBase` и Model ID в `~/.continue/config.yaml`.
+
+## Continue CLI download и install
+
+Установите Continue CLI по [официальной инструкции](https://docs.continue.dev/cli/quickstart). После изменения `config.yaml` перезапустите CLI и выполните короткий запрос.
+
+Если нужен другой терминальный агент, сравните настройку с [Aider](/ai-tools/aider) и [Codex CLI](/ai-tools/codex). Для выбора Model ID используйте [руководство по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -152,7 +161,9 @@ cn --config ./continue-bettertoken.yaml
 
 | Симптом | Что делать |
 | --- | --- |
-| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к **поддерживаемый провайдер**. |
+| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к поддерживаемому провайдеру. |
+| `403` | Проверьте доступ API Key к выбранному Model ID. |
+| `timeout` или `connection error` | Проверьте `apiBase`, сетевой доступ и отсутствие конфликтующего прокси, затем перезапустите Continue CLI. |
 | `model not found` или модель недоступна | Скопируйте актуальный ID у провайдера **GPT** в model plaza. Не используйте модель провайдера Claude. |
 | Continue использует старую конфигурацию | Запускайте `cn --config` с явным путём к файлу. Проверьте имя файла `config.yaml`. |
 | Неверный URL запроса или `404` | Проверьте, что `apiBase` равен `{{openai-base-url}}`. Не добавляйте `/chat/completions` или имя модели. |

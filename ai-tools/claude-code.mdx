@@ -1,11 +1,18 @@
 ---
-title: "Claude Code: подключение моделей Claude, API Key и Base URL"
+title: "Claude Code Anthropic Base URL: API Key и устранение ошибок"
 sidebarTitle: "Claude Code"
-description: "Установите Claude Code, задайте API Key и Base URL BetterToken командой или через файл и настройте mapping моделей Kimi или GLM."
+description: "Настройте Claude Code Anthropic Base URL и API Key BetterToken, проверьте подключение и устраните Claude Code API error 401, 403 или timeout."
+keywords:
+  - "claude code anthropic base url"
+  - "claude code api error"
 icon: "terminal"
 ---
 
-Модели Claude подключаются напрямую через переменные терминала или файл настроек. Kimi и GLM используют тот же Base URL с явным mapping моделей. Для GPT нужна [расширенная настройка](#расширенная-настройка).
+Задайте Claude Code Anthropic Base URL `{{anthropic-base-url}}`, API Key BetterToken и точный Model ID. Claude Code API error чаще всего появляется из-за неверного Base URL, ключа или недоступной модели.
+
+## Claude Code Anthropic Base URL и API error
+
+Base URL для Claude Code не содержит `/v1`: приложение само добавляет путь Anthropic Messages. Начните с [руководства по API Key и Base URL](/faq/claude-code/api-key-base-url), а различия протоколов проверьте в статье [OpenAI-compatible и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible). Для GPT перейдите к [расширенной настройке](#расширенная-настройка).
 
 ## Ключевые параметры
 
@@ -74,7 +81,7 @@ Claude Code CLI читает:
 
 ### Настройка провайдера Kimi или GLM
 
-Для Kimi и GLM добавьте mapping моделей в тот же `settings.json`. Замените каждый `YOUR_MODEL_ID` на Model ID из окна Setup или model plaza:
+Для Kimi и GLM добавьте сопоставление моделей в тот же `settings.json`. Замените каждый `YOUR_MODEL_ID` на Model ID из окна Setup или model plaza:
 
 ```json
 {
@@ -142,6 +149,8 @@ claude
 | Ошибка | Решение |
 | --- | --- |
 | `401` или ошибка авторизации | Проверьте `ANTHROPIC_AUTH_TOKEN` и удалите пробелы вокруг API Key. |
+| `403` | Проверьте, доступна ли выбранная модель для API Key. Не заменяйте Anthropic Base URL адресом OpenAI-compatible API. |
+| `500` или `timeout` | Повторите короткий запрос. Если ошибка сохраняется, выберите другую доступную модель и проверьте запрос в Dashboard. |
 | `ConnectionRefused` | Используйте точно `{{anthropic-base-url}}`, не добавляя `/v1`. |
 | Модель не найдена | Для Claude не задавайте модель вручную. Для Kimi или GLM проверьте актуальность всех трёх значений `ANTHROPIC_DEFAULT_*_MODEL`. |
 | Конфигурация не применилась | Проверьте путь, очистите конфликтующие переменные окружения и полностью перезапустите Claude Code. |
@@ -167,7 +176,7 @@ claude
 </Accordion>
 {/* tool-provider-support:end */}
 
-Чтобы использовать GPT в Claude Code, настройте его через [CC Switch с BetterToken](/ai-tools/cc-switch#claude-code). В разделе Claude Code укажите API Key, Base URL и Model Mapping, затем включите proxy.
+Чтобы использовать GPT в Claude Code, настройте его через [CC Switch с BetterToken](/ai-tools/cc-switch#claude-code). В разделе Claude Code укажите API Key, Base URL и Model Mapping, затем включите прокси.
 
 ### Связанные FAQ
 

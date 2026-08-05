@@ -14,7 +14,7 @@ Description: API-шлюз к AI-моделям для пользователей
 
 ## Что такое BetterToken?
 
-BetterToken — это API-шлюз к AI-моделям для пользователей, команд и разработчиков в России. Он даёт прямой доступ к моделям Claude и GPT/Codex через единый API, с оплатой в рублях и без VPN, а также поддерживает подключение таких AI coding-инструментов, как Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode и CC Switch. После регистрации начисляется $3 пробного баланса — этого достаточно, чтобы протестировать свой рабочий процесс.
+BetterToken — это API-шлюз к AI-моделям для пользователей, команд и разработчиков в России. Он даёт прямой доступ к моделям Claude и GPT/Codex через единый API, с оплатой в рублях и без VPN, а также поддерживает подключение таких AI coding-инструментов, как Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode и CC Switch. После регистрации на пробный баланс начисляется $1 — этого достаточно, чтобы протестировать свой рабочий процесс.
 
 В документации используются два режима подключения:
 
@@ -123,7 +123,7 @@ BetterToken — это мультимодельный API-шлюз для раз
 
 **Какие инструменты поддерживаются?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, CC Switch.
 
-**Как начать?** Зарегистрироваться, получить $3 пробного баланса, создать API Key BetterToken и выбрать совместимую модель провайдера и заменить Base URL в используемом инструменте.
+**Как начать?** Зарегистрироваться, получить $1 на пробный баланс, создать API Key BetterToken, выбрать совместимую модель провайдера и заменить Base URL в используемом инструменте.
 
 **Каналы поддержки?** Telegram и support@bettertoken.ai.
 
@@ -153,7 +153,7 @@ Description: За 4 шага создайте аккаунт, пополните
   <Step title="Создайте аккаунт">
     Откройте <a href={"https://bettertoken.ai/register"}>страницу регистрации BetterToken</a> и создайте аккаунт.
 
-    После регистрации вы автоматически получите **$3 пробного баланса**.
+    После регистрации вы автоматически получите **$1 на пробный баланс**.
   </Step>
   <Step title="Пополните баланс">
     Вы можете выбрать **онлайн-пополнение** или **пополнение по промокоду**. После пополнения вернитесь в консоль и проверьте, что **текущий баланс** обновился. Затем переходите к созданию API Key.
@@ -338,7 +338,7 @@ Description: Частые вопросы об аккаунтах BetterToken, о
 
 <AccordionGroup>
   <Accordion title="Как BetterToken считает стоимость использования?">
-    BetterToken списывает баланс по фактическому расходу токенов и следует тарифам Anthropic / OpenAI без дополнительной наценки. Каждый новый аккаунт получает $3 пробного баланса.
+    BetterToken списывает баланс по фактическому расходу токенов и следует тарифам Anthropic / OpenAI без дополнительной наценки. Каждый новый аккаунт получает $1 на пробный баланс.
 
     Подробнее смотрите на <a href={"https://bettertoken.ai/#"}>странице тарифов</a>.
   </Accordion>
@@ -450,13 +450,17 @@ Description: Частые вопросы об аккаунтах BetterToken, о
 
 ---
 
-## Claude Code: подключение моделей Claude, API Key и Base URL
+## Claude Code Anthropic Base URL: API Key и устранение ошибок
 
 Source: https://docs.bettertoken.ai/ai-tools/claude-code
 
-Description: Установите Claude Code, задайте API Key и Base URL BetterToken командой или через файл и настройте mapping моделей Kimi или GLM.
+Description: Настройте Claude Code Anthropic Base URL и API Key BetterToken, проверьте подключение и устраните Claude Code API error 401, 403 или timeout.
 
-Модели Claude подключаются напрямую через переменные терминала или файл настроек. Kimi и GLM используют тот же Base URL с явным mapping моделей. Для GPT нужна [расширенная настройка](#расширенная-настройка).
+Задайте Claude Code Anthropic Base URL `https://www.bettertoken.ai`, API Key BetterToken и точный Model ID. Claude Code API error чаще всего появляется из-за неверного Base URL, ключа или недоступной модели.
+
+## Claude Code Anthropic Base URL и API error
+
+Base URL для Claude Code не содержит `/v1`: приложение само добавляет путь Anthropic Messages. Начните с [руководства по API Key и Base URL](/faq/claude-code/api-key-base-url), а различия протоколов проверьте в статье [OpenAI-compatible и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible). Для GPT перейдите к [расширенной настройке](#расширенная-настройка).
 
 ## Ключевые параметры
 
@@ -525,7 +529,7 @@ Claude Code CLI читает:
 
 ### Настройка провайдера Kimi или GLM
 
-Для Kimi и GLM добавьте mapping моделей в тот же `settings.json`. Замените каждый `YOUR_MODEL_ID` на Model ID из окна Setup или model plaza:
+Для Kimi и GLM добавьте сопоставление моделей в тот же `settings.json`. Замените каждый `YOUR_MODEL_ID` на Model ID из окна Setup или model plaza:
 
 ```json
 {
@@ -593,6 +597,8 @@ claude
 | Ошибка | Решение |
 | --- | --- |
 | `401` или ошибка авторизации | Проверьте `ANTHROPIC_AUTH_TOKEN` и удалите пробелы вокруг API Key. |
+| `403` | Проверьте, доступна ли выбранная модель для API Key. Не заменяйте Anthropic Base URL адресом OpenAI-compatible API. |
+| `500` или `timeout` | Повторите короткий запрос. Если ошибка сохраняется, выберите другую доступную модель и проверьте запрос в Dashboard. |
 | `ConnectionRefused` | Используйте точно `https://www.bettertoken.ai`, не добавляя `/v1`. |
 | Модель не найдена | Для Claude не задавайте модель вручную. Для Kimi или GLM проверьте актуальность всех трёх значений `ANTHROPIC_DEFAULT_*_MODEL`. |
 | Конфигурация не применилась | Проверьте путь, очистите конфликтующие переменные окружения и полностью перезапустите Claude Code. |
@@ -618,7 +624,7 @@ claude
 </Accordion>
 {/* tool-provider-support:end */}
 
-Чтобы использовать GPT в Claude Code, настройте его через [CC Switch с BetterToken](/ai-tools/cc-switch#claude-code). В разделе Claude Code укажите API Key, Base URL и Model Mapping, затем включите proxy.
+Чтобы использовать GPT в Claude Code, настройте его через [CC Switch с BetterToken](/ai-tools/cc-switch#claude-code). В разделе Claude Code укажите API Key, Base URL и Model Mapping, затем включите прокси.
 
 ### Связанные FAQ
 
@@ -642,13 +648,19 @@ claude
 
 ---
 
-## Подключение моделей Claude к Claude Desktop через BetterToken
+## Claude Desktop: скачать, настроить API и исправить error 500
 
 Source: https://docs.bettertoken.ai/faq/claude-desktop-bettertoken-api
 
-Description: Настройте провайдер Claude из BetterToken в Claude Desktop Gateway с помощью Base URL и API Key.
+Description: Скачайте Claude Desktop, подключите модель Claude через BetterToken API Key и Base URL и устраните ошибки API 500, 401 или Gateway.
 
-На этой странице описано только прямое подключение провайдера **Claude** из BetterToken к Claude Desktop. Укажите API Key BetterToken, `https://www.bettertoken.ai` и `x-api-key`, затем перезапустите Claude Desktop.
+На этой странице описано, где скачать Claude Desktop, как напрямую подключить провайдер **Claude** через BetterToken и что проверить при `Claude Desktop API error 500`. Укажите API Key, `https://www.bettertoken.ai` и `x-api-key`, затем перезапустите приложение.
+
+## Claude Desktop API error 500 и установка
+
+Скачайте актуальную версию Claude Desktop с официального сайта, затем добавьте Gateway с Base URL `https://www.bettertoken.ai`. Если появляется `API error 500`, сначала проверьте Model ID и повторите короткий запрос после перезапуска приложения.
+
+Для других моделей перейдите к [расширенной настройке](#расширенная-настройка). Разницу между Claude Desktop и Claude Code объясняет [отдельное сравнение](/faq/claude-code/claude-code-vs-claude-desktop), а общие правила Base URL собраны в [руководстве по адресам API](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -748,12 +760,13 @@ Description: Настройте провайдер Claude из BetterToken в Cl
 | --- | --- |
 | Gateway не подключается | Укажите в **Gateway base URL** точно `https://www.bettertoken.ai`, без `/v1`. |
 | Запрос возвращает `401` | Скопируйте API Key BetterToken заново и проверьте, что выбрана схема `x-api-key`. |
+| Claude Desktop показывает `API error 500` | Проверьте точный Model ID, полностью перезапустите Claude Desktop и повторите короткий запрос. Если ошибка сохраняется, проверьте запрос в Dashboard. |
 | Модели Claude не отображаются | Убедитесь, что API Key поддерживает провайдер Claude, затем снова откройте настройки. |
 | Настройка не применилась | Полностью закройте Claude Desktop, откройте его снова и выберите **Continue with Gateway**. |
 
 ## Расширенная настройка
 
-Для GPT, Kimi, GLM и других провайдеров, отличных от Claude, используйте [вкладку Claude Desktop в CC Switch](/ai-tools/cc-switch#claude-desktop). CC Switch управляет API Format, сопоставлением моделей, proxy и перезапуском.
+Для GPT, Kimi, GLM и других провайдеров, отличных от Claude, используйте [вкладку Claude Desktop в CC Switch](/ai-tools/cc-switch#claude-desktop). CC Switch управляет API Format, сопоставлением моделей, прокси и перезапуском.
 
 {/* tool-provider-support:start */}
 ### Поддерживаемые провайдеры
@@ -788,13 +801,17 @@ Description: Настройте провайдер Claude из BetterToken в Cl
 
 ---
 
-## Codex CLI/App: custom provider, config.toml, API Key и Base URL
+## Codex Desktop и сторонний API: API-ключ и custom provider
 
 Source: https://docs.bettertoken.ai/ai-tools/codex
 
-Description: Настройте custom provider Codex CLI/App через config.toml, BETTERTOKEN_API_KEY, Base URL Responses и актуальный Model ID.
+Description: Подключите Codex Desktop к стороннему API: настройте custom provider в config.toml, API-ключ, Responses Base URL и актуальный Model ID.
 
-Codex CLI и Codex App подключаются к BetterToken по OpenAI Responses. Конфигурация находится в `~/.codex/config.toml`, а API Key передаётся через `BETTERTOKEN_API_KEY`.
+Codex Desktop и Codex CLI подключаются к BetterToken third-party API по OpenAI Responses. Конфигурация находится в `~/.codex/config.toml`, а API-ключ Codex передаётся через `BETTERTOKEN_API_KEY`.
+
+## Codex Desktop third-party API и API-ключ
+
+Для подключения задайте `model_provider = "custom"`, Base URL `https://www.bettertoken.ai/v1` и `wire_api = "responses"`. Полную схему файла смотрите в [руководстве по config.toml](/faq/codex/config-toml). Для VS Code используется [отдельная конфигурация Codex Extension](/ai-tools/codex-vscode), а значения provider объясняет [справка по model_provider и wire_api](/faq/codex/model-provider-base-url-wire-api).
 
 ## Ключевые параметры
 
@@ -904,6 +921,8 @@ codex
 | Ошибка | Решение |
 | --- | --- |
 | `401` или запрос входа OpenAI | Проверьте `BETTERTOKEN_API_KEY` и `requires_openai_auth = false`. |
+| `403` | Проверьте, экспортирована ли `BETTERTOKEN_API_KEY` в том же окружении, где запущен Codex, и доступна ли выбранная модель. |
+| `timeout` или поток прерван | Проверьте `stream_idle_timeout_ms`, затем повторите короткий запрос без лишнего контекста. |
 | Provider не найден | Значение `model_provider = "custom"` должно совпадать с `[model_providers.custom]`. |
 | Ошибка API mode | Сохраните `wire_api = "responses"`; не переходите на Chat Completions. |
 | Модель не найдена | Замените `YOUR_MODEL_ID` на актуальный полный ID из Setup или model plaza. |
@@ -964,13 +983,17 @@ codex
 
 ---
 
-## Codex VS Code Extension: Base URL, API Key и официальный вход
+## Codex VS Code custom API: API Key и официальный вход
 
 Source: https://docs.bettertoken.ai/ai-tools/codex-vscode
 
-Description: Настройте общий config.toml для Codex VS Code Extension, используйте BetterToken Responses и сохраните официальный вход, плагины и Remote Control.
+Description: Настройте Codex VS Code custom API через config.toml, Base URL и API Key BetterToken и сохраните официальный вход, плагины и Remote Control.
 
-Codex VS Code Extension использует общий с Codex CLI/App файл `~/.codex/config.toml`. Эта настройка нужна, если вы хотите сохранить официальный вход, плагины или Remote Control.
+Codex VS Code custom API использует общий с Codex CLI/App файл `~/.codex/config.toml`. API Key BetterToken можно передать через `experimental_bearer_token`, сохранив официальный вход, плагины и Remote Control.
+
+## Codex VS Code custom API и API Key
+
+Не вставляйте одновременно конфигурации CLI/App и Extension с одинаковым TOML table. Базовая настройка находится в [руководстве по Codex CLI/App](/ai-tools/codex), поля файла — в [FAQ по config.toml](/faq/codex/config-toml), а сохранение официальной авторизации — в [отдельной инструкции](/faq/codex/official-login-third-party-api).
 
 ## Ключевые параметры
 
@@ -1085,13 +1108,17 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 ---
 
-## GitHub Copilot: установка, API Key, Base URL и настройка моделей
+## GitHub Copilot custom endpoint: API Key и настройка модели
 
 Source: https://docs.bettertoken.ai/ai-tools/github-copilot
 
-Description: Установите GitHub Copilot, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Добавьте GitHub Copilot custom endpoint в VS Code, сохраните API Key через secret reference и настройте полный Chat Completions URL.
 
-Чтобы подключить GitHub Copilot к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы добавить GitHub Copilot custom endpoint, создайте модель в VS Code, сохраните GitHub Copilot API Key через secret reference и укажите полный URL `https://www.bettertoken.ai/v1/chat/completions`.
+
+## GitHub Copilot custom endpoint и API Key
+
+Этот сценарий добавляет custom language model в Chat, а не заменяет встроенное автодополнение Copilot. Для других расширений VS Code сравните [Codex Extension](/ai-tools/codex-vscode) и [Cline](/ai-tools/cline). Разницу Base URL и полного endpoint объясняет [руководство по адресам](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -1337,13 +1364,17 @@ https://www.bettertoken.ai/v1/chat/completions
 
 ---
 
-## OpenClaw: API Key, Base URL и кастомные модели
+## OpenClaw: скачать, установить и настроить BetterToken
 
 Source: https://docs.bettertoken.ai/ai-tools/openclaw
 
-Description: Настройте models.providers OpenClaw, API Key BetterToken, Base URL, модели OpenAI Responses или Chat Completions и проверьте Gateway.
+Description: Скачайте и установите OpenClaw, настройте models.providers, API Key BetterToken, Base URL и Model ID и проверьте Gateway.
 
-OpenClaw подключается к BetterToken через `~/.openclaw/openclaw.json`. Модели провайдера GPT используют `openai-responses`, другие поддерживаемые провайдеры — `openai-completions`.
+Установите OpenClaw, затем подключите BetterToken через `~/.openclaw/openclaw.json`. Модели провайдера GPT используют `openai-responses`, другие поддерживаемые провайдеры — `openai-completions`.
+
+## OpenClaw: скачать и установить CLI
+
+Установите OpenClaw по [официальной инструкции](https://docs.openclaw.ai/install). После изменения конфигурации выполните `openclaw config validate`, перезапустите Gateway и проверьте статус модели. Сравнить другие CLI можно в инструкциях по [Codex](/ai-tools/codex) и [OpenCode](/ai-tools/opencode); правила выбора модели собраны [здесь](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -1529,13 +1560,17 @@ openclaw models status
 
 ---
 
-## Cursor: установка, API Key, Base URL и настройка моделей
+## Cursor custom API: Base URL, API Key и устранение ошибок
 
 Source: https://docs.bettertoken.ai/ai-tools/cursor
 
-Description: Установите Cursor, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Настройте Cursor custom API через Base URL и API Key BetterToken, добавьте custom model и устраните ошибку проверки API Key.
 
-Чтобы подключить Cursor к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить Cursor custom API, укажите OpenAI Base URL `https://www.bettertoken.ai/v1`, API Key BetterToken и точный Model ID. Если проверка ключа завершается ошибкой, проверьте адрес и повторно добавьте custom model.
+
+## Cursor custom API и API Key error
+
+Пошаговая настройка полей собрана в [FAQ по Cursor custom OpenAI API](/faq/cursor/custom-openai-api). Для сравнения интерфейсов откройте [Cline](/ai-tools/cline) и [Zed](/ai-tools/zed), а правила выбора адреса — в [руководстве по Base URL](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -1735,13 +1770,17 @@ Description: Установите Cursor, укажите Base URL и API Key Bet
 
 ---
 
-## TRAE: установка, API Key, Base URL и настройка моделей
+## API TRAE AI: скачать TRAE и настроить custom endpoint
 
 Source: https://docs.bettertoken.ai/ai-tools/trae
 
-Description: Установите TRAE, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Скачайте TRAE AI, добавьте custom model, укажите API Key и полный Chat Completions URL BetterToken и проверьте подключение.
 
-Чтобы подключить TRAE к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+API TRAE AI настраивается через custom model: укажите API Key BetterToken, полный URL `https://www.bettertoken.ai/v1/chat/completions` и точный Model ID.
+
+## TRAE AI: скачать и настроить API
+
+Скачайте TRAE с официального сайта, затем добавьте custom model в настройках. Полный request URL отличается от Base URL; подробнее — в [руководстве по адресам](/faq/model-calling/base-url-config). Для похожих редакторов смотрите [Cursor](/ai-tools/cursor) и [GitHub Copilot](/ai-tools/github-copilot).
 
 ## Ключевые параметры
 
@@ -1761,7 +1800,7 @@ Description: Установите TRAE, укажите Base URL и API Key Bette
 
 ## Установка
 
-Установите или откройте TRAE, затем перейдите к ручной настройке ниже.
+Скачайте TRAE для macOS, Windows или Linux в [официальном Download Center](https://www.trae.ai/download). Установите приложение, откройте настройки моделей и перейдите к ручной настройке ниже.
 
 ## Ручная настройка
 
@@ -1826,7 +1865,9 @@ Description: Установите TRAE, укажите Base URL и API Key Bette
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key BetterToken и удалите лишние пробелы. |
-| `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
+| `403` | Проверьте доступ API Key к выбранному Model ID. |
+| `404` | В поле Custom request URL укажите полный адрес `https://www.bettertoken.ai/v1/chat/completions`. |
+| `connection error` | Проверьте полный URL, сетевой доступ и отсутствие конфликтующего прокси. |
 | `model not found` | Скопируйте актуальный Model ID из model plaza. |
 | Настройки не применились | Сохраните конфигурацию и полностью перезапустите инструмент. |
 
@@ -1863,13 +1904,17 @@ Description: Установите TRAE, укажите Base URL и API Key Bette
 
 ---
 
-## OpenCode: API Key, Base URL и настройка JSON
+## Настройка OpenCode: скачать, подключить API Key и Base URL
 
 Source: https://docs.bettertoken.ai/ai-tools/opencode
 
-Description: Подключите OpenCode к BetterToken OpenAI-compatible Chat Completions через /connect и opencode.json с API Key, Base URL и Model ID.
+Description: Скачайте OpenCode и подключите BetterToken через /connect или opencode.json: укажите API Key, Base URL и Model ID и проверьте запрос.
 
-OpenCode подключается к BetterToken через `@ai-sdk/openai-compatible`. Назовите provider в OpenCode **BetterToken** или **OpenAI Compatible**. GPT, Kimi и GLM — провайдеры моделей внутри BetterToken, а не имена provider в OpenCode.
+Настройка OpenCode начинается с установки CLI и подключения BetterToken через `@ai-sdk/openai-compatible`. Назовите provider в OpenCode **BetterToken** или **OpenAI Compatible**.
+
+## OpenCode: скачать и настроить provider
+
+Установите OpenCode из официального источника, затем сохраните credential через `/connect` или настройте `opencode.json`. Для сравнения смотрите [Continue CLI](/ai-tools/continue-cli) и [Aider](/ai-tools/aider), а точный Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -2015,13 +2060,17 @@ OpenCode подключается к BetterToken через `@ai-sdk/openai-comp
 
 ---
 
-## Kilo Code: установка, API Key, Base URL и настройка моделей
+## Kilo Code: настройка API Key, Base URL и модели
 
 Source: https://docs.bettertoken.ai/ai-tools/kilo-code
 
-Description: Установите Kilo Code, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Настройте Kilo Code через OpenAI-compatible provider: укажите API Key BetterToken, Base URL и Model ID и устраните ошибки подключения.
 
-Чтобы подключить Kilo Code к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Настройка Kilo Code выполняется в интерфейсе расширения: выберите OpenAI-compatible provider, укажите API Key BetterToken, Base URL и точный Model ID.
+
+## Kilo Code: настройка custom provider
+
+После сохранения откройте новый чат и выполните короткий запрос. Для похожих расширений смотрите [Cline](/ai-tools/cline) и [Roo Code](/ai-tools/roo-code), а актуальный Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -2143,13 +2192,17 @@ Description: Установите Kilo Code, укажите Base URL и API Key 
 
 ---
 
-## Kodacode: установка, API Key, Base URL и настройка моделей
+## KodaCode: настройка API Key и устранение ошибки 429
 
 Source: https://docs.bettertoken.ai/ai-tools/kodacode
 
-Description: Установите Kodacode, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Настройте KodaCode через OpenAI-compatible API: укажите API Key, Base URL и Model ID и устраните ошибку 429, 401 или 404.
 
-Чтобы подключить Kodacode к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Настройка KodaCode выполняется через форму **Any OpenAI-compatible API**. Укажите API Key BetterToken, Base URL `https://www.bettertoken.ai/v1` и точный Model ID.
+
+## KodaCode: настройка и ошибка 429
+
+Ошибка `429` не исправляется заменой Base URL. Проверьте доступность выбранной модели и состояние баланса, затем повторите один короткий запрос. Для сравнения откройте [MonkeyCode](/ai-tools/monkeycode) и [Cline](/ai-tools/cline), а Model ID возьмите из [руководства по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -2301,6 +2354,7 @@ context:
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key и удалите лишние пробелы. |
+| `429` | Проверьте доступность модели и состояние баланса. Не запускайте несколько повторов одновременно. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из каталога моделей. |
 | Настройки не применились | Сохраните файл и полностью перезапустите инструмент. |
@@ -2333,13 +2387,17 @@ context:
 
 ---
 
-## Hermes Agent: установка, API Key, Base URL и настройка моделей
+## Hermes Agent: установка, API Key и тайм-аут API
 
 Source: https://docs.bettertoken.ai/ai-tools/hermes-agent
 
-Description: Установите Hermes Agent, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Установите Hermes Agent, настройте API Key и Base URL BetterToken, выберите Model ID и устраните тайм-ауты API и ошибки подключения.
 
-Чтобы подключить Hermes Agent к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Установка Hermes Agent включает установщик проекта и настройку OpenAI-compatible provider. Укажите API Key BetterToken, Base URL `https://www.bettertoken.ai/v1` и точный Model ID.
+
+## Hermes Agent: установка и API timeout
+
+Если Hermes Agent завершает запрос по timeout, сначала проверьте короткий запрос без инструментов и уменьшите объём контекста. Сравните конфигурацию с [OpenClaw](/ai-tools/openclaw) и [Codex CLI](/ai-tools/codex), а адрес проверьте по [руководству по Base URL](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -2487,6 +2545,13 @@ Description: Установите Hermes Agent, укажите Base URL и API K
 
 ## Частые ошибки
 
+| Ошибка | Что проверить |
+| --- | --- |
+| `API timeout` | Проверьте короткий запрос без инструментов, уменьшите контекст и увеличьте timeout в конфигурации Hermes Agent. |
+| `connection error` | Проверьте Base URL `https://www.bettertoken.ai/v1`, DNS и конфликтующий прокси. |
+| `401` или `403` | Повторно задайте API Key BetterToken и проверьте доступ к выбранной модели. |
+| `429` | Проверьте доступность модели и состояние баланса, затем повторите один запрос. |
+
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
@@ -2536,13 +2601,17 @@ hermes claw migrate
 
 ---
 
-## Cline: установка, API Key, Base URL и настройка моделей
+## Cline OpenAI-compatible provider: custom Base URL и API Key
 
 Source: https://docs.bettertoken.ai/ai-tools/cline
 
-Description: Установите Cline, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Настройте в Cline OpenAI-compatible provider, custom Base URL и API Key BetterToken, затем устраните API request failed и connection error.
 
-Чтобы подключить Cline к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить Cline, выберите **OpenAI Compatible**, укажите custom Base URL `https://www.bettertoken.ai/v1`, API Key BetterToken и точный Model ID. При `API request failed` сначала проверьте адрес и доступность соединения.
+
+## Cline OpenAI-compatible provider и custom Base URL
+
+В Cline не нужен официальный аккаунт OpenAI: custom provider принимает API Key BetterToken и OpenAI-compatible Base URL. Пошаговые поля также разобраны в [FAQ по Cline](/faq/cline/openai-compatible-api). Для сравнения интерфейсов откройте инструкции по [Cursor](/ai-tools/cursor) и [Roo Code](/ai-tools/roo-code).
 
 ## Ключевые параметры
 
@@ -2566,7 +2635,7 @@ Description: Установите Cline, укажите Base URL и API Key Bett
 
 ### Установка Cline
 
-Откройте VS Code, найдите **Cline** в marketplace расширений и установите его.
+Установите Cline по [официальной инструкции](https://docs.cline.bot/getting-started/installing-cline), затем откройте расширение в VS Code.
 
 ## Ручная настройка
 
@@ -2626,6 +2695,13 @@ Description: Установите Cline, укажите Base URL и API Key Bett
 
 ## Частые ошибки
 
+| Ошибка | Что проверить |
+| --- | --- |
+| `API request failed` или `connection error` | Проверьте доступ к `https://www.bettertoken.ai/v1`, отключите конфликтующий локальный прокси и перезапустите VS Code. |
+| `401` или `403` | Повторно введите API Key BetterToken и проверьте доступ к выбранному Model ID. |
+| `404` | Используйте Base URL `https://www.bettertoken.ai/v1` без `/chat/completions`. |
+| `429` | Проверьте доступность модели и состояние баланса, затем повторите один короткий запрос. |
+
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 - [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
@@ -2663,13 +2739,17 @@ Description: Установите Cline, укажите Base URL и API Key Bett
 
 ---
 
-## Roo Code: установка, API Key, Base URL и настройка моделей
+## Roo Code: настройка API Key и решение проблемы «не работает»
 
 Source: https://docs.bettertoken.ai/ai-tools/roo-code
 
-Description: Установите Roo Code, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Настройте Roo Code через OpenAI-compatible provider, API Key и Base URL BetterToken и проверьте причины, почему Roo Code не работает.
 
-Чтобы подключить Roo Code к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Настройка Roo Code выполняется через OpenAI-compatible provider: укажите API Key BetterToken, Base URL `https://www.bettertoken.ai/v1` и точный Model ID.
+
+## Roo Code: настройка и проверка, если он не работает
+
+Если Roo Code не работает после сохранения, откройте новый чат, проверьте выбранный provider и перезапустите VS Code. Для сравнения смотрите [Cline](/ai-tools/cline) и [Kilo Code](/ai-tools/kilo-code), а адрес проверьте по [руководству по Base URL](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -2760,6 +2840,8 @@ Description: Установите Roo Code, укажите Base URL и API Key B
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key BetterToken и удалите лишние пробелы. |
+| Roo Code не работает после сохранения | Убедитесь, что выбран provider BetterToken, откройте новый чат и выполните **Developer: Reload Window**. |
+| `connection error` | Проверьте доступ к `https://www.bettertoken.ai/v1` и отключите конфликтующий прокси. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из model plaza. |
 | Настройки не применились | Сохраните конфигурацию и полностью перезапустите инструмент. |
@@ -2797,13 +2879,21 @@ Description: Установите Roo Code, укажите Base URL и API Key B
 
 ---
 
-## Grok CLI: установка, API Key, Base URL и настройка моделей
+## Grok CLI API Key: установка, Base URL и выбор модели
 
 Source: https://docs.bettertoken.ai/ai-tools/grok-cli
 
-Description: Установите Grok CLI, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Установите сторонний пакет Grok CLI, задайте GROK_API_KEY и GROK_BASE_URL, выберите Model ID и устраните ошибки подключения.
 
-Чтобы подключить Grok CLI к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы использовать Grok CLI API Key от BetterToken, установите сторонний пакет `@vibe-kit/grok-cli`, задайте `GROK_API_KEY` и `GROK_BASE_URL`, затем запустите `grok --model YOUR_MODEL_ID`.
+
+<Note>
+  `@vibe-kit/grok-cli` — сторонний пакет с открытым исходным кодом, а не официальный CLI от xAI. Эта инструкция относится именно к указанному npm-пакету.
+</Note>
+
+## Официальная установка Grok CLI и API Key
+
+Команды ниже подходят для macOS, Linux и Windows с учётом синтаксиса оболочки. Для других CLI сравните [Aider](/ai-tools/aider) и [Continue CLI](/ai-tools/continue-cli), а точный Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -2924,7 +3014,7 @@ npm install -g @vibe-kit/grok-cli
 
 Для Grok CLI используйте API Key BetterToken и модель, совместимую с настроенным endpoint.
 
-**Нужно ли менять системный proxy или включать VPN?**
+**Нужно ли менять системный прокси или включать VPN?**
 
 Нет. Для подключения BetterToken достаточно настроить Base URL и API Key в терминале.
 
@@ -2964,13 +3054,17 @@ npm install -g @vibe-kit/grok-cli
 
 ---
 
-## Droid: установка, API Key, Base URL и настройка моделей
+## Droid CLI install: установка Factory Droid и API Key
 
 Source: https://docs.bettertoken.ai/ai-tools/droid
 
-Description: Установите Droid, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Установите Factory Droid CLI, добавьте API Key и Base URL BetterToken в settings.json, выберите Model ID и проверьте подключение.
 
-Чтобы подключить Droid к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Для Droid CLI install используйте официальную инструкцию Factory, затем добавьте Factory Droid API Key и Base URL BetterToken в `~/.factory/settings.json`.
+
+## Droid CLI install и Factory Droid API Key
+
+После установки создайте отдельный provider BetterToken и проверьте его коротким запросом. Для сравнения терминальных агентов откройте инструкции по [Codex CLI](/ai-tools/codex) и [Aider](/ai-tools/aider), а Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -3142,13 +3236,17 @@ Description: Установите Droid, укажите Base URL и API Key Bett
 
 ---
 
-## Настройка Zed: API Key, Base URL и своя модель
+## Zed AI providers: API Key, Base URL и модели BetterToken
 
 Source: https://docs.bettertoken.ai/ai-tools/zed
 
-Description: Добавьте BetterToken как OpenAI-compatible провайдер в Zed, укажите Base URL, API Key и модель, а ключ сохраните в системном хранилище.
+Description: Добавьте BetterToken в Zed AI providers, укажите API Key, Base URL и Model ID и сохраните ключ в системном хранилище.
 
-Добавьте OpenAI-compatible провайдер в **Agent Settings** Zed, затем укажите API Key BetterToken, Base URL и Model ID. Ключ, сохранённый через этот экран, попадает в системное хранилище ключей, а не в `settings.json`.
+Добавьте BetterToken в Zed AI providers через **Agent Settings**, затем укажите Zed Editor API Key, Base URL и Model ID. Ключ попадёт в системное хранилище, а не в `settings.json`.
+
+## Zed AI providers и Editor API Key
+
+В `settings.json` храните только provider, `api_url` и описание модели. Для сравнения с другими редакторами откройте [Cursor](/ai-tools/cursor) и [Cline](/ai-tools/cline), а правила Base URL проверьте в [отдельном руководстве](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -3282,13 +3380,17 @@ Zed требует `max_tokens` как объявление контекстно
 
 ---
 
-## MonkeyCode: установка, API Key, Base URL и настройка моделей
+## MonkeyCode: настройка API Key и устранение ошибки 429
 
 Source: https://docs.bettertoken.ai/ai-tools/monkeycode
 
-Description: Установите MonkeyCode, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Настройте MonkeyCode через OpenAI-compatible API: укажите API Key, Base URL и Model ID и устраните ошибку 429, 401 или подключения.
 
-Чтобы подключить MonkeyCode к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Настройка MonkeyCode выполняется в интерфейсе custom provider. Укажите API Key BetterToken, Base URL `https://www.bettertoken.ai/v1` и точный Model ID.
+
+## MonkeyCode: настройка и ошибка 429
+
+При ошибке `429` проверьте доступность модели и состояние баланса, затем повторите один короткий запрос без параллельных повторов. Для похожей настройки смотрите [KodaCode](/ai-tools/kodacode) и [Cline](/ai-tools/cline), а актуальный Model ID выбирайте по [руководству](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -3379,6 +3481,7 @@ Description: Установите MonkeyCode, укажите Base URL и API Key
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key BetterToken и удалите лишние пробелы. |
+| `429` | Проверьте доступность модели и состояние баланса. Повторите один короткий запрос без параллельных повторов. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из model plaza. |
 | Настройки не применились | Сохраните конфигурацию и полностью перезапустите инструмент. |
@@ -3416,13 +3519,19 @@ Description: Установите MonkeyCode, укажите Base URL и API Key
 
 ---
 
-## Continue CLI: установка, API Key, Base URL и настройка моделей
+## Continue CLI: скачать, установить и добавить API Key
 
 Source: https://docs.bettertoken.ai/ai-tools/continue-cli
 
-Description: Установите Continue CLI, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Скачайте и установите Continue CLI, настройте API Key BetterToken, apiBase и Model ID в config.yaml и устраните ошибки подключения.
 
-Чтобы подключить Continue CLI к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы выполнить Continue CLI install, установите официальный пакет Continue, затем добавьте API Key BetterToken, `apiBase` и Model ID в `~/.continue/config.yaml`.
+
+## Continue CLI download и install
+
+Установите Continue CLI по [официальной инструкции](https://docs.continue.dev/cli/quickstart). После изменения `config.yaml` перезапустите CLI и выполните короткий запрос.
+
+Если нужен другой терминальный агент, сравните настройку с [Aider](/ai-tools/aider) и [Codex CLI](/ai-tools/codex). Для выбора Model ID используйте [руководство по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -3569,7 +3678,9 @@ cn --config ./continue-bettertoken.yaml
 
 | Симптом | Что делать |
 | --- | --- |
-| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к **поддерживаемый провайдер**. |
+| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к поддерживаемому провайдеру. |
+| `403` | Проверьте доступ API Key к выбранному Model ID. |
+| `timeout` или `connection error` | Проверьте `apiBase`, сетевой доступ и отсутствие конфликтующего прокси, затем перезапустите Continue CLI. |
 | `model not found` или модель недоступна | Скопируйте актуальный ID у провайдера **GPT** в model plaza. Не используйте модель провайдера Claude. |
 | Continue использует старую конфигурацию | Запускайте `cn --config` с явным путём к файлу. Проверьте имя файла `config.yaml`. |
 | Неверный URL запроса или `404` | Проверьте, что `apiBase` равен `https://www.bettertoken.ai/v1`. Не добавляйте `/chat/completions` или имя модели. |
@@ -3624,13 +3735,19 @@ cn --config ./continue-bettertoken.yaml
 
 ---
 
-## Aider: установка, API Key, Base URL и настройка моделей
+## Aider API Key: установка Aider AI и настройка Base URL
 
 Source: https://docs.bettertoken.ai/ai-tools/aider
 
-Description: Установите Aider, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки.
+Description: Установите Aider AI, подключите BetterToken через API Key и Base URL, выберите Model ID и устраните ошибки 401, 429 и подключения.
 
-Чтобы подключить Aider к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы использовать Aider API Key от BetterToken, установите Aider AI, задайте `OPENAI_API_KEY` и `OPENAI_API_BASE`, затем запустите Aider с точным Model ID.
+
+## Aider API Key и установка Aider AI
+
+Установите Aider по [официальной инструкции](https://aider.chat/docs/install.html), а для подключения используйте API Key BetterToken и Base URL `https://www.bettertoken.ai/v1`. После настройки проверьте соединение коротким запросом в тестовом репозитории.
+
+Сравнить сценарии можно в инструкциях по [Continue CLI](/ai-tools/continue-cli) и [Codex CLI](/ai-tools/codex). Актуальный Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -3758,6 +3875,7 @@ aider --model openai/YOUR_MODEL_ID
 | Симптом | Что делать |
 | --- | --- |
 | `401`, `Unauthorized` или `Invalid API key` | Проверьте `OPENAI_API_KEY`, убедитесь, что это API Key BetterToken, и удалите лишние пробелы. |
+| `429` или слишком много запросов | Проверьте доступность модели и состояние баланса. Не запускайте несколько повторов одновременно. |
 | `model not found` или модель недоступна | Скопируйте актуальный ID у провайдера **GPT** в model plaza и передайте его Aider в формате `openai/model-id`. |
 | Неверный URL запроса или `404` | Проверьте, что `OPENAI_API_BASE` равен `https://www.bettertoken.ai/v1`. Не добавляйте `/chat/completions`. |
 | Windows не видит новые переменные | `setx` действует только в новых терминалах. Закройте текущее окно PowerShell и откройте новое. |
@@ -3812,13 +3930,17 @@ Aider использует этот префикс для определения
 
 ---
 
-## n8n: подключение BetterToken, API Key, Base URL и модели
+## n8n OpenAI API Key: Base URL и условия оплаты API
 
 Source: https://docs.bettertoken.ai/ai-tools/n8n
 
-Description: Подключите n8n к BetterToken: укажите Base URL, API Key и совместимую модель, затем проверьте подключение и устраните частые ошибки.
+Description: Настройте n8n OpenAI API Key и Base URL BetterToken, выберите Model ID, проверьте credential и актуальные условия использования API.
 
-Чтобы подключить n8n к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить n8n OpenAI API Key, создайте credential **OpenAI**, укажите Base URL `https://www.bettertoken.ai/v1` и выберите точный Model ID в узле **OpenAI Chat Model**.
+
+## n8n OpenAI API Key и бесплатный API
+
+BetterToken не заявляется как постоянно бесплатный OpenAI API для n8n. Актуальные условия и стоимость проверяйте на [странице цен](https://bettertoken.ai/pricing). Для настройки workflow смотрите шаги ниже, сравнение с [Dify](/ai-tools/dify) и [руководство по выбору модели](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -3960,6 +4082,8 @@ Description: Подключите n8n к BetterToken: укажите Base URL, A
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key и удалите лишние пробелы. |
+| `403` | Проверьте доступ API Key к выбранному Model ID. |
+| `timeout` | Увеличьте Timeout в OpenAI Chat Model и сначала проверьте обычный запрос без Agent tools. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из каталога моделей. |
 | Настройки не применились | Сохраните файл и полностью перезапустите инструмент. |
@@ -3999,13 +4123,17 @@ Description: Подключите n8n к BetterToken: укажите Base URL, A
 
 ---
 
-## Dify: подключение BetterToken, API Key, Base URL и модели
+## Dify OpenAI API: Base URL и устранение timeout
 
 Source: https://docs.bettertoken.ai/ai-tools/dify
 
-Description: Подключите Dify к BetterToken: укажите Base URL, API Key и совместимую модель, затем проверьте подключение и устраните частые ошибки.
+Description: Подключите Dify к OpenAI API-compatible endpoint BetterToken, задайте API Key и Model ID и устраните timeout, 401 или 404.
 
-Чтобы подключить Dify к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы подключить Dify к OpenAI API-compatible endpoint BetterToken, установите плагин модели, укажите Base URL `https://www.bettertoken.ai/v1`, API Key и точный Model ID.
+
+## Dify OpenAI API-compatible timeout
+
+При timeout сначала проверьте обычный чат без Agent tools, затем увеличьте timeout в настройках Dify и повторите короткий запрос. Сравните интеграцию с [n8n](/ai-tools/n8n), проверьте [правильный Base URL](/faq/model-calling/base-url-config) и выберите модель по [руководству](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -4159,6 +4287,8 @@ Dify хранит отдельную custom-конфигурацию для ка
 | Ошибка | Что проверить |
 | --- | --- |
 | `401` или `Unauthorized` | Проверьте API Key и удалите лишние пробелы. |
+| `403` | Проверьте, доступен ли выбранный Model ID для API Key. |
+| `timeout` | Сначала проверьте обычный чат без Agent tools, затем увеличьте timeout и повторите короткий запрос. |
 | `404` | Проверьте Base URL и не добавляйте путь конкретного endpoint. |
 | `model not found` | Скопируйте актуальный Model ID из каталога моделей. |
 | Настройки не применились | Сохраните файл и полностью перезапустите инструмент. |
@@ -8688,7 +8818,7 @@ Description: AI model API gateway for users, teams, and developers in Russia: Cl
 
 ## What is BetterToken?
 
-BetterToken is an AI model API gateway for users, teams, and developers in Russia. It gives direct access to Claude and GPT/Codex models through one API, with ruble payments and no VPN, and supports AI coding tools such as Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, and CC Switch. After registration, you receive $3 of trial balance so you can test your own development workflow.
+BetterToken is an AI model API gateway for users, teams, and developers in Russia. It gives direct access to Claude and GPT/Codex models through one API, with ruble payments and no VPN, and supports AI coding tools such as Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, and CC Switch. After registration, you receive $1 of trial balance so you can test your own development workflow.
 
 The docs distinguish between two access modes:
 
@@ -8797,7 +8927,7 @@ For Russian teams and companies that need stable access to Claude or GPT/Codex c
 
 **Which tools are supported?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, and CC Switch.
 
-**How do I start?** Register an account, receive $3 of trial balance, create a BetterToken API Key and choose a compatible provider model, and replace the Base URL in your tool.
+**How do I start?** Register an account, receive $1 of trial balance, create a BetterToken API Key, choose a compatible provider model, and replace the Base URL in your tool.
 
 **Support channels?** Telegram and support@bettertoken.ai.
 
@@ -8827,7 +8957,7 @@ Description: In 4 steps, create an account, add credit, create an API Key, and c
   <Step title="Create an account">
     Visit the <a href={"https://bettertoken.ai/register"}>BetterToken registration page</a> to create an account.
 
-    You'll automatically receive a **$3 trial credit** on signup.
+    You'll automatically receive a **$1 trial credit** on signup.
   </Step>
   <Step title="Add credit to your account">
     You can use **Online top-up** or **Redeem code**. After adding credit, return to the console and confirm that **Current balance** has updated before you create an API Key.
@@ -9012,7 +9142,7 @@ These pages are for developers searching for Claude Code, Codex, Cursor, Cline, 
 
 <AccordionGroup>
   <Accordion title="How does BetterToken charge usage?">
-    BetterToken charges by actual token usage and follows Anthropic / OpenAI pricing without adding an extra markup. Every new account gets a $3 trial credit.
+    BetterToken charges by actual token usage and follows Anthropic / OpenAI pricing without adding an extra markup. Every new account gets a $1 trial credit.
 
     See the <a href={"https://bettertoken.ai/#"}>pricing page</a> for details.
   </Accordion>
@@ -17361,7 +17491,7 @@ Description: 面向俄罗斯用户、团队和开发者的 AI 模型 API 网关�
 
 ## 什么是 BetterToken？
 
-BetterToken 是面向俄罗斯用户、团队和开发者的 AI 模型 API 网关。它让你用卢布支付、无需 VPN，直接通过统一的 API 访问 Claude 和 GPT/Codex 系列模型，并接入 Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch 等 AI 编程工具。注册即获得 $3 试用余额，可直接测试你自己的开发工作流。
+BetterToken 是面向俄罗斯用户、团队和开发者的 AI 模型 API 网关。它让你用卢布支付、无需 VPN，直接通过统一的 API 访问 Claude 和 GPT/Codex 系列模型，并接入 Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch 等 AI 编程工具。注册即获得 $1 试用余额，可直接测试你自己的开发工作流。
 
 当前文档按两种接入方式说明：
 
@@ -17470,7 +17600,7 @@ BetterToken 是一个面向俄罗斯开发者的多模型 API 网关，提供两
 
 **支持哪些工具？** Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch。
 
-**如何开始？** 注册账号，获得 $3 试用余额，创建 BetterToken API Key，并选择兼容的提供商模型，替换工具的 Base URL 即可使用。
+**如何开始？** 注册账号，获得 $1 试用余额，创建 BetterToken API Key，并选择兼容的提供商模型，替换工具的 Base URL 即可使用。
 
 **支持渠道？** Telegram 与 support@bettertoken.ai。
 
@@ -17500,7 +17630,7 @@ Description: 新用户用 4 步注册账号、为账户充值、创建 API Key�
   <Step title="注册账号">
     访问 <a href={"https://bettertoken.ai/register"}>BetterToken 注册页面</a>，创建账号。
 
-    注册成功后自动获得 **$3 体验额度**，无需绑卡，按量计费，支持退款。
+    注册成功后自动获得 **$1 体验额度**，无需绑卡，按量计费，支持退款。
   </Step>
   <Step title="为账户充值">
     你可以选择 **在线充值** 或 **兑换码充值**。充值完成后，回到控制台确认 **当前余额** 已更新，再继续创建 API Key。
@@ -17685,7 +17815,7 @@ Description: 关于 BetterToken 账号、计费、用量和接入的常见问题
 
 <AccordionGroup>
   <Accordion title="BetterToken 是如何计费的？">
-    BetterToken 按实际消耗的 token 量计费，与 Anthropic / OpenAI 官方定价保持一致，不额外收取溢价。注册即获得 $3 体验额度，无需绑卡。
+    BetterToken 按实际消耗的 token 量计费，与 Anthropic / OpenAI 官方定价保持一致，不额外收取溢价。注册即获得 $1 体验额度，无需绑卡。
 
     具体定价请参考<a href={"https://bettertoken.ai/#"}>定价页面</a>。
   </Accordion>

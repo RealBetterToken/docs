@@ -1,11 +1,20 @@
 ---
-title: "Aider: установка, API Key, Base URL и настройка моделей"
+title: "Aider API Key: установка Aider AI и настройка Base URL"
 sidebarTitle: "Aider"
-description: "Установите Aider, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
+description: "Установите Aider AI, подключите BetterToken через API Key и Base URL, выберите Model ID и устраните ошибки 401, 429 и подключения."
+keywords:
+  - "aider api key"
+  - "aider ai install"
 icon: "wrench"
 ---
 
-Чтобы подключить Aider к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Чтобы использовать Aider API Key от BetterToken, установите Aider AI, задайте `OPENAI_API_KEY` и `OPENAI_API_BASE`, затем запустите Aider с точным Model ID.
+
+## Aider API Key и установка Aider AI
+
+Установите Aider по [официальной инструкции](https://aider.chat/docs/install.html), а для подключения используйте API Key BetterToken и Base URL `{{openai-base-url}}`. После настройки проверьте соединение коротким запросом в тестовом репозитории.
+
+Сравнить сценарии можно в инструкциях по [Continue CLI](/ai-tools/continue-cli) и [Codex CLI](/ai-tools/codex). Актуальный Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
 
 ## Ключевые параметры
 
@@ -133,6 +142,7 @@ aider --model openai/YOUR_MODEL_ID
 | Симптом | Что делать |
 | --- | --- |
 | `401`, `Unauthorized` или `Invalid API key` | Проверьте `OPENAI_API_KEY`, убедитесь, что это API Key BetterToken, и удалите лишние пробелы. |
+| `429` или слишком много запросов | Проверьте доступность модели и состояние баланса. Не запускайте несколько повторов одновременно. |
 | `model not found` или модель недоступна | Скопируйте актуальный ID у провайдера **GPT** в model plaza и передайте его Aider в формате `openai/model-id`. |
 | Неверный URL запроса или `404` | Проверьте, что `OPENAI_API_BASE` равен `{{openai-base-url}}`. Не добавляйте `/chat/completions`. |
 | Windows не видит новые переменные | `setx` действует только в новых терминалах. Закройте текущее окно PowerShell и откройте новое. |

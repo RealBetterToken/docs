@@ -1,11 +1,18 @@
 ---
-title: "Codex CLI/App: custom provider, config.toml, API Key и Base URL"
+title: "Codex Desktop и сторонний API: API-ключ и custom provider"
 sidebarTitle: "Codex"
-description: "Настройте custom provider Codex CLI/App через config.toml, BETTERTOKEN_API_KEY, Base URL Responses и актуальный Model ID."
+description: "Подключите Codex Desktop к стороннему API: настройте custom provider в config.toml, API-ключ, Responses Base URL и актуальный Model ID."
+keywords:
+  - "codex desktop third party api"
+  - "api ключ codex"
 icon: "code"
 ---
 
-Codex CLI и Codex App подключаются к BetterToken по OpenAI Responses. Конфигурация находится в `~/.codex/config.toml`, а API Key передаётся через `BETTERTOKEN_API_KEY`.
+Codex Desktop и Codex CLI подключаются к BetterToken third-party API по OpenAI Responses. Конфигурация находится в `~/.codex/config.toml`, а API-ключ Codex передаётся через `BETTERTOKEN_API_KEY`.
+
+## Codex Desktop third-party API и API-ключ
+
+Для подключения задайте `model_provider = "custom"`, Base URL `{{openai-base-url}}` и `wire_api = "responses"`. Полную схему файла смотрите в [руководстве по config.toml](/faq/codex/config-toml). Для VS Code используется [отдельная конфигурация Codex Extension](/ai-tools/codex-vscode), а значения provider объясняет [справка по model_provider и wire_api](/faq/codex/model-provider-base-url-wire-api).
 
 ## Ключевые параметры
 
@@ -115,6 +122,8 @@ codex
 | Ошибка | Решение |
 | --- | --- |
 | `401` или запрос входа OpenAI | Проверьте `BETTERTOKEN_API_KEY` и `requires_openai_auth = false`. |
+| `403` | Проверьте, экспортирована ли `BETTERTOKEN_API_KEY` в том же окружении, где запущен Codex, и доступна ли выбранная модель. |
+| `timeout` или поток прерван | Проверьте `stream_idle_timeout_ms`, затем повторите короткий запрос без лишнего контекста. |
 | Provider не найден | Значение `model_provider = "custom"` должно совпадать с `[model_providers.custom]`. |
 | Ошибка API mode | Сохраните `wire_api = "responses"`; не переходите на Chat Completions. |
 | Модель не найдена | Замените `YOUR_MODEL_ID` на актуальный полный ID из Setup или model plaza. |

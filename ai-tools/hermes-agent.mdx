@@ -1,11 +1,18 @@
 ---
-title: "Hermes Agent: установка, API Key, Base URL и настройка моделей"
+title: "Hermes Agent: установка, API Key и тайм-аут API"
 sidebarTitle: "Hermes Agent"
-description: "Установите Hermes Agent, укажите Base URL и API Key BetterToken, выберите совместимую модель провайдера и устраните частые ошибки."
+description: "Установите Hermes Agent, настройте API Key и Base URL BetterToken, выберите Model ID и устраните тайм-ауты API и ошибки подключения."
+keywords:
+  - "hermes agent установка"
+  - "hermes agent api timeout"
 icon: "user-astronaut"
 ---
 
-Чтобы подключить Hermes Agent к BetterToken, подготовьте API Key, укажите Base URL из таблицы ниже и выберите актуальный Model ID в каталоге моделей.
+Установка Hermes Agent включает установщик проекта и настройку OpenAI-compatible provider. Укажите API Key BetterToken, Base URL `{{openai-base-url}}` и точный Model ID.
+
+## Hermes Agent: установка и API timeout
+
+Если Hermes Agent завершает запрос по timeout, сначала проверьте короткий запрос без инструментов и уменьшите объём контекста. Сравните конфигурацию с [OpenClaw](/ai-tools/openclaw) и [Codex CLI](/ai-tools/codex), а адрес проверьте по [руководству по Base URL](/faq/model-calling/base-url-config).
 
 ## Ключевые параметры
 
@@ -152,6 +159,13 @@ icon: "user-astronaut"
 Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
 
 ## Частые ошибки
+
+| Ошибка | Что проверить |
+| --- | --- |
+| `API timeout` | Проверьте короткий запрос без инструментов, уменьшите контекст и увеличьте timeout в конфигурации Hermes Agent. |
+| `connection error` | Проверьте Base URL `{{openai-base-url}}`, DNS и конфликтующий прокси. |
+| `401` или `403` | Повторно задайте API Key BetterToken и проверьте доступ к выбранной модели. |
+| `429` | Проверьте доступность модели и состояние баланса, затем повторите один запрос. |
 
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
