@@ -1,0 +1,190 @@
+---
+title: "OpenClaw の設定：API Key、Base URL、カスタムモデル"
+sidebarTitle: "OpenClaw"
+description: "OpenClaw の models.providers、BetterToken API Key、Base URL、OpenAI Responses または Chat Completions モデルを設定し、Gateway を検証します。"
+icon: "paw"
+---
+
+OpenClaw は `~/.openclaw/openclaw.json` を通じて BetterToken に接続します。GPT プロバイダーのモデルでは `openai-responses`、その他の対応プロバイダーでは `openai-completions` を使います。
+
+## 主な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| モデル | `YOUR_MODEL_ID` |
+
+## 前提条件
+
+- 最新版の OpenClaw をインストールする
+- <a href={"{{register-url}}"}>BetterToken API Key を作成する</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> またはキーの **Setup** ダイアログから Model ID をコピーする
+
+## インストール
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://openclaw.ai/install.sh | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr -useb https://openclaw.ai/install.ps1 | iex
+    ```
+  </Tab>
+</Tabs>
+
+## コマンドラインで設定する
+
+BetterToken の自動設定スクリプトが OpenClaw の設定を書き込みます。このスクリプトには Node.js が必要です。API Key または Model ID を引数で指定しなかった場合は、実行時に入力を求められます。
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-openclaw-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-openclaw-provider-ps1-url}}" -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+`agents.defaults.model.primary` に Setup で表示された `YOUR_MODEL_ID` が設定されていることを確認します。その後、以下のコマンドで設定を検証し、Gateway を再起動します。
+
+## 手動で設定する
+
+### OpenClaw を設定する
+
+`~/.openclaw/openclaw.json` を編集します。使用する Model ID のプロバイダーに合う例だけを使ってください。
+
+<Tabs>
+  <Tab title="GPT: openai-responses">
+    ```json
+    {
+      "models": {
+        "mode": "merge",
+        "providers": {
+          "bettertoken": {
+            "baseUrl": "{{openai-base-url}}",
+            "apiKey": "YOUR_API_KEY",
+            "api": "openai-responses",
+            "models": [
+              {
+                "id": "YOUR_MODEL_ID",
+                "name": "YOUR_MODEL_ID"
+              }
+            ]
+          }
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "bettertoken/YOUR_MODEL_ID"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Non-GPT: openai-completions">
+    ```json
+    {
+      "models": {
+        "mode": "merge",
+        "providers": {
+          "bettertoken": {
+            "baseUrl": "{{openai-base-url}}",
+            "apiKey": "YOUR_API_KEY",
+            "api": "openai-completions",
+            "models": [
+              {
+                "id": "YOUR_MODEL_ID",
+                "name": "YOUR_MODEL_ID"
+              }
+            ]
+          }
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "bettertoken/YOUR_MODEL_ID"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+モデル名から `api` を推測しないでください。GPT では `openai-responses` を使います。GPT 以外のプロバイダーで `openai-completions` を使うのは、model plaza または Setup ダイアログで互換性を確認できた場合だけです。
+
+## 接続を確認する
+
+次のコマンドを実行します。
+
+```bash
+openclaw config validate
+openclaw gateway restart
+openclaw models list
+openclaw models status
+```
+
+検証が成功し、Gateway が再起動して、モデル一覧とステータスに `bettertoken/YOUR_MODEL_ID` が表示されれば設定は有効です。既存のセッションが古いモデルを使い続ける場合は、新しいセッションを開始してもう一度確認してください。
+
+## モデルを切り替える
+
+新しいモデルを `models.providers.bettertoken.models` に追加し、`agents.defaults.model.primary` を `bettertoken/YOUR_MODEL_ID` に変更します。保存して設定を検証し、Gateway を再起動してください。
+
+## よくあるエラー
+
+| エラー | 対処方法 |
+| --- | --- |
+| `config validate` が失敗する | JSON のカンマ、引用符、波括弧を確認します。 |
+| `401` | `apiKey` をもう一度コピーし、余分な空白を削除します。 |
+| `404` またはプロトコルエラー | GPT では `openai-responses`、GPT 以外では `openai-completions` を使います。Base URL の末尾にエンドポイントを追加しないでください。 |
+| モデルが表示されない | プロバイダーのモデル一覧と `agents.defaults.model.primary` の両方にモデルがあることを確認します。 |
+| 既存のセッションで古いモデルが使われる | `openclaw gateway restart` を実行し、新しいセッションを作成します。 |
+
+## 詳細設定
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | コマンドライン + 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **コマンドライン + 手動設定**：生成されたコマンドを使うか、すべての手順を手動で設定します。
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 関連するよくある質問
+
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key・Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider、base_url、wire_api とは？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+
+### 任意：CC Switch でプロバイダーを管理する
+
+複数の外部ツールのプロバイダーをまとめて管理する場合は、[CC Switch での OpenClaw 設定](/ja/ai-tools/cc-switch#openclaw)を参照してください。
+
+## 技術的な詳細
+
+<Accordion title="Responses と Chat Completions">
+  `openai-responses` を使うと、OpenClaw は GPT プロバイダーのモデルに対して `/v1/responses` を呼び出します。`openai-completions` は、互換性が確認済みの GPT 以外のプロバイダーに対して `/v1/chat/completions` を呼び出します。どちらも `{{openai-base-url}}` を `baseUrl` として使います。
+</Accordion>

@@ -1,0 +1,46 @@
+---
+title: "Claude Sonnet 5 출시"
+description: "BetterToken은 Claude Code, coding agents, long-context work 및 stronger Sonnet model이 필요한 workflows를 위해 Claude Sonnet 5를 July 1, 2026에 업데이트했습니다."
+tag: "NEW"
+---
+
+Release date: July 1, 2026
+
+BetterToken은 `Claude Sonnet 5` model entry를 업데이트했습니다. <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 currently available model ID와 live pricing을 확인한 다음 client에 맞는 Claude Code 또는 external-tool setup guide를 통해 configure하세요.
+
+`Claude Sonnet 5`는 Sonnet family의 next generation입니다. Anthropic은 coding, agentic tasks, professional work에서 largest improvements를 제공하는 `Claude Sonnet 4.6`의 upgrade로 position합니다.
+
+## 주요 특징
+
+- **coding과 agent work에 더 적합**: Anthropic에 따르면 Sonnet 4.6 대비 Sonnet 5의 largest gains는 coding과 agentic tasks에 있습니다.
+- **larger context window**: Sonnet 5는 default로 `1M tokens` context window 및 최대 `128K tokens` output을 supports합니다.
+- **adaptive thinking이 default로 on됨**: `thinking` field 없는 requests는 adaptive thinking으로 run됩니다.
+- **low migration effort**: 이미 Sonnet 4.6을 사용한다면 most requests는 model ID를 `claude-sonnet-5`로 changing하여 move할 수 있습니다.
+- **clearer safety behavior**: high-risk cybersecurity content의 경우 model은 HTTP error 대신 `stop_reason: "refusal"`로 refusal을 return할 수 있습니다.
+
+## Migration notes
+
+Sonnet 4.6에서 Sonnet 5로 moving한다면 먼저 다음 settings를 review하세요.
+
+- **`max_tokens` 다시 확인**: thinking trace와 final answer가 same output limit를 share하므로 limit에 close한 tasks는 more room이 필요할 수 있습니다.
+- **manual thinking budgets 제거**: `thinking: { "type": "enabled", "budget_tokens": ... }`는 Sonnet 5에서 더 이상 supported되지 않으므로 대신 adaptive thinking을 사용하세요.
+- **non-default sampling parameters 설정 금지**: non-default `temperature`, `top_p`, `top_k`는 `400` error를 return할 수 있습니다.
+- **tokens 다시 count**: Sonnet 5는 new tokenizer를 사용하므로 same text도 Sonnet 4.6보다 more tokens를 produce할 수 있습니다.
+
+## Setup guidance
+
+Claude Code를 사용한다면 [Claude Code setup guide](/ko/ai-tools/claude-code)로 start하세요. Different providers는 different protocols와 model configuration patterns를 사용합니다.
+
+- `Claude` group: `{{anthropic-base-url}}`를 사용합니다.
+- `GPT` group 또는 external tools: relevant tool guide에 따라 `{{openai-base-url}}`를 사용합니다.
+
+<a href={"{{model-plaza-url}}"}>모델 광장</a>에 currently shown되는 model name을 사용하세요. 거기에 표시되지 않은 model name을 hardcode하지 마세요.
+
+<Tip>
+  long-context coding tasks, automatic fixes, code review 또는 multi-step agent workflows를 run한다면 `claude-sonnet-5`를 먼저 test하세요. workload가 cost-sensitive하다면 switching하기 전에 model plaza pricing으로 cost를 estimate하세요.
+</Tip>
+
+## 참고 자료
+
+- [Claude Sonnet 5의 새로운 기능](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5)
+- [Amazon Bedrock의 Claude Sonnet 5](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5.html)

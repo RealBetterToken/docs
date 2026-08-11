@@ -1,0 +1,74 @@
+---
+title: "क्या BetterToken Cache billing का समर्थन करता है?"
+sidebarTitle: "Cache billing"
+description: "Prompt Cache, Cache hit Field, protocol के अंतर और Request में cached Token उपयोग होने की जांच समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+Request को Cache discount मिलना upstream मॉडल, API protocol और Request format पर निर्भर करता है। BetterToken upstream मॉडल द्वारा लौटाई गई usage जानकारी के आधार पर usage रिकॉर्ड और प्रदर्शित करता है।
+
+Upstream मॉडल Prompt Cache का समर्थन करे और Response में Cache Field लौटाए तो Response usage या call log में cached Token देखे जा सकते हैं। Cache का व्यवहार मॉडल के अनुसार बदलता है। यह न मानें कि हर मॉडल को Cache discount अपने-आप मिलता है।
+
+## Cache billing का अर्थ
+
+Prompt Cache से upstream मॉडल कई Request में एक स्थिर, दोहराया गया prefix फिर उपयोग कर सकता है। सफल होने पर input context के कुछ हिस्से की billing कम cached-Token rate पर हो सकती है।
+
+यह इनके लिए उपयोगी है:
+
+- लंबे system prompt
+- स्थिर project निर्देश
+- बड़ा और स्थिर documentation context
+- Multi-turn coding task में दोहराए गए repository निर्देश
+- समान नियम और output format वाले batch task
+
+Cache का अर्थ यह नहीं कि हर सामग्री Prompt में डालें। Dynamic content, timestamp, random ID और user-specific input को आमतौर पर Request में बाद में रखें।
+
+## Protocol का अंतर
+
+| उपयोग | सामान्य तरीका |
+| --- | --- |
+| OpenAI-compatible | कुछ मॉडल stable prefix को अपने-आप Cache करते हैं और Response usage में cached Token हो सकते हैं |
+| Anthropic-compatible / Claude | कुछ मॉडल को Cache लाभ के लिए स्पष्ट `cache_control` marker चाहिए |
+
+एक ही Claude मॉडल अलग protocol से call होने पर अलग व्यवहार कर सकता है। Claude Code या Anthropic-compatible API का अधिक उपयोग करते हों तो पहले Anthropic-native Cache mechanism समझें।
+
+## Cache काम करने की जांच
+
+Response या Dashboard call record में `usage` Field जांचें। Field name API format के अनुसार बदलते हैं:
+
+| API format | सामान्य Cache Field |
+| --- | --- |
+| OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
+| OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
+| Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
+
+मान 0 से अधिक हो तो आमतौर पर Request के कुछ हिस्से ने Cache उपयोग किया है। Field न हो तो मॉडल इसका समर्थन नहीं करता, protocol इसे नहीं लौटाता, Request ने Cache hit नहीं किया या टूल raw usage छिपा रहा हो सकता है।
+
+## Cache hit rate कैसे बढ़ाएं?
+
+1. Stable content को Prompt की शुरुआत में रखें।
+2. User-specific और बार-बार बदलने वाला input बाद में रखें।
+3. Stable prefix में timestamp, random ID या बदलने वाले निर्देश न रखें।
+4. संभव हो तो एक task type के लिए समान मॉडल और protocol उपयोग करें।
+5. Claude-native format में मॉडल दस्तावेज़ के अनुसार Cache किए जाने वाले content block में `cache_control` जोड़ें।
+6. Batch task में पहले छोटा sample चलाएं और कुल cost का अनुमान लगाने से पहले usage Field देखें।
+
+## सामान्य गलतियां
+
+- यह मानना कि हर मॉडल अपने-आप Cache discount का समर्थन करता है
+- Cache hit के बाद पूरा Request मुफ्त मानना
+- मॉडल बार-बार बदलकर Cache reuse रोकना
+- OpenAI-compatible format से Claude call करके Claude-native Cache Field की अपेक्षा करना
+- केवल कुल Token देखना और cached Token, Cache read या Cache creation Field अनदेखा करना
+
+## BetterToken में उपयोग
+
+BetterToken की billing और usage display वास्तविक Request, upstream usage जानकारी और मौजूदा मॉडल price पर आधारित है। Cache लागू हुआ या नहीं, यह पुष्टि करने के लिए मॉडल दस्तावेज़, Response usage Field और Dashboard call record साथ देखें।
+
+## संबंधित दस्तावेज़
+
+- [Claude Code इतने Token क्यों उपयोग करता है?](/hi/faq/token-cost/claude-code-token-usage)
+- [max_tokens क्या है? इसे सेट न करने पर क्या होता है?](/hi/faq/model-calling/max-tokens)
+- [Base URL कैसे भरें?](/hi/faq/model-calling/base-url-config)
+- [OpenAI-compatible API और Anthropic-compatible API में क्या अंतर है?](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)

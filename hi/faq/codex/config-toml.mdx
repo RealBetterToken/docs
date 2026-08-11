@@ -1,0 +1,136 @@
+---
+title: "Codex config.toml: custom provider, Base URL और API Key"
+sidebarTitle: "config.toml"
+description: "custom provider के लिए Codex config.toml कॉन्फ़िगर करें: model_provider, Base URL, API Key env_key और wire_api responses सेट करें, तथा 401, 404 या model errors ठीक करें।"
+---
+
+## सीधा उत्तर
+
+Codex CLI में custom provider उपयोग करने के लिए user-level `~/.codex/config.toml` संपादित करें। `model_provider = "custom"` सेट करें, `[model_providers.custom]` परिभाषित करें, Base URL के रूप में `{{openai-base-url}}` उपयोग करें और `wire_api = "responses"` सेट करें। BetterToken API Key को `env_key` से पढ़ें और **GPT provider** से Model ID copy करें।
+
+## सही config file खोजें
+
+| Environment | user-level config |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | WSL के अंदर `~/.codex/config.toml` |
+
+VS Code Codex extension में gear icon क्लिक करें और **Codex Settings → Open config.toml** चुनें। CLI और IDE extension समान config layers साझा करते हैं।
+
+<Warning>
+  provider और authentication settings user-level `~/.codex/config.toml` में होते हैं। project `.codex/config.toml` files में project overrides हो सकते हैं, लेकिन Codex वहां `model_provider` और `model_providers` को अनदेखा करता है। project instructions को `AGENTS.md` में रखें।
+</Warning>
+
+## न्यूनतम कार्यशील configuration
+
+<Steps>
+  <Step title="API Key environment variable सेट करें">
+    macOS, Linux या WSL:
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell:
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    `YOUR_API_KEY` को अपने BetterToken API Key से बदलें। लगातार उपयोग के लिए इसे project repository में नहीं, सुरक्षित operating-system environment में रखें।
+  </Step>
+  <Step title="config.toml संपादित करें">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model` एक उदाहरण है। <a href={"{{model-plaza-url}}"}>model plaza</a> में **GPT provider** से वर्तमान में उपलब्ध Model ID copy करें।
+  </Step>
+  <Step title="रीस्टार्ट करें और जांचें">
+    Codex को पूरी तरह बंद करें, नया terminal खोलें और चलाएं:
+
+    ```bash
+    codex
+    ```
+
+    सरल prompt भेजें। सामान्य response पुष्टि करता है कि provider, authentication और Model ID सक्रिय हैं।
+  </Step>
+</Steps>
+
+## अनुशंसित पूर्ण configuration
+
+जब आपको review model और अधिक लंबा stream timeout चाहिए, तब यह version उपयोग करें:
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers.custom]
+name = "{{codex-provider-name}}"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+मौजूदा top-level fields और `[model_providers.custom]` content को merge करें। एक ही TOML table दो बार declare न करें।
+
+## fields एक साथ कैसे काम करते हैं
+
+| Field | उद्देश्य | BetterToken value |
+| --- | --- | --- |
+| `model_provider` | provider ID चुनता है | `"custom"` |
+| `[model_providers.custom]` | उस provider को परिभाषित करता है | `model_provider` से मेल होना चाहिए |
+| `base_url` | model request endpoint | `{{openai-base-url}}` |
+| `env_key` | API Key वाली environment variable का नाम | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | provider protocol | `"responses"` |
+| `requires_openai_auth` | official OpenAI authentication उपयोग करता है | सामान्य third-party API setup के लिए `false` |
+| `model` | default Model ID | वर्तमान GPT provider ID |
+
+<Note>
+  third-party API उपयोग करते हुए official Codex App login, plugins और Remote Control बनाए रखने के लिए, इस सामान्य authentication example के बजाय समर्पित [official login और unified session setup](/hi/faq/codex/official-login-third-party-api) उपयोग करें।
+</Note>
+
+## सामान्य त्रुटियां
+
+| लक्षण | कारण | समाधान |
+| --- | --- | --- |
+| provider नहीं मिला | `model_provider`, table name से मेल नहीं खाता | दोनों जगह `custom` उपयोग करें |
+| startup पर API Key नहीं मिला | environment variable अनुपस्थित है या terminal ने उसे reload नहीं किया | `MODEL_PROVIDER_API_KEY` सेट करें और नया terminal खोलें |
+| `401` या `403` | गलत Key या mixed authentication methods | Key फिर copy करें; `env_key` नाम aligned रखें और `requires_openai_auth = false` रखें |
+| `404` | Base URL में `/v1` नहीं है या गलत protocol है | `{{openai-base-url}}` उपयोग करें |
+| model नहीं मिला | Model ID उपलब्ध नहीं है या GPT provider में नहीं है | model plaza से current ID copy करें |
+| बदलाव लागू नहीं होते | गलत config layer, path या WSL environment | Codex चलाने वाले environment में user config संपादित करें, फिर Codex रीस्टार्ट करें |
+| TOML parse error | duplicate table, quote या nesting error | duplicate `[model_providers.custom]` tables हटाएं और string quotes जांचें |
+
+## संबंधित दस्तावेज
+
+- [पूरी Codex सेटअप गाइड](/hi/ai-tools/codex)
+- [VS Code Codex extension में custom Base URL कॉन्फ़िगर करें](/hi/ai-tools/codex-vscode)
+- [model_provider, base_url और wire_api की व्याख्या](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI sandbox और approval mode](/hi/faq/codex/sandbox-approval)
+- [AGENTS.md क्या है?](/hi/faq/codex/agents-md)
+
+## संदर्भ
+
+- [Codex का मूल configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)

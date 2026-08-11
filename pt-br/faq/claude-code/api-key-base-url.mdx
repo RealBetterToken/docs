@@ -1,0 +1,78 @@
+---
+title: "Como configurar a API Key e a Base URL no Claude Code"
+sidebarTitle: "API Key e Base URL"
+description: "Entenda como API Key, Base URL, endpoints compatíveis com Anthropic e provedores Claude e GPT se relacionam na configuração do Claude Code."
+---
+
+## Resposta rápida
+
+Ao configurar uma API de terceiros no Claude Code, primeiro confirme se o endpoint é compatível com Anthropic. Nesta documentação, o Claude Code usa `{{anthropic-base-url}}`. Não adicione `/v1`.
+
+A API Key autentica a requisição. A Base URL informa ao Claude Code para onde enviar as requisições ao modelo. Ambas devem pertencer ao mesmo provedor e protocolo.
+
+Com o **provedor Claude**, o Claude Code normalmente precisa de `ANTHROPIC_BASE_URL` e `ANTHROPIC_AUTH_TOKEN`. Com o **provedor GPT**, você também precisa dos mapeamentos de modelos do Claude Code apresentados no guia de configuração.
+
+## Quando isso é importante
+
+- Você quer que o Claude Code use um API gateway personalizado
+- Você tem uma API Key, mas não sabe qual Base URL usar
+- O Claude Code informa um erro de autenticação ou endpoint
+- Você está escolhendo entre `{{anthropic-base-url}}` e `{{openai-base-url}}`
+- Você precisa entender os provedores Claude e GPT
+
+## Conceitos principais
+
+| Campo | Significado |
+| --- | --- |
+| API Key | Credencial para requisições à API do modelo |
+| Base URL | Endereço da API para onde as requisições são enviadas |
+| API compatível com Anthropic | Endpoint que segue as convenções de requisição da Anthropic ou do Claude |
+| API compatível com OpenAI | Endpoint que segue as convenções da OpenAI, usado com frequência por Codex, Cursor e Cline |
+| Model ID | Nome do modelo ou valor de mapeamento solicitado pela ferramenta |
+
+## Configuração recomendada
+
+Escolha o procedimento de acordo com o provedor.
+
+Provedor Claude:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+O provedor GPT precisa de mapeamentos adicionais de modelos do Claude Code. Siga o [guia completo de configuração do Claude Code](/pt-br/ai-tools/claude-code) em vez de copiar apenas este exemplo curto.
+
+Depois de editar a configuração, reinicie o Claude Code e envie uma mensagem curta de teste. Se houver falha, primeiro verifique se a Base URL foi definida por engano como `{{openai-base-url}}`.
+
+## Erros comuns
+
+- Adicionar `/v1` à Base URL do Claude Code.
+- Alterar a API Key, mas manter as requisições direcionadas ao endpoint padrão.
+- Tratar o Model ID de um provedor GPT como um modelo do provedor Claude.
+- Inserir um endpoint compatível com OpenAI nos campos compatíveis com Anthropic do Claude Code.
+- Definir variáveis de ambiente antigas em um perfil de shell que substituem a nova configuração.
+
+## Sobre o BetterToken
+
+O BetterToken oferece dois tipos de endpoint: `{{anthropic-base-url}}`, compatível com Anthropic para o Claude Code, e `{{openai-base-url}}`, compatível com OpenAI para o Codex e outras ferramentas externas.
+
+Você pode gerenciar API Keys, saldo e histórico de uso em um único painel, mas o Claude Code continua exigindo requisições no formato compatível com Anthropic.
+
+## Documentação relacionada
+
+- [Guia de configuração do Claude Code](/pt-br/ai-tools/claude-code)
+- [O Claude Code usa uma conta Claude.ai ou uma API Key?](/pt-br/faq/claude-code/claude-account-or-api-key)
+- [API compatível com OpenAI ou API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Por que o Claude Code usa tantos tokens e como reduzir o custo](/pt-br/faq/token-cost/claude-code-token-usage)
+
+## Referências
+
+- [Configuração de LLM gateway do Claude Code](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Autenticação do Claude Code](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Configuração de modelos do Claude Code](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Guia de configuração do Claude Code](/pt-br/ai-tools/claude-code)

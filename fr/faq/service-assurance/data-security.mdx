@@ -1,0 +1,73 @@
+---
+title: "Comment BetterToken protège-t-il la sécurité des données ?"
+sidebarTitle: "Sécurité des données"
+description: "Comprenez la limite de sécurité des données, le transport HTTPS, les journaux, les enregistrements d’utilisation et les pratiques de sécurité côté utilisateur pour les appels API BetterToken."
+---
+
+## Réponse courte
+
+BetterToken est une passerelle API. Son rôle principal est de transmettre votre requête au modèle en amont sélectionné et d’enregistrer les informations de facturation, d’utilisation et de dépannage nécessaires au fonctionnement du service.
+
+Lorsque vous utilisez l’API, appliquez le principe de minimisation des données. Ne placez pas de données personnelles inutiles, secrets, informations de paiement ou contenu sensible pour l’entreprise dans les consignes, fichiers ou sorties d’outils. Stockez les API Keys dans des variables d’environnement, gestionnaires de secrets ou secrets CI. Ne les committez pas dans des dépôts publics.
+
+## Limite de sécurité des données
+
+| Type | Description |
+| --- | --- |
+| API Key | Authentifie vos requêtes et doit être protégée par vous |
+| Contenu de la requête | Consignes, contexte, extraits de fichiers ou résultats d’outils envoyés au modèle |
+| Contenu de la réponse | Texte, code ou sortie structurée renvoyée par le modèle |
+| Informations d’utilisation | Modèle, tokens, coût, code d’état, heure de requête et autres métadonnées de facturation ou de dépannage |
+| Modèle en amont | Service ou fournisseur de modèles qui traite la requête d’inférence |
+
+BetterToken vous aide à gérer les API Keys, le solde et les enregistrements d’utilisation en un seul endroit. Il ne remplace pas vos propres processus de masquage des données, de contrôle d’accès ou de sécurité du projet.
+
+## Sécurité du transport
+
+Tous les appels API doivent utiliser HTTPS. Lorsque vous configurez une Base URL, utilisez l’adresse `https://` indiquée dans la documentation.
+
+N’envoyez pas d’API Keys ou de contenu de requête par HTTP en clair. Si un client, proxy ou outil local vous demande de désactiver la vérification TLS, vérifiez pourquoi avant d’utiliser cette configuration. Ne l’utilisez pas par défaut.
+
+## Journaux et enregistrements d’utilisation
+
+Pour prendre en charge la facturation, le débit du solde, le dépannage des erreurs et le contrôle des risques, une passerelle API doit généralement enregistrer des métadonnées de requête telles que :
+
+- Heure de requête
+- API Key ou fournisseur utilisé
+- Modèle demandé
+- Utilisation des tokens
+- Réussite ou non de la requête
+- État de l’erreur
+
+Ces informations servent principalement à la facturation, à l’analyse d’utilisation et au diagnostic des problèmes. Lorsque vous signalez un problème, fournissez l’heure de requête, le modèle, le code d’erreur et l’ID de requête. N’envoyez pas l’API Key complète ni de contenu de consigne sensible.
+
+## Recommandations côté utilisateur
+
+1. Ne commitez pas d’API Keys dans des dépôts de code.
+2. N’exposez pas une API Key complète dans les captures d’écran, journaux ou tickets de support.
+3. Utilisez des API Keys distinctes pour les environnements de production et de test.
+4. Consultez régulièrement les enregistrements d’utilisation dans le tableau de bord.
+5. Désactivez les anciennes clés lorsqu’un membre part, qu’un projet se termine ou qu’une fuite est suspectée.
+6. Évitez d’envoyer des documents d’identité, cartes bancaires, mots de passe, clés privées ou d’autres données très sensibles dans les consignes.
+7. Si vous devez traiter des données métier sensibles, masquez-les et réduisez-les au minimum avant de les envoyer au modèle.
+
+## Que faire si l’utilisation semble anormale ?
+
+Si une API Key présente des appels anormaux :
+
+1. Désactivez ou supprimez l’API Key suspecte dans la console.
+2. Vérifiez les enregistrements d’appels récents pour le modèle, l’heure et la source de la requête.
+3. Recherchez des fuites de clé dans les dépôts de code, journaux CI, configurations locales et paramètres d’outils tiers.
+4. Créez une nouvelle API Key et distribuez-la uniquement aux environnements requis.
+5. Si vous ne trouvez pas la cause, contactez le support en indiquant la plage horaire, le modèle et le montant anormal.
+
+## À propos de BetterToken
+
+BetterToken gère l’accès aux requêtes de modèles, leur transfert, la facturation et l’affichage de l’utilisation. La sécurité est partagée : la plateforme gère le contrôle d’accès côté service et le flux de facturation, tandis que vous protégez les API Keys, attribuez les autorisations, minimisez les données de consigne et configurez les outils de manière sûre.
+
+## Documentation associée
+
+- [Comment configurer l’API Key et la Base URL dans Claude Code ?](/fr/faq/claude-code/api-key-base-url)
+- [Quelle différence entre MCP et API Key / Base URL ?](/fr/faq/concepts/mcp-vs-api-key-base-url)
+- [Comment dépanner l’API Key, la Base URL et le Model ID ?](/fr/faq/model-calling/base-url-config)
+- [Que sont les autorisations et hooks de Claude Code ?](/fr/faq/claude-code/permissions-and-hooks)

@@ -1,0 +1,111 @@
+---
+title: "サードパーティ API 使用時に公式 Codex ログインとセッション履歴を維持するには？"
+sidebarTitle: "ログインと履歴を維持する"
+description: "CC Switch でサードパーティ API またはカスタムモデルを使用しながら、公式 Codex ログイン、プラグイン、Remote Control、統合セッション履歴を維持します。"
+---
+
+公式 Codex ログインを失わずに、サードパーティ API またはカスタムモデルを使用できます。CC Switch の 2 つの Codex App Enhancements を有効にすると、公式プラグイン、Remote Control、統合セッション履歴を維持できます。
+
+## 始める前に
+
+1. CC Switch `v3.16.1` 以降を使用します。
+2. 公式の ChatGPT / Codex アカウントで Codex に一度サインインします。
+3. [CC Switch 設定ガイドの Codex CLI 手順](/ja/ai-tools/cc-switch#codex-cli)に従い、CC Switch でサードパーティ API プロバイダーまたはカスタムモデルを追加して有効にします。
+
+<Warning>
+  API Key、ログイントークン、その他の認証データを、スクリーンショット、チャット、Issue、ログで共有しないでください。
+</Warning>
+
+## 両方の Codex App Enhancements を有効にする
+
+CC Switch で **Settings → General → Codex App Enhancements** を開き、両方のスイッチを有効にします。
+
+1. **サードパーティプロバイダー切替時に公式ログインを維持する**
+2. **Codex セッション履歴を統合する**
+
+<Frame>
+  <img
+    src="/images/codex-official-login-state/cc-switch-codex-app-enhancements.png"
+    alt="Keep official login と Unified Codex session history を有効にした CC Switch の Codex App Enhancements。"
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+### 公式ログイン、プラグイン、Remote Control を維持する
+
+**サードパーティプロバイダー切替時に公式ログインを維持する** は、サードパーティ API プロバイダーまたはカスタムモデルに切り替えても、公式 Codex ログインを維持します。
+
+モデルリクエストでは引き続き CC Switch で現在選択されているプロバイダーを使用します。一方、Codex App では公式プラグインと Remote Control を含む、公式ログインが必要な機能を継続して使用できます。
+
+詳しい手順は CC Switch ガイドを参照してください：[サードパーティ API 使用時に Codex Remote Control と公式プラグインを維持する](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-official-auth-preservation-guide-zh.md)。
+
+### 公式とサードパーティのセッションをまとめて表示する
+
+**Codex セッション履歴を統合する** は、公式サブスクリプションとサードパーティプロバイダーで作成したセッションを 1 つの履歴リストに表示します。
+
+有効にすると、既存の公式セッションをそのリストへ移動するか選べます。CC Switch は移行前に元のセッションを自動でバックアップします。
+
+詳しい手順は CC Switch ガイドを参照してください：[Codex セッション履歴を統合する](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-unified-session-history-guide-zh.md)。
+
+## Codex を再起動する
+
+両方のスイッチを有効にした後、Codex を完全に終了して再起動します。再起動後、Codex は現在の CC Switch 設定と統合セッション履歴を再読み込みします。
+
+## 設定が機能することを確認する
+
+再起動後、次の点を確認します。
+
+1. Codex に公式アカウントのログインが引き続き表示される。
+2. 公式プラグインまたは Remote Control が正常に動作する。
+3. CC Switch でサードパーティ API プロバイダーまたはカスタムモデルが選択されている。
+4. テストメッセージが正常に応答する。
+
+<Note>
+  統合履歴ではセッションを 1 か所で表示できますが、既存のセッションをプロバイダー間で継続できることは保証されません。可能な限り、そのセッションを作成したプロバイダーで再開してください。別のプロバイダーを使用する場合は、新しいセッションを開始します。
+</Note>
+
+## 手動設定
+
+手動設定は、ローカルの Codex ファイル編集に慣れている上級ユーザー向けです。ほとんどのユーザーは、まず CC Switch を使用してください。
+
+<Steps>
+  <Step title="公式 Codex ログインを維持する">
+    まず Codex App または Codex CLI で公式の ChatGPT / Codex アカウントにサインインし、Remote Control またはプラグインが動作することを確認します。
+
+    公式ログインで生成された内容は `~/.codex/auth.json` に保持します。そのトークンをコピー、同期、共有しないでください。
+  </Step>
+
+  <Step title="config.toml を編集する">
+    `~/.codex/config.toml` を開き、次のプロバイダー設定を追加または統合します。
+
+    ```toml
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
+    experimental_bearer_token = "YOUR_API_KEY"
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    `YOUR_API_KEY` をお使いの BetterToken API Key に置き換えます。`requires_openai_auth = true` は公式ログインを維持し、`experimental_bearer_token` はサードパーティ API リクエストを送信します。
+  </Step>
+
+  <Step title="再起動して確認する">
+    Codex を完全に終了して再起動します。公式ログインが維持され、Remote Control またはプラグインが開き、テストメッセージが正常に応答することを確認します。
+
+    モデルを利用できない場合は、`model` が<a href={"{{model-plaza-url}}"}>モデル広場</a>の GPT プロバイダーで提供されるモデル ID であることを確認します。
+  </Step>
+</Steps>

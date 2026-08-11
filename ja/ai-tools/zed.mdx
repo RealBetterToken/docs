@@ -1,0 +1,138 @@
+---
+title: "Zed カスタムモデルの設定：API Key と Base URL"
+sidebarTitle: "Zed"
+description: "Zed で BetterToken を OpenAI 互換プロバイダーとして追加し、Base URL、API Key、モデルを設定して、キーをシステムキーチェーンに保存します。"
+icon: "z"
+---
+
+Zed の **Agent Settings** で OpenAI 互換プロバイダーを追加してから、BetterToken API Key、Base URL、Model ID を入力します。Zed はこの画面から保存されたキーを、`settings.json` ではなくシステムキーチェーンに保存します。
+
+## 主要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| プロバイダー | `BetterToken` |
+| API Key | `YOUR_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 前提条件
+
+- 現在のバージョンの [Zed](https://zed.dev/docs) をインストール
+- <a href={"{{register-url}}"}>BetterToken API Key を作成</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>から `YOUR_MODEL_ID` をコピー
+
+## インストール
+
+[Zed Web サイト](https://zed.dev)から現在のバージョンをインストールまたは更新します。Zed を起動してから、以下の手順で Agent 設定を開きます。
+
+## 手動設定
+
+<Steps>
+  <Step title="OpenAI 互換プロバイダーを追加する">
+    **Add Provider** をクリックし、**OpenAI Compatible** を選択して、プロバイダー名に `BetterToken` を入力します。
+  </Step>
+
+  <Step title="接続設定を入力する">
+
+    | 項目 | 値 |
+    | --- | --- |
+    | API URL | `{{openai-base-url}}` |
+    | API Key | `YOUR_API_KEY` |
+    | Model ID | `YOUR_MODEL_ID` |
+
+    Base URL のみを入力します。Zed が Chat Completions Endpoint を構築します。
+  </Step>
+
+  <Step title="API Key を保存する">
+    Zed 設定でプロバイダーを保存します。Zed は API Key をローカルのシステムキーチェーンに保存し、`settings.json` には書き込みません。
+  </Step>
+
+  <Step title="モデルを選択する">
+    Agent Panel のモデルピッカーを開き、`YOUR_MODEL_ID` を `BetterToken` の下で選択します。
+  </Step>
+</Steps>
+
+<Warning>
+  `YOUR_API_KEY` を `settings.json`、プロジェクトファイル、Git リポジトリに含めないでください。
+</Warning>
+
+### 任意：`settings.json` でプロバイダーとモデルを宣言する
+
+ファイルで管理するモデル宣言が必要な場合は、`zed: open settings file` を実行します。ファイルにはプロバイダー、`api_url`、モデルメタデータだけを保持します。
+
+```json
+{
+  "language_models": {
+    "openai_compatible": {
+      "BetterToken": {
+        "api_url": "{{openai-base-url}}",
+        "available_models": [
+          {
+            "name": "YOUR_MODEL_ID",
+            "display_name": "YOUR_MODEL_ID",
+            "max_tokens": 128000
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Zed ではモデルのコンテキストウィンドウ宣言として `max_tokens` が必要です。選択したモデルに合わせて調整してください。API Key は **Agent Settings** に入力し、システムキーチェーンに保存します。
+
+## 接続を確認する
+
+1. Agent Panel で `BetterToken / YOUR_MODEL_ID` を選択します。
+2. 短いテストメッセージを送信します。
+3. 認証またはモデルエラーなしで正常なレスポンスが返れば、設定は確認できています。
+
+プロバイダーまたはモデル設定を変更した後は、Zed を完全に終了して再起動してください。
+
+## モデルを切り替える
+
+Agent Panel のモデルピッカーで別の BetterToken モデルを選択します。Model ID を追加するには、<a href={"{{model-plaza-url}}"}>モデル広場</a>から現在の値をコピーし、プロバイダー設定または `available_models` を更新します。
+
+## よくあるエラー
+
+| エラー | 対処方法 |
+| --- | --- |
+| `401` または `Unauthorized` | Agent Settings で BetterToken API Key を再入力し、前後の空白を削除します。 |
+| `404` | API URL には `{{openai-base-url}}` を使用します。`/chat/completions` を追加しないでください。 |
+| `model not found` | モデル広場から `YOUR_MODEL_ID` をもう一度コピーします。 |
+| 設定が反映されない | プロバイダーを保存し、Zed を完全に終了して開き直します。 |
+| Zed が古いキーを使用する | キーチェーンを上書きするプロバイダー環境変数を削除してから、Zed を再起動します。 |
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技術詳細
+
+<Accordion title="キーチェーン、設定ファイル、Endpoint">
+  Zed は OpenAI 互換プロバイダーを通じて BetterToken を呼び出します。設定画面はキーをシステムキーチェーンに保存し、`settings.json` にはプロバイダー、`api_url`、モデル宣言のみが含まれます。Base URL に `{{openai-base-url}}` を使用し、Zed に Chat Completions パスを追加させます。
+</Accordion>
+
+### 関連 FAQ
+
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key / Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider、base_url、wire_api とは何ですか？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)

@@ -1,0 +1,208 @@
+---
+title: "Continue CLI のセットアップ：インストール、API Key、Base URL、カスタムモデル"
+sidebarTitle: "Continue CLI"
+description: "Continue CLI をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+icon: "terminal"
+---
+
+Continue CLI を BetterToken に接続するには、API Key を用意し、以下の Base URL を入力して、モデル広場から現在の Model ID を選択します。
+
+## 主要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+## 前提条件
+
+- 現在のバージョンのツールがインストールされていること
+- BetterToken API Key：<a href={"{{register-url}}"}>登録して取得</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>にある Model ID
+
+### 追加要件
+
+- npm インストール方法を使用する場合は Node.js 20 以降をインストール
+
+## インストール
+
+### Continue CLI をインストールする
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    irm https://raw.githubusercontent.com/continuedev/continue/main/extensions/cli/scripts/install.ps1 | iex
+    ```
+  </Tab>
+
+  <Tab title="npm (cross-platform)">
+    ```bash
+    npm install -g @continuedev/cli
+    ```
+  </Tab>
+</Tabs>
+
+インストール後、`cn` が利用可能であることを確認します。
+
+```bash
+cn --version
+```
+
+## 手動設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+### API Key と Base URL を設定する
+
+<Steps>
+  <Step title="API Key の環境変数を設定する">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        Continue CLI を起動するのと同じターミナルで実行します。
+
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        Continue CLI を起動するのと同じ PowerShell ウィンドウで実行します。
+
+        ```powershell
+        $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    `YOUR_API_KEY` を BetterToken API Key に置き換えます。Key を Git にコミットしたり、共有設定ファイルに保存したりしないでください。
+  </Step>
+
+  <Step title="config.yaml を作成する">
+    ユーザーディレクトリで次のファイルを作成または編集します。
+
+    - macOS / Linux: `~/.continue/config.yaml`
+    - Windows: `%USERPROFILE%\.continue\config.yaml`
+
+    次の設定を追加します。
+
+    ```yaml
+    name: BetterToken
+    version: 0.0.1
+    schema: v1
+
+    models:
+      - name: BetterToken GPT
+        provider: openai
+        model: YOUR_MODEL_ID
+        apiBase: "{{openai-base-url}}"
+        apiKey: ${{ secrets.BETTERTOKEN_API_KEY }}
+        useResponsesApi: false
+    ```
+
+    `YOUR_MODEL_ID` は例です。モデル広場にある現在の**対応プロバイダーの Model ID**に置き換えます。
+  </Step>
+
+  <Step title="Continue CLI を起動する">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        cn --config ~/.continue/config.yaml
+        ```
+      </Tab>
+
+      <Tab title="Windows PowerShell">
+        ```powershell
+        cn --config "$env:USERPROFILE\.continue\config.yaml"
+        ```
+      </Tab>
+    </Tabs>
+
+    先にプロジェクトディレクトリに移動してから、コマンドを実行できます。設定が読み込まれたら、Continue CLI で直接タスクを入力します。
+  </Step>
+</Steps>
+
+### モデルを変更する
+
+`model` を `config.yaml` で変更した後、現在の `cn` セッションを終了して再度起動します。Model ID は設定した Endpoint と互換性が必要です。
+
+プロジェクトごとに別の設定を使用するには、そのプロジェクト内に保存してパスを明示的に指定します。
+
+```bash
+cn --config ./continue-bettertoken.yaml
+```
+
+## 接続を確認する
+
+短いテストプロンプトを送信します。認証エラーや Model ID エラーなしでツールから Response が返れば、接続は機能しています。設定を変更した後はツールを完全に再起動してください。
+
+## モデルを切り替える
+
+モデルセレクターを開くか、設定内の `Model` フィールドを変更します。<a href={"{{model-plaza-url}}"}>モデル広場</a>にある正確な Model ID を使用し、現在のセッションを再起動します。
+
+## よくあるエラー
+
+| 症状 | 対処方法 |
+| --- | --- |
+| `401`、`Unauthorized`、または API Key エラー | 現在のターミナルに `BETTERTOKEN_API_KEY` が設定され、BetterToken API Key であることを確認します。 |
+| `model not found` またはモデルが利用できない | モデル広場から現在の**対応プロバイダーの Model ID**をコピーします。Claude プロバイダーのモデルは使用しないでください。 |
+| Continue が古い設定を使用し続ける | `cn --config` と明示的なファイルパスで起動します。ファイル名が `config.yaml` であることを確認します。 |
+| Request URL が正しくない、または `404` | `apiBase` が `{{openai-base-url}}` であることを確認します。`/chat/completions` やモデル名は追加しません。 |
+| API Key 変数を解決できない | `BETTERTOKEN_API_KEY` を `cn` を起動する同じターミナルで設定してから、もう一度起動します。 |
+
+### セットアップ FAQ
+
+**Continue CLI ではどの Base URL を使用しますか？**
+
+`{{openai-base-url}}` を使用します。これは BetterToken の OpenAI 互換 Base URL です。
+
+**BetterToken API Key を使用できますか？**
+
+はい。`provider: openai` と `useResponsesApi: false` では OpenAI 互換の Chat Completions を使用します。API Key と Model ID はどちらも BetterToken から取得します。
+
+**保存済みの設定を表示または切り替えるにはどうしますか？**
+
+Continue CLI セッション内で `/config` を入力すると、ローカル設定を表示して選択できます。
+
+## 高度な設定
+
+{/* tool-provider-support:start */}
+### 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 関連ガイド
+
+- [Aider のカスタムモデル設定](/ja/ai-tools/aider)
+- [Codex CLI のカスタムプロバイダー設定](/ja/ai-tools/codex)
+- [Cursor のカスタム API、Base URL、API Key 設定](/ja/ai-tools/cursor)
+- [Cline で OpenAI 互換 API を設定する](/ja/ai-tools/cline)
+
+## 技術的な詳細
+
+<Accordion title="Protocol、Endpoint、内部プロバイダーフィールド">
+  この設定では `provider: openai`、`apiBase: "{{openai-base-url}}"`、`useResponsesApi: false` を使用します。Continue は Chat Completions を呼び出すため、`/chat/completions` を `apiBase` に追加しないでください。
+</Accordion>

@@ -1,0 +1,69 @@
+---
+title: "¿Qué es Claude Code y cómo funciona?"
+sidebarTitle: "Qué es Claude Code"
+description: "Descubre qué es Claude Code, cómo trabaja con un repositorio y cómo se relacionan el contexto, los permisos de herramientas, MCP y los proveedores de API."
+---
+
+## Respuesta rápida
+
+Claude Code es un agente de programación para el desarrollo de software. No es solo una página de chat. Puede leer un repositorio, editar archivos, ejecutar comandos y realizar tareas de desarrollo desde una terminal, un IDE, una aplicación de escritorio o un navegador.
+
+El flujo básico es el siguiente: Claude Code lee el contexto del proyecto, planifica la tarea, utiliza herramientas, edita archivos y ejecuta comprobaciones cuando es necesario. Está diseñado para cambios en varios archivos, corrección de pruebas, revisión de código, scripts y tareas de ingeniería extensas.
+
+La API del modelo solo se encarga de la inferencia. Claude Code y la configuración del proyecto siguen controlando los permisos locales, el acceso a archivos, la ejecución de comandos, los hooks y las herramientas MCP.
+
+## Cuándo es importante
+
+- Instalas Claude Code por primera vez
+- Quieres que Claude Code modifique un repositorio local
+- Quieres entender por qué lee archivos o utiliza muchos tokens
+- Vas a conectar una API Key y una Base URL personalizadas
+- Estás eligiendo entre Claude Code, Claude Desktop, Cursor y Codex CLI
+
+## Conceptos clave
+
+| Concepto | Significado |
+| --- | --- |
+| Agente de programación | Agente centrado en el desarrollo que puede inspeccionar código, usar herramientas, editar archivos y ejecutar comandos |
+| Directorio de trabajo | Directorio del proyecto que Claude Code puede inspeccionar y modificar |
+| Uso de herramientas | Lectura de archivos, búsqueda de código, edición de archivos, comandos de shell y acciones similares |
+| Contexto | Historial de conversación, archivos, reglas del proyecto, `CLAUDE.md` y resultados de herramientas |
+| MCP | Protocolo para añadir herramientas y fuentes de datos; no es la API del modelo |
+| `CLAUDE.md` | Archivo de instrucciones del proyecto que Claude Code puede cargar como contexto |
+
+## Flujo recomendado
+
+1. Inicia Claude Code desde el directorio real del proyecto.
+2. Pídele que inspeccione los archivos relevantes antes de realizar cambios amplios.
+3. Para tareas complejas, solicita un plan antes de la implementación.
+4. Deja que modifique un conjunto reducido de archivos y ejecuta después la comprobación relevante más rápida.
+5. Guarda las reglas estables del proyecto en `CLAUDE.md`; deja las instrucciones puntuales en la conversación.
+
+Si conectas Claude Code mediante un gateway de API, confirma que el endpoint sea compatible con Anthropic. En esta documentación, Claude Code utiliza `{{anthropic-base-url}}`. No utilices la dirección compatible con OpenAI `{{openai-base-url}}` en la configuración del protocolo Anthropic de Claude Code.
+
+## Errores habituales
+
+- Tratar Claude Code como una página de chat normal y olvidar que puede modificar archivos locales.
+- Esperar que comprenda todo el repositorio sin leer archivos ni instrucciones del proyecto.
+- Tratar MCP como una API de modelos. MCP añade herramientas; API Key, Base URL y Model ID configuran la inferencia.
+- Mezclar el inicio de sesión de Claude.ai, la API de Claude Console y gateways de API de terceros.
+- Permitir una ejecución local amplia sin revisión, pruebas ni límites para los comandos.
+
+## Cómo interviene BetterToken
+
+Cuando Claude Code utiliza una API Key y una Base URL personalizadas, puede enviar solicitudes del modelo mediante un gateway de API compatible con Anthropic. BetterToken forma parte de esa capa de API del modelo y permite gestionar API Keys, saldo e historial de uso.
+
+BetterToken no sustituye los permisos de Claude Code, los controles de acceso a archivos, los hooks, la configuración de MCP ni las reglas del proyecto. Estos elementos siguen formando parte del flujo de Claude Code.
+
+## Documentación relacionada
+
+- [Guía de configuración de Claude Code](/es/ai-tools/claude-code)
+- [¿Claude Code utiliza una cuenta de Claude.ai o una API Key?](/es/faq/claude-code/claude-account-or-api-key)
+- [Cómo configurar la API Key y la Base URL en Claude Code](/es/faq/claude-code/api-key-base-url)
+- [¿Qué es CLAUDE.md en Claude Code?](/es/faq/claude-code/claude-md)
+
+## Referencias
+
+- [Descripción general de Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Inicio rápido de Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [Cómo recuerda Claude tu proyecto](https://docs.anthropic.com/en/docs/claude-code/memory)

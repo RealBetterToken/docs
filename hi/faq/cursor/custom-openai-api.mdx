@@ -1,0 +1,61 @@
+---
+title: "Cursor custom OpenAI API: Base URL, API Key और models"
+sidebarTitle: "Cursor custom API"
+description: "BetterToken API Key, Override OpenAI Base URL और GPT Model ID के साथ Cursor में Custom OpenAI API कॉन्फ़िगर करें, तथा 401 और model not found ठीक करें।"
+---
+
+## संक्षिप्त उत्तर
+
+Cursor में BetterToken को Custom OpenAI API के रूप में जोड़ने के लिए BetterToken API Key दर्ज करें, Override OpenAI Base URL सक्षम करें और इसे `{{openai-base-url}}` पर सेट करें। फिर model plaza से current GPT Model ID जोड़ें। API Key, Base URL और Model ID सभी एक ही provider से संबंधित होने चाहिए।
+
+## यह कब महत्वपूर्ण है
+
+- आप चाहते हैं कि Cursor third-party OpenAI-compatible provider उपयोग करे
+- आपको Override OpenAI Base URL सेट करना है
+- आप custom model जोड़ रहे हैं
+- आपको model not found या authentication failures दिखते हैं
+- आप चाहते हैं कि Cursor, Codex और अन्य tools एक model routing layer साझा करें
+
+## Field अर्थ
+
+| Field | भूमिका |
+| --- | --- |
+| API Key | authentication credential |
+| Base URL | OpenAI-compatible endpoint, आमतौर पर `/v1` URL |
+| Model ID | provider द्वारा पहचाना गया model identifier |
+| Custom model | Cursor में manually जोड़ा या चुना गया model |
+
+## अनुशंसित चरण
+
+1. provider dashboard में API Key बनाएं।
+2. Cursor model settings में API Key जोड़ें।
+3. Override OpenAI Base URL में provider Base URL दर्ज करें।
+4. provider समर्थित Model ID जोड़ें या चुनें।
+5. सहेजें और सरल request से सत्यापित करें।
+
+## सामान्य गलतियां
+
+- एक provider की API Key और दूसरे की Base URL उपयोग करना।
+- OpenAI-compatible configuration में Claude model name डालना।
+- API model ID के बजाय UI display name उपयोग करना।
+- सोचना कि Cursor Rules API authentication को प्रभावित करते हैं।
+- भूल जाना कि global override अन्य OpenAI models को प्रभावित कर सकता है।
+
+## BetterToken के बारे में
+
+Cursor और समान external tools आमतौर पर OpenAI-compatible setup उपयोग करते हैं। BetterToken Base URL `{{openai-base-url}}` है और model IDs <a href={"{{model-plaza-url}}"}>model plaza</a> में **GPT provider** से मिलते हैं।
+
+Claude Code `{{anthropic-base-url}}` को Cursor OpenAI-compatible configuration में न रखें।
+
+## संबंधित दस्तावेज
+
+- [Cursor Rules, AGENTS.md और .cursorignore](/hi/faq/cursor/rules-agents-cursorignore)
+- [Cursor में MCP कैसे कॉन्फ़िगर करें](/hi/faq/cursor/mcp)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+
+## संदर्भ
+
+- [Cursor दस्तावेज](https://cursor.com/docs)
+- [Cursor forum: custom model API key और base URL](https://forum.cursor.com/t/can-the-api-key-and-base-url-corresponding-to-a-custom-model-be-set-separately-when-adding-a-cursor/137108)
+- [Cursor forum: OpenAI API और Override Base URL](https://forum.cursor.com/t/openai-api-and-override-base-url-values/148140)

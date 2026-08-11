@@ -1,0 +1,108 @@
+---
+title: "Base URL の設定方法"
+sidebarTitle: "Base URL の設定"
+description: "Claude Code、Codex CLI、Cursor、Cline などで、Base URL、/v1 パス、API Key、Model ID を正しく組み合わせる方法を説明します。"
+---
+
+## 要点
+
+Base URL は、外部ツールが想定するプロトコルと一致させる必要があります。Claude Code は通常、Anthropic 互換のルートアドレスを使います。Codex CLI、Cursor、Cline、OpenCode、OpenClaw などの外部ツールは通常、OpenAI 互換の `/v1` アドレスを使います。
+
+BetterToken では、次のように設定します。
+
+| 用途 | Base URL |
+| --- | --- |
+| Claude Code / Anthropic 互換 | `{{anthropic-base-url}}` |
+| Codex CLI / OpenAI 互換 | `{{openai-base-url}}` |
+| Cursor, Cline, OpenCode, OpenClaw | `{{openai-base-url}}` |
+
+パスを推測しないでください。API Key、Base URL、Model ID は、同じプロバイダーまたは gateway のものを使う必要があります。
+
+## Base URL が複数ある理由
+
+SDK によってパスの追加方法が異なります。
+
+| プロトコルまたは外部ツールの種類 | 一般的な動作 |
+| --- | --- |
+| OpenAI 互換 SDK | 通常、`/v1` 以下の chat completions や responses などのリソースを呼び出す |
+| Anthropic 互換 SDK | 通常、メッセージエンドポイントのパスを自動で追加するため、`/v1` を重ねて追加しない |
+| 外部ツール内蔵のプロバイダー | パスを自動で追加する場合と、完全な Base URL を求める場合がある |
+
+モデル名が同じでも、同じ Base URL がすべての環境で使えるとは限りません。外部ツールのプロトコル、Base URL、API Key、プロバイダー、Model ID を正しく組み合わせる必要があります。
+
+## クイックリファレンス
+
+| 外部ツール | 推奨設定 |
+| --- | --- |
+| Claude Code | `{{anthropic-base-url}}` と BetterToken API Key |
+| Claude Desktop Gateway | 認証方式を含め、Gateway ページの手順に従う |
+| Codex CLI | `{{openai-base-url}}` と BetterToken API Key |
+| Cursor | `{{openai-base-url}}` と BetterToken API Key |
+| Cline | `{{openai-base-url}}` と OpenAI Compatible プロバイダー |
+| OpenCode / OpenClaw | `{{openai-base-url}}` と BetterToken API Key |
+
+## よくあるエラー
+
+| エラーまたは症状 | 考えられる原因 |
+| --- | --- |
+| `404 Not Found` | Base URL のパスが SDK の想定するパスと一致していない |
+| `model not found` | Model ID が現在のプロバイダーに属していない |
+| `invalid_api_key` | API Key と Base URL が異なるサービスのものになっている |
+| 認証は成功するが、モデルを利用できない | プロバイダーと Model ID が一致していない |
+| リクエストが失敗し続ける | Anthropic 互換アドレスを OpenAI 互換ツールで使っている、またはその逆 |
+
+## 推奨されるトラブルシューティング手順
+
+1. 外部ツールが OpenAI 互換 API と Anthropic 互換 API のどちらを想定しているか確認します。
+2. Base URL がそのプロトコルと一致しているか確認します。
+3. API Key が同じサービスのものか確認します。
+4. Model ID が <a href={"{{model-plaza-url}}"}>model plaza</a> から取得したもので、現在のプロバイダーに属しているか確認します。
+5. `hello` などの最小限のテストリクエストを送信します。
+
+## コード例
+
+OpenAI 互換ツールは通常、`/v1` アドレスを使います。
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}"
+)
+
+response = client.chat.completions.create(
+    model="your-model-id",
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+Claude または Anthropic 互換の設定では通常、ルートアドレスを使います。
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key="YOUR_API_KEY",
+    base_url="{{anthropic-base-url}}"
+)
+
+message = client.messages.create(
+    model="your-claude-model-id",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+## BetterToken について
+
+BetterToken は Anthropic 互換と OpenAI 互換の両方のアクセスを提供します。API Key、残高、利用記録は同じダッシュボードで管理できますが、各クライアントには対応するプロトコルのアドレスを設定する必要があります。
+
+簡単なルールとして、Claude Code は `{{anthropic-base-url}}`、Codex CLI、Cursor、Cline、OpenCode、OpenClaw は `{{openai-base-url}}` を使います。
+
+## 関連ドキュメント
+
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [適切な AI モデルの選び方](/ja/faq/model-calling/model-selection-guide)
+- [Codex CLI の model_provider、base_url、wire_api とは？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)

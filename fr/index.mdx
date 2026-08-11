@@ -1,0 +1,131 @@
+---
+title: "Documentation BetterToken"
+description: "Passerelle API pour accéder aux modèles Claude et GPT/Codex via des endpoints compatibles avec Anthropic et OpenAI."
+---
+
+## Qu’est-ce que BetterToken ?
+
+BetterToken est une passerelle API pour les modèles d’IA. Elle donne accès aux modèles Claude et GPT/Codex via une API et fonctionne avec des outils de développement assisté par IA comme Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode et CC Switch. Après votre inscription, vous recevez $1 de crédit d’essai pour tester votre propre workflow de développement.
+
+La documentation distingue deux modes d’accès :
+
+- **Claude Code / `ANTHROPIC_BASE_URL`** : utilisez `{{anthropic-base-url}}`
+- **Codex / `OPENAI_BASE_URL` / outils externes** : utilisez `{{openai-base-url}}`
+
+**Fonctionnalités principales :**
+
+- **Plusieurs fournisseurs** : BetterToken peut se connecter à plusieurs fournisseurs simultanément
+- **Routage dynamique** : les requêtes peuvent être redirigées lorsqu’un service upstream est lent ou instable
+- **Compatibilité avec les outils de développement** : l’intégration est maintenue pour Claude Code et l’écosystème Codex
+- **Deux parcours distincts** : configurez l’endpoint selon le protocole au lieu de réutiliser la même `base_url` partout
+
+## Deux modes d’accès
+
+| Scénario | Base URL | Remarques |
+|----------|----------|-------|
+| Claude Code | `{{anthropic-base-url}}` | Protocole Anthropic, sans suffixe `/v1` |
+| Codex / outils externes | `{{openai-base-url}}` | Protocole compatible avec OpenAI ; les outils externes utilisent le fournisseur GPT |
+
+## Premiers pas
+
+<Columns cols={2}>
+  <Card
+    title="Démarrage rapide"
+    icon="rocket"
+    href="/fr/quickstart"
+  >
+    Commencez par choisir le parcours Claude Code ou le parcours Codex et outils externes.
+  </Card>
+  <Card
+    title="Questions fréquentes"
+    icon="circle-question"
+    href="/fr/faq"
+  >
+    Consultez les règles relatives à la Base URL, aux fournisseurs de modèles, à l’authentification et aux erreurs 403.
+  </Card>
+</Columns>
+
+## Connecter votre outil de développement assisté par IA
+
+<Columns cols={2}>
+  <Card
+    title="Claude Code"
+    icon="terminal"
+    href="/fr/ai-tools/claude-code"
+  >
+    Définissez `ANTHROPIC_BASE_URL={{anthropic-base-url}}`.
+  </Card>
+  <Card
+    title="Codex"
+    icon="code"
+    href="/fr/ai-tools/codex"
+  >
+    Utilisez `{{openai-base-url}}` avec OpenAI Responses.
+  </Card>
+  <Card
+    title="Cursor"
+    icon="pen-to-square"
+    href="/fr/ai-tools/cursor"
+  >
+    Les outils externes utilisent le fournisseur GPT avec une configuration compatible avec OpenAI.
+  </Card>
+  <Card
+    title="OpenClaw"
+    icon="paw"
+    href="/fr/ai-tools/openclaw"
+  >
+    Connectez d’abord BetterToken, puis utilisez `/new` et `/status` pour vérifier la session en cours.
+  </Card>
+  <Card
+    title="CC Switch"
+    icon="toggle-left"
+    href="/fr/ai-tools/cc-switch"
+  >
+    Gérez BetterToken pour Claude Code, Codex, OpenCode et OpenClaw depuis une seule interface graphique.
+  </Card>
+</Columns>
+
+## Quel problème BetterToken résout
+
+Chaque outil attend un protocole, un champ d’authentification et une méthode de sélection du modèle. BetterToken fournit deux endpoints stables pour ces workflows : l’un utilise le protocole Anthropic et l’autre est compatible avec OpenAI. Vous pouvez connecter Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode et CC Switch en remplaçant la Base URL et l’API Key, sans modifier le reste de votre workflow.
+
+## Endpoints pour les développeurs
+
+BetterToken est une passerelle API multimodèle qui propose deux points d’entrée standard :
+
+| Protocole | Base URL | Utilisé avec |
+| --- | --- | --- |
+| Anthropic | https://bettertoken.ai | Claude Code |
+| Compatible avec OpenAI | https://bettertoken.ai/v1 | Codex et autres outils externes |
+
+Après votre inscription, créez une API Key, choisissez le fournisseur Claude ou GPT, puis connectez Cursor, Cline, OpenClaw, OpenCode, CC Switch ou un autre outil en remplaçant la Base URL. Les requêtes, l’utilisation des Token et le solde sont visibles dans le Dashboard.
+
+## Équipes et maîtrise des coûts
+
+Les équipes peuvent utiliser une seule couche API pour connecter leurs workflows Claude et GPT/Codex. BetterToken enregistre l’utilisation réelle et achemine les requêtes entre plusieurs fournisseurs afin de réduire l’impact d’une panne upstream isolée. Le Dashboard permet de consulter l’utilisation et le solde de chaque API Key, puis d’allouer le budget par workflow, par exemple Claude Code ou Codex.
+
+## Questions fréquentes
+
+**Qu’est-ce que BetterToken ?** BetterToken est une passerelle et un proxy API permettant d’accéder à des modèles d’IA via des endpoints compatibles.
+
+**Quel problème résout BetterToken ?** BetterToken fournit une couche d’intégration commune aux outils qui utilisent les protocoles Anthropic et OpenAI.
+
+**Quels modèles sont pris en charge ?** Les modèles Claude via le protocole Anthropic et les modèles GPT/Codex via le protocole compatible avec OpenAI.
+
+**Quels outils sont pris en charge ?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode et CC Switch.
+
+**Comment commencer ?** Créez un compte, recevez $1 de crédit d’essai, créez une BetterToken API Key, choisissez un modèle d’un fournisseur compatible et remplacez la Base URL dans votre outil.
+
+**Quels sont les canaux de support ?** Telegram et support@bettertoken.ai.
+
+## Support
+
+Pour obtenir de l’aide en anglais, contactez BetterToken via Telegram :
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+Vous pouvez également écrire à <a href="mailto:support@bettertoken.ai">support@bettertoken.ai</a>.
+
+- Site web : <a href="https://bettertoken.ai/">https://bettertoken.ai/</a>
+- Console : <a href="https://bettertoken.ai/workspace">https://bettertoken.ai/workspace</a>
+- Page de contact : <a href="https://bettertoken.ai/contacts">https://bettertoken.ai/contacts</a>
+- Documentation localisée : sélectionnez la langue dans le menu de la documentation

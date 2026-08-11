@@ -1,0 +1,147 @@
+---
+title: "Claude Code で権限とフックを設定する方法"
+sidebarTitle: "権限とフック"
+description: "/permissions と settings.json を使用して allow、ask、deny ルールを設定し、Claude Code のフックを追加、確認、トラブルシューティングします。"
+---
+
+## 要点
+
+Claude Code で `/permissions` を実行すると、権限ルールを表示・管理できます。ルールを永続化するには、`allow`、`ask`、`deny` を `settings.json` に記述します。フックは同じ設定ファイルを使用し、ツール呼び出しの前後にフォーマット、テスト、安全性チェックを実行します。権限の優先順位は **deny → ask → allow** であるため、allow ルールで deny ルールを上書きすることはできません。
+
+これらの設定はコンピューター上のローカルツールを制御します。BetterToken が変更するのはモデル API の Base URL、API Key、ルーティングだけであり、ローカル権限をバイパスしたり、フックを実行したりするものではありません。
+
+## 権限とフックを使い分ける
+
+| 要件 | 使用するもの |
+| --- | --- |
+| 特定のコマンドを確認なしで実行する | `permissions.allow` |
+| 操作のたびに確認する | `permissions.ask` |
+| 機密ファイルの読み取りや危険なコマンドをブロックする | `permissions.deny` |
+| ファイル変更後にフォーマットまたはテストする | `PostToolUse` フック |
+| 実行前に操作を確認またはブロックする | `PreToolUse` フック |
+| チーム規約をモデルに説明する | 権限ルールではなく `CLAUDE.md` |
+
+## 正しいスコープを選ぶ
+
+| ファイル | スコープ | リポジトリにコミットするか？ |
+| --- | --- | --- |
+| `~/.claude/settings.json` | 現在のユーザーのすべてのプロジェクト | いいえ |
+| `.claude/settings.json` | 現在のプロジェクトとチーム | はい |
+| `.claude/settings.local.json` | このマシン上の現在のプロジェクト | いいえ |
+
+<Warning>
+  権限、フック、環境変数は `settings.json` に記述し、`~/.claude.json` には記述しません。後者はアプリケーション状態と UI 設定を保存します。
+</Warning>
+
+## 最小限の権限ルールを設定する
+
+<Steps>
+  <Step title="/permissions で既存ルールを確認する">
+    Claude Code で次を実行します。
+
+    ```text
+    /permissions
+    ```
+
+    UI には allow、ask、deny の各ルールとそのソースファイルが表示されます。ユーザーまたはプロジェクト設定を選ぶ前に、既存のチームルールまたは管理ルールを確認してください。
+  </Step>
+  <Step title="範囲を絞ったルールを追加する">
+    このプロジェクトレベルの例では、一般的なテストと lint を許可し、すべての `git push` の前に確認し、`.env` の読み取りをブロックします。
+
+    ```json
+    {
+      "permissions": {
+        "allow": [
+          "Bash(npm run lint *)",
+          "Bash(npm test *)"
+        ],
+        "ask": [
+          "Bash(git push *)"
+        ],
+        "deny": [
+          "Read(./.env)",
+          "Read(./.env.*)"
+        ]
+      }
+    }
+    ```
+
+    コマンドはプロジェクト内に存在するスクリプトに置き換えます。確認をなくす目的だけで `bypassPermissions` を有効にしないでください。公式ドキュメントでは、このモードを隔離コンテナまたは VM に限定しています。
+  </Step>
+  <Step title="/permissions で確認する">
+    ファイルを保存してから、もう一度 `/permissions` を実行します。各ルールが想定したソースに表示されることを確認し、allow、ask、deny のケースを 1 つずつ実行して動作を検証します。
+  </Step>
+</Steps>
+
+## コピー可能なフォーマットフックを追加する
+
+この例では、Claude Code が `Edit` または `Write` を使用した後に、プロジェクトのフォーマッターを実行します。
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+ファイルにすでに `permissions` がある場合は、`hooks` を同じトップレベル JSON オブジェクトに統合します。単独の `.claude/hooks.json` は作成しないでください。まず `npm run format` を手動で実行し、成功することを確認します。
+
+<Warning>
+  コマンドフックはシステムユーザーの権限で実行されます。レビュー済みのスクリプトだけを使用し、フックから API Key、トークン、`.env` の内容、その他のシークレットを出力しないでください。
+</Warning>
+
+## フックを確認する
+
+1. Claude Code で `/hooks` を実行します。
+2. **PostToolUse** を開き、`Edit|Write` と `npm run format` が表示されることを確認します。
+3. Claude にテストファイルを変更するよう依頼します。
+4. フック出力とファイル形式を確認し、フックがエラーなく 1 回実行されたことを確認します。
+
+Claude Code は通常、設定変更を自動で再読み込みします。再読み込みされない場合は、セッションを終了して Claude Code を再起動してください。
+
+## よくあるエラー
+
+| 症状 | 原因 | 解決方法 |
+| --- | --- | --- |
+| 権限ルールがまったく適用されない | `~/.claude.json` または誤ったディレクトリにある | `~/.claude/settings.json`、`.claude/settings.json`、`.claude/settings.local.json` に移動する |
+| 許可した操作がブロックされる | deny ルールまたは管理ルールに一致している | `/permissions` でソースを確認する。deny は ask と allow より優先される |
+| フックが実行されない | イベントまたは matcher がツールに一致しない | `/hooks` を確認する。`PreToolUse` は実行前、`PostToolUse` は成功後に実行され、matcher は大文字・小文字を区別する |
+| フックは実行されるがコマンドが失敗する | スクリプト、作業ディレクトリ、または依存関係が誤っている | まずプロジェクトディレクトリから同じコマンドを手動で実行する |
+| BetterToken 接続後も確認が表示される | API プロバイダーとローカル権限は別である | BetterToken Base URL を維持し、範囲を絞った Claude Code 権限を別途設定する |
+| すべてのフックを一時的に無効にする必要がある | フックがデバッグを妨げる場合がある | `"disableAllHooks": true` を追加し、デバッグ後に削除するか `false` に設定する |
+
+## BetterToken の境界
+
+BetterToken は Claude Code のモデル API アクセス、モデルルーティング、残高、使用量を扱います。Claude Code は引き続き次を制御します。
+
+- ファイルの読み取り・書き込みアクセス
+- Bash の確認動作
+- フックの実行タイミングと実行するスクリプト
+- サンドボックス、MCP、プロジェクトルール
+
+`401`、Base URL、モデルマッピングのエラーについては、[Claude Code 設定ガイド](/ja/ai-tools/claude-code)を参照してください。コマンド確認と自動化については、このページで権限とフックをトラブルシューティングします。
+
+## 関連ドキュメント
+
+- [BetterToken を使用した Claude Code 設定](/ja/ai-tools/claude-code)
+- [Claude Code の CLAUDE.md とは？](/ja/faq/claude-code/claude-md)
+- [Claude Code が多くの Token を使用する理由](/ja/faq/token-cost/claude-code-token-usage)
+- [Claude Code の MCP と API Key・Base URL](/ja/faq/concepts/mcp-vs-api-key-base-url)
+
+## 参照
+
+- [Claude Code の権限](https://code.claude.com/docs/en/permissions)
+- [Claude Code フックガイド](https://code.claude.com/docs/en/hooks-guide)
+- [Claude Code フックリファレンス](https://code.claude.com/docs/en/hooks)
+- [Claude Code 設定をデバッグする](https://code.claude.com/docs/en/debug-your-config)

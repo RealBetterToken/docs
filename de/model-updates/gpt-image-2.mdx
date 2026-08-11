@@ -1,0 +1,73 @@
+---
+title: "GPT Image 2 ist verfügbar"
+description: "BetterToken hat GPT Image 2 am 29. April 2026 für hochwertige Bildgenerierung, Poster, Marketing-Assets und visuelle Entwürfe aktualisiert."
+tag: "NEW"
+---
+
+Veröffentlichungsdatum: 29. April 2026
+
+BetterToken hat den Bildgenerierungs-Modelleintrag `gpt-image-2` hinzugefügt. Prüfe die <a href={"{{model-plaza-url}}"}>model plaza</a> auf die aktuell verfügbare Model ID und rufe es dann über die OpenAI-kompatible Bildgenerierungs-API auf.
+
+OpenAI hat ChatGPT Images 2.0 am 21. April 2026 eingeführt und führt `gpt-image-2` in der Entwicklerdokumentation als neuestes GPT Image-Modell auf. OpenAI beschreibt GPT Image 2 als Modell für schnelle, hochwertige Bildgenerierung und -bearbeitung mit Text- und Bildeingabe, Bildausgabe, flexiblen Größen und hochauflösender Bildeingabe.
+
+## Highlights
+
+- **Höhere Bildqualität**: OpenAI bezeichnet GPT Image 2 als sein leistungsstärkstes Bildgenerierungsmodell, das sich für ausgearbeitete visuelle Assets eignet
+- **Flexiblere Größen**: `gpt-image-2` unterstützt mehr gültige Bildabmessungen, darunter gängige quadratische, Querformat-, Hochformat-, 2K- und 4K-Anwendungsfälle; Größen über 2K sind derzeit experimentell
+- **Hochauflösendere Bildeingabe**: In Bildbearbeitungs- und Referenzbild-Workflows verarbeitet `gpt-image-2` Bildeingaben mit hoher Genauigkeit, nützlich für Produktfotos, Porträts und Marken-Assets
+- **Stärkerer Text und komplexe Informationen**: Laut der Systemkarte von OpenAI verbessert ChatGPT Images 2.0 Weltwissen, Befolgen von Anweisungen, dichten Text und die Generierung komplexer Details
+- **Streaming partieller Bilder**: Die Image API kann über `stream` und `partial_images` partielle Bilder zurückgeben, wodurch Produkterlebnisse reaktionsschneller wirken
+
+## Geeignete Anwendungsfälle
+
+- Poster zur Produkteinführung, Kampagnen-Assets und Social-Bilder
+- Illustrationen für Dokumentation, Blogs und Langform-Artikel
+- Visuelle Konzeptentwürfe für Apps, Websites und SaaS-Oberflächen
+- Produktbilder, Werbebilder und Erkundung der Markenrichtung
+- Visuelle Inhalte mit chinesischem oder mehrsprachigem Text
+
+## API-Einrichtung
+
+Verwende für das OpenAI-kompatible Protokoll:
+
+| Einstellung | Wert |
+|---------|-------|
+| `Base URL` | `{{openai-base-url}}` |
+| Authentifizierung | `Authorization: Bearer YOUR_API_KEY` |
+| Model ID | `gpt-image-2` |
+| Endpunkt | `POST /v1/images/generations` |
+
+```bash
+curl {{images-generations-url}} \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "Create a modern Chinese launch poster for an AI coding tool, with a clear headline, product UI, and clean background",
+    "size": "1024x1024",
+    "quality": "high"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
+```
+
+Die vollständige Parameterliste findest du in der [Text-zu-Bild-Dokumentation](/de/api-reference/images-generations).
+
+## Einrichtungshinweise
+
+Wenn du eine eigene Anwendung, ein Skript oder ein external tool verwendest, bestätige, dass es den OpenAI-kompatiblen Bildgenerierungs-Endpunkt unterstützt. Bildgenerierung verwendet `{{openai-base-url}}`; nutze nicht den Claude-Code-/Anthropic-Protokoll-Endpunkt.
+
+Kopiere die aktuelle Model ID aus der <a href={"{{model-plaza-url}}"}>model plaza</a>. Verwende keine ChatGPT-UI-Modusnamen als API-Parameter.
+
+## Hinweise
+
+- Bildgenerierung dauert durchschnittlich etwa `100` bis `200` Sekunden. Setze Request-Timeouts für Client, Gateway oder external tool über `300` Sekunden und zeige in deiner Anwendung einen Wartezustand.
+- `gpt-image-2` unterstützt derzeit keine transparenten Hintergründe. Generiere zuerst ein Bild ohne Transparenz und entferne bei Bedarf den Hintergrund mit einem anderen Bildtool.
+- Bildergebnisse werden standardmäßig als `b64_json` zurückgegeben. Dekodiere den Base64-Wert, bevor du das Bild speicherst.
+- Große, hochwertige Bilder können Latenz und Kosten erhöhen. Verwende für Vorschauen `quality: "low"`.
+- Prüfe Bilder mit Text-, Layout- und Markenelementen, bevor du sie veröffentlichst.
+
+## Offizielle Quellen
+
+- [ChatGPT Images 2.0 vorstellen](https://openai.com/index/introducing-chatgpt-images-2-0/)
+- [GPT Image 2 Modellseite](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [OpenAI-Anleitung zur Bildgenerierung](https://platform.openai.com/docs/guides/images/image-generation)
+- [ChatGPT Images 2.0 Systemkarte](https://deploymentsafety.openai.com/chatgpt-images-2-0/)

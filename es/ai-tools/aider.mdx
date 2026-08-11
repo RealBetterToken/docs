@@ -1,0 +1,188 @@
+---
+title: "Configurar Aider: instalación, API Key, Base URL y modelos personalizados"
+sidebarTitle: "Aider"
+description: "Instala Aider, configura la Base URL y la API Key de BetterToken, elige un modelo de un proveedor compatible y corrige los errores habituales."
+icon: "wrench"
+---
+
+Para conectar Aider con BetterToken, prepara una API Key, introduce la Base URL indicada a continuación y elige un ID de modelo vigente en la model plaza.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Requisitos previos
+
+- La versión actual de la herramienta está instalada
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate y obtén una</a>
+- Un ID de modelo de la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionales
+
+- Instala Python
+
+## Instalación
+
+### Instala Aider
+
+Ejecuta estos comandos en una terminal:
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+Después de instalarlo, confirma que Aider esté disponible:
+
+```bash
+aider --help
+```
+
+## Configuración manual
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Configura BetterToken en la terminal actual
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="{{openai-base-url}}"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/YOUR_MODEL_ID
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "{{openai-base-url}}"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    Después de ejecutar `setx`, cierra PowerShell y vuelve a abrirlo. Entra en el directorio del proyecto y ejecuta:
+
+    ```powershell
+    aider --model openai/YOUR_MODEL_ID
+    ```
+  </Tab>
+</Tabs>
+
+Sustituye `YOUR_API_KEY` por tu BetterToken API Key. `YOUR_MODEL_ID` es solo un ejemplo. Sustitúyelo por un **ID de modelo de un proveedor compatible** vigente en la model plaza y conserva el prefijo `openai/`.
+
+### Guarda la configuración con .env
+
+Para no tener que definir las variables cada vez que abres una terminal, crea un archivo `.env` en la raíz Git del proyecto:
+
+```dotenv
+OPENAI_API_BASE={{openai-base-url}}
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/YOUR_MODEL_ID
+```
+
+Añade `.env` a `.gitignore` para no incluir la API Key en los commits. Entra en el directorio del proyecto y ejecuta:
+
+```bash
+aider
+```
+
+Para usar otro archivo en un proyecto, indícalo de forma explícita:
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+### Opcional: usa .aider.conf.yml
+
+Para conservar únicamente ajustes no sensibles, crea `.aider.conf.yml` en tu directorio personal o en el del proyecto:
+
+```yaml
+model: openai/YOUR_MODEL_ID
+openai-api-base: "{{openai-base-url}}"
+```
+
+Guarda la API Key en la variable de entorno `OPENAI_API_KEY`, no en un archivo YAML compartido.
+
+### Cambiar el Model ID
+
+Sustituye el modelo del comando de inicio por un **ID de modelo de un proveedor compatible** vigente:
+
+```bash
+aider --model openai/YOUR_MODEL_ID
+```
+
+No elimines el prefijo `openai/`. El ID del modelo debe ser compatible con el endpoint configurado.
+
+## Verificar la conexión
+
+Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+
+## Cambiar de modelo
+
+Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
+
+## Errores frecuentes
+
+| Síntoma | Qué hacer |
+| --- | --- |
+| `401`, `Unauthorized` o `Invalid API key` | Comprueba `OPENAI_API_KEY`, confirma que sea una BetterToken API Key y elimina los espacios adicionales. |
+| `model not found` o modelo no disponible | Copia un **ID de modelo de un proveedor compatible** vigente desde la model plaza y pásalo a Aider como `openai/model-id`. |
+| URL de solicitud incorrecta o `404` | Confirma que `OPENAI_API_BASE` sea `{{openai-base-url}}`. No añadas `/chat/completions`. |
+| Windows no lee las variables nuevas | `setx` solo afecta a las terminales abiertas posteriormente. Cierra la ventana actual de PowerShell y abre otra. |
+| Aider indica que el modelo es desconocido | Comprueba primero el ID del modelo y el proveedor de API. Aider puede mostrar una advertencia para un modelo nuevo, pero debes usar un ID vigente de la model plaza. |
+
+### Preguntas de configuración
+
+**¿Qué Base URL debe usar Aider?**
+
+Usa `{{openai-base-url}}`. Es la Base URL de BetterToken compatible con OpenAI.
+
+**¿Por qué necesita el nombre del modelo el prefijo `openai/`?**
+
+Aider usa este prefijo para identificar un modelo compatible con OpenAI. Si lo omites, Aider puede seleccionar el proveedor equivocado.
+
+**¿Puedo incluir la API Key en `.aider.conf.yml`?**
+
+No lo recomendamos. Usa variables de entorno o un archivo `.env` ignorado por Git para reducir el riesgo de exponer una API Key en los archivos del proyecto.
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guías relacionadas
+
+- [Configurar un modelo personalizado en Continue CLI](/es/ai-tools/continue-cli)
+- [Configurar un proveedor personalizado en Codex CLI](/es/ai-tools/codex)
+- [Configurar una API, Base URL y API Key personalizadas en Cursor](/es/ai-tools/cursor)
+- [Configurar una API compatible con OpenAI en Cline](/es/ai-tools/cline)
+
+## Detalles técnicos
+
+<Accordion title="Protocolo, endpoint y campos internos del proveedor">
+  Esta configuración usa `{{openai-base-url}}`. La herramienta añade la ruta del endpoint compatible con OpenAI. No añadas `/chat/completions` ni `/responses` salvo que un campo concreto lo exija explícitamente.
+</Accordion>

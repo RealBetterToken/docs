@@ -1,0 +1,187 @@
+---
+title: "Configuração do Kodacode: instalação, API Key, Base URL e modelos personalizados"
+sidebarTitle: "Kodacode"
+description: "Instale o Kodacode, configure a Base URL e a API Key da BetterToken, escolha um modelo de provedor compatível e corrija erros comuns."
+icon: "/icons/kodacode.svg"
+---
+
+Para conectar o Kodacode à BetterToken, prepare uma API Key, informe a Base URL abaixo e escolha um ID de modelo atual na model plaza.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Um ID de modelo atual da <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Pré-requisitos
+
+- A versão atual da ferramenta está instalada
+- Uma BetterToken API Key: <a href={"{{register-url}}"}>cadastre-se e crie uma</a>
+- Um ID de modelo da <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionais
+
+- O VS Code está instalado
+- A extensão Kodacode / Koda está instalada
+- O ID de modelo selecionado vem de um **provedor compatível**
+
+## Instalação
+
+Instale ou abra o Kodacode e continue com a configuração manual abaixo.
+
+## Configuração manual
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Um ID de modelo atual da <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Configuração
+
+<Steps>
+  <Step title="Abra o painel Koda e adicione um modelo">
+    Abra o painel **KODA** na barra lateral do VS Code, clique no seletor de modelos abaixo da caixa de entrada e escolha **Add model: Agent**.
+
+    <Frame>
+      <img
+        src="/images/kodacode/select-model-menu.png"
+        alt="Escolha Add model: Agent no seletor de modelos do painel Koda."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Preencha as configurações do modelo compatível com OpenAI">
+    Na caixa de diálogo para adicionar modelo, use estes valores:
+
+    | Campo | Valor recomendado |
+    | --- | --- |
+    | Provider | `Any OpenAI-compatible API` |
+    | API Base | `{{openai-base-url}}/` |
+    | Model ID | Um ID de modelo de um provedor compatível da <a href={"{{model-plaza-url}}"}>model plaza</a>, por exemplo `YOUR_MODEL_ID` |
+    | API Key | Sua BetterToken API Key |
+
+    Após preencher os campos, clique em **Connect**.
+
+    <Frame>
+      <img
+        src="/images/kodacode/add-openai-compatible-model.png"
+        alt="Selecione Any OpenAI-compatible API na caixa de diálogo de adição de modelo do Kodacode e preencha API Base, Model ID e API Key."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Confirme que o modelo está ativo">
+    Depois que a conexão for bem-sucedida, selecione o novo modelo, como `YOUR_MODEL_ID`, no seletor abaixo da caixa de entrada do Koda. Envie uma mensagem curta para confirmar que ele retorna uma resposta.
+  </Step>
+
+  <Step title="Verifique config.yaml">
+    O Kodacode grava a configuração em `~/.koda/config.yaml`. Abra esse arquivo para confirmar que o modelo foi adicionado.
+
+    <Frame>
+      <img
+        src="/images/kodacode/config-yaml-result.png"
+        alt="config.yaml do Kodacode com a configuração do modelo compatível com OpenAI adicionada."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+### Exemplo de config.yaml
+
+Use esta estrutura completa como referência. Substitua `YOUR_API_KEY` pela sua BetterToken API Key e não envie uma API Key real ao repositório.
+
+```yaml
+name: Koda
+version: 0.0.1
+schema: v1
+models:
+  - name: Koda Models
+    provider: koda-chat-models
+    model: AUTODETECT
+    roles:
+      - agent
+      - chat
+      - edit
+  - name: YOUR_MODEL_ID
+    provider: openai
+    model: YOUR_MODEL_ID
+    apiKey: YOUR_API_KEY
+    apiBase: {{openai-base-url}}/
+    roles:
+      - agent
+      - chat
+      - edit
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+```
+
+<Note>
+  Se você usar um modelo diferente de `YOUR_MODEL_ID`, atualize `name` e `model` para que correspondam ao ID de modelo de um provedor compatível da <a href={"{{model-plaza-url}}"}>model plaza</a>.
+</Note>
+
+## Verifique a conexão
+
+Envie um prompt de teste curto. Se a ferramenta retornar uma resposta sem erro de autenticação ou de ID de modelo, a conexão funciona. Reinicie completamente a ferramenta depois de alterar a configuração.
+
+## Alterne entre modelos
+
+Abra o seletor de modelos ou altere o campo `Model` na configuração. Use o ID de modelo exato da <a href={"{{model-plaza-url}}"}>model plaza</a> e reinicie a sessão atual.
+
+## Erros comuns
+
+| Erro | O que verificar |
+| --- | --- |
+| `401` ou `Unauthorized` | Verifique a BetterToken API Key e remova espaços no início ou no fim. |
+| `404` | Verifique a Base URL e não acrescente um caminho de endpoint específico. |
+| `model not found` | Copie um ID de modelo atual da model plaza. |
+| As alterações não são aplicadas | Salve a configuração e reinicie completamente a ferramenta. |
+
+
+- Se a conexão falhar, confirme que **API Base** é `{{openai-base-url}}/` e mantenha a `/` final.
+- Se o modelo não estiver disponível, confirme que **Model ID** vem do provedor compatível.
+- Se a autenticação falhar, copie a API Key novamente e evite espaços extras ou quebras de linha.
+- Se as alterações em `config.yaml` não forem aplicadas, reinicie o VS Code ou execute **Developer: Reload Window**.
+- A BetterToken geralmente não exige `User-Agent` adicional nem cabeçalhos personalizados.
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
+
+<Accordion title="O que significa cada método de configuração">
+  - **Configuração manual**: informe a API Key, a Base URL e o Model.
+  - **Sem suporte**: ainda não há um método verificado de conexão direta.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guias relacionados
+
+- [Visão geral do plugin Kodacode](https://docs.kodacode.ru/plugin/overview.html)
+- [Guia de instalação do plugin Kodacode](https://docs.kodacode.ru/plugin/install.html)
+
+## Detalhes técnicos
+
+<Accordion title="Protocolo, endpoint e campos internos do provedor">
+  Esta configuração usa `{{openai-base-url}}`. A ferramenta acrescenta o caminho de endpoint compatível com OpenAI. Não adicione `/chat/completions` ou `/responses`, exceto quando um campo específico exigir isso.
+</Accordion>

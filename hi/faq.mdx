@@ -1,0 +1,151 @@
+---
+title: "अक्सर पूछे जाने वाले सवाल"
+description: "BetterToken अकाउंट, billing, usage और सेटअप से जुड़े सामान्य सवाल।"
+---
+
+## AI कोडिंग टूल FAQ
+
+ये पेज Claude Code, Codex, Cursor, Cline और अन्य AI कोडिंग टूल की जानकारी खोज रहे डेवलपर के लिए हैं। इनमें पहले टूल समझाया गया है, फिर बताया गया है कि API Key, Base URL, protocol चयन और usage BetterToken से कैसे जुड़ते हैं।
+
+- [Claude Code क्या है और कैसे काम करता है?](/hi/faq/claude-code/what-is-claude-code)
+- [Claude Code और Claude Desktop की तुलना](/hi/faq/claude-code/claude-code-vs-claude-desktop)
+- [Local development में Claude Code और Cursor की तुलना](/hi/faq/claude-code/claude-code-vs-cursor)
+- [Claude Code, Claude.ai अकाउंट या API Key में से क्या उपयोग करता है?](/hi/faq/claude-code/claude-account-or-api-key)
+- [Claude Code में API Key और Base URL कैसे सेट करें](/hi/faq/claude-code/api-key-base-url)
+- [Claude Code में CLAUDE.md क्या है?](/hi/faq/claude-code/claude-md)
+- [Claude Code में Sonnet और Opus कैसे बदलें](/hi/faq/claude-code/switch-sonnet-opus)
+- [Claude Code permissions और hooks](/hi/faq/claude-code/permissions-and-hooks)
+- [Claude Code इतने Token क्यों उपयोग करता है और लागत कैसे घटाएं](/hi/faq/token-cost/claude-code-token-usage)
+- [Claude Desktop में MCP कैसे सेट करें](/hi/faq/claude-desktop/mcp)
+- [क्या Claude Desktop third-party मॉडल उपयोग कर सकता है?](/hi/faq/claude-desktop/third-party-models)
+- [Claude Desktop Cowork और Code Gateway की तुलना](/hi/faq/claude-desktop/cowork-code-gateway)
+- [Codex CLI क्या है?](/hi/faq/codex/what-is-codex-cli)
+- [Codex CLI, Codex App और Codex Web की तुलना](/hi/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex CLI config.toml कैसे सेट करें](/hi/faq/codex/config-toml)
+- [Codex CLI में model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI में review_model और reasoning_effort का क्या अर्थ है?](/hi/faq/codex/review-model-reasoning-effort)
+- [Codex CLI में AGENTS.md क्या है?](/hi/faq/codex/agents-md)
+- [Codex CLI sandbox और approval mode क्या हैं?](/hi/faq/codex/sandbox-approval)
+- [Codex API mode में GPT-5.5 का उपयोग क्यों नहीं कर सकता?](/hi/faq/codex/gpt-5.5-api-mode)
+- [Third-party API के साथ official Codex login बनाए रखें](/hi/faq/codex/official-login-third-party-api)
+- [Cursor में custom OpenAI API Key और Base URL कैसे सेट करें](/hi/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md और .cursorignore](/hi/faq/cursor/rules-agents-cursorignore)
+- [Cursor में MCP कैसे सेट करें](/hi/faq/cursor/mcp)
+- [Cline में OpenAI-compatible API कैसे सेट करें](/hi/faq/cline/openai-compatible-api)
+- [OpenAI-compatible API और Anthropic-compatible API की तुलना](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code और Codex CLI की तुलना](/hi/faq/concepts/claude-code-vs-codex-cli)
+- [MCP और API Key तथा Base URL की तुलना](/hi/faq/concepts/mcp-vs-api-key-base-url)
+
+## अकाउंट और billing
+
+<AccordionGroup>
+  <Accordion title="BetterToken usage की billing कैसे करता है?">
+    BetterToken वास्तविक Token usage के आधार पर billing करता है और अतिरिक्त markup जोड़े बिना Anthropic / OpenAI pricing का पालन करता है। हर नए अकाउंट को $1 का ट्रायल क्रेडिट मिलता है।
+
+    अधिक जानकारी के लिए <a href={"{{pricing-url}}"}>Pricing पेज</a> देखें।
+  </Accordion>
+
+  <Accordion title="क्या signup के बाद refund मिल सकता है?">
+    Paid top-up refundable हैं। ट्रायल क्रेडिट refundable नहीं है। refund के लिए support से संपर्क करें।
+  </Accordion>
+
+  <Accordion title="क्या एक API Key को कई टूल में उपयोग कर सकता हूं?">
+    हां। एक ही API Key को Claude Code, Codex, Cursor और अन्य टूल में एक साथ उपयोग किया जा सकता है। Usage साझा होता है।
+  </Accordion>
+
+  <Accordion title="Usage कहां देखें?">
+    मौजूदा usage और billing record देखने के लिए Dashboard में लॉग इन करें।
+  </Accordion>
+</AccordionGroup>
+
+## सेटअप और configuration
+
+<AccordionGroup>
+  <Accordion title="BetterToken का base_url क्या है?">
+    BetterToken protocol के अनुसार दो अलग Endpoint उपयोग करता है:
+
+    | उपयोग का तरीका | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` |
+    | Codex / `OPENAI_BASE_URL` / बाहरी टूल | `{{openai-base-url}}` |
+
+    हर टूल में एक ही address दोबारा उपयोग न करें।
+  </Accordion>
+
+  <Accordion title="क्या Claude Code में मॉडल बताना जरूरी है?">
+    यह प्रदाता पर निर्भर करता है।
+
+    **Claude प्रदाता** के साथ केवल `ANTHROPIC_BASE_URL` और `ANTHROPIC_AUTH_TOKEN` सेट करें। मॉडल variable की जरूरत **नहीं** है।
+
+    **GPT प्रदाता** के साथ `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` और `ANTHROPIC_DEFAULT_OPUS_MODEL` से Claude Code मॉडल mapping जोड़ें। <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> के मौजूदा **GPT प्रदाता** से मॉडल ID कॉपी करें।
+  </Accordion>
+
+  <Accordion title="क्या Codex में मॉडल बताना जरूरी है?">
+    हां। <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> के **GPT प्रदाता** से कॉपी किया गया मॉडल ID भरें।
+
+    अधिक जानकारी के लिए [Codex सेटअप गाइड](/hi/ai-tools/codex) देखें।
+  </Accordion>
+
+  <Accordion title="क्या Cursor जैसे अन्य टूल में मॉडल बताना जरूरी है?">
+    हां। Cursor, Cline, Zed और OpenClaw जैसे बाहरी टूल **GPT प्रदाता** का उपयोग करते हैं। <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से मौजूदा मॉडल ID कॉपी करें।
+
+    इन टूल में hardcoded Claude मॉडल नाम उपयोग न करें।
+
+    अधिक जानकारी के लिए [Cursor सेटअप गाइड](/hi/ai-tools/cursor) देखें।
+  </Accordion>
+
+  <Accordion title="क्या OpenClaw और अन्य बाहरी टूल को अतिरिक्त header चाहिए?">
+    आमतौर पर नहीं।
+
+    जांचे गए official दस्तावेज़ों के अनुसार Cursor, Cline और Zed जैसे बाहरी टूल में `Base URL`, API Key और मॉडल ID मुख्य सेटिंग हैं। OpenCode और OpenClaw वैकल्पिक `headers` का समर्थन करते हैं, लेकिन official दस्तावेज़ इन्हें custom header या custom auth जरूरत बताते हैं, BetterToken का अनिवार्य सेटअप नहीं।
+
+    अतिरिक्त header तभी जोड़ें जब टूल के official दस्तावेज़ या आपका upstream gateway, tenant routing, observability या Cache layer इसे स्पष्ट रूप से मांगे।
+  </Accordion>
+
+  <Accordion title="सेटअप के बाद authentication विफल हो तो क्या करें?">
+    ये जांचें:
+
+    1. API Key सही हो और उसमें अतिरिक्त space न हो।
+    2. पुष्टि करें कि Claude Code `{{anthropic-base-url}}` और Codex / बाहरी टूल `{{openai-base-url}}` उपयोग करते हैं।
+    3. जांचें कि पुराने `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY` या `OPENAI_BASE_URL` variable config को override तो नहीं कर रहे।
+    4. बाहरी टूल के version limit, मॉडल allowlist या upstream gateway द्वारा मांगे गए अतिरिक्त header जैसी official जरूरतें जांचें।
+
+    समस्या बनी रहे तो support से संपर्क करें।
+  </Accordion>
+</AccordionGroup>
+
+## विश्वसनीयता और Rate Limit
+
+<AccordionGroup>
+  <Accordion title="BetterToken विश्वसनीयता कैसे बनाए रखता है?">
+    BetterToken कई प्रदाताओं से कनेक्ट होता है और ये तरीके उपयोग करता है:
+
+    - **कई स्रोत**: एक प्रदाता के outage से सभी Request बंद नहीं होते
+    - **Dynamic routing**: BetterToken real time में सबसे तेज और स्थिर रास्ता चुनता है
+    - **मुख्य टूल पर ध्यान**: Claude Code और Codex ecosystem की विश्वसनीयता को प्राथमिकता मिलती है
+  </Accordion>
+
+  <Accordion title="Rate Limit या timeout आए तो क्या करें?">
+    BetterToken अलग-अलग प्रदाताओं के Rate Limit और timeout अपने-आप संभालता है। समस्या बनी रहे तो:
+
+    1. जांचें कि बैलेंस पर्याप्त है।
+    2. टूल का timeout बढ़ाएं (`API_TIMEOUT_MS=3000000` अनुशंसित है)।
+    3. मौजूदा quota status के लिए support से संपर्क करें।
+  </Accordion>
+
+  <Accordion title="क्या BetterToken production के लिए उपयुक्त है?">
+    BetterToken मुख्य रूप से Claude Code और Codex जैसे AI कोडिंग टूल इस्तेमाल करने वाले individual developer के लिए बनाया गया है। बड़े production API workload के लिए अपनी जरूरतों के अनुसार इसका मूल्यांकन करें।
+  </Accordion>
+</AccordionGroup>
+
+## Privacy और security
+
+<AccordionGroup>
+  <Accordion title="क्या BetterToken Request content स्टोर करता है?">
+    BetterToken relay की तरह काम करता है और conversation content को स्थायी रूप से स्टोर नहीं करता। अधिक जानकारी के लिए <a href={"{{privacy-url}}"}>Privacy Policy</a> देखें।
+  </Accordion>
+
+  <Accordion title="API Key leak हो जाए तो क्या करें?">
+    तुरंत Dashboard में लॉग इन करें, पुरानी Key हटाएं और नई Key बनाएं। फिर उस Key का उपयोग करने वाले हर टूल को अपडेट करें।
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,176 @@
+---
+title: "Configurar BetterToken en n8n: API Key, Base URL y modelos personalizados"
+sidebarTitle: "n8n"
+description: "Conecta n8n con BetterToken mediante una Base URL, una API Key y un modelo de un proveedor compatible; después, verifica la conexión y corrige los errores habituales."
+icon: "diagram-project"
+---
+
+Para conectar n8n con BetterToken, prepara una API Key, introduce la Base URL indicada a continuación y elige un ID de modelo vigente en la model plaza.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Requisitos previos
+
+- La versión actual de la herramienta está instalada
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate y obtén una</a>
+- Un ID de modelo de la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionales
+
+- Una instancia de n8n Cloud o autohospedada
+
+| Ajuste | Valor |
+|---|---|
+| Credential type | `OpenAI` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | Tu BetterToken API Key |
+| Organization ID | Déjalo en blanco |
+| Custom Header | Desactivado |
+
+<Note>
+  Conserva `/v1` al final de la Base URL. No añadas `/chat/completions` ni `/responses`; n8n incorpora la ruta que necesita el nodo.
+</Note>
+
+## Instalación
+
+Instala o abre n8n y continúa con la configuración manual siguiente.
+
+## Configuración manual
+
+Completa esta configuración en la interfaz del nodo de n8n. No necesitas editar un archivo de configuración de n8n.
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Pasos de configuración
+
+<Steps>
+  <Step title="Añade AI Agent y OpenAI Chat Model">
+    Abre un workflow y añade un nodo **AI Agent**. En su conector **Chat Model**, añade el subnodo **OpenAI Chat Model**.
+
+    Esta guía usa **OpenAI Chat Model** porque proporciona la conexión al modelo para AI Agents, cadenas y otros workflows de IA de n8n.
+  </Step>
+
+  <Step title="Crea una credencial OpenAI">
+    En **OpenAI Chat Model**, abre **Credential to connect with**, selecciona **Create new credential** y elige **OpenAI**.
+
+    Si tu versión de n8n ofrece **OpenAI Account (ChatGPT)** y **API Key**, elige **API Key**. La autenticación OpenAI Account corresponde a una cuenta oficial, no a una Base URL personalizada de BetterToken.
+  </Step>
+
+  <Step title="Introduce la credencial de BetterToken">
+    Usa estos valores:
+
+    | Campo de n8n | Valor |
+    |---|---|
+    | API Key | Tu BetterToken API Key |
+    | Organization ID (optional) | Déjalo en blanco |
+    | Base URL | `{{openai-base-url}}` |
+    | Add Custom Header | Desactivado |
+
+    Haz clic en **Save**. n8n prueba esta credencial contra `/models` bajo la Base URL configurada, por lo que la URL completa de prueba es `{{openai-base-url}}/models`.
+  </Step>
+
+  <Step title="Selecciona un modelo">
+    Vuelve a **OpenAI Chat Model**, abre **Model** y selecciona el ID de modelo de un proveedor compatible que aparezca en la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Si la lista no se actualiza después de guardar la credencial, vuelve a abrir el nodo o la credencial y carga de nuevo la lista de modelos.
+  </Step>
+
+  <Step title="Elige Chat Completions o Responses">
+    Para la primera prueba, mantén **Use Responses API** desactivado y completa una conversación sencilla mediante el modo Chat Completions predeterminado.
+
+    Activa **Use Responses API** solo cuando tu workflow lo necesite. n8n documenta herramientas integradas como Web Search, File Search y Code Interpreter para **OpenAI Chat Model + AI Agent** con Responses activado. Esas herramientas alojadas por OpenAI no son capacidades confirmadas automáticamente para BetterToken; pruébalas con el modelo y endpoint seleccionados.
+  </Step>
+
+  <Step title="Ejecuta una prueba">
+    Proporciona al AI Agent una entrada sencilla:
+
+    ```text
+    Reply with exactly: Connection successful
+    ```
+
+    Haz clic en **Execute step** o ejecuta el workflow. La configuración está completa cuando el nodo devuelve una respuesta del modelo.
+  </Step>
+</Steps>
+
+## Verifica la conexión
+
+Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+
+## Cambia de modelo
+
+Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
+
+## Errores habituales
+
+### La prueba de credenciales devuelve 401
+
+- Comprueba que la API Key esté completa y no contenga espacios adicionales
+- Confirma que la Key use un ID de modelo del **proveedor compatible**
+- Comprueba el estado de la Key y el saldo en el Dashboard de BetterToken
+
+### La prueba de credenciales devuelve 404
+
+- La Base URL debe ser `{{openai-base-url}}`
+- No uses `{{openai-base-url}}/models` como Base URL
+- No añadas `/chat/completions` ni `/responses`
+
+### La lista de modelos está vacía
+
+- Vuelve a guardar la credencial y abre de nuevo **Model**
+- Confirma que la API Key pueda acceder a `{{openai-base-url}}/models`
+- Copia un ID de modelo vigente desde la <a href={"{{model-plaza-url}}"}>model plaza</a>; no uses un ID retirado o mal escrito
+
+### El chat funciona, pero fallan las herramientas del Agent
+
+Desactiva **Use Responses API** y todas las herramientas integradas y verifica Chat Completions sin herramientas. Activa las herramientas del Agent una por una para determinar si el problema está en la capacidad del modelo, los argumentos de la herramienta o la configuración del workflow.
+
+### La solicitud agota el tiempo de espera
+
+Aumenta **Timeout** en **OpenAI Chat Model > Options** y mantén un valor limitado de **Max Retries**. No reintentes repetidamente errores `400`, `401` ni errores de configuración.
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guías relacionadas
+
+- [Credenciales OpenAI de n8n](https://docs.n8n.io/integrations/builtin/credentials/openai/)
+- [OpenAI Chat Model de n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Cómo elegir un modelo](/es/faq/model-calling/model-selection-guide)
+
+## Detalles técnicos
+
+<Accordion title="Protocolo, endpoint y campos internos del proveedor">
+  Esta configuración usa `{{openai-base-url}}`. La herramienta añade la ruta del endpoint compatible con OpenAI. No añadas `/chat/completions` ni `/responses` salvo que un campo concreto lo exija explícitamente.
+
+### Alcance
+
+Esta guía confirma únicamente LLM Chat mediante el protocolo compatible con OpenAI. No configures un modelo de chat GPT como modelo de embedding, rerank, voz o imagen.
+</Accordion>

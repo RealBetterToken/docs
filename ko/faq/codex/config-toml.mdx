@@ -1,0 +1,136 @@
+---
+title: "Codex config.toml: Custom Provider, Base URL 및 API Key"
+sidebarTitle: "config.toml"
+description: "custom provider용 Codex config.toml을 구성하세요. model_provider, Base URL, API Key env_key, wire_api responses를 설정하고 401, 404 또는 model errors를 해결합니다."
+---
+
+## 바로 답변
+
+Codex CLI에서 custom provider를 사용하려면 user-level `~/.codex/config.toml`을 편집하세요. `model_provider = "custom"`을 설정하고 `[model_providers.custom]`을 정의하며 Base URL로 `{{openai-base-url}}`을 사용하고 `wire_api = "responses"`를 설정하세요. `env_key`로 BetterToken API Key를 읽고 **GPT provider**에서 Model ID를 복사하세요.
+
+## 올바른 config file 찾기
+
+| Environment | User-level config |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | WSL 내부의 `~/.codex/config.toml` |
+
+VS Code Codex extension에서 gear icon을 클릭하고 **Codex Settings → Open config.toml**를 선택하세요. CLI와 IDE extension은 같은 config layers를 공유합니다.
+
+<Warning>
+  provider 및 authentication settings는 user-level `~/.codex/config.toml`에 속합니다. project `.codex/config.toml` files에는 project overrides를 둘 수 있지만 Codex는 그곳의 `model_provider`와 `model_providers`를 무시합니다. project instructions는 `AGENTS.md`에 작성하세요.
+</Warning>
+
+## 최소 working configuration
+
+<Steps>
+  <Step title="API Key environment variable 설정">
+    macOS, Linux 또는 WSL:
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell:
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    `YOUR_API_KEY`를 BetterToken API Key로 바꾸세요. persistent use에는 project repository가 아닌 protected operating-system environment에 저장하세요.
+  </Step>
+  <Step title="config.toml 편집">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model`은 example입니다. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 **GPT provider**에서 현재 available Model ID를 복사하세요.
+  </Step>
+  <Step title="다시 시작 및 테스트">
+    Codex를 완전히 종료하고 새 terminal을 연 다음 다음을 실행하세요.
+
+    ```bash
+    codex
+    ```
+
+    간단한 prompt를 보내세요. 정상 response가 provider, authentication 및 Model ID가 active임을 확인합니다.
+  </Step>
+</Steps>
+
+## 권장 전체 configuration
+
+review model과 더 긴 stream timeout이 필요할 때 이 version을 사용하세요.
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers.custom]
+name = "{{codex-provider-name}}"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+existing top-level fields와 `[model_providers.custom]` content를 merge하세요. 같은 TOML table을 두 번 선언하지 마세요.
+
+## fields의 관계
+
+| Field | 목적 | BetterToken 값 |
+| --- | --- | --- |
+| `model_provider` | provider ID 선택 | `"custom"` |
+| `[model_providers.custom]` | 해당 provider 정의 | `model_provider`와 일치해야 함 |
+| `base_url` | model request endpoint | `{{openai-base-url}}` |
+| `env_key` | API Key가 들어 있는 environment variable 이름 | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | provider protocol | `"responses"` |
+| `requires_openai_auth` | official OpenAI authentication 사용 | 일반 third-party API setup에는 `false` |
+| `model` | default Model ID | current GPT provider ID |
+
+<Note>
+  third-party API를 사용하면서 official Codex App login, plugins 및 Remote Control을 유지하려면 이 일반 authentication example 대신 전용 [official login 및 unified session setup](/ko/faq/codex/official-login-third-party-api)을 사용하세요.
+</Note>
+
+## 일반적인 오류
+
+| 증상 | 원인 | 해결 방법 |
+| --- | --- | --- |
+| Provider not found | `model_provider`가 table name과 일치하지 않음 | 두 곳 모두에 `custom` 사용 |
+| startup 시 API Key 누락 | environment variable이 없거나 terminal이 reload하지 않음 | `MODEL_PROVIDER_API_KEY`를 설정하고 새 terminal 열기 |
+| `401` 또는 `403` | wrong Key 또는 mixed authentication methods | Key를 다시 복사하고 `env_key` name을 일치시키며 `requires_openai_auth = false` 유지 |
+| `404` | Base URL에 `/v1`이 없거나 wrong protocol 사용 | `{{openai-base-url}}` 사용 |
+| Model not found | Model ID를 사용할 수 없거나 GPT provider에 없음 | 모델 광장에서 current ID 복사 |
+| Changes가 적용되지 않음 | wrong config layer, path 또는 WSL environment | Codex를 실행하는 environment의 user config를 편집한 다음 Codex 다시 시작 |
+| TOML parse error | duplicate table, quote 또는 nesting error | duplicate `[model_providers.custom]` tables를 제거하고 string quotes 확인 |
+
+## 관련 문서
+
+- [전체 Codex 설정 가이드](/ko/ai-tools/codex)
+- [VS Code Codex extension에서 custom Base URL 구성](/ko/ai-tools/codex-vscode)
+- [model_provider, base_url 및 wire_api 설명](/ko/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI sandbox 및 approval mode](/ko/faq/codex/sandbox-approval)
+- [AGENTS.md란 무엇인가요?](/ko/faq/codex/agents-md)
+
+## 참고 자료
+
+- [Codex 기본 configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration 참고 자료](https://developers.openai.com/codex/config-reference)

@@ -1,0 +1,74 @@
+---
+title: "Warum Claude Code so viele Tokens nutzt und wie du Kosten reduzierst"
+sidebarTitle: "Claude-Code-Token-Kosten"
+description: "Erfahre, woher die Token-Nutzung von Claude Code stammt und wie Kontext, CLAUDE.md, MCP, Modellauswahl und Workflow-Design die Kosten beeinflussen."
+---
+
+## Kurzantwort
+
+Die Token-Nutzung von Claude Code besteht nicht nur aus der angezeigten finalen Antwort. Sie kann gelesene Dateien, Projektanweisungen, Unterhaltungsverlauf, Tool-Ergebnisse, MCP-Tool-Beschreibungen, generierte Ausgabe und komprimierte Zusammenfassungen einschließen.
+
+Hohe Nutzung entsteht normalerweise aus einer Kombination breiter Aufgaben, großem Kontext, langen Regeldateien, vielen MCP-Servern, wiederholter Nacharbeit und leistungsstarken Modellen.
+
+Die praktische Lösung besteht darin, jede Aufgabe fokussiert zu halten und nur den dafür benötigten Kontext zu laden.
+
+## Wann das wichtig ist
+
+- Claude Code liest vor jeder Antwort viele Dateien
+- Eine kleine Änderung wird zu einer langen Erkundungssitzung
+- `CLAUDE.md` oder Regeldateien wachsen weiter
+- Viele MCP-Server sind aktiviert, werden aber selten verwendet
+- Claude Code wiederholt dieselbe Arbeit immer wieder
+- Dein Team benötigt planbare API-Ausgaben
+
+## Wichtige Konzepte
+
+| Konzept | Bedeutung |
+| --- | --- |
+| Eingabe-Tokens | Nutzerprompts, Kontext, Dateien, Tool-Ergebnisse und Anweisungen |
+| Ausgabe-Tokens | Vom Modell generierter Text, Code und Antworten |
+| Kontextfenster | Die Informationsmenge, die eine Sitzung halten kann |
+| Prompt-Caching | Reduzierte Kosten für bestimmten wiederholten Kontext |
+| Komprimierung | Zusammenfassen älterer Historie, wenn der Kontext wächst |
+| MCP-Overhead | Tool-Definitionen und Tool-Ergebnisse können Kontext hinzufügen |
+
+## Empfohlener Workflow
+
+Steuere Kosten an der Aufgabengrenze:
+
+1. Gib Claude Code jeweils ein klares Ziel.
+2. Bitte es, zunächst nur die relevanten Dateien zu lesen.
+3. Verwende `/clear`, wenn du zu einer unabhängigen Aufgabe wechselst.
+4. Halte `CLAUDE.md` kurz und konkret.
+5. Deaktiviere MCP-Server, die für die aktuelle Arbeit nicht benötigt werden.
+6. Verwende leichtere Modelle für einfache Änderungen und stärkere Modelle für komplexes Reasoning.
+7. Führe nach jeder kleinen Änderung die kleinste relevante Prüfung aus, um Nacharbeit zu reduzieren.
+
+Wenn du ein API-Gateway verwendest, prüfe die Dashboard-Nutzung regelmäßig. Trenne Eingabe-, Ausgabe-, Cache- und kontextbezogenen Verbrauch, wenn das Dashboard dieses Detail bereitstellt.
+
+## Häufige Fehler
+
+- Nur auf die Länge der finalen Antwort schauen und Dateien sowie Tool-Ausgabe ignorieren.
+- `CLAUDE.md` in ein langes Handbuch verwandeln, das in jeder Sitzung geladen wird.
+- Viele MCP-Server aktivieren, ohne zu prüfen, ob die Aufgabe sie benötigt.
+- Mit Prompts wie "refactor the whole repository." beginnen.
+- Erwarten, dass ein API-Gateway die Kontextnutzung von Claude Code automatisch reduziert.
+
+## Über BetterToken
+
+BetterToken kann API Key, Guthaben und Nutzungsverlauf zentralisieren. Es hilft dir, Modell-Request-Kosten auf der API-Schicht zu sehen.
+
+Es entscheidet nicht, welche Dateien Claude Code liest, wie groß `CLAUDE.md` ist, welche MCP-Server aktiviert sind oder wie breit die Aufgabe gefasst ist. Kostenreduzierung beginnt weiterhin mit Workflow- und Kontextverwaltung.
+
+## Verwandte Dokumentation
+
+- [Was ist CLAUDE.md in Claude Code?](/de/faq/claude-code/claude-md)
+- [Was ist Claude Code und wie funktioniert es?](/de/faq/claude-code/what-is-claude-code)
+- [API Key und Base URL in Claude Code konfigurieren](/de/faq/claude-code/api-key-base-url)
+- [Claude-Code-Einrichtungsanleitung](/de/ai-tools/claude-code)
+
+## Referenzen
+
+- [Kosten von Claude Code](https://docs.anthropic.com/en/docs/claude-code/costs)
+- [Claude-Code-Nutzung überwachen](https://docs.anthropic.com/en/docs/claude-code/monitoring-usage)
+- [Diskussion über bewährte Token-Nutzung für Claude-Code-Einsteiger](https://www.reddit.com/r/ClaudeCode/comments/1rlimtx/claude_code_beginner_best_practice_token_usage/)

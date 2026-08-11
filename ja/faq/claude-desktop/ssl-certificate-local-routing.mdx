@@ -1,0 +1,110 @@
+---
+title: "Claude Desktop に SSL certificate has expired と表示される、または読み込みが続く理由"
+sidebarTitle: "SSL エラーとローカルルーティング"
+description: "CC Switch のローカルルーティングと Needs model mapping で、Claude Desktop の無応答および SSL certificate has expired エラーを解決します。"
+---
+
+Claude Desktop がすでに API に接続しているにもかかわらず正常な応答を返さない、または次のようなエラーが表示される場合があります。
+
+```text
+API Error: Unable to connect to API: SSL certificate has expired
+```
+
+これは必ずしも API Key が無効であることや、サーバー証明書が実際に期限切れであることを意味しません。ユーザー報告によると、プロキシネットワーク、制限付きネットワーク、厳格な証明書検査がある環境で、Claude Desktop がサードパーティ API Gateway に直接接続すると失敗する場合があります。
+
+CC Switch の Claude Desktop ローカルルーティングを使用し、**Needs model mapping** を有効にします。Claude Desktop はまずローカルアドレスに接続し、CC Switch がリクエストを `{{brand-name}}` に転送します。
+
+<Frame>
+  <img
+    src="/images/claude-desktop-ssl-local-routing/ssl-certificate-expired-error.png"
+    alt="Claude Desktop に API Error: Unable to connect to API: SSL certificate has expired と表示されています。"
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+## 使用する場面
+
+- Claude Desktop は API に接続しているが、メッセージが応答を返さない。
+- ページに `SSL certificate has expired` と表示される。
+- Chat ページは応答を開始したように見えるが、読み込み状態のままである。
+- プロキシネットワーク、制限付きネットワーク、企業ネットワーク、または証明書検査環境を使用している。
+- 同じ API Key が他のツールでは動作する。
+
+## 解決方法
+
+<Steps>
+  <Step title="CC Switch プロバイダーがアクティブであることを確認する">
+    CC Switch を開き、`{{brand-name}}` プロバイダーが選択されていることを確認し、上部のルーティング / プロキシ切り替えを有効にします。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/cc-switch-provider-routing.png"
+        alt="CC Switch で BetterToken プロバイダーが選択され、上部のルーティング切り替えが有効になっています。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Needs model mapping を有効にする">
+    プロバイダー編集ページを開き、**Needs model mapping** を有効にします。
+
+    これにより、CC Switch は Claude Desktop が受け付ける 3 つのモデルロールを、`{{brand-name}}` で実際に利用できるモデルにマッピングできます。
+
+    - `claude-sonnet-*`
+    - `claude-opus-*`
+    - `claude-haiku-*`
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/needs-model-mapping-settings.png"
+        alt="Needs model mapping を有効にし、API Format と Model mapping を設定した CC Switch のプロバイダー編集ページ。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="API Format を選択する">
+    **API Format** で次を選択します。
+
+    ```text
+    Anthropic Messages (Native)
+    ```
+  </Step>
+
+  <Step title="Model mapping を入力する">
+    **Model mapping** を入力します。<a href={"{{model-plaza-url}}"}>モデル広場</a>で現在利用できるモデル ID を使用してください。
+
+    | モデルの役割 | メニュー表示名 | リクエストするモデル |
+    | --- | --- | --- |
+    | Sonnet | `claude-sonnet-5` | `claude-sonnet-5` |
+    | Opus | `claude-opus-4-8` | `claude-opus-4-8` |
+    | Haiku | `claude-haiku-4-5` | `claude-haiku-4-5-20251001` |
+
+    モデルが 1M コンテキストウィンドウをサポートする場合は、**Declare 1M** を有効にします。
+  </Step>
+
+  <Step title="保存して再度テストする">
+    **Save** をクリックします。Claude Desktop に戻り、モデルをもう一度選択してテストメッセージを送信します。
+
+    設定が正しい場合、Claude Desktop は CC Switch のローカルルートを通じて `{{brand-name}}` を呼び出します。これにより、通常は SSL エラーまたは無応答の問題が解決します。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/claude-desktop-response-after-routing.png"
+        alt="CC Switch のローカルルーティングとモデルマッピングを有効にした後、Claude Desktop が応答を返しています。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## 注意事項
+
+- 古いスクリーンショットのモデル名をそのままコピーしないでください。<a href={"{{model-plaza-url}}"}>モデル広場</a>で現在利用できるモデル ID を使用します。
+- API Key は CC Switch のプロバイダーに保存します。公開ドキュメント、スクリーンショット、チャットログに記載しないでください。
+- 引き続き失敗する場合は、CC Switch 上部のルーティング切り替え、アクティブなプロバイダー、完全な Model mapping、ローカルファイアウォールが `127.0.0.1` をブロックしていないかを確認します。
+
+## 関連ドキュメント
+
+- [Claude Desktop 設定ガイド](/ja/faq/claude-desktop-bettertoken-api)
+- [Claude Desktop で Codex とその他のサードパーティモデルを使用するには？](/ja/faq/claude-desktop/third-party-models)

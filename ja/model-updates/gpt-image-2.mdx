@@ -1,0 +1,73 @@
+---
+title: "GPT Image 2 が利用可能になりました"
+description: "BetterToken は GPT Image 2 を 29 日（2026 年四月）に更新しました。高品質な画像生成、ポスター、マーケティングアセット、ビジュアルドラフトに利用できます。"
+tag: "NEW"
+---
+
+リリース日：2026 年 4 月 29 日
+
+BetterToken に `gpt-image-2` の画像生成モデルエントリーが追加されました。<a href={"{{model-plaza-url}}"}>モデル広場</a>で現在利用可能なモデル ID を確認してから、OpenAI 互換の画像生成 API 経由で呼び出してください。
+
+OpenAI は 2026 年 4 月 21 日に ChatGPT Images 2.0 を発表し、開発者向けドキュメントで `gpt-image-2` を最新の GPT Image モデルとして掲載しています。OpenAI は GPT Image 2 を、テキストと画像の入力、画像出力、柔軟なサイズ、高忠実度の画像入力を備えた、高速かつ高品質な画像生成・編集モデルとして説明しています。
+
+## 主な特徴
+
+- **高い画像品質**：OpenAI は GPT Image 2 を、洗練されたビジュアルアセットに適した最高性能の画像生成モデルとして位置付けています。
+- **より柔軟なサイズ**：`gpt-image-2` は一般的な正方形、横長、縦長、2K、4K の用途を含む、より多くの有効な画像寸法をサポートします。2K を超えるサイズは現在実験的です。
+- **高忠実度の画像入力**：画像編集や参照画像のワークフローでは、`gpt-image-2` は画像入力を高忠実度で処理するため、商品写真、ポートレート、ブランドアセットに役立ちます。
+- **テキストと複雑な情報への対応**：OpenAI のシステムカードによると、ChatGPT Images 2.0 は世界知識、指示追従、高密度テキスト、複雑な詳細の生成を改善します。
+- **部分画像のストリーミング**：Image API は `stream` と `partial_images` を通じて部分画像を返せるため、プロダクトの応答性を高められます。
+
+## 適したユースケース
+
+- プロダクトローンチのポスター、キャンペーンアセット、ソーシャル画像
+- ドキュメント、ブログ、長文記事のイラスト
+- アプリ、Web サイト、SaaS インターフェースのビジュアルコンセプト案
+- 商品画像、広告画像、ブランド方向性の検討
+- 中国語または多言語テキストを含むビジュアルコンテンツ
+
+## API の設定
+
+OpenAI 互換プロトコルでは、次を使用します。
+
+| 設定 | 値 |
+|---------|-------|
+| `Base URL` | `{{openai-base-url}}` |
+| 認証 | `Authorization: Bearer YOUR_API_KEY` |
+| モデル ID | `gpt-image-2` |
+| Endpoint | `POST /v1/images/generations` |
+
+```bash
+curl {{images-generations-url}} \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "Create a modern Chinese launch poster for an AI coding tool, with a clear headline, product UI, and clean background",
+    "size": "1024x1024",
+    "quality": "high"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
+```
+
+パラメーターの完全な一覧は、[テキストから画像への生成ドキュメント](/ja/api-reference/images-generations)を参照してください。
+
+## 設定ガイダンス
+
+独自のアプリケーション、スクリプト、または外部ツールを使用する場合は、OpenAI 互換の画像生成 Endpoint をサポートしていることを確認してください。画像生成では `{{openai-base-url}}` を使用します。Claude Code / Anthropic プロトコルの Endpoint は使用しないでください。
+
+<a href={"{{model-plaza-url}}"}>モデル広場</a>から現在のモデル ID をコピーしてください。ChatGPT の UI モード名を API パラメーターとして使用しないでください。
+
+## 注意事項
+
+- 画像生成には平均で約 `100` ～ `200` 秒かかります。クライアント、ゲートウェイ、または外部ツールのリクエストタイムアウトを `300` 秒より長く設定し、アプリケーションには待機状態を表示してください。
+- `gpt-image-2` は現在、透明な背景をサポートしていません。まず透明でない画像を生成し、必要に応じて別の画像ツールで背景を削除してください。
+- 画像結果はデフォルトで `b64_json` として返されます。画像を保存する前に base64 値をデコードしてください。
+- 大きく高品質な画像では、レイテンシーと費用が増える場合があります。プレビューには `quality: "low"` を使用してください。
+- テキスト、レイアウト、ブランド要素を含む画像は、公開前に確認してください。
+
+## 公式ソース
+
+- [ChatGPT Images 2.0 の紹介](https://openai.com/index/introducing-chatgpt-images-2-0/)
+- [GPT Image 2 モデルページ](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [OpenAI 画像生成ガイド](https://platform.openai.com/docs/guides/images/image-generation)
+- [ChatGPT Images 2.0 システムカード](https://deploymentsafety.openai.com/chatgpt-images-2-0/)

@@ -1,0 +1,57 @@
+---
+title: "MCP बनाम API Key और Base URL"
+sidebarTitle: "MCP vs API"
+description: "MCP, API Key, Base URL, model protocols और tool protocols के बीच अंतर समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+MCP, AI tools को external tools, data sources और context से जोड़ने का protocol है। API Key और Base URL, model request authentication व routing settings हैं।
+
+MCP का उत्तर है: agent कौन-से tools और data उपयोग कर सकता है? API Key / Base URL का उत्तर है: model requests कहां जाते हैं और उनका authentication कैसे होता है?
+
+MCP कॉन्फ़िगर करने से model API कॉन्फ़िगर नहीं होता। model API कॉन्फ़िगर करने से tool को automatically external system access नहीं मिलता।
+
+## तुलना
+
+| विषय | MCP | API Key / Base URL |
+| --- | --- | --- |
+| मुख्य काम | tool, data source और context integration | model requests, authentication, routing |
+| सामान्य targets | local services, databases, files, browsers, business systems | OpenAI-compatible या Anthropic-compatible endpoints |
+| मुख्य risk | tool permissions, data access, side effects | secret leakage, protocol mismatch, model cost |
+| model निर्धारित करता है | नहीं | आमतौर पर हां |
+
+## लोग इन्हें कब मिलाते हैं
+
+- वे सोचते हैं कि MCP model बदल देता है।
+- वे सोचते हैं कि Base URL बदलने से local tools जुड़ जाते हैं।
+- वे MCP server को model provider मानते हैं।
+- वे model API Key को MCP configuration में रखते हैं।
+- उन्हें नहीं पता कि tool OpenAI-compatible या Anthropic-compatible API अपेक्षित करता है।
+
+## कैसे निर्णय लें
+
+यदि आप चाहते हैं कि agent database, browser, filesystem, internal system या extra tool को access करे, तो MCP देखें।
+
+यदि आप model, gateway, billing account या provider बदलना चाहते हैं, तो API Key, Base URL और protocol देखें।
+
+यदि workflow को model switch और external tools, दोनों चाहिए, तो दोनों layers कॉन्फ़िगर करें और permissions अलग-अलग review करें।
+
+## BetterToken के बारे में
+
+BetterToken, model API layer है, MCP server नहीं। यह API Key, Base URL, model routing और usage records संभालता है।
+
+आप BetterToken और MCP साथ उपयोग कर सकते हैं: BetterToken model requests संभालता है, जबकि MCP tool और context extension संभालता है।
+
+## संबंधित दस्तावेज
+
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Desktop में MCP कैसे कॉन्फ़िगर करें](/hi/faq/claude-desktop/mcp)
+- [Cursor में MCP कैसे कॉन्फ़िगर करें](/hi/faq/cursor/mcp)
+- [Claude Code permissions और hooks](/hi/faq/claude-code/permissions-and-hooks)
+
+## संदर्भ
+
+- [Claude Code MCP दस्तावेज](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Model Context Protocol परिचय](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [Anthropic MCP overview](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)

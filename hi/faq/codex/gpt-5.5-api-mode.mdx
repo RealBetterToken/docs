@@ -1,0 +1,126 @@
+---
+title: "Codex API mode में GPT-5.5 का उपयोग क्यों नहीं हो सकता?"
+sidebarTitle: "Codex API mode में GPT-5.5 उपयोग करें"
+description: "local model catalog के साथ Codex custom API mode में अस्थायी रूप से GPT-5.5 सक्षम करें।"
+---
+
+24 अप्रैल 2026 तक, कुछ Codex versions custom API provider उपयोग करते समय `gpt-5.5` को सीधे चुनने नहीं देते। यह Codex में local model catalog की सीमा है। इसका अर्थ यह नहीं कि BetterToken `{{openai-base-url}}` endpoint उपलब्ध नहीं है।
+
+आप local `custom-models.json` file जोड़ सकते हैं ताकि Codex `gpt-5.5` को पहचान सके, फिर इसे `~/.codex/config.toml` से reference करें। यदि बाद का Codex version `gpt-5.5` को natively समर्थित करता है, तो built-in Codex setup को प्राथमिकता दें।
+
+<Note>
+  इस पेज पर दिया पूरा `custom-models.json` उपयोग करें। file को manually संपादित करने पर मौजूदा model entries और fields रखें, और केवल आवश्यक model configuration बदलें।
+</Note>
+
+## सेटअप चरण
+
+<Steps>
+  <Step title="custom model config file तैयार करें">
+    custom model config का path `~/.codex/custom-models.json` है।
+
+    <Tabs>
+      <Tab title="JSON file डाउनलोड करें">
+        पूरा model catalog डाउनलोड करें:
+
+        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">custom-models.json डाउनलोड करें</a>
+
+        डाउनलोड की गई file को Codex config directory में रखें और उसका नाम `custom-models.json` रखें।
+
+| System | target path |
+        |--------|-------------|
+        | macOS / Linux | `~/.codex/custom-models.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+
+        डाउनलोड की गई file पूरा model catalog है। अगले चरण में इसे Codex config से reference किया जाता है।
+      </Tab>
+
+      <Tab title="JSON को manually संपादित करें">
+        यदि आपके पास पहले से `~/.codex/custom-models.json` है, तो मौजूदा file संपादित करें। केवल एक `gpt-5.5` entry न रखें।
+
+        manually संपादित करते समय पुष्टि करें कि `models` array में `gpt-5.5` entry है और अन्य model configs बने रहें। JSON से परिचित नहीं हैं तो download option उपयोग करें।
+
+        `gpt-5.5` entry में ऐसे मुख्य fields शामिल होने चाहिए:
+
+        ```json
+        {
+          "slug": "gpt-5.5",
+          "display_name": "gpt-5.5",
+          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+          "base_instructions": "...",
+          "model_messages": {
+            "instructions_template": "...",
+            "instructions_variables": {
+              "personality_default": "",
+              "personality_friendly": "...",
+              "personality_pragmatic": "..."
+            }
+          },
+          "supports_reasoning_summaries": true,
+          "support_verbosity": true,
+          "context_window": 272000
+        }
+        ```
+
+        <Note>
+          ऊपर का code block केवल एक model entry की मुख्य structure दिखाता है। डाउनलोड की गई file या अपने मौजूदा पूरे model catalog को source of truth मानें।
+        </Note>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Codex config में JSON file reference करें">
+    Codex config file `~/.codex/config.toml` खोलें, फिर निम्न config जोड़ें या merge करें।
+
+    macOS / Linux उदाहरण:
+
+    ```toml
+    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    Windows उदाहरण:
+
+    ```toml
+    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
+    ```
+
+    `model_catalog_json` local absolute path होना चाहिए। Windows में TOML double-quoted strings में `\` को `\\` लिखें।
+  </Step>
+
+  <Step title="Codex रीस्टार्ट करें">
+    config file बदलने के बाद current Codex process रोकें और नई terminal session में शुरू करें:
+
+    ```bash
+    codex
+    ```
+  </Step>
+</Steps>
+
+## समस्या निवारण
+
+यदि `gpt-5.5` फिर भी काम नहीं करता, तो इन items को क्रम से जांचें:
+
+1. `model_catalog_json` local absolute path उपयोग करता है
+2. `custom-models.json` में पूरा model catalog है
+3. `base_url`, `{{openai-base-url}}` है
+4. `wire_api`, `responses` है
+5. `model_provider`, `[model_providers.{{codex-provider-id}}]` में provider id से मेल खाता है
+
+यदि आपका Codex version `gpt-5.5` को पहले से natively समर्थित करता है, तो `model_catalog_json` हटाएं और सामान्य [Codex सेटअप गाइड](/hi/ai-tools/codex) पर लौटें।

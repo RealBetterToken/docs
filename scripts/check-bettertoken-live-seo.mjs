@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { betterTokenLocales, xDefaultLanguage } from './i18n-locales.mjs';
 
 const siteUrl = 'https://docs.bettertoken.ai';
 const legacyRoutes = [
@@ -9,9 +10,7 @@ const legacyRoutes = [
   ['faq/codex-official-login-third-party-api', 'faq/codex/official-login-third-party-api'],
 ];
 const localeRoutes = [
-  { oldPrefix: '', newPrefix: '' },
-  { oldPrefix: 'en/', newPrefix: 'en/' },
-  { oldPrefix: 'zh/', newPrefix: 'zh/' },
+  ...betterTokenLocales.map(({ routePrefix }) => ({ oldPrefix: routePrefix, newPrefix: routePrefix })),
   { oldPrefix: 'ru/', newPrefix: '' },
 ];
 
@@ -48,7 +47,7 @@ async function fetchLocalizedSitemap() {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const response = await fetchWithoutRedirect(`${siteUrl}/sitemap.xml`);
     const xml = await response.text();
-    if (response.status === 200 && xml.includes('hreflang="zh-CN"')) return xml;
+    if (response.status === 200 && xml.includes('hreflang="hi-IN"')) return xml;
     if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 15_000));
   }
 
@@ -91,13 +90,20 @@ for (const [legacyRoute, destinationRoute] of legacyRoutes) {
   }
 }
 
-const expectedHreflangs = ['ru', 'en', 'zh-CN', 'x-default'];
+const expectedHreflangs = [...betterTokenLocales.map(({ hreflang }) => hreflang), 'x-default'];
+const xDefaultHreflang = betterTokenLocales.find(
+  ({ language }) => language === xDefaultLanguage,
+).hreflang;
 for (const [url, block] of sitemapBlocks) {
   const alternates = new Map(
     [...block.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)].map((match) => [match[1], match[2]]),
   );
   assert.deepEqual([...alternates.keys()], expectedHreflangs, `${url} must declare all hreflang variants`);
-  assert.equal(alternates.get('x-default'), alternates.get('ru'), `${url} x-default must point to Russian`);
+  assert.equal(
+    alternates.get('x-default'),
+    alternates.get(xDefaultHreflang),
+    `${url} x-default must point to English`,
+  );
 
   for (const alternateUrl of new Set(alternates.values())) {
     const alternateBlock = sitemapBlocks.get(alternateUrl);
@@ -135,11 +141,10 @@ assert.equal(
   `Every sitemap URL must return 200 without redirect:\n${sitemapFailures.join('\n')}`,
 );
 
-const langChecks = [
-  ['/ai-tools/zed', 'ru'],
-  ['/en/ai-tools/zed', 'en'],
-  ['/zh/ai-tools/zed', 'zh-CN'],
-];
+const langChecks = betterTokenLocales.map(({ routePrefix, hreflang }) => [
+  `/${routePrefix}ai-tools/zed`,
+  hreflang,
+]);
 const langLimitations = [];
 
 for (const [pathname, expectedLang] of langChecks) {

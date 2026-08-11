@@ -1,0 +1,147 @@
+---
+title: "OpenAI Chat Completions API गाइड"
+description: "पूर्ण request URL, Bearer API Key, curl, Python और JavaScript उदाहरण के साथ BetterToken का OpenAI-compatible Chat Completions API उपयोग करें।"
+openapi: "api-reference/openapi.json POST /v1/chat/completions"
+---
+
+OpenAI-compatible Chat Completions को `POST {{chat-completions-url}}` से कॉल करें। अधिकतर external tools Base URL `{{openai-base-url}}` लेते हैं और `/chat/completions` स्वयं जोड़ते हैं।
+
+## मुख्य सेटिंग्स
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Full request URL | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## आवश्यकताएं
+
+- <a href={"{{register-url}}"}>BetterToken API Key बनाएं</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> या key **Setup** dialog से Model ID कॉपी करें
+- `curl` या Python 3 / Node.js वाला terminal तैयार रखें
+
+## इंस्टॉल करें
+
+<Tabs>
+  <Tab title="curl">
+    `curl` के लिए SDK नहीं चाहिए। पुष्टि करें कि `curl --version` आपके terminal में चलता है।
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
+
+## मैन्युअल सेटअप
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Hello"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Hello" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## कनेक्शन सत्यापित करें
+
+दाईं ओर Playground में:
+
+1. **Authorization** के अंतर्गत `YOUR_API_KEY` भरें।
+2. `model` को `YOUR_MODEL_ID` से बदलें।
+3. `messages` संपादित करें और अनुरोध भेजें।
+
+Playground पहले से पूरा URL `{{chat-completions-url}}` उपयोग करता है।
+
+मॉडल output के साथ `200` response का `choices[0].message.content` में होना कनेक्शन की पुष्टि करता है।
+
+## मॉडल बदलें
+
+`YOUR_MODEL_ID` को model plaza या **Setup** dialog की पूरी Model ID से बदलें। display name के आधार पर Model ID को छोटा न करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | समाधान |
+| --- | --- |
+| `401` | `Authorization: Bearer YOUR_API_KEY` की पुष्टि करें, फिर BetterToken API Key दोबारा कॉपी करें। |
+| `404` | direct HTTP call `{{chat-completions-url}}` उपयोग करता है; SDK `base_url` `{{openai-base-url}}` उपयोग करता है। |
+| मॉडल नहीं मिला | model plaza या **Setup** dialog की पूरी Model ID उपयोग करें। |
+| अमान्य अनुरोध | पुष्टि करें कि `messages` एक array है और हर item में `role` व `content` हैं। |
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+## तकनीकी विवरण
+
+<Accordion title="Base URL और पूर्ण request URL">
+  पूरा request URL मांगने वाले tool, जैसे GitHub Copilot और TRAE, `{{chat-completions-url}}` उपयोग करते हैं। path स्वयं जोड़ने वाले tool, जैसे Cursor, Cline, OpenCode, n8n और Dify, केवल `{{openai-base-url}}` उपयोग करते हैं।
+</Accordion>

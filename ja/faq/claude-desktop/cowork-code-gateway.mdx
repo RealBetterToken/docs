@@ -1,0 +1,75 @@
+---
+title: "Claude Desktop の Cowork または Code モードが Gateway で失敗した場合は？"
+sidebarTitle: "Claude Desktop Cowork / Code エラー"
+description: "BetterToken を Gateway として接続した後に起きる Claude Desktop Cowork の失敗と Code モードのエラーを解決します。"
+---
+
+Claude Desktop で BetterToken Gateway を設定した後、次の症状は通常、API Key 自体が無効であることを意味しません。
+
+- Cowork モードが動作しない
+- Code モードに `Claude Code process exited with code 1` と表示される
+- 同じ API Key がターミナルの Claude Code CLI では動作する
+
+これらの問題は通常、2 つの別の原因によって発生します。デスクトップの Gateway 認証方式がプロバイダーと一致しない、または Claude Desktop にバンドルされた Claude Code バージョンの更新が完了していないことです。
+
+Gateway をまだ設定していない場合は、[Claude Desktop で BetterToken API を使用する](/ja/faq/claude-desktop-bettertoken-api)から始めてください。
+
+## まず Cowork モードを解決する
+
+**原因**：**Gateway auth scheme** がプロバイダーと一致していません。
+
+Claude Desktop の Gateway 設定で、プロバイダーに応じた認証方式を選択します。
+
+- BetterToken API Key が有効な場合は、**Gateway auth scheme** を `x-api-key` に設定する
+- BetterToken API Key が有効な場合は、**Gateway auth scheme** を `bearer` に設定する
+
+正しい方式を選択すると、Claude Desktop はそのグループで利用可能なモデルを自動取得します。認証方式が誤っていると、Cowork モードの Gateway 認証に失敗する場合があります。
+
+<Steps>
+  <Step title="サードパーティ推論設定を開く">
+    macOS のメニューバーで **Developer** → **Configure Third-Party Inference...** を選択します。
+  </Step>
+
+  <Step title="認証方式を変更する">
+    プロバイダーに応じて **Gateway auth scheme** を選択します。**Claude プロバイダー**には `x-api-key`、**GPT プロバイダー**には `bearer` を使用します。
+  </Step>
+
+  <Step title="設定を保存する">
+    **Apply locally** をクリックしてローカル Gateway 設定を保存します。
+  </Step>
+</Steps>
+
+この変更後、Cowork モードは通常再び動作します。
+
+## 次に Code モードの終了エラーを解決する
+
+Cowork は動作する一方で Code モードの `</>` タブに `Claude Code process exited with code 1` と表示され続ける場合は、Claude Desktop が古いバンドル版 Claude Code を使用していないか確認してください。
+
+**原因**：Claude Desktop が新しい Claude Code バージョンをバックグラウンドでダウンロードしている場合があります。ダウンロードが完了する前は、Code モードがインストール済みの古い Claude Code バージョンにフォールバックすることがあります。古いバージョンは Code モードでのサードパーティ Gateway 使用と互換性がない場合があり、プロセスが直ちに終了します。
+
+**解決方法**：
+
+<Steps>
+  <Step title="新しい Claude Code バージョンのダウンロード完了を待つ">
+    バックグラウンドの Claude Code 更新が完了するよう、しばらく Claude Desktop を開いたままにします。
+  </Step>
+
+  <Step title="Claude Desktop を完全に終了する">
+    **Cmd+Q** を使用してアプリを完全に終了します。ウィンドウを閉じるだけでは不十分です。
+  </Step>
+
+  <Step title="再度開いて新しい Code セッションを開始する">
+    Claude Desktop をもう一度開き、Code モードに移動して新しいセッションを開始します。
+  </Step>
+</Steps>
+
+<Note>
+  ログに、Claude Desktop が古い Claude Code バージョン（例：`2.1.111`）へフォールバックし、より新しいバージョン（例：`2.1.119`）の準備ができていないことが示される場合は、新しいバージョンのダウンロード完了を待ってからアプリを再起動してください。
+</Note>
+
+## クイックリファレンス
+
+| 症状 | よくある原因 | 解決方法 |
+|---------|-------------------|-----|
+| Cowork モードが動作しない | **Gateway auth scheme** がプロバイダーと一致しない | **Claude プロバイダー**には `x-api-key`、**GPT プロバイダー**には `bearer` を使用し、**Apply locally** をクリックする |
+| Code モードに `Claude Code process exited with code 1` と表示される | Claude Desktop が古い Claude Code バージョンへフォールバックしている | 新しいバージョンのダウンロード完了を待ち、**Cmd+Q** で完全に終了してから再度開く |

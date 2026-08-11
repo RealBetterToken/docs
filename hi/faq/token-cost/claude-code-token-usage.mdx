@@ -1,0 +1,74 @@
+---
+title: "Claude Code इतने tokens क्यों उपयोग करता है और cost कैसे घटाएं"
+sidebarTitle: "Claude Code token cost"
+description: "जानें कि Claude Code token usage कहां से आता है और context, CLAUDE.md, MCP, model choice व workflow design cost को कैसे प्रभावित करते हैं।"
+---
+
+## त्वरित उत्तर
+
+Claude Code token usage केवल अंतिम दिखाई देने वाला answer नहीं है। इसमें पढ़ी गई files, project instructions, conversation history, tool results, MCP tool descriptions, generated output और compacted summaries शामिल हो सकते हैं।
+
+उच्च usage आमतौर पर broad tasks, large context, लंबी rule files, कई MCP servers, repeated rework और heavy model choices के संयोजन से आता है।
+
+व्यावहारिक समाधान हर task को focused रखना और केवल उसी task के लिए आवश्यक context load करना है।
+
+## यह कब महत्वपूर्ण है
+
+- Claude Code प्रत्येक answer से पहले कई files पढ़ता है
+- छोटा change लंबी exploration session में बदल जाता है
+- `CLAUDE.md` या rule files बढ़ती जाती हैं
+- कई MCP servers enabled हैं लेकिन शायद ही उपयोग होते हैं
+- Claude Code वही काम बार-बार करता है
+- आपकी team को predictable API spending चाहिए
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Input tokens | user prompts, context, files, tool results और instructions |
+| Output tokens | model-generated text, code और responses |
+| Context window | session में रखी जा सकने वाली information की मात्रा |
+| Prompt caching | कुछ repeated context के लिए कम cost |
+| Compaction | context बढ़ने पर पुरानी history का सार बनाना |
+| MCP overhead | tool definitions और tool results context जोड़ सकते हैं |
+
+## अनुशंसित workflow
+
+task boundary पर cost नियंत्रित करें:
+
+1. Claude Code को एक समय में एक clear goal दें।
+2. पहले केवल relevant files पढ़ने को कहें।
+3. unrelated task पर switch करते समय `/clear` उपयोग करें।
+4. `CLAUDE.md` को छोटा और specific रखें।
+5. current work के लिए आवश्यक न होने वाले MCP servers disable करें।
+6. simple edits के लिए lighter models और complex reasoning के लिए stronger models उपयोग करें।
+7. rework घटाने के लिए प्रत्येक छोटे change के बाद smallest relevant check चलाएं।
+
+API gateway उपयोग करने पर dashboard usage नियमित review करें। dashboard जब यह detail दिखाए, तो input, output, cache और context-related consumption अलग करें।
+
+## सामान्य गलतियां
+
+- केवल final answer length देखना और files व tool output अनदेखा करना।
+- `CLAUDE.md` को हर session में load होने वाले लंबे manual में बदलना।
+- task को उनकी जरूरत है या नहीं जांचे बिना कई MCP servers enable करना।
+- “पूरी repository refactor करें” जैसे prompts से शुरू करना।
+- API gateway से Claude Code का context usage automatically घटने की उम्मीद करना।
+
+## BetterToken के बारे में
+
+BetterToken API Key, balance और usage history को centralize कर सकता है। यह API layer पर model request cost देखने में मदद करता है।
+
+यह तय नहीं करता कि Claude Code कौन-सी files पढ़ता है, `CLAUDE.md` कितना बड़ा है, कौन-से MCP servers enabled हैं या task कितना broad है। cost reduction फिर भी workflow और context management से शुरू होता है।
+
+## संबंधित दस्तावेज
+
+- [Claude Code में CLAUDE.md क्या है?](/hi/faq/claude-code/claude-md)
+- [Claude Code क्या है और यह कैसे काम करता है?](/hi/faq/claude-code/what-is-claude-code)
+- [Claude Code में API Key और Base URL कैसे कॉन्फ़िगर करें](/hi/faq/claude-code/api-key-base-url)
+- [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code)
+
+## संदर्भ
+
+- [Claude Code costs](https://docs.anthropic.com/en/docs/claude-code/costs)
+- [Claude Code usage monitoring](https://docs.anthropic.com/en/docs/claude-code/monitoring-usage)
+- [Claude Code beginners के लिए token usage चर्चा](https://www.reddit.com/r/ClaudeCode/comments/1rlimtx/claude_code_beginner_best_practice_token_usage/)

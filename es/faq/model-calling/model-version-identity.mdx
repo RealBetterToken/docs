@@ -1,0 +1,86 @@
+---
+title: "¿Por qué un modelo no conoce su propia versión?"
+sidebarTitle: "Identificación del modelo"
+description: "Descubre por qué un modelo puede indicar una versión incorrecta al llamarlo mediante una API y cómo verificar qué modelo se usó realmente."
+---
+
+## Respuesta breve
+
+Es normal que un modelo indique incorrectamente su propia versión. Esto no demuestra que hayas llamado al modelo equivocado.
+
+El servidor de la API usa principalmente el parámetro `model` para el enrutamiento. Es posible que el modelo no vea ese campo ni conozca el nombre final de la versión si se asignó después del entrenamiento. Los productos web oficiales suelen responder correctamente porque la capa de producto inyecta un prompt del sistema que indica al modelo su identidad.
+
+Cuando llamas a un modelo mediante una API sin añadir información de identidad al mensaje del sistema, el modelo puede deducir un nombre anterior a partir de sus datos de entrenamiento.
+
+## Cuándo ocurre
+
+- Llamas a un modelo nuevo, pero afirma ser una versión anterior
+- El sitio web oficial indica correctamente la versión, pero la llamada a la API no
+- El mismo modelo se presenta de forma distinta en herramientas diferentes
+- Quieres comprobar si el gateway de API llamó al modelo solicitado
+- Un usuario considera «¿Qué modelo eres?» como método de verificación
+
+## Por qué ocurre
+
+Los nombres de los modelos suelen decidirse después del entrenamiento. Durante el entrenamiento, el modelo aprende patrones de lenguaje, código y conocimiento. Puede no aprender el nombre final del producto que se utiliza tras su lanzamiento.
+
+En una solicitud a la API, el campo `model` indica al servidor a qué modelo debe dirigirla. No forma parte del contenido normal del chat y el modelo puede no recibirlo como información de identidad.
+
+Los productos web oficiales pueden añadir instrucciones ocultas como «Eres este modelo». Las llamadas a la API no suelen añadir automáticamente ese prompt de identidad.
+
+## Cómo verificar qué modelo se usó realmente
+
+No te limites a preguntar al modelo «¿Qué versión eres?». Comprueba la ruta de la solicitud y los campos de la respuesta.
+
+| Método de verificación | Qué comprobar |
+| --- | --- |
+| Registros de llamadas | El modelo usado para cada solicitud en el panel |
+| Campos de respuesta de la API | El campo `model` en el JSON de respuesta |
+| ID del modelo | El ID del modelo de tu solicitud procede del proveedor actual o de la model plaza |
+| Proveedor | La API Key, la Base URL y el ID del modelo pertenecen al mismo grupo |
+
+Ejemplo de respuesta:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+La estructura exacta de la respuesta depende del formato de la API. Debes comprobar el campo de modelo que devuelve el servidor y el registro del panel, no la presentación que hace el modelo de sí mismo.
+
+## Cómo hacer que el modelo responda con una identidad concreta
+
+Si tu producto necesita que el modelo se describa de una forma concreta, incluye esa identidad en el mensaje del sistema:
+
+```text
+You are Claude Sonnet 5, called through the BetterToken API.
+```
+
+Funciona como el producto web oficial: la capa de aplicación indica al modelo quién debe decir que es.
+
+<Warning>
+  Un mensaje del sistema solo cambia la forma en que el modelo se describe y su estilo de comportamiento. No cambia el modelo al que se dirige realmente la solicitud. El enrutamiento real sigue determinado por la Base URL, la API Key, el proveedor y el ID del modelo.
+</Warning>
+
+## Errores habituales
+
+- Usar «¿Qué modelo eres?» como único método de verificación.
+- Suponer que el proveedor cambió el modelo porque su autodescripción es incorrecta.
+- Suponer que el parámetro `model` siempre entra en el contexto del modelo.
+- Ignorar los registros del panel y el campo `model` de la respuesta.
+- Añadir la identidad del modelo al mensaje del sistema y suponer que el modelo real ha cambiado.
+
+## Acerca de BetterToken
+
+El panel de BetterToken te ayuda a comprobar la API Key, el ID del modelo, los registros de solicitudes y el uso del saldo. Cuando necesites confirmar si el modelo es correcto, revisa primero el registro de llamadas y los campos de la respuesta.
+
+Si la autodescripción contradice los registros, confía en los registros y en los campos de la respuesta.
+
+## Documentación relacionada
+
+- [¿Cómo elijo el modelo de IA adecuado?](/es/faq/model-calling/model-selection-guide)
+- [¿Cómo debo completar la Base URL?](/es/faq/model-calling/base-url-config)
+- [¿Qué diferencia hay entre una API compatible con OpenAI y una compatible con Anthropic?](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [¿Cómo cambio entre Sonnet y Opus en Claude Code?](/es/faq/claude-code/switch-sonnet-opus)

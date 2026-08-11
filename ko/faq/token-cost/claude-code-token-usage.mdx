@@ -1,0 +1,74 @@
+---
+title: "Claude Code가 tokens를 많이 사용하는 이유와 cost를 줄이는 방법"
+sidebarTitle: "Claude Code token cost"
+description: "Claude Code token usage의 source와 context, CLAUDE.md, MCP, model choice, workflow design이 cost에 미치는 영향을 알아보세요."
+---
+
+## 빠른 답변
+
+Claude Code token usage는 보이는 final answer만을 뜻하지 않습니다. 읽는 files, project instructions, conversation history, tool results, MCP tool descriptions, generated output, compacted summaries가 포함될 수 있습니다.
+
+high usage는 보통 broad tasks, large context, long rule files, many MCP servers, repeated rework, heavy model choices의 combination에서 발생합니다.
+
+practical fix는 each task를 focused하게 유지하고 해당 task에 필요한 context만 load하는 것입니다.
+
+## 이 내용이 중요한 경우
+
+- Claude Code가 each answer 전에 many files를 read하는 경우
+- small change가 long exploration session으로 이어지는 경우
+- `CLAUDE.md` 또는 rule files가 계속 growing하는 경우
+- many MCP servers가 enabled되었지만 rarely used되는 경우
+- Claude Code가 same work를 repeatedly redoes하는 경우
+- team에 predictable API spending이 필요한 경우
+
+## 핵심 개념
+
+| Concept | 의미 |
+| --- | --- |
+| Input tokens | User prompts, context, files, tool results 및 instructions |
+| Output tokens | Model-generated text, code 및 responses |
+| Context window | session이 hold할 수 있는 information amount |
+| Prompt caching | 일부 repeated context의 reduced cost |
+| Compaction | context가 grows할 때 older history를 summarizing |
+| MCP overhead | Tool definitions와 tool results가 context를 add할 수 있음 |
+
+## 권장 workflow
+
+task boundary에서 cost를 control하세요.
+
+1. Claude Code에 한 번에 one clear goal을 제공하세요.
+2. 먼저 relevant files만 read하도록 요청하세요.
+3. unrelated task로 switching할 때 `/clear`를 사용하세요.
+4. `CLAUDE.md`는 short하고 specific하게 유지하세요.
+5. current work에 필요하지 않은 MCP servers는 disable하세요.
+6. simple edits에는 lighter models를, complex reasoning에는 stronger models를 사용하세요.
+7. each small change 후 smallest relevant check를 run하여 rework를 줄이세요.
+
+API gateway를 사용한다면 dashboard usage를 regularly review하세요. dashboard가 해당 detail을 expose할 때 input, output, cache, context-related consumption을 separate하세요.
+
+## 일반적인 실수
+
+- final answer length만 보고 files와 tool output을 ignore함
+- `CLAUDE.md`를 every session에서 load되는 long manual로 만듦
+- task가 필요한지 check하지 않고 many MCP servers를 enable함
+- "refactor the whole repository." 같은 prompts로 시작함
+- API gateway가 Claude Code의 context usage를 automatically reduce할 것이라고 기대함
+
+## BetterToken 정보
+
+BetterToken은 API Key, balance, usage history를 centralize할 수 있습니다. API layer에서 model request cost를 확인하도록 돕습니다.
+
+어떤 files를 Claude Code가 read하는지, `CLAUDE.md`가 얼마나 large한지, 어떤 MCP servers가 enabled되는지, task가 얼마나 broad한지는 결정하지 않습니다. Cost reduction은 여전히 workflow와 context management에서 시작합니다.
+
+## 관련 문서
+
+- [Claude Code의 CLAUDE.md란 무엇인가요?](/ko/faq/claude-code/claude-md)
+- [Claude Code란 무엇이며 어떻게 works하나요?](/ko/faq/claude-code/what-is-claude-code)
+- [Claude Code에서 API Key와 Base URL을 configure하는 방법](/ko/faq/claude-code/api-key-base-url)
+- [Claude Code setup guide](/ko/ai-tools/claude-code)
+
+## 참고 자료
+
+- [Claude Code 비용](https://docs.anthropic.com/en/docs/claude-code/costs)
+- [Claude Code usage monitoring](https://docs.anthropic.com/en/docs/claude-code/monitoring-usage)
+- [Claude Code 초보자의 token usage best practice discussion](https://www.reddit.com/r/ClaudeCode/comments/1rlimtx/claude_code_beginner_best_practice_token_usage/)

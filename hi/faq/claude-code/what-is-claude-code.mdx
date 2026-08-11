@@ -1,0 +1,69 @@
+---
+title: "Claude Code क्या है और कैसे काम करता है?"
+sidebarTitle: "Claude Code क्या है"
+description: "जानें कि Claude Code क्या है, यह codebase के साथ कैसे काम करता है और context, tool permission, MCP व API provider एक साथ कैसे काम करते हैं।"
+---
+
+## संक्षिप्त उत्तर
+
+Claude Code software development के लिए coding agent है। यह केवल chat page नहीं है। यह codebase पढ़ सकता है, फ़ाइल संपादित कर सकता है, command चला सकता है और terminal, IDE, desktop app या browser से development कार्य में मदद कर सकता है।
+
+बुनियादी workflow है: Claude Code project context पढ़ता है, कार्य की योजना बनाता है, tool call करता है, फ़ाइल संपादित करता है और जरूरत पर check चलाता है। यह multi-file बदलाव, test fix, code review, script और लंबे engineering कार्यों के लिए बनाया है।
+
+model API केवल inference संभालता है। local permission, फ़ाइल access, command execution, hook और MCP tool को अब भी Claude Code तथा project setup नियंत्रित करते हैं।
+
+## यह कब महत्वपूर्ण है
+
+- पहली बार Claude Code इंस्टॉल कर रहे हैं
+- Claude Code से local repository बदलवाना चाहते हैं
+- समझना चाहते हैं कि यह फ़ाइल क्यों पढ़ता है या बहुत token क्यों उपयोग करता है
+- कस्टम API Key और Base URL जोड़ने की योजना है
+- Claude Code, Claude Desktop, Cursor और Codex CLI में चयन कर रहे हैं
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Coding agent | development-केंद्रित agent जो code जांच सकता, tool उपयोग कर सकता, फ़ाइल edit और command चला सकता है |
+| Working directory | project directory जिसे Claude Code जांच और बदल सकता है |
+| Tool use | फ़ाइल read, code search, फ़ाइल edit, shell command और समान action |
+| Context | conversation history, फ़ाइल, project rule, `CLAUDE.md` और tool result |
+| MCP | tool और data source जोड़ने का protocol; यह model API नहीं है |
+| `CLAUDE.md` | project instruction फ़ाइल जिसे Claude Code context के रूप में लोड कर सकता है |
+
+## अनुशंसित workflow
+
+1. Claude Code को वास्तविक project directory से शुरू करें।
+2. बड़े edit से पहले इससे संबंधित फ़ाइल जांचने को कहें।
+3. जटिल कार्य के लिए implementation से पहले plan मांगें।
+4. इसे छोटी फ़ाइलों का set बदलने दें, फिर सबसे तेज संबंधित check चलाएं।
+5. स्थिर project rule को `CLAUDE.md` में रखें; एक-बार के instruction conversation में रखें।
+
+Claude Code को API gateway से जोड़ें तो पुष्टि करें कि endpoint Anthropic-compatible है। इस दस्तावेज में Claude Code `{{anthropic-base-url}}` उपयोग करता है। Claude Code के Anthropic protocol configuration में OpenAI-compatible `{{openai-base-url}}` उपयोग न करें।
+
+## सामान्य गलतियां
+
+- Claude Code को सामान्य chat page मानना और भूल जाना कि यह local फ़ाइल को छू सकता है।
+- फ़ाइल या project instruction पढ़े बिना इससे पूरे repository को समझने की अपेक्षा करना।
+- MCP को model API मानना। MCP tool जोड़ता है; API Key, Base URL और Model ID inference कॉन्फ़िगर करते हैं।
+- Claude.ai login, Claude Console API और third-party API gateway मिलाना।
+- review, test या command boundary के बिना व्यापक local execution अनुमति देना।
+
+## BetterToken के बारे में
+
+Claude Code कस्टम API Key और Base URL उपयोग करे तो मॉडल अनुरोध Anthropic-compatible API gateway से भेज सकता है। BetterToken उसी मॉडल API layer का भाग है और API Key, balance व usage history प्रबंधित करने में मदद कर सकता है।
+
+BetterToken Claude Code permission, फ़ाइल access control, hook, MCP config या project rule की जगह नहीं लेता। वे Claude Code workflow का भाग बने रहते हैं।
+
+## संबंधित दस्तावेज
+
+- [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code)
+- [Claude Code Claude.ai account उपयोग करता है या API Key?](/hi/faq/claude-code/claude-account-or-api-key)
+- [Claude Code में API Key और Base URL कैसे कॉन्फ़िगर करें](/hi/faq/claude-code/api-key-base-url)
+- [Claude Code में CLAUDE.md क्या है?](/hi/faq/claude-code/claude-md)
+
+## संदर्भ
+
+- [Claude Code अवलोकन](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code त्वरित शुरुआत](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [Claude आपके project को कैसे याद रखता है](https://docs.anthropic.com/en/docs/claude-code/memory)

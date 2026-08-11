@@ -1,0 +1,90 @@
+---
+title: "Was ist max_tokens? Was passiert, wenn ich es nicht setze?"
+sidebarTitle: "max_tokens"
+description: "Verstehe max_tokens, max_completion_tokens und max_output_tokens und wie du ein Ausgabe-Token-Limit für Modellaufrufe setzt."
+---
+
+## Kurzantwort
+
+`max_tokens` begrenzt, wie viele Tokens das Modell in einer Antwort generieren kann. Unterschiedliche APIs und Modelle verwenden unterschiedliche Feldnamen, erforderliche Einstellungen und Standardverhalten.
+
+Setze für stabile Ausgaben ein explizites Ausgabe-Limit bei langen Antworten, Codegenerierung und Dokumentationsaufgaben. Bei Claude-/Anthropic-kompatiblen API-Aufrufen musst du normalerweise `max_tokens` explizit senden.
+
+## Grundlegende Konzepte
+
+| Konzept | Bedeutung |
+| --- | --- |
+| Eingabe-Tokens | Deine Nachrichten, Kontext, Dateiinhalte, Tool-Ergebnisse und weitere Eingaben |
+| Ausgabe-Tokens | Die vom Modell generierte sichtbare Antwort |
+| Reasoning-Tokens | Verdeckte Reasoning-Tokens, die einige Reasoning-Modelle intern verwenden |
+| Kontextfenster | Das gemeinsame Limit für Eingabe, Ausgabe und einige interne Tokens |
+| Ausgabe-Limit | Die maximale sichtbare Ausgabe, die in einer Antwort generiert wird |
+
+Wenn das Ausgabe-Limit zu klein ist, kann die Antwort abgeschnitten werden. Wenn es sehr groß ist, generiert das Modell nicht immer so viele Tokens, doch Aufgaben mit langen Ausgaben können mehr kosten.
+
+## Unterschiedliche Parameternamen
+
+| Parameter | Häufiger Anwendungsfall |
+| --- | --- |
+| `max_tokens` | Claude / Anthropic Messages API und einige Chat-Completions-Einrichtungen |
+| `max_completion_tokens` | Einige OpenAI-Reasoning-Modelle über Chat Completions |
+| `max_output_tokens` | Gängiges Ausgabe-Limit-Feld für OpenAI Responses API |
+
+Wenn du Codex CLI oder ein anderes Tool auf Basis der Responses API verwendest, folge dem Feld, das dieses Tool oder dieser Provider aktuell unterstützt. Codiere nicht für jedes Modell denselben Parameternamen fest ein.
+
+## Was passiert, wenn du es nicht setzt
+
+Das Verhalten unterscheidet sich je nach Provider und API:
+
+| Szenario | Mögliches Ergebnis |
+| --- | --- |
+| Claude / Anthropic-kompatible API | Kann einen expliziten Wert für `max_tokens` erfordern |
+| OpenAI-kompatible Chat Completions | Kann das Standardverhalten des Modells verwenden |
+| OpenAI Responses API | Kann `max_output_tokens` oder den Standard des Tools verwenden |
+| Andere Modelle | Können eigene Standard-Ausgabe-Limits haben |
+
+Der gleiche Code kann nach einem Modellwechsel unterschiedliche Ausgabelängen erzeugen. Setze ein explizites Ausgabe-Limit, um Überraschungen in der Produktion zu reduzieren.
+
+## Empfohlene Bereiche
+
+| Aufgabe | Vorgeschlagener Bereich |
+| --- | --- |
+| Allgemeine Fragen und Antworten | `1024` - `4096` |
+| Code-Erklärung / kleine Änderungen | `4096` - `8192` |
+| Langform-Schreiben / komplexe Coding-Aufgaben | `8192` oder höher, abhängig vom Modelllimit |
+| Stapelaufgaben | Verwende ein kleineres Limit, um unerwartet lange Antworten zu vermeiden |
+
+Prüfe die <a href={"{{model-plaza-url}}"}>model plaza</a> und Upstream-Modelldokumentation auf das tatsächliche Maximum. Ausgabe-Limits von Modellen können sich je nach Version ändern.
+
+## Was tun, wenn die Ausgabe abgeschnitten wird
+
+Wenn die Antwort `finish_reason: "length"` enthält, hat das Modell normalerweise das Ausgabe-Limit erreicht.
+
+Führe die Fehlerbehebung in dieser Reihenfolge durch:
+
+1. Erhöhe das von der aktuellen API unterstützte Ausgabe-Limit-Feld.
+2. Prüfe, ob du den richtigen Parameternamen verwendet hast.
+3. Formuliere den Prompt fokussierter, um unnötige Ausgabe zu reduzieren.
+4. Verwende ein Modell mit größerem Ausgabefenster.
+5. Teile die Aufgabe in mehrere Schritte auf.
+
+## Häufige Fehler
+
+- Annehmen, dass ein größerer `max_tokens`-Wert das Modell immer mehr schreiben lässt.
+- Nach Abschneiden erneut versuchen, ohne `finish_reason` zu prüfen.
+- Mit einem Reasoning-Modell einen alten Feldnamen verwenden.
+- Verdeckte Reasoning-Tokens bei der Schätzung von Kontext und Kosten ignorieren.
+- Das eigene maximale Ausgabe-Limit des Modells ignorieren.
+
+## Über BetterToken
+
+BetterToken zeichnet Nutzung auf API-Key- und Modell-Request-Ebene auf. Du kannst das Dashboard verwenden, um Token-Nutzung über Modelle und Aufgaben hinweg zu beobachten.
+
+Das Ausgabe-Limit-Feld wird weiterhin durch verwendetes API-Format und Modell bestimmt. Prüfe bei der Konfiguration Modell, Base URL, API-Format und Parameternamen gemeinsam.
+
+## Verwandte Dokumentation
+
+- [Warum nutzt Claude Code so viele Tokens?](/de/faq/token-cost/claude-code-token-usage)
+- [Wie wähle ich das richtige KI-Modell?](/de/faq/model-calling/model-selection-guide)
+- [Wie sollte ich die Base URL ausfüllen?](/de/faq/model-calling/base-url-config)
+- [Was sind review_model und reasoning_effort in Codex CLI?](/de/faq/codex/review-model-reasoning-effort)

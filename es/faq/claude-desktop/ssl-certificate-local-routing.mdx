@@ -1,0 +1,110 @@
+---
+title: "¿Por qué Claude Desktop muestra que el certificado SSL ha caducado o sigue cargando?"
+sidebarTitle: "Error SSL y enrutamiento local"
+description: "Corrige la falta de respuesta y los errores de certificado SSL caducado de Claude Desktop mediante el enrutamiento local de CC Switch y Needs model mapping."
+---
+
+Si Claude Desktop ya está conectado a la API, pero no devuelve una respuesta normal o muestra un error como este:
+
+```text
+API Error: Unable to connect to API: SSL certificate has expired
+```
+
+Esto no siempre significa que la API Key sea incorrecta ni que el certificado del servidor haya caducado realmente. Según los informes de usuarios, Claude Desktop puede fallar al conectarse directamente a un API Gateway de terceros desde redes con proxy, redes restringidas o entornos con una inspección estricta de certificados.
+
+Usa el enrutamiento local de Claude Desktop en CC Switch y activa **Needs model mapping**. Claude Desktop se conectará primero a una dirección local y CC Switch reenviará la solicitud a `{{brand-name}}`.
+
+<Frame>
+  <img
+    src="/images/claude-desktop-ssl-local-routing/ssl-certificate-expired-error.png"
+    alt="Claude Desktop muestra el error API Error: Unable to connect to API: SSL certificate has expired."
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+## Cuándo usar esta solución
+
+- Claude Desktop está conectado a la API, pero los mensajes no reciben respuesta.
+- La página muestra `SSL certificate has expired`.
+- La página Chat parece empezar a responder, pero permanece cargando.
+- Usas una red con proxy, una red restringida, una red empresarial o un entorno con inspección de certificados.
+- La misma API Key funciona en otras herramientas.
+
+## Solución
+
+<Steps>
+  <Step title="Confirma que el proveedor de CC Switch esté activo">
+    Abre CC Switch, confirma que el proveedor `{{brand-name}}` esté seleccionado y activa el interruptor superior de enrutamiento / proxy.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/cc-switch-provider-routing.png"
+        alt="El proveedor BetterToken está seleccionado en CC Switch y el interruptor superior de enrutamiento está activado."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Activa Needs model mapping">
+    Abre la página de edición del proveedor y activa **Needs model mapping**.
+
+    Esto permite que CC Switch asigne las tres funciones de modelo que acepta Claude Desktop a los modelos disponibles realmente en `{{brand-name}}`:
+
+    - `claude-sonnet-*`
+    - `claude-opus-*`
+    - `claude-haiku-*`
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/needs-model-mapping-settings.png"
+        alt="Página de edición del proveedor de CC Switch con Needs model mapping activado y los ajustes API Format y Model mapping."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Elige el formato de API">
+    En **API Format**, elige:
+
+    ```text
+    Anthropic Messages (Native)
+    ```
+  </Step>
+
+  <Step title="Completa Model mapping">
+    Completa **Model mapping**. Usa los ID de modelo disponibles actualmente en la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    | Función del modelo | Nombre visible en el menú | Modelo solicitado |
+    | --- | --- | --- |
+    | Sonnet | `claude-sonnet-5` | `claude-sonnet-5` |
+    | Opus | `claude-opus-4-8` | `claude-opus-4-8` |
+    | Haiku | `claude-haiku-4-5` | `claude-haiku-4-5-20251001` |
+
+    Si el modelo admite una ventana de contexto de 1M, activa **Declare 1M**.
+  </Step>
+
+  <Step title="Guarda y vuelve a probar">
+    Haz clic en **Save**. Vuelve a Claude Desktop, selecciona de nuevo el modelo y envía un mensaje de prueba.
+
+    Cuando la configuración es correcta, Claude Desktop llama a `{{brand-name}}` mediante la ruta local de CC Switch. Esto suele corregir el error SSL o la falta de respuesta.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-ssl-local-routing/claude-desktop-response-after-routing.png"
+        alt="Claude Desktop devuelve una respuesta después de activar el enrutamiento local y el mapeo de modelos en CC Switch."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Notas
+
+- No copies a ciegas los nombres de modelos de capturas antiguas. Usa los ID de modelo disponibles actualmente en la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Guarda la API Key en el proveedor de CC Switch. No la incluyas en documentación pública, capturas de pantalla ni registros de chat.
+- Si el problema continúa, comprueba el interruptor superior de enrutamiento de CC Switch, el proveedor activo, que Model mapping esté completo y si un firewall local bloquea `127.0.0.1`.
+
+## Documentación relacionada
+
+- [Guía de configuración de Claude Desktop](/es/faq/claude-desktop-bettertoken-api)
+- [¿Cómo puedo usar Codex y otros modelos de terceros en Claude Desktop?](/es/faq/claude-desktop/third-party-models)

@@ -10,6 +10,7 @@ import {
   hiddenApiReferenceRoutes,
   localizedRouteGroups,
 } from './generate-bettertoken-sitemap.mjs';
+import { xDefaultLanguage } from './i18n-locales.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(await readFile(path.join(rootDir, 'docs.json'), 'utf8'));
@@ -30,12 +31,18 @@ for (const legacyRoute of legacyRoutes) {
 }
 
 for (const hiddenRoute of hiddenApiReferenceRoutes) {
-  assert(!sitemap.includes(`/${hiddenRoute}<`), `Sitemap contains hidden API URL /${hiddenRoute}`);
-  assert(!sitemap.includes(`/en/${hiddenRoute}<`), `Sitemap contains hidden API URL /en/${hiddenRoute}`);
-  assert(!sitemap.includes(`/zh/${hiddenRoute}<`), `Sitemap contains hidden API URL /zh/${hiddenRoute}`);
+  for (const { routePrefix } of betterTokenLanguages) {
+    assert(
+      !sitemap.includes(`/${routePrefix}${hiddenRoute}<`),
+      `Sitemap contains hidden API URL /${routePrefix}${hiddenRoute}`,
+    );
+  }
 }
 
 const expectedLanguages = [...betterTokenLanguages.map(({ hreflang }) => hreflang), 'x-default'];
+const xDefaultHreflang = betterTokenLanguages.find(
+  ({ language }) => language === xDefaultLanguage,
+).hreflang;
 const urlBlocks = [...sitemap.matchAll(/<url>\n([\s\S]*?)\n  <\/url>/g)].map((match) => match[1]);
 const expectedUrlCount = [...routeGroups.values()].reduce((count, variants) => count + variants.size, 0);
 assert.equal(urlBlocks.length, expectedUrlCount, 'Sitemap URL count must match localized navigation');
@@ -45,9 +52,10 @@ for (const block of urlBlocks) {
   assert.deepEqual(
     links.map((match) => match[1]),
     expectedLanguages,
-    'Every translated URL must reference ru, en, zh-CN, and x-default',
+    'Every translated URL must reference every configured language and x-default',
   );
-  assert.equal(links.at(-1)[2], links[0][2], 'x-default must point to the default Russian URL');
+  const xDefaultTarget = links.find((match) => match[1] === xDefaultHreflang)[2];
+  assert.equal(links.at(-1)[2], xDefaultTarget, 'x-default must point to the English URL');
 }
 
 console.log(`BetterToken hreflang sitemap check passed (${urlBlocks.length} URLs).`);

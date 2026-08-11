@@ -1,0 +1,78 @@
+---
+title: "¿Por qué las API Responses y Messages usan distintas cantidades de tokens de entrada?"
+sidebarTitle: "Tokens de Responses y Messages"
+description: "Descubre por qué una misma API Key y un mismo modelo pueden registrar distintas cantidades de tokens de entrada en las API Responses y Messages, y cómo comparar las solicitudes de forma justa."
+---
+
+## Respuesta rápida
+
+Incluso con la misma API Key, el mismo modelo y el mismo mensaje del usuario, las API Responses y Messages pueden registrar cantidades distintas de tokens de entrada. El consumo depende de todo el contexto que recibe el modelo, no solo de la frase que envías.
+
+En algunos modelos GPT servidos mediante una ruta Responses compatible con Codex, el servicio original puede proporcionar las instrucciones básicas oficiales de Codex cuando se omite `instructions`. Esas instrucciones entran en el contexto del modelo y aparecen en el campo `instructions` de la respuesta. La API Messages utiliza una ruta de protocolo diferente y no incorpora automáticamente las mismas instrucciones básicas de Codex, por lo que una misma pregunta breve puede registrar allí solo unos pocos tokens de entrada.
+
+BetterToken no añade este prompt a las solicitudes normales compatibles con OpenAI, y su presencia no significa que estés usando Codex App. Procede de la implementación de la ruta Responses del servicio original seleccionado.
+
+## Qué puede contar como tokens de entrada
+
+| Contenido | Puede contar como tokens de entrada |
+| --- | --- |
+| Mensaje del usuario | Sí |
+| `instructions`, prompts del sistema o del desarrollador | Sí |
+| Historial y resúmenes de la conversación | Sí |
+| Contenido de archivos, contexto de código y archivos adjuntos | Sí |
+| Definiciones y resultados de herramientas | Sí |
+| Contexto repetido servido desde la caché | Se registra como tokens leídos de la caché |
+
+En la API Responses, `instructions` entra en el contexto del modelo como mensaje del sistema o del desarrollador. Si el registro de una solicitud o una respuesta muestra un valor largo de `instructions`, este constituye una fuente importante de tokens de entrada adicionales.
+
+## Cómo interpretar los registros de uso
+
+- `input_tokens`: entrada total que pasó al contexto del modelo para esta solicitud. Puede incluir entrada normal y lecturas de caché.
+- `cache_read_input_tokens`: parte de esa entrada recuperada de la caché. Sigue formando parte del contexto de la solicitud e indica que el servidor reutilizó el procesamiento de contexto almacenado. La facturación sigue el precio de entrada en caché del modelo.
+- `output_tokens`: contenido generado por el modelo para esta solicitud.
+
+Por ejemplo, un registro de Responses puede mostrar `input_tokens` de `4393`, incluidos `cache_read_input_tokens` de `3840`. Los `4393` tokens participaron en el contexto, pero `3840` fueron lecturas de caché y no se facturan todos como entrada normal. Revisa por separado la entrada normal, las lecturas de caché y la salida según las reglas de facturación actuales que aparecen en la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## ¿Por qué una llamada directa a la API puede incluir `instructions`?
+
+`instructions` es un campo oficial de la API Responses que permite añadir directrices del sistema o del desarrollador para el modelo. El protocolo Responses admite este campo, pero no impone un prompt de Codex por el mero hecho de llamar a `/v1/responses`.
+
+Cuando un modelo se sirve mediante una ruta Responses compatible con Codex, la implementación original puede cargar las `base_instructions` oficiales de Codex, enviarlas al modelo final como `instructions` predeterminadas y reproducirlas en la respuesta. Por tanto, el cuerpo HTTP original puede contener solo `model` e `input`, mientras la respuesta incluye un valor largo que comienza por `You are Codex...`.
+
+Distintos dominios originales pueden devolver exactamente el mismo texto. Esos proveedores pueden usar la misma implementación de gateway compatible con Codex, los mismos metadatos oficiales del modelo o el mismo backend final de Codex Responses. Que los dominios sean diferentes no garantiza rutas de modelo ni instrucciones básicas distintas.
+
+El relay normal de BetterToken compatible con OpenAI no genera estas instrucciones básicas de Codex. BetterToken conserva cualquier `instructions` que envíes y devuelve la respuesta del servicio original. Chat Completions y Messages usan puntos de entrada de protocolo diferentes, por lo que no reciben necesariamente el mismo valor predeterminado.
+
+Sigue estos pasos para identificar el origen:
+
+1. Registra el cuerpo HTTP original con los datos sensibles ocultos en el punto donde se crea la solicitud. Busca `instructions`, mensajes `system` o `developer` dentro de `input`, historial de conversación, herramientas o archivos.
+2. Con la misma API Key y el mismo ID de modelo, envía una solicitud mínima que contenga solo `model` y un `input`. No envíes `instructions`, historial ni herramientas.
+3. Compara `instructions` y el consumo de ambas respuestas.
+4. Si el cuerpo saliente no contiene `instructions`, pero la respuesta sigue incluyendo un valor largo, este se añadió en la ruta Responses del servicio original. Para verificarlo con más detalle, envía a soporte de BetterToken la hora y el ID de la solicitud, el modelo y el cuerpo con los datos sensibles ocultos.
+
+## Cómo comparar ambos protocolos de forma justa
+
+Usa esta lista al investigar:
+
+1. Usa el mismo ID de modelo.
+2. Envía exactamente el mismo mensaje del usuario.
+3. Usa el mismo contenido del sistema, del desarrollador o de `instructions` en ambas solicitudes. Para una prueba mínima, omite ese contenido adicional en las dos.
+4. No incluyas historiales de conversación, archivos, adjuntos, herramientas ni contexto MCP diferentes.
+5. Compara por separado la entrada, la caché y la salida, en lugar de comparar solo el coste total.
+
+Envía solicitudes mínimas a ambos endpoints con la misma Key, el mismo ID de modelo y el mismo mensaje del usuario. Así será más fácil distinguir el comportamiento del protocolo del contexto proporcionado por el cliente.
+
+## Cómo elegir una API
+
+- Usa `/v1/responses` cuando necesites el razonamiento, las herramientas o el comportamiento compatible con Codex de la API Responses, y revisa por separado la entrada normal y las lecturas de caché.
+- Si solo necesitas un chat sencillo y el modelo también admite Chat Completions o Messages, compara la calidad de salida, la compatibilidad y el coste antes de elegir el endpoint.
+- No estimes el coste basándote únicamente en el total de `input_tokens`. La entrada almacenada en caché suele seguir una regla de facturación distinta.
+
+Eliminar el campo local `instructions` no puede quitar las instrucciones predeterminadas de Codex añadidas por el servicio original. Si necesitas un protocolo sin ese valor predeterminado, confirma primero que el modelo de destino admita Chat Completions o Messages.
+
+## Documentación relacionada
+
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Configurar Codex CLI con BetterToken](/es/ai-tools/codex)
+
+- [Referencia de la API Responses de OpenAI](https://platform.openai.com/docs/api-reference/responses)

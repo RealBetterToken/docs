@@ -1,0 +1,78 @@
+---
+title: "Claude Code で API Key と Base URL を設定する方法"
+sidebarTitle: "API Key と Base URL"
+description: "Claude Code の設定で、API Key、Base URL、Anthropic 互換エンドポイント、Claude と GPT の各プロバイダーがどのように関係するかを説明します。"
+---
+
+## 要点
+
+Claude Code でサードパーティ API を設定する場合は、まずエンドポイントが Anthropic 互換であることを確認します。このドキュメントでは、Claude Code に `{{anthropic-base-url}}` を使います。`/v1` は追加しないでください。
+
+API Key はリクエストの認証に使います。Base URL は、モデルへのリクエストの送信先を Claude Code に指定します。どちらも同じプロバイダーとプロトコルに属している必要があります。
+
+**Claude プロバイダー**では、Claude Code に通常 `ANTHROPIC_BASE_URL` と `ANTHROPIC_AUTH_TOKEN` が必要です。**GPT プロバイダー**では、設定ガイドに記載された Claude Code のモデルマッピングも必要です。
+
+## この設定が重要になる場合
+
+- Claude Code でカスタム API gateway を使いたい
+- API Key はあるが、どの Base URL を使うべきか分からない
+- Claude Code で認証またはエンドポイントのエラーが表示される
+- `{{anthropic-base-url}}` と `{{openai-base-url}}` のどちらを使うか判断したい
+- Claude と GPT のプロバイダーの違いを理解したい
+
+## 主な概念
+
+| 項目 | 意味 |
+| --- | --- |
+| API Key | モデル API リクエストの認証情報 |
+| Base URL | リクエストの送信先となる API アドレス |
+| Anthropic 互換 API | Anthropic または Claude 形式のリクエスト規則に従うエンドポイント |
+| OpenAI 互換 API | OpenAI 形式の規則に従うエンドポイント。Codex、Cursor、Cline でよく使われる |
+| Model ID | 外部ツールが要求するモデル名またはマッピング値 |
+
+## 推奨設定
+
+プロバイダーに応じて設定方法を選びます。
+
+Claude プロバイダー：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+GPT プロバイダーには、Claude Code の追加モデルマッピングが必要です。この短い例だけをコピーせず、[Claude Code の完全な設定ガイド](/ja/ai-tools/claude-code)に従ってください。
+
+設定を編集したら Claude Code を再起動し、短いテストメッセージを送信します。失敗した場合は、まず Base URL が誤って `{{openai-base-url}}` に設定されていないか確認してください。
+
+## よくある間違い
+
+- Claude Code の Base URL に `/v1` を追加する。
+- API Key を変更しても、リクエストの送信先をデフォルトエンドポイントのままにする。
+- GPT プロバイダーの Model ID を Claude プロバイダーのモデルとして扱う。
+- Claude Code の Anthropic 互換フィールドに OpenAI 互換エンドポイントを設定する。
+- シェルプロファイルに古い環境変数を定義し、新しい設定を上書きする。
+
+## BetterToken について
+
+BetterToken は 2 種類のエンドポイントを提供します。Claude Code には Anthropic 互換の `{{anthropic-base-url}}`、Codex とその他の外部ツールには OpenAI 互換の `{{openai-base-url}}` を使います。
+
+API Key、残高、利用履歴は 1 つのダッシュボードで管理できますが、Claude Code が Anthropic 互換のリクエスト形式を必要とする点は変わりません。
+
+## 関連ドキュメント
+
+- [Claude Code の設定ガイド](/ja/ai-tools/claude-code)
+- [Claude Code は Claude.ai アカウントと API Key のどちらを使いますか？](/ja/faq/claude-code/claude-account-or-api-key)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code が多くの Token を使う理由とコストを抑える方法](/ja/faq/token-cost/claude-code-token-usage)
+
+## 参考資料
+
+- [Claude Code の LLM gateway 設定](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Claude Code の認証](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Claude Code のモデル設定](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code の設定ガイド](/ja/ai-tools/claude-code)

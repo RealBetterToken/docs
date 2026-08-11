@@ -1,0 +1,126 @@
+---
+title: "Codex が API モードで GPT-5.5 を使用できないのはなぜですか？"
+sidebarTitle: "Codex API モードで GPT-5.5 を使用する"
+description: "ローカルモデルカタログを使用して、Codex のカスタム API モードで GPT-5.5 を一時的に有効にします。"
+---
+
+2026 年 4 月 24 日時点で、一部の Codex バージョンでは、カスタム API プロバイダーの使用時に `gpt-5.5` を直接選択できない場合があります。これは Codex のローカルモデルカタログに関する制限です。BetterToken の `{{openai-base-url}}` エンドポイントが利用できないことを意味するものではありません。
+
+ローカルの `custom-models.json` ファイルを追加すると、Codex が `gpt-5.5` を認識できるようになり、`~/.codex/config.toml` から参照できます。後の Codex バージョンで `gpt-5.5` がネイティブにサポートされる場合は、組み込みの Codex 設定を優先してください。
+
+<Note>
+  このページで提供する完全な `custom-models.json` を使用してください。手動でファイルを編集する場合は、既存のモデルエントリと項目を維持し、必要なモデル設定だけを変更してください。
+</Note>
+
+## 設定手順
+
+<Steps>
+  <Step title="カスタムモデル設定ファイルを準備する">
+    カスタムモデル設定のパスは `~/.codex/custom-models.json` です。
+
+    <Tabs>
+      <Tab title="JSON ファイルをダウンロードする">
+        完全なモデルカタログをダウンロードします。
+
+        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">custom-models.json をダウンロードする</a>
+
+        ダウンロードしたファイルを Codex の設定ディレクトリに置き、`custom-models.json` という名前にします。
+
+        | システム | 配置先パス |
+        |--------|-------------|
+        | macOS / Linux | `~/.codex/custom-models.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+
+        ダウンロードしたファイルは完全なモデルカタログです。次の手順で Codex 設定から参照します。
+      </Tab>
+
+      <Tab title="JSON を手動で編集する">
+        すでに `~/.codex/custom-models.json` がある場合は、既存のファイルを編集します。`gpt-5.5` のエントリだけを残さないでください。
+
+        手動で編集する場合は、`models` 配列に `gpt-5.5` のエントリが含まれることを確認し、他のモデル設定を維持します。JSON に慣れていない場合は、ダウンロードを使用してください。
+
+        `gpt-5.5` のエントリには、次のような主要項目を含めます。
+
+        ```json
+        {
+          "slug": "gpt-5.5",
+          "display_name": "gpt-5.5",
+          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+          "base_instructions": "...",
+          "model_messages": {
+            "instructions_template": "...",
+            "instructions_variables": {
+              "personality_default": "",
+              "personality_friendly": "...",
+              "personality_pragmatic": "..."
+            }
+          },
+          "supports_reasoning_summaries": true,
+          "support_verbosity": true,
+          "context_window": 272000
+        }
+        ```
+
+        <Note>
+          上のコードブロックは 1 つのモデルエントリの主要な構造だけを示しています。ダウンロードしたファイルまたは既存の完全なモデルカタログを正としてください。
+        </Note>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Codex 設定から JSON ファイルを参照する">
+    Codex 設定ファイル `~/.codex/config.toml` を開き、次の設定を追加または統合します。
+
+    macOS / Linux の例：
+
+    ```toml
+    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    Windows の例：
+
+    ```toml
+    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
+    ```
+
+    `model_catalog_json` にはローカルの絶対パスを指定する必要があります。Windows の TOML 二重引用符文字列では、`\` を `\\` と記述します。
+  </Step>
+
+  <Step title="Codex を再起動する">
+    設定ファイルを変更した後、現在の Codex プロセスを停止し、新しいターミナルセッションで起動します。
+
+    ```bash
+    codex
+    ```
+  </Step>
+</Steps>
+
+## トラブルシューティング
+
+`gpt-5.5` が引き続き動作しない場合は、次の項目を順番に確認します。
+
+1. `model_catalog_json` にローカルの絶対パスを指定している
+2. `custom-models.json` に完全なモデルカタログを維持している
+3. `base_url` が `{{openai-base-url}}` である
+4. `wire_api` が `responses` である
+5. `model_provider` が `[model_providers.{{codex-provider-id}}]` 内のプロバイダー ID と一致する
+
+お使いの Codex バージョンがすでに `gpt-5.5` をネイティブにサポートしている場合は、`model_catalog_json` を削除し、通常の [Codex 設定ガイド](/ja/ai-tools/codex) に戻ってください。

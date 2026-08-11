@@ -1,0 +1,131 @@
+---
+title: "BetterToken ドキュメント"
+description: "Anthropic および OpenAI 互換エンドポイントから Claude と GPT/Codex モデルに接続するための API ゲートウェイです。"
+---
+
+## BetterToken とは
+
+BetterToken は、ユーザー、チーム、開発者向けの AI モデル API ゲートウェイです。1 つの API から Claude と GPT/Codex モデルに接続でき、Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch などの AI コーディングツールで利用できます。登録後は $1 のトライアル残高を受け取り、実際の開発フローで接続を確認できます。
+
+このドキュメントでは、2 つの接続方法を区別します。
+
+- **Claude Code / `ANTHROPIC_BASE_URL`**：`{{anthropic-base-url}}` を使用します
+- **Codex / `OPENAI_BASE_URL` / 外部ツール**：`{{openai-base-url}}` を使用します
+
+**主な特徴：**
+
+- **複数プロバイダー**：BetterToken は複数のプロバイダーに同時に接続できます
+- **動的ルーティング**：upstream の応答が遅い場合や不安定な場合は、リクエストの経路を切り替えます
+- **開発ツールとの互換性**：Claude Code と Codex エコシステムの接続を維持します
+- **明確な 2 つの経路**：すべてのツールで同じ `base_url` を使い回さず、プロトコルに合わせてエンドポイントを設定します
+
+## 2 つの接続方法
+
+| 用途 | Base URL | 補足 |
+|----------|----------|-------|
+| Claude Code | `{{anthropic-base-url}}` | Anthropic プロトコルを使用し、末尾に `/v1` を付けません |
+| Codex / 外部ツール | `{{openai-base-url}}` | OpenAI 互換プロトコルを使用し、外部ツールでは GPT プロバイダーを選びます |
+
+## はじめに
+
+<Columns cols={2}>
+  <Card
+    title="クイックスタート"
+    icon="rocket"
+    href="/ja/quickstart"
+  >
+    Claude Code と、Codex または外部ツールのどちらを設定するか選びます。
+  </Card>
+  <Card
+    title="よくある質問"
+    icon="circle-question"
+    href="/ja/faq"
+  >
+    Base URL、モデルプロバイダー、認証、403 エラーの設定を確認します。
+  </Card>
+</Columns>
+
+## AI コーディングツールを接続する
+
+<Columns cols={2}>
+  <Card
+    title="Claude Code"
+    icon="terminal"
+    href="/ja/ai-tools/claude-code"
+  >
+    `ANTHROPIC_BASE_URL={{anthropic-base-url}}` を設定します。
+  </Card>
+  <Card
+    title="Codex"
+    icon="code"
+    href="/ja/ai-tools/codex"
+  >
+    OpenAI Responses で `{{openai-base-url}}` を使用します。
+  </Card>
+  <Card
+    title="Cursor"
+    icon="pen-to-square"
+    href="/ja/ai-tools/cursor"
+  >
+    外部ツールでは GPT プロバイダーと OpenAI 互換設定を使用します。
+  </Card>
+  <Card
+    title="OpenClaw"
+    icon="paw"
+    href="/ja/ai-tools/openclaw"
+  >
+    BetterToken を接続してから、`/new` と `/status` で現在のセッションを確認します。
+  </Card>
+  <Card
+    title="CC Switch"
+    icon="toggle-left"
+    href="/ja/ai-tools/cc-switch"
+  >
+    1 つの GUI で Claude Code、Codex、OpenCode、OpenClaw の BetterToken 設定を管理します。
+  </Card>
+</Columns>
+
+## BetterToken が解決する課題
+
+ツールごとに、必要なプロトコル、認証フィールド、モデルの選択方法が異なります。BetterToken は、Anthropic プロトコルと OpenAI 互換プロトコルの 2 つの安定したエンドポイントを提供します。Base URL と API Key を置き換えることで、既存のワークフローを変えずに Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch を接続できます。
+
+## 開発者向けエンドポイント
+
+BetterToken は、2 つの標準エンドポイントを持つマルチモデル API ゲートウェイです。
+
+| プロトコル | Base URL | 対象ツール |
+| --- | --- | --- |
+| Anthropic | https://bettertoken.ai | Claude Code |
+| OpenAI 互換 | https://bettertoken.ai/v1 | Codex およびその他の外部ツール |
+
+登録後に API Key を作成し、Claude または GPT プロバイダーを選びます。Base URL を置き換えることで、Cursor、Cline、OpenClaw、OpenCode、CC Switch などのツールを接続できます。リクエスト、Token 使用量、残高は Dashboard で確認できます。
+
+## チームとコスト管理
+
+チームは 1 つの API レイヤーから Claude と GPT/Codex のワークフローを接続できます。BetterToken は実際の使用量を記録し、複数のプロバイダー間でリクエストをルーティングして、単一障害の影響を抑えます。Dashboard では API Key ごとの使用量と残高を確認し、Claude Code や Codex などのワークフロー単位で予算を管理できます。
+
+## よくある質問
+
+**BetterToken とは何ですか？** 互換エンドポイントから AI モデルに接続するための API ゲートウェイおよびプロキシです。
+
+**どのような課題を解決しますか？** Anthropic と OpenAI の各プロトコルを使うツールに、共通の接続レイヤーを提供します。
+
+**どのモデルを利用できますか？** Anthropic プロトコルの Claude モデルと、OpenAI 互換プロトコルの GPT/Codex モデルです。
+
+**どのツールを利用できますか？** Claude Code、Codex、Cursor、Cline、OpenClaw、OpenCode、CC Switch です。
+
+**利用を開始するには？** アカウントを登録して $1 のトライアル残高を受け取り、BetterToken API Key を作成します。互換性のあるプロバイダーのモデルを選び、ツールの Base URL を置き換えてください。
+
+**サポート窓口は？** Telegram と support@bettertoken.ai です。
+
+## サポート
+
+英語でのサポートが必要な場合は、Telegram から BetterToken にお問い合わせください。
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+<a href="mailto:support@bettertoken.ai">support@bettertoken.ai</a> にメールを送ることもできます。
+
+- メインサイト：<a href="https://bettertoken.ai/">https://bettertoken.ai/</a>
+- コンソール：<a href="https://bettertoken.ai/workspace">https://bettertoken.ai/workspace</a>
+- お問い合わせ：<a href="https://bettertoken.ai/contacts">https://bettertoken.ai/contacts</a>
+- ローカライズ版ドキュメント：ドキュメントのメニューから言語を選択してください

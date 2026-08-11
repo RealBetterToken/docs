@@ -1,0 +1,62 @@
+---
+title: "API-Referenz"
+description: "Anfrage-URL, Authentifizierung und Testeinstieg für die OpenAI-kompatible Chat Completions API von BetterToken."
+---
+
+Die öffentliche BetterToken API-Referenz behandelt derzeit nur die **OpenAI-kompatible Chat Completions API**. Andere Protokolle werden noch nicht über alle Kanäle einheitlich unterstützt. Responses API und Anthropic Messages API sind daher nicht als öffentliche Schnittstellen dokumentiert.
+
+## Unterstützte Anbieter
+
+| Anbieter | Status |
+| --- | --- |
+| Claude | Nicht unterstützt |
+| GPT | Manuelle Konfiguration |
+| Kimi | Manuelle Konfiguration |
+| GLM | Manuelle Konfiguration |
+
+## Verbindungsdaten
+
+| Feld | Wert |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| Vollständige Anfrage-URL | `{{chat-completions-url}}` |
+| Methode | `POST` |
+| Autorisierung | `Bearer YOUR_API_KEY` |
+| Modell | `YOUR_MODEL_ID` |
+
+Kopiere eine aktuelle Modell-ID aus dem <a href={"{{model-plaza-url}}"}>model plaza</a> oder dem Dialog **Setup** für den API Key in der Console.
+
+<Warning>
+  Wenn ein Tool nach einer **Base URL** fragt, gib `{{openai-base-url}}` ein. Verwende `{{chat-completions-url}}` nur, wenn das Tool ausdrücklich eine vollständige Anfrage-URL verlangt.
+</Warning>
+
+## Schnelltest
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+Eine erfolgreiche Antwort enthält `choices[0].message.content`.
+
+## Interaktive Tests und SDK-Beispiele
+
+Öffne die [OpenAI Chat Completions API](/de/api-reference/chat-completions), um:
+
+- eine Anfrage aus dem Playground zu senden
+- Anfrageparameter und Antwortschema zu prüfen
+- Beispiele für curl, Python und JavaScript zu kopieren
+
+<Note>
+  Speichere niemals einen echten API Key in Dokumentation, Screenshots oder öffentlichem Code. Ersetze `YOUR_API_KEY` und `YOUR_MODEL_ID` durch deine eigenen Werte.
+</Note>

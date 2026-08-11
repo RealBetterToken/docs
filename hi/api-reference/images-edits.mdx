@@ -1,0 +1,139 @@
+---
+title: "Image to image (इमेज एडिटिंग)"
+description: "BetterToken के OpenAI-compatible API से GPT Image 2 का उपयोग करके reference image से इमेज बनाएं या संपादित करें।"
+openapi: "api-reference/openapi.json POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+image-to-image endpoint `multipart/form-data` request body उपयोग करता है। एक या अधिक reference image अपलोड करें और prompt व parameter फ़ील्ड को form field के रूप में भेजें।
+
+<Note>
+  `{{openai-base-url}}` को `Base URL` के रूप में उपयोग करें। BetterToken API Key को `Authorization: Bearer YOUR_API_KEY` से भेजें।
+</Note>
+
+<Tip>
+  पेज के दाईं ओर Playground में form field भरें और reference image अपलोड करें, फिर अनुरोध सीधे `{{images-edits-url}}` पर भेजें।
+</Tip>
+
+<Warning>
+  image-to-image अनुरोधों के लिए सामान्य JSON body उपयोग न करें। text field और file field को `multipart/form-data` से भेजें।
+</Warning>
+
+## अनुशंसित मान
+
+हर अनुरोध में इन फ़ील्ड को स्पष्ट रूप से भेजें:
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+एक reference image के लिए `image` उपयोग करें। कई reference image के लिए `image[]` फ़ील्ड दोहराएं।
+
+## एक reference image
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Use this reference image to create a more polished square product hero image while keeping the main style consistent.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## कई reference image
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Combine these reference images into one consistent promotional poster.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Python उदाहरण
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Use this reference image to create a more polished square product hero image while keeping the main style consistent.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## अनुशंसित आकार
+
+| `size` | अनुपात | उपयोग |
+| --- | --- | --- |
+| `auto` | Auto | अपने-आप आकार चयन |
+| `1024x1024` | `1:1` | वर्गाकार इमेज, avatar, cover, asset |
+| `1536x1024` | `3:2` | landscape poster, banner, scene |
+| `1024x1536` | `2:3` | portrait mobile cover और poster |
+| `1536x1152` | `4:3` | मानक landscape इमेज, product image, content graphic |
+| `1152x1536` | `3:4` | मानक portrait इमेज, mobile cover, vertical poster |
+| `2048x2048` | `1:1` | high-resolution वर्गाकार इमेज |
+| `2048x1152` | `16:9` | high-resolution landscape इमेज |
+| `3840x2160` | `16:9` | 4K landscape इमेज |
+| `2160x3840` | `9:16` | 4K portrait इमेज |
+
+`size` अपेक्षित aspect ratio और size tier दर्शाता है। वास्तविक लौटे pixel server द्वारा map या adjust किए जा सकते हैं। output को मांगे गए मान पर जबरन crop करने के बजाय decoded इमेज dimension उपयोग करें।
+
+## इमेज सहेजें
+
+सफल response OpenAI-compatible इमेज response स्वरूप का पालन करता है:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+`data[0].b64_json` पढ़ें और इसे base64 image content के रूप में सहेजें। `output_format: "png"` हमेशा सेट करें ताकि decoded इमेज को `.png` के रूप में सहेज सकें।
+
+## response flow
+
+यह endpoint synchronous है। `POST /images/edits` भेजने के बाद server के response तक मौजूदा HTTP request खुला रखें। generation सफल होने पर image content `data[0].b64_json` में लौटता है।
+
+endpoint `task_id` नहीं लौटाता, और कोई अलग status query या result download endpoint नहीं है।
+
+## संबंधित दस्तावेज
+
+- [Text to image](/hi/api-reference/images-generations)
+- [GPT Image 2 अब उपलब्ध है](/hi/model-updates/gpt-image-2)

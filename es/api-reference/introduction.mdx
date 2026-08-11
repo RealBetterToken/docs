@@ -1,0 +1,62 @@
+---
+title: "Referencia de la API"
+description: "URL de solicitud, autenticación y punto de entrada para probar la API Chat Completions compatible con OpenAI de BetterToken."
+---
+
+La referencia pública de la API de BetterToken cubre actualmente solo la **API Chat Completions compatible con OpenAI**. La compatibilidad con otros protocolos todavía no es uniforme en todos los canales, por lo que Responses API y Anthropic Messages API no se publican como interfaces públicas.
+
+## Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+## Datos de conexión
+
+| Campo | Valor |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| URL completa de solicitud | `{{chat-completions-url}}` |
+| Método | `POST` |
+| Autorización | `Bearer YOUR_API_KEY` |
+| Modelo | `YOUR_MODEL_ID` |
+
+Copia un Model ID vigente desde el <a href={"{{model-plaza-url}}"}>model plaza</a> o desde el cuadro **Setup** de la API Key en Console.
+
+<Warning>
+  Cuando una herramienta solicite un **Base URL**, introduce `{{openai-base-url}}`. Usa `{{chat-completions-url}}` solo si la herramienta pide explícitamente la URL completa de la solicitud.
+</Warning>
+
+## Prueba rápida
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+Una respuesta correcta contiene `choices[0].message.content`.
+
+## Pruebas interactivas y ejemplos de SDK
+
+Abre [API Chat Completions de OpenAI](/es/api-reference/chat-completions) para:
+
+- Enviar una solicitud desde el Playground
+- Consultar los parámetros de la solicitud y el esquema de la respuesta
+- Copiar ejemplos de curl, Python y JavaScript
+
+<Note>
+  No guardes nunca una API Key real en documentación, capturas de pantalla o código público. Sustituye `YOUR_API_KEY` y `YOUR_MODEL_ID` por tus propios valores.
+</Note>

@@ -1,0 +1,101 @@
+---
+title: "Práticas recomendadas"
+description: "Dicas para aproveitar ao máximo a BetterToken."
+---
+
+## Proteja sua API Key
+
+**Use variáveis de ambiente — nunca fixe a chave no código.** Gravar a API Key diretamente no código-fonte ou em arquivos de configuração pode expô-la acidentalmente no controle de versão. Abordagem recomendada:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export BETTERTOKEN_API_KEY="your-api-key-here"
+```
+
+No Claude Code, gerencie segredos pelo campo `env` do `settings.json`, em vez de expô-los na configuração do shell:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**Troque sua API Key periodicamente.** Se houver suspeita de exposição, exclua a chave imediatamente no painel e gere outra.
+
+---
+
+## Defina um tempo limite amplo
+
+As respostas dos modelos podem demorar, principalmente em tarefas de raciocínio complexo. Defina um tempo limite alto o bastante para evitar desconexões prematuras:
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50 minutos. Esse valor é adequado para raciocínio profundo ou tarefas prolongadas com agentes.
+
+---
+
+## Remova variáveis de ambiente conflitantes
+
+Se você já usou as APIs oficiais da Anthropic ou OpenAI — ou outro serviço de relay —, variáveis antigas podem substituir a configuração da BetterToken e enviar solicitações silenciosamente ao endpoint errado.
+
+Antes de configurar a BetterToken, verifique e remova estas variáveis:
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code: verifique primeiro o provedor
+
+Com o **provedor Claude**, **não defina** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` nem outras variáveis específicas de modelo. Com o **provedor GPT**, adicione mapeamentos por `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` e `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+
+Não misture as duas configurações; as solicitações podem ser roteadas ao modelo errado.
+
+**Desative o tráfego não essencial.** Definir `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduz as solicitações em segundo plano do Claude Code e preserva sua cota para tarefas reais de programação.
+
+**Não adicione `/v1` ao Claude Code.** `ANTHROPIC_BASE_URL` deve ser `{{anthropic-base-url}}`.
+
+---
+
+## Use uma API Key em várias ferramentas
+
+A mesma API Key funciona no Claude Code, Codex e em ferramentas externas. A cota é compartilhada, o que simplifica o gerenciamento centralizado.
+
+No entanto, o endpoint deve corresponder ao protocolo:
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / ferramentas externas: `{{openai-base-url}}`
+
+Se precisar acompanhar o uso separadamente por projeto ou equipe, crie várias API Keys no painel e atribua uma a cada ferramenta ou projeto.
+
+Para ferramentas externas, copie o ID de modelo do **provedor GPT** na <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+---
+
+## Lista de solução de problemas
+
+1. **Confirme a API Key** — verifique-a no painel e cole-a com cuidado, sem espaços adicionais
+2. **Confirme o endpoint do protocolo** — o Claude Code usa `{{anthropic-base-url}}`; Codex e ferramentas externas usam `{{openai-base-url}}`
+3. **Procure variáveis conflitantes** — execute `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL` e comandos relacionados
+4. **Consulte os requisitos oficiais da ferramenta** — em ferramentas externas, verifique primeiro `Base URL`, API Key, ID de modelo e versão; adicione cabeçalhos apenas quando a documentação oficial ou o gateway upstream exigir
+5. **Confira o saldo** — as solicitações são rejeitadas quando o saldo termina
+6. **Entre em contato com o suporte** — se as etapas anteriores não resolverem o problema

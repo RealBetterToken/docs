@@ -1,0 +1,86 @@
+---
+title: "Warum kennt ein Modell seine eigene Version nicht?"
+sidebarTitle: "Selbstidentifikation des Modells"
+description: "Erfahre, warum ein Modell bei einem API-Aufruf seine eigene Version falsch beantworten kann und wie du prüfst, welches Modell tatsächlich verwendet wurde."
+---
+
+## Kurzantwort
+
+Es ist normal, dass ein Modell seine eigene Version falsch beantwortet. Das beweist nicht, dass du das falsche Modell aufgerufen hast.
+
+Der Parameter `model` wird vom API-Server hauptsächlich für Routing verwendet. Das Modell sieht dieses Feld möglicherweise nicht und kennt den endgültigen Release-Namen möglicherweise nicht, wenn der Name erst nach dem Training vergeben wurde. Offizielle Web-Produkte antworten oft korrekt, weil die Produktschicht einen System-Prompt einfügt, der dem Modell seine Identität mitteilt.
+
+Wenn du ein Modell über eine API aufrufst, ohne Identitätsinformationen in der Systemnachricht hinzuzufügen, kann das Modell einen älteren Namen aus seinen Trainingsdaten erraten.
+
+## Wann das passiert
+
+- Du rufst ein neues Modell auf, aber es behauptet, eine ältere Version zu sein
+- Die offizielle Website beantwortet die Version korrekt, der API-Aufruf jedoch nicht
+- Dasselbe Modell stellt sich in verschiedenen Tools unterschiedlich vor
+- Du möchtest prüfen, ob das API-Gateway das von dir angeforderte Modell aufgerufen hat
+- Ein Nutzer behandelt „Welches Modell bist du?“ als Verifikationsmethode
+
+## Warum es passiert
+
+Modellnamen werden oft erst nach dem Training finalisiert. Während des Trainings lernt das Modell Sprach-, Code- und Wissensmuster. Es lernt möglicherweise nicht den endgültigen Produktnamen, der nach der Veröffentlichung verwendet wird.
+
+In einem API-Request teilt das Feld `model` dem Server mit, zu welchem Modell geroutet werden soll. Es ist kein normaler Chat-Inhalt, und das Modell erhält es möglicherweise nicht als Identitätsinformation.
+
+Offizielle Web-Produkte können versteckte Anweisungen wie „Du bist dieses Modell.“ hinzufügen. API-Aufrufe fügen diesen Identitäts-Prompt normalerweise nicht automatisch hinzu.
+
+## So prüfst du das tatsächlich verwendete Modell
+
+Verlasse dich nicht nur darauf, das Modell „Welche Version bist du?“ zu fragen. Prüfe stattdessen Request-Pfad und Antwortfelder.
+
+| Verifikationsmethode | Zu prüfen |
+| --- | --- |
+| Aufruf-Logs | Das für jeden Request im Dashboard verwendete Modell |
+| API-Antwortfelder | Das Feld `model` im Antwort-JSON |
+| Model ID | Die Model ID in deinem Request stammt vom aktuellen Provider oder der model plaza |
+| Provider | API Key, Base URL und Model ID gehören zur selben Gruppe |
+
+Beispielantwort:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+Das genaue Antwortformat hängt vom API-Format ab. Entscheidend sind das vom Server zurückgegebene Modellfeld und der Dashboard-Eintrag, nicht die Selbstvorstellung des Modells.
+
+## So lässt du das Modell mit einer bestimmten Identität antworten
+
+Wenn dein Produkt benötigt, dass das Modell sich auf bestimmte Weise beschreibt, füge diese Identität in die Systemnachricht ein:
+
+```text
+You are Claude Sonnet 5, called through the BetterToken API.
+```
+
+Das funktioniert wie beim offiziellen Web-Produkt: Die Anwendungsschicht teilt dem Modell mit, wer es nach eigener Aussage sein soll.
+
+<Warning>
+  Eine Systemnachricht ändert nur Selbstbeschreibung und Verhaltensstil des Modells. Sie ändert nicht das tatsächlich geroutete Modell. Das echte Routing wird weiterhin durch Base URL, API Key, Provider und Model ID bestimmt.
+</Warning>
+
+## Häufige Fehler
+
+- „Welches Modell bist du?“ als einzige Verifikationsmethode verwenden.
+- Annehmen, dass der Provider das Modell getauscht hat, weil die Selbstbeschreibung falsch ist.
+- Annehmen, dass der Parameter `model` immer in den Modellkontext gelangt.
+- Dashboard-Logs und das Antwortfeld `model` ignorieren.
+- Modellidentität zur Systemnachricht hinzufügen und annehmen, dass sich das tatsächliche Modell geändert hat.
+
+## Über BetterToken
+
+Das BetterToken-Dashboard hilft dir, API Key, Model ID, Request-Aufzeichnungen und Guthabennutzung zu prüfen. Wenn du bestätigen musst, ob das Modell korrekt ist, prüfe zuerst Aufruf-Log und Antwortfelder.
+
+Wenn die Selbstbeschreibung den Logs widerspricht, vertraue den Logs und Antwortfeldern.
+
+## Verwandte Dokumentation
+
+- [Wie wähle ich das richtige KI-Modell?](/de/faq/model-calling/model-selection-guide)
+- [Wie sollte ich die Base URL ausfüllen?](/de/faq/model-calling/base-url-config)
+- [Was ist der Unterschied zwischen OpenAI-kompatibler API und Anthropic-kompatibler API?](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Wie wechsle ich zwischen Sonnet und Opus in Claude Code?](/de/faq/claude-code/switch-sonnet-opus)

@@ -1,0 +1,53 @@
+---
+title: "Cursor에서 MCP 구성"
+sidebarTitle: "Cursor MCP"
+description: "Cursor MCP, project 및 global configuration, mcp.json, tool approval 및 MCP와 model API setup의 차이를 알아보세요."
+---
+
+## 짧은 답변
+
+Cursor MCP는 external tools와 data sources를 editor 내부의 AI workflow에 연결합니다. model API configuration이 아니며 OpenAI-compatible Base URL을 대체하지 않습니다.
+
+Cursor에서 MCP setup은 보통 `mcp.json`, project 또는 global settings, environment variables 및 tool approval을 포함합니다.
+
+## 이 내용이 필요한 경우
+
+- Cursor가 external tools를 사용하게 하려 함
+- project-specific MCP server configuration이 필요함
+- project MCP와 global MCP를 구분하려 함
+- tool approval을 이해하려 함
+- MCP가 API Key / Base URL을 대체할 수 있다고 생각함
+
+## MCP와 model API 비교
+
+| 항목 | Cursor MCP | OpenAI-compatible API |
+| --- | --- | --- |
+| 역할 | tools, data sources, context 연결 | model provider 연결 |
+| 주요 config | `mcp.json`, server, env, approval | API Key, Base URL, Model ID |
+| 주요 risk | tool permissions 및 data access | authentication, billing, model availability |
+
+## 권장 방법
+
+1. model provider가 아닌 tool capability를 추가하는지 확인하세요.
+2. Cursor docs에 따라 global 또는 project MCP config를 선택하세요.
+3. MCP server에 필요한 environment variables만 부여하세요.
+4. files에 쓰거나 external services에 access하는 tools에는 tool approval을 유지하세요.
+5. model API setup과 MCP setup을 별도로 debug하세요.
+
+## BetterToken 정보
+
+BetterToken은 model API layer입니다. Cursor MCP는 tool layer입니다. 둘 다 사용할 수 있지만 서로를 대체하지 않습니다.
+
+목표가 model routing 전환이라면 `{{openai-base-url}}`과 **GPT provider** model을 구성하세요. Cursor가 external tools를 호출하게 하는 것이 목표라면 MCP를 구성하세요.
+
+## 관련 문서
+
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [Cursor에서 custom OpenAI API 구성](/ko/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md 및 .cursorignore](/ko/faq/cursor/rules-agents-cursorignore)
+- [Cline에서 OpenAI-compatible API 구성](/ko/faq/cline/openai-compatible-api)
+
+## 참고 자료
+
+- [Cursor MCP 문서](https://cursor.com/docs/mcp)
+- [Cursor MCP markdown 문서](https://cursor.com/docs/mcp.md)

@@ -1,0 +1,119 @@
+---
+title: "Extensión Codex para VS Code: Base URL personalizada, API Key e inicio de sesión oficial"
+sidebarTitle: "Extensión Codex para VS Code"
+description: "Configura el config.toml compartido de la extensión Codex para VS Code, usa BetterToken Responses y conserva el inicio de sesión oficial, los plugins y Remote Control."
+icon: "/icons/codex-vscode.svg"
+---
+
+La extensión Codex para VS Code comparte `~/.codex/config.toml` con Codex CLI/App. Usa esta página si necesitas conservar el inicio de sesión oficial, los plugins o Remote Control.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## Requisitos previos
+
+- Instala la versión más reciente de la extensión Codex para VS Code
+- Completa el inicio de sesión oficial en la extensión o Codex App
+- <a href={"{{register-url}}"}>Crea una BetterToken API Key</a>
+- Copia un ID de modelo desde la <a href={"{{model-plaza-url}}"}>model plaza</a> o desde el cuadro **Setup** de la Key
+
+## Instalación
+
+Instala la extensión desde VS Code Marketplace y reinicia VS Code.
+
+## Configuración manual
+
+### Configura la extensión
+
+Edita `~/.codex/config.toml`:
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+experimental_bearer_token = "YOUR_API_KEY"
+```
+
+Guarda el archivo, ejecuta **Developer: Reload Window** en VS Code y vuelve a abrir el panel de Codex.
+
+<Note>
+  `requires_openai_auth = true` conserva el inicio de sesión oficial. `experimental_bearer_token` autentica las solicitudes al modelo de BetterToken. No escribas la BetterToken API Key en `auth.json`.
+</Note>
+
+### No combines la autenticación de CLI/App y de la extensión
+
+| Situación | Campos de autenticación |
+| --- | --- |
+| Solo proveedor personalizado en Codex CLI/App | `env_key = "BETTERTOKEN_API_KEY"` y `requires_openai_auth = false` |
+| Extensión con inicio de sesión oficial | `requires_openai_auth = true` y `experimental_bearer_token = "YOUR_API_KEY"` |
+
+Ambas alternativas usan `[model_providers.custom]`. Conserva una sola tabla en el archivo TOML.
+
+## Verifica la conexión
+
+Crea una sesión nueva en la extensión y envía una tarea breve. Si `YOUR_MODEL_ID` responde y los plugins y Remote Control siguen disponibles, la configuración funciona.
+
+## Cambia de modelo
+
+Cambia `model` y, si lo necesitas, `review_model`; después, ejecuta **Developer: Reload Window**. Usa un ID de modelo del cuadro Setup o de la model plaza.
+
+## Errores habituales
+
+| Error | Solución |
+| --- | --- |
+| La extensión vuelve a pedir el inicio de sesión | Restaura el inicio de sesión oficial y mantén `requires_openai_auth = true`. |
+| `401` o `403` | Vuelve a copiar `experimental_bearer_token`; no sobrescribas `auth.json`. |
+| Tabla duplicada | Elimina la otra tabla `[model_providers.custom]` y conserva un solo modo de autenticación. |
+| Modelo no encontrado | Sustituye `YOUR_MODEL_ID` por un ID de modelo completo y vigente. |
+| La configuración no se aplica | Guarda el archivo y ejecuta **Developer: Reload Window**. |
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guías relacionadas
+
+- [Proveedor personalizado para Codex CLI/App](/es/ai-tools/codex)
+- [Conservar el inicio de sesión oficial de Codex con una API de terceros](/es/faq/codex/official-login-third-party-api)
+- [Guía de configuración de config.toml para Codex](/es/faq/codex/config-toml)
+- [¿Qué son model_provider, base_url y wire_api?](/es/faq/codex/model-provider-base-url-wire-api)
+
+### Referencias oficiales
+
+- [Extensión Codex para IDE](https://developers.openai.com/codex/ide)
+- [Configuración básica de Codex](https://developers.openai.com/codex/config-basic)
+- [Referencia de configuración de Codex](https://developers.openai.com/codex/config-reference)
+
+## Detalles técnicos
+
+<Accordion title="Por qué la autenticación de la extensión difiere de CLI/App">
+  La extensión usa el inicio de sesión oficial para algunas funciones de Codex, por lo que esta configuración mantiene `requires_openai_auth = true`. Un proveedor personalizado exclusivamente para CLI/App usa una variable de entorno y `requires_openai_auth = false`. Ambos envían solicitudes OpenAI Responses mediante `{{openai-base-url}}`.
+</Accordion>

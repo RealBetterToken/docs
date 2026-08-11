@@ -1,0 +1,190 @@
+---
+title: "OpenClaw सेटअप: API Key, Base URL और custom मॉडल"
+sidebarTitle: "OpenClaw"
+description: "OpenClaw models.providers, BetterToken API Key, Base URL, OpenAI Responses या Chat Completions मॉडल सेट करें और Gateway सत्यापित करें।"
+icon: "paw"
+---
+
+OpenClaw `~/.openclaw/openclaw.json` से BetterToken को कनेक्ट करता है। GPT प्रदाता मॉडल `openai-responses` और अन्य समर्थित प्रदाता `openai-completions` उपयोग करते हैं।
+
+## मुख्य सेटिंग
+
+| Field | मान |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## आवश्यकताएं
+
+- नवीनतम OpenClaw इंस्टॉल करें
+- <a href={"{{register-url}}"}>BetterToken API Key बनाएं</a>
+- <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> या Key **Setup** dialog से Model ID कॉपी करें
+
+## इंस्टॉल करें
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://openclaw.ai/install.sh | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr -useb https://openclaw.ai/install.ps1 | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Command-line सेटअप
+
+BetterToken automatic setup script OpenClaw configuration लिखता है। इसके लिए Node.js आवश्यक है। API Key या Model ID argument में न देने पर script उन्हें दर्ज करने को कहता है।
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-openclaw-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-openclaw-provider-ps1-url}}" -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+पुष्टि करें कि `agents.defaults.model.primary` में Setup का `YOUR_MODEL_ID` उपयोग हुआ है, फिर नीचे validation और Gateway restart command चलाएं।
+
+## मैन्युअल सेटअप
+
+### OpenClaw सेट करें
+
+`~/.openclaw/openclaw.json` संपादित करें। केवल अपने Model ID के प्रदाता से मेल खाने वाला उदाहरण उपयोग करें।
+
+<Tabs>
+  <Tab title="GPT: openai-responses">
+    ```json
+    {
+      "models": {
+        "mode": "merge",
+        "providers": {
+          "bettertoken": {
+            "baseUrl": "{{openai-base-url}}",
+            "apiKey": "YOUR_API_KEY",
+            "api": "openai-responses",
+            "models": [
+              {
+                "id": "YOUR_MODEL_ID",
+                "name": "YOUR_MODEL_ID"
+              }
+            ]
+          }
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "bettertoken/YOUR_MODEL_ID"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Non-GPT: openai-completions">
+    ```json
+    {
+      "models": {
+        "mode": "merge",
+        "providers": {
+          "bettertoken": {
+            "baseUrl": "{{openai-base-url}}",
+            "apiKey": "YOUR_API_KEY",
+            "api": "openai-completions",
+            "models": [
+              {
+                "id": "YOUR_MODEL_ID",
+                "name": "YOUR_MODEL_ID"
+              }
+            ]
+          }
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "bettertoken/YOUR_MODEL_ID"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+मॉडल नाम से `api` का अनुमान न लगाएं। GPT `openai-responses` उपयोग करता है। GPT के अलावा किसी प्रदाता के लिए `openai-completions` तभी उपयोग करें जब मॉडल प्लाज़ा या Setup dialog compatibility की पुष्टि करे।
+
+## कनेक्शन सत्यापित करें
+
+चलाएं:
+
+```bash
+openclaw config validate
+openclaw gateway restart
+openclaw models list
+openclaw models status
+```
+
+Validation pass हो, Gateway restart हो और मॉडल सूची तथा status में `bettertoken/YOUR_MODEL_ID` दिखे तो सेटअप सक्रिय है। मौजूदा session पुराने मॉडल का उपयोग करे तो नया session शुरू करके फिर जांचें।
+
+## मॉडल बदलें
+
+नया मॉडल `models.providers.bettertoken.models` में जोड़ें, फिर `agents.defaults.model.primary` को `bettertoken/YOUR_MODEL_ID` पर बदलें। Save और validate करके Gateway restart करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | समाधान |
+| --- | --- |
+| `config validate` विफल | JSON comma, quote और bracket जांचें। |
+| `401` | `apiKey` फिर कॉपी करें और space हटाएं। |
+| `404` या protocol त्रुटि | GPT को `openai-responses` और non-GPT को `openai-completions` उपयोग करना चाहिए। Base URL में Endpoint न जोड़ें। |
+| मॉडल नहीं दिखता | पुष्टि करें कि वह प्रदाता मॉडल सूची और `agents.defaults.model.primary` दोनों में है। |
+| मौजूदा session पुराना मॉडल उपयोग करता है | `openclaw gateway restart` चलाएं और नया session बनाएं। |
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | कमांड लाइन + मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **कमांड लाइन + मैन्युअल सेटअप**: तैयार कमांड का उपयोग करें या पूरे मैन्युअल चरणों का पालन करें।
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+### संबंधित FAQ
+
+- [OpenAI-compatible API और Anthropic-compatible API की तुलना](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP और API Key तथा Base URL की तुलना](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Cline में OpenAI-compatible API कैसे सेट करें](/hi/faq/cline/openai-compatible-api)
+
+### वैकल्पिक: CC Switch से प्रदाता प्रबंधित करें
+
+कई टूल के प्रदाता एक जगह प्रबंधित करने के लिए [CC Switch में OpenClaw सेटअप](/hi/ai-tools/cc-switch#openclaw) देखें।
+
+## तकनीकी विवरण
+
+<Accordion title="Responses और Chat Completions">
+  `openai-responses` से OpenClaw GPT प्रदाता मॉडल के लिए `/v1/responses` call करता है। `openai-completions` पुष्टि किए गए compatible non-GPT प्रदाता के लिए `/v1/chat/completions` call करता है। दोनों `{{openai-base-url}}` को `baseUrl` के रूप में उपयोग करते हैं।
+</Accordion>

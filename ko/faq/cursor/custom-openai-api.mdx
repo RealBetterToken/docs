@@ -1,0 +1,61 @@
+---
+title: "Cursor Custom OpenAI API: Base URL, API Key 및 Models"
+sidebarTitle: "Cursor custom API"
+description: "BetterToken API Key, Override OpenAI Base URL 및 GPT Model ID로 Cursor에서 Custom OpenAI API를 구성하고 401 및 model not found를 해결하세요."
+---
+
+## 짧은 답변
+
+Cursor에서 BetterToken을 Custom OpenAI API로 연결하려면 BetterToken API Key를 입력하고 Override OpenAI Base URL을 enable한 후 `{{openai-base-url}}`로 설정하세요. 그런 다음 모델 광장에서 current GPT Model ID를 추가하세요. API Key, Base URL, Model ID는 모두 같은 provider에 속해야 합니다.
+
+## 이 내용이 필요한 경우
+
+- Cursor가 third-party OpenAI-compatible provider를 사용하게 하려 함
+- Override OpenAI Base URL을 설정해야 함
+- custom model을 추가 중임
+- model not found 또는 authentication failures가 표시됨
+- Cursor, Codex 및 other tools가 하나의 model routing layer를 공유하게 하려 함
+
+## Field 의미
+
+| Field | 역할 |
+| --- | --- |
+| API Key | authentication credential |
+| Base URL | OpenAI-compatible endpoint, 보통 `/v1` URL |
+| Model ID | provider가 인식하는 model identifier |
+| Custom model | Cursor 안에서 manually added 또는 selected model |
+
+## 권장 단계
+
+1. provider dashboard에서 API Key를 만드세요.
+2. Cursor model settings에 API Key를 추가하세요.
+3. Override OpenAI Base URL에 provider Base URL을 입력하세요.
+4. provider가 지원하는 Model ID를 추가하거나 선택하세요.
+5. 저장 후 간단한 request로 확인하세요.
+
+## 일반적인 실수
+
+- 한 provider의 API Key와 다른 provider의 Base URL을 사용함
+- Claude model name을 OpenAI-compatible configuration에 입력함
+- API model ID 대신 UI display name을 사용함
+- Cursor Rules가 API authentication에 영향을 준다고 생각함
+- global override가 다른 OpenAI models에 영향을 줄 수 있음을 잊음
+
+## BetterToken 정보
+
+Cursor와 유사한 external tools는 보통 OpenAI-compatible setup을 사용합니다. BetterToken Base URL은 `{{openai-base-url}}`이며 model IDs는 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 **GPT provider**에서 가져옵니다.
+
+Claude Code `{{anthropic-base-url}}`을 Cursor OpenAI-compatible configuration에 입력하지 마세요.
+
+## 관련 문서
+
+- [Cursor Rules, AGENTS.md 및 .cursorignore](/ko/faq/cursor/rules-agents-cursorignore)
+- [Cursor에서 MCP 구성](/ko/faq/cursor/mcp)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [model_provider, base_url 및 wire_api란?](/ko/faq/codex/model-provider-base-url-wire-api)
+
+## 참고 자료
+
+- [Cursor 문서](https://cursor.com/docs)
+- [Cursor forum: custom model API key 및 base URL](https://forum.cursor.com/t/can-the-api-key-and-base-url-corresponding-to-a-custom-model-be-set-separately-when-adding-a-cursor/137108)
+- [Cursor forum: OpenAI API 및 Override Base URL](https://forum.cursor.com/t/openai-api-and-override-base-url-values/148140)

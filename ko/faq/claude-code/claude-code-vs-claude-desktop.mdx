@@ -1,0 +1,66 @@
+---
+title: "Claude Code와 Claude Desktop 비교"
+sidebarTitle: "Code와 Desktop"
+description: "coding workflow, local file access, MCP, Gateway setup 및 API provider configuration에서 Claude Code와 Claude Desktop을 비교하세요."
+---
+
+## 빠른 답변
+
+Claude Code는 codebase 작업을 위한 coding agent입니다. project 읽기, files 편집, commands 실행 및 results 확인을 중심으로 설계되었습니다.
+
+Claude Desktop은 Claude용 desktop app입니다. conversations, desktop extensions, local MCP servers, Cowork 또는 Code features와 같은 일부 desktop workflows의 graphical entry point입니다.
+
+일부 capabilities를 공유할 수 있지만 같은 product surface는 아닙니다. setup, permission model, MCP behavior 및 Gateway configuration이 다를 수 있습니다.
+
+## 이 내용이 필요한 경우
+
+- Claude Code CLI와 Claude Desktop 중 선택하려고 함
+- Claude가 repository를 수정하게 하려 함
+- Claude Desktop Gateway 또는 MCP를 구성 중임
+- terminal, IDE, desktop app 또는 web을 통해 Claude Code를 사용함
+- desktop과 CLI behavior의 mismatch를 debugging 중임
+
+## 주요 개념
+
+| 영역 | Claude Code | Claude Desktop |
+| --- | --- | --- |
+| 주요 역할 | coding agent | desktop app |
+| 일반적인 진입점 | terminal, IDE, desktop, web | macOS 또는 Windows desktop app |
+| Codebase 작업 | file reads, edits 및 commands에 맞게 설계됨 | Desktop features, extensions, Cowork 또는 Code mode에 따라 다름 |
+| setup 초점 | project directory, permissions, `CLAUDE.md`, API provider | login, desktop extensions, MCP, Gateway |
+| 적합한 용도 | code changes, tests, review, automation | conversations, desktop connectors, visual workflows |
+
+## 권장 선택
+
+agent가 codebase 내부에서 직접 작업하게 하려면 Claude Code를 사용하세요. workflow는 project directory, file changes, commands 및 verification을 중심으로 구성됩니다.
+
+graphical Claude app, desktop extensions, local MCP servers 또는 Desktop-specific workflows가 필요하면 Claude Desktop을 사용하세요. Desktop 안에서 Code 또는 Cowork를 사용한다면 bundled Claude Code behavior를 사용하는지 별도의 Claude Code CLI setup을 사용하는지 확인하세요.
+
+third-party APIs에는 현재 surface가 지원하는 protocol을 따르세요. 이 문서에서 Claude Code는 `{{anthropic-base-url}}`을 사용합니다. OpenAI-compatible `{{openai-base-url}}`을 Anthropic-compatible Gateway field에 직접 입력하지 마세요.
+
+## 일반적인 실수
+
+- Claude Desktop이 Claude Code CLI를 자동 설치하거나 대체한다고 가정함
+- Desktop MCP settings를 Claude Code에 복사하거나 그 반대로 복사함
+- Claude.ai subscription을 API Key로 취급함
+- Anthropic-compatible traffic을 기대하는 Claude Desktop Gateway field에 OpenAI-compatible Base URL을 사용함
+- Desktop features가 Claude Code permissions, hooks 또는 command policies를 대체한다고 가정함
+
+## BetterToken 정보
+
+BetterToken은 model API layer의 일부입니다. tool이 custom API Key와 Base URL을 지원하는 곳에서 compatible endpoints를 제공할 수 있습니다.
+
+Claude Code와 Claude Desktop을 하나의 setup으로 합치지 않습니다. 사용 중인 surface의 protocol, Gateway, MCP 및 permission model을 계속 따라야 합니다.
+
+## 관련 문서
+
+- [Claude Code란 무엇이며 어떻게 작동하나요?](/ko/faq/claude-code/what-is-claude-code)
+- [Claude Code에서 Claude.ai account 또는 API Key 사용](/ko/faq/claude-code/claude-account-or-api-key)
+- [Claude Desktop에서 third-party models 사용 가능 여부](/ko/faq/claude-desktop/third-party-models)
+- [Claude Desktop API 설정 가이드](/ko/faq/claude-desktop-bettertoken-api)
+
+## 참고 자료
+
+- [Claude Code 개요](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Desktop 설치](https://support.anthropic.com/en/articles/10065433-installing-claude-for-desktop)
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)

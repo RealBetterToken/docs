@@ -1,0 +1,111 @@
+---
+title: "Wie behalte ich die offizielle Codex-Anmeldung und den Sitzungsverlauf bei einer Drittanbieter-API?"
+sidebarTitle: "Anmeldung und Verlauf behalten"
+description: "Verwende CC Switch mit einer Drittanbieter-API oder einem eigenen Modell und behalte offizielle Codex-Anmeldung, Plugins, Remote Control und einen einheitlichen Sitzungsverlauf."
+---
+
+Du kannst eine Drittanbieter-API oder ein eigenes Modell verwenden, ohne deine offizielle Codex-Anmeldung zu verlieren. Aktiviere zwei Codex App Enhancements in CC Switch, um offizielle Plugins, Remote Control und einen einheitlichen Sitzungsverlauf beizubehalten.
+
+## Bevor du beginnst
+
+1. Verwende CC Switch `v3.16.1` oder höher.
+2. Melde dich einmal mit deinem offiziellen ChatGPT-/Codex-Konto bei Codex an.
+3. Folge den [Codex-CLI-Schritten in der CC-Switch-Einrichtungsanleitung](/de/ai-tools/cc-switch#codex-cli), um deinen Drittanbieter-API-Provider oder dein eigenes Modell in CC Switch hinzuzufügen und zu aktivieren.
+
+<Warning>
+  Teile API Keys, Anmelde-Tokens oder andere Authentifizierungsdaten nicht in Screenshots, Chats, Issues oder Logs.
+</Warning>
+
+## Beide Codex App Enhancements aktivieren
+
+Öffne in CC Switch **Settings → General → Codex App Enhancements** und aktiviere beide Schalter:
+
+1. **Offizielle Anmeldung beim Wechsel zu Drittanbieter-Providern beibehalten**
+2. **Einheitlicher Codex-Sitzungsverlauf**
+
+<Frame>
+  <img
+    src="/images/codex-official-login-state/cc-switch-codex-app-enhancements.png"
+    alt="CC Switch Codex App Enhancements mit aktivierter Beibehaltung der offiziellen Anmeldung und einheitlichem Codex-Sitzungsverlauf."
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+### Offizielle Anmeldung, Plugins und Remote Control beibehalten
+
+**Keep official login when switching third-party providers** behält die offizielle Codex-Anmeldung bei, wenn du zu einem Drittanbieter-API-Provider oder eigenen Modell wechselst.
+
+Modell-Requests verwenden weiterhin den aktuell in CC Switch ausgewählten Provider, während Codex App Funktionen nutzen kann, die die offizielle Anmeldung erfordern, einschließlich offizieller Plugins und Remote Control.
+
+Ausführliche Schritte findest du in der CC-Switch-Anleitung: [Codex Remote Control und offizielle Plugins bei einer Drittanbieter-API beibehalten](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-official-auth-preservation-guide-zh.md).
+
+### Offizielle und Drittanbieter-Sitzungen zusammen anzeigen
+
+**Unified Codex session history** zeigt Sitzungen, die mit dem offiziellen Abonnement und Drittanbieter-Providern erstellt wurden, in einer Verlaufsliste an.
+
+Wenn du die Funktion aktivierst, kannst du wählen, ob vorhandene offizielle Sitzungen in diese Liste verschoben werden. CC Switch sichert die ursprünglichen Sitzungen vor der Migration automatisch.
+
+Ausführliche Schritte findest du in der CC-Switch-Anleitung: [Unified Codex session history](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-unified-session-history-guide-zh.md).
+
+## Codex neu starten
+
+Beende Codex nach dem Aktivieren beider Schalter vollständig und starte es neu. Codex lädt die aktuelle CC-Switch-Konfiguration und den einheitlichen Sitzungsverlauf nach dem Neustart erneut.
+
+## Bestätigen, dass die Einrichtung funktioniert
+
+Bestätige nach dem Neustart Folgendes:
+
+1. Codex zeigt weiterhin deine offizielle Kontoanmeldung.
+2. Offizielle Plugins oder Remote Control funktionieren normal.
+3. CC Switch hat deinen Drittanbieter-API-Provider oder dein eigenes Modell ausgewählt.
+4. Eine Testnachricht wird normal beantwortet.
+
+<Note>
+  Ein einheitlicher Verlauf lässt dich Sitzungen an einer Stelle anzeigen, garantiert aber nicht, dass eine bestehende Sitzung Provider-übergreifend fortgesetzt werden kann. Setze eine Sitzung möglichst mit dem Provider fort, der sie erstellt hat. Starte für einen anderen Provider eine neue Sitzung.
+</Note>
+
+## Manuelle Einrichtung
+
+Die manuelle Einrichtung ist für fortgeschrittene Nutzer gedacht, die lokale Codex-Dateien sicher bearbeiten können. Die meisten Nutzer sollten zuerst CC Switch verwenden.
+
+<Steps>
+  <Step title="Offizielle Codex-Anmeldung beibehalten">
+    Melde dich zuerst in Codex App oder Codex CLI mit deinem offiziellen ChatGPT-/Codex-Konto an und bestätige dann, dass Remote Control oder Plugins funktionieren.
+
+    Bewahre die durch deine offizielle Anmeldung erzeugten Inhalte in `~/.codex/auth.json` auf. Kopiere, synchronisiere oder teile deren Tokens nicht.
+  </Step>
+
+  <Step title="config.toml bearbeiten">
+    Öffne `~/.codex/config.toml` und füge diese Provider-Konfiguration hinzu oder führe sie zusammen:
+
+    ```toml
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
+    experimental_bearer_token = "YOUR_API_KEY"
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    Ersetze `YOUR_API_KEY` durch deinen BetterToken API Key. `requires_openai_auth = true` behält die offizielle Anmeldung bei, während `experimental_bearer_token` Drittanbieter-API-Requests sendet.
+  </Step>
+
+  <Step title="Neu starten und überprüfen">
+    Beende Codex vollständig und starte es neu. Bestätige, dass die offizielle Anmeldung erhalten bleibt, Remote Control oder Plugins geöffnet werden und eine Testnachricht normal beantwortet wird.
+
+    Wenn das Modell nicht verfügbar ist, bestätige, dass `model` eine vom GPT-Provider in der <a href={"{{model-plaza-url}}"}>model plaza</a> angebotene Model ID ist.
+  </Step>
+</Steps>

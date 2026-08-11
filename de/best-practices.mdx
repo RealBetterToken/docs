@@ -1,0 +1,101 @@
+---
+title: "Bewährte Vorgehensweisen"
+description: "Tipps, um BetterToken optimal zu nutzen."
+---
+
+## API Key sicher aufbewahren
+
+**Verwende Umgebungsvariablen — niemals fest eincodieren.** Wenn du deinen API Key direkt in Quellcode oder Konfigurationsdateien schreibst, kann er versehentlich in der Versionsverwaltung offengelegt werden. Empfohlener Ansatz:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export BETTERTOKEN_API_KEY="your-api-key-here"
+```
+
+Verwalte Secrets für Claude Code über das Feld `env` in `settings.json`, statt sie in deiner Shell-Konfiguration offenzulegen:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**Wechsle deinen API Key regelmäßig.** Wenn du eine Offenlegung vermutest, lösche den Key sofort im Dashboard und erstelle einen neuen.
+
+---
+
+## Großzügigen Timeout festlegen
+
+Antworten von KI-Modellen können Zeit benötigen, besonders bei komplexen Denkaufgaben. Setze den Timeout hoch genug, um vorzeitige Verbindungsabbrüche zu vermeiden:
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50 Minuten. Das eignet sich für tiefes Reasoning oder lange agentische Aufgaben.
+
+---
+
+## Konfligierende Umgebungsvariablen löschen
+
+Wenn du zuvor die offiziellen Anthropic- oder OpenAI-APIs — oder einen anderen Relay-Dienst — verwendet hast, können veraltete Umgebungsvariablen deine BetterToken-Konfiguration überschreiben und Requests unbemerkt an den falschen Endpunkt senden.
+
+Prüfe und lösche diese Werte, bevor du BetterToken konfigurierst:
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code: Zuerst den Provider prüfen
+
+Setze beim **Claude-Provider** **nicht** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` oder andere modellspezifische Variablen. Füge beim **GPT-Provider** Modellzuordnungen über `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` und `ANTHROPIC_DEFAULT_OPUS_MODEL` hinzu.
+
+Mische die beiden Konfigurationen nicht, sonst können Requests an das falsche Modell weitergeleitet werden.
+
+**Deaktiviere nicht essenziellen Traffic.** `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduziert Hintergrund-Requests von Claude Code und reserviert dein API-Kontingent für tatsächliche Coding-Aufgaben.
+
+**Füge Claude Code nicht `/v1` hinzu.** `ANTHROPIC_BASE_URL` muss `{{anthropic-base-url}}` sein.
+
+---
+
+## Einen API Key in mehreren Tools verwenden
+
+Der gleiche API Key funktioniert in Claude Code, Codex und external tools. Das Kontingent wird geteilt, was die zentrale Verwaltung vereinfacht.
+
+Der Endpunkt muss jedoch zum Protokoll passen:
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / external tools: `{{openai-base-url}}`
+
+Wenn du die Nutzung pro Projekt oder Team getrennt verfolgen möchtest, erstelle mehrere API Keys im Dashboard und weise jedem Tool oder Projekt einen zu.
+
+Kopiere für external tools die Model ID vom **GPT-Provider** in der <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+---
+
+## Checkliste zur Fehlerbehebung
+
+1. **Bestätige, dass der API Key korrekt ist** — prüfe das Dashboard und füge ihn sorgfältig ohne zusätzliche Leerzeichen ein
+2. **Bestätige den Endpunkt für das Protokoll** — Claude Code verwendet `{{anthropic-base-url}}`; Codex / external tools verwenden `{{openai-base-url}}`
+3. **Prüfe auf konfliktierende Umgebungsvariablen** — führe `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL` und verwandte Befehle aus
+4. **Prüfe die offiziellen Einrichtungsanforderungen des Tools** — überprüfe bei external tools zuerst `Base URL`, API Key, Model ID und Tool-Version; füge zusätzliche Header nur hinzu, wenn die offizielle Tool-Dokumentation oder dein Upstream-Gateway sie ausdrücklich verlangt
+5. **Prüfe dein Guthaben** — Requests werden abgelehnt, wenn das Guthaben aufgebraucht ist
+6. **Kontaktiere den Support** — falls die obigen Schritte das Problem nicht lösen

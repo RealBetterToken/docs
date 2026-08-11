@@ -1,0 +1,139 @@
+---
+title: "이미지 변환(이미지 편집)"
+description: "BetterToken의 OpenAI-compatible API를 통해 GPT Image 2로 reference images에서 이미지를 생성하거나 편집하세요."
+openapi: "api-reference/openapi.json POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+image-to-image endpoint는 `multipart/form-data` request body를 사용합니다. 하나 이상의 reference images를 업로드하고 prompt 및 parameter fields를 form fields로 제출하세요.
+
+<Note>
+  `{{openai-base-url}}`을 `Base URL`로 사용하세요. `Authorization: Bearer YOUR_API_KEY`를 통해 BetterToken API Key를 전달하세요.
+</Note>
+
+<Tip>
+  페이지 오른쪽의 Playground에서 form fields를 입력하고 reference images를 업로드한 다음 `{{images-edits-url}}`로 request를 직접 보낼 수 있습니다.
+</Tip>
+
+<Warning>
+  image-to-image requests에 일반 JSON body를 사용하지 마세요. text fields와 file fields는 `multipart/form-data`로 제출하세요.
+</Warning>
+
+## 권장 값
+
+모든 request에서 다음 fields를 명시적으로 보내세요.
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+단일 reference image에는 `image`를 사용하세요. 여러 reference images에는 반복된 `image[]` fields를 사용하세요.
+
+## 단일 reference image
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Use this reference image to create a more polished square product hero image while keeping the main style consistent.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## 여러 reference images
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Combine these reference images into one consistent promotional poster.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Python 예시
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Use this reference image to create a more polished square product hero image while keeping the main style consistent.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## 권장 sizes
+
+| `size` | 비율 | 사용 사례 |
+| --- | --- | --- |
+| `auto` | 자동 | 자동 size 선택 |
+| `1024x1024` | `1:1` | 정사각형 images, avatars, covers, assets |
+| `1536x1024` | `3:2` | 가로 posters, banners, scenes |
+| `1024x1536` | `2:3` | 세로 mobile covers 및 posters |
+| `1536x1152` | `4:3` | 표준 가로 images, product images, content graphics |
+| `1152x1536` | `3:4` | 표준 세로 images, mobile covers, vertical posters |
+| `2048x2048` | `1:1` | 고해상도 정사각형 images |
+| `2048x1152` | `16:9` | 고해상도 가로 images |
+| `3840x2160` | `16:9` | 4K 가로 images |
+| `2160x3840` | `9:16` | 4K 세로 images |
+
+`size`는 예상 aspect ratio와 size tier를 나타냅니다. 실제 반환 pixels는 server에 의해 mapping 또는 adjusted될 수 있습니다. output을 요청한 값으로 강제로 crop하지 말고 decoded image dimensions를 사용하세요.
+
+## 이미지 저장
+
+성공한 response는 다음 OpenAI-compatible image response shape를 따릅니다.
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+`data[0].b64_json`을 읽어 base64 image content로 저장하세요. 항상 `output_format: "png"`를 설정하면 decoded image를 `.png`로 저장할 수 있습니다.
+
+## Response flow
+
+이 endpoint는 synchronous입니다. `POST /images/edits`를 보낸 후 server가 response할 때까지 현재 HTTP request를 열어 두세요. generation에 성공하면 image content가 `data[0].b64_json`으로 반환됩니다.
+
+endpoint는 `task_id`를 반환하지 않으며 별도의 status query 또는 result download endpoint가 없습니다.
+
+## 관련 문서
+
+- [텍스트를 이미지로 변환](/ko/api-reference/images-generations)
+- [GPT Image 2 출시](/ko/model-updates/gpt-image-2)

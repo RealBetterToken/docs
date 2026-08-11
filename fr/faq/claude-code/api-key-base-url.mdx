@@ -1,0 +1,78 @@
+---
+title: "Configurer l’API Key et la Base URL dans Claude Code"
+sidebarTitle: "API Key et Base URL"
+description: "Comprenez comment l’API Key, la Base URL, les endpoints compatibles avec Anthropic et les fournisseurs Claude et GPT s’articulent dans Claude Code."
+---
+
+## Réponse rapide
+
+Lorsque vous configurez une API tierce dans Claude Code, vérifiez d’abord que l’endpoint est compatible avec Anthropic. Dans cette documentation, Claude Code utilise `{{anthropic-base-url}}`. N’ajoutez pas `/v1`.
+
+L’API Key authentifie la requête. La Base URL indique à Claude Code où envoyer les requêtes au modèle. Les deux doivent appartenir au même fournisseur et au même protocole.
+
+Avec le **fournisseur Claude**, Claude Code nécessite généralement `ANTHROPIC_BASE_URL` et `ANTHROPIC_AUTH_TOKEN`. Avec le **fournisseur GPT**, vous devez également ajouter les associations de modèles Claude Code présentées dans le guide de configuration.
+
+## Quand cette configuration est importante
+
+- Vous souhaitez utiliser une gateway API personnalisée avec Claude Code
+- Vous avez une API Key, mais vous ne savez pas quelle Base URL utiliser
+- Claude Code signale une erreur d’authentification ou d’endpoint
+- Vous hésitez entre `{{anthropic-base-url}}` et `{{openai-base-url}}`
+- Vous souhaitez comprendre les fournisseurs Claude et GPT
+
+## Concepts principaux
+
+| Champ | Signification |
+| --- | --- |
+| API Key | Identifiant utilisé pour les requêtes à l’API du modèle |
+| Base URL | Adresse de l’API vers laquelle les requêtes sont envoyées |
+| API compatible avec Anthropic | Endpoint qui suit les conventions de requête Anthropic ou Claude |
+| API compatible avec OpenAI | Endpoint qui suit les conventions OpenAI, souvent utilisé par Codex, Cursor et Cline |
+| Model ID | Nom du modèle ou valeur d’association demandée par l’outil |
+
+## Configuration recommandée
+
+Choisissez la procédure selon le fournisseur.
+
+Fournisseur Claude :
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+Le fournisseur GPT nécessite des associations de modèles Claude Code supplémentaires. Suivez le [guide complet de configuration de Claude Code](/fr/ai-tools/claude-code) au lieu de copier uniquement ce court exemple.
+
+Après avoir modifié la configuration, redémarrez Claude Code et envoyez un court message de test. En cas d’échec, vérifiez d’abord si la Base URL a été définie par erreur sur `{{openai-base-url}}`.
+
+## Erreurs fréquentes
+
+- Ajouter `/v1` à la Base URL de Claude Code.
+- Modifier l’API Key tout en conservant l’endpoint par défaut comme destination des requêtes.
+- Traiter le Model ID d’un fournisseur GPT comme un modèle du fournisseur Claude.
+- Saisir un endpoint compatible avec OpenAI dans les champs compatibles avec Anthropic de Claude Code.
+- Définir dans un profil shell d’anciennes variables d’environnement qui remplacent la nouvelle configuration.
+
+## À propos de BetterToken
+
+BetterToken fournit deux types d’endpoint : `{{anthropic-base-url}}`, compatible avec Anthropic pour Claude Code, et `{{openai-base-url}}`, compatible avec OpenAI pour Codex et les outils externes.
+
+Vous pouvez gérer les API Key, le solde et l’historique d’utilisation dans un seul Dashboard, mais Claude Code nécessite toujours un format de requête compatible avec Anthropic.
+
+## Documentation associée
+
+- [Guide de configuration de Claude Code](/fr/ai-tools/claude-code)
+- [Claude Code utilise-t-il un compte Claude.ai ou une API Key ?](/fr/faq/claude-code/claude-account-or-api-key)
+- [API compatible avec OpenAI ou API compatible avec Anthropic](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Pourquoi Claude Code utilise autant de Token et comment réduire le coût](/fr/faq/token-cost/claude-code-token-usage)
+
+## Références
+
+- [Configuration de la LLM gateway Claude Code](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Authentification de Claude Code](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Configuration des modèles Claude Code](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Guide de configuration de Claude Code](/fr/ai-tools/claude-code)

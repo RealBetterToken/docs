@@ -1,0 +1,150 @@
+---
+title: "OpenCode 사용자 지정 모델: API Key, Base URL, JSON 설정"
+sidebarTitle: "OpenCode"
+description: "/connect, opencode.json, API Key, Base URL, Model ID를 사용해 OpenCode를 BetterToken OpenAI 호환 Chat Completions에 연결하세요."
+icon: "brackets-curly"
+---
+
+OpenCode는 `@ai-sdk/openai-compatible`을 사용해 BetterToken에 연결합니다. OpenCode 제공자 이름은 **BetterToken** 또는 **OpenAI Compatible**로 지정하세요. GPT, Kimi, GLM은 BetterToken 내부의 모델 제공자이며 OpenCode 제공자 이름이 아닙니다.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 준비 사항
+
+- 최신 OpenCode 설치
+- <a href={"{{register-url}}"}>BetterToken API Key 생성</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a> 또는 Key **설정** 대화 상자에서 Model ID 복사
+
+## 설치하기
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## 명령줄 설정
+
+BetterToken 자동 설정 스크립트는 OpenCode의 BetterToken 제공자를 생성하거나 업데이트합니다. Node.js가 필요합니다. API Key 또는 Model ID를 인수로 전달하지 않으면 직접 입력하라는 메시지가 표시됩니다.
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-opencode-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-opencode-provider-ps1-url}}" -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+스크립트가 완료되면 `bettertoken/YOUR_MODEL_ID`를 선택하세요. OpenCode가 이미 실행 중이라면 테스트 전에 다시 시작하세요.
+
+## 수동 설정
+
+### 방법 1: /connect로 인증 정보 저장
+
+OpenCode를 시작하고 다음을 실행하세요.
+
+```text
+/connect
+```
+
+**Other**를 선택하고 제공자 ID로 `bettertoken`을 입력한 뒤 `YOUR_API_KEY`를 입력하세요. OpenCode가 인증 정보를 로컬에 저장합니다.
+
+### 방법 2: JSON 설정
+
+전역 파일은 `~/.config/opencode/opencode.json`입니다. 프로젝트 루트에서는 `opencode.json`을 사용할 수 있습니다.
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "{{openai-base-url}}"
+      },
+      "models": {
+        "YOUR_MODEL_ID": {
+          "name": "YOUR_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+`/connect`를 사용하지 않으면 `"apiKey": "YOUR_API_KEY"`를 `options` 아래에 추가하세요. 실제 Key가 포함된 설정은 절대 커밋하지 마세요.
+
+## 연결 확인
+
+프로젝트에서 `opencode`를 실행하고 `bettertoken/YOUR_MODEL_ID`를 선택한 뒤 짧은 메시지를 보내세요. 정상 응답이 오면 설정이 완료된 것입니다. JSON을 변경한 뒤에는 OpenCode를 다시 시작하세요.
+
+## 모델 전환
+
+새 `YOUR_MODEL_ID`를 `provider.bettertoken.models` 아래에 추가하고 최상위 `model`을 업데이트한 뒤 저장하고 다시 시작하세요.
+
+## 흔한 오류
+
+| 오류 | 해결 방법 |
+| --- | --- |
+| `401` | `/connect`를 다시 실행하거나 `apiKey`를 확인하세요. |
+| `404` | `{{openai-base-url}}`만 `baseURL`로 사용하고 `/chat/completions`를 추가하지 마세요. |
+| 모델을 찾을 수 없음 | 최상위 `model`이 `models` 아래의 ID와 정확히 일치하도록 설정하세요. |
+| 설정이 적용되지 않음 | 프로젝트의 `opencode.json`이 전역 파일을 덮어쓰는지 확인한 뒤 OpenCode를 다시 시작하세요. |
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 명령줄 + 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **명령줄 + 수동 설정**: 생성된 명령을 사용하거나 전체 수동 단계를 따르세요.
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 관련 FAQ
+
+- [OpenAI 호환 API와 Anthropic 호환 API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url, wire_api란 무엇인가요?](/ko/faq/codex/model-provider-base-url-wire-api)
+- [Cline에서 OpenAI 호환 API 설정하기](/ko/faq/cline/openai-compatible-api)
+
+### 선택 사항: CC Switch로 제공자 관리
+
+여러 도구의 제공자를 한곳에서 관리하려면 [CC Switch의 OpenCode 설정](/ko/ai-tools/cc-switch#opencode)을 참고하세요.
+
+## 기술 세부 정보
+
+<Accordion title="제공자와 모델 제공자">
+  OpenCode 제공자는 `bettertoken`이며 `@ai-sdk/openai-compatible`과 Chat Completions를 사용합니다. GPT, Kimi, GLM은 BetterToken의 모델 제공자입니다. 선택한 전체 Model ID를 `models`에 입력하세요.
+</Accordion>

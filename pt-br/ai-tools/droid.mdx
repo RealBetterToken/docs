@@ -1,0 +1,178 @@
+---
+title: "Configuração do Droid: instalação, API Key, Base URL e modelos personalizados"
+sidebarTitle: "Droid"
+description: "Instale o Droid, configure a Base URL e a API Key da BetterToken, escolha um modelo compatível e corrija erros comuns."
+icon: "robot"
+---
+
+Para conectar o Droid à BetterToken, prepare uma API Key, informe a Base URL abaixo e escolha um ID de modelo atual na model plaza.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Um ID atual da <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Pré-requisitos
+
+- A versão atual da ferramenta está instalada
+- Uma BetterToken API Key: <a href={"{{register-url}}"}>cadastre-se e crie uma</a>
+- Um ID de modelo da <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionais
+
+## Instalação
+
+### Instalar o Droid
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://app.factory.ai/cli | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    irm https://app.factory.ai/cli/windows | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Configuração manual
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Um ID atual da <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Configuração
+
+<Steps>
+  <Step title="Defina a BetterToken API Key">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    Substitua `YOUR_API_KEY` pela sua BetterToken API Key. O Droid aceita a expansão da variável `${BETTERTOKEN_API_KEY}` na configuração JSON.
+  </Step>
+
+  <Step title="Edite o arquivo de configuração do Droid">
+    Caminho do arquivo: `~/.factory/settings.json`
+
+    ```json
+    {
+      "customModels": [
+        {
+          "displayName": "BetterToken Codex",
+          "model": "YOUR_MODEL_ID",
+          "baseUrl": "{{openai-base-url}}",
+          "apiKey": "${BETTERTOKEN_API_KEY}",
+          "provider": "openai"
+        }
+      ]
+    }
+    ```
+
+    Substitua `YOUR_MODEL_ID` por um **ID de modelo de um provedor compatível** atual copiado da <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+
+  <Step title="Inicie o Droid e selecione o modelo">
+    ```bash
+    cd /path/to/your/project
+    droid
+    ```
+
+    Informe `/model` no Droid e selecione **BetterToken Codex**. O Factory observa mudanças no arquivo de configurações; se a lista não for atualizada, encerre e abra novamente o Droid.
+  </Step>
+
+  <Step title="Execute uma pequena tarefa de teste">
+    Comece com uma tarefa pequena, como “Explique a estrutura de diretórios deste projeto.” Depois que o Droid retornar um resultado, prossiga com alterações entre arquivos ou tarefas mais longas com agente.
+  </Step>
+</Steps>
+
+<Note>
+  Defina `provider` como `openai`. Na configuração BYOK do Factory, esse valor seleciona a OpenAI Responses API. Use `{{openai-base-url}}` e uma BetterToken API Key.
+</Note>
+
+## Teste a conexão
+
+Envie um prompt curto. Se a ferramenta responder sem erro de autenticação ou de ID de modelo, a conexão funciona. Reinicie completamente a ferramenta após alterar a configuração.
+
+## Alterne entre modelos
+
+Abra o seletor ou altere o campo `Model` na configuração. Use o ID exato da <a href={"{{model-plaza-url}}"}>model plaza</a> e reinicie a sessão atual.
+
+## Erros comuns
+
+### Solução de problemas
+
+| Sintoma | O que verificar |
+| --- | --- |
+| O modelo personalizado não aparece em `/model` | Valide o JSON e confirme que `model`, `baseUrl`, `apiKey` e `provider` estão presentes |
+| `Invalid provider` | Use exatamente o valor em minúsculas `"openai"`, não um rótulo da interface |
+| `401` ou `403` | Copie a API Key novamente, confirme que o processo Droid lê `BETTERTOKEN_API_KEY` e confira o saldo da conta |
+| `404` ou modelo não encontrado | Use `{{openai-base-url}}` e copie um ID GPT atual da model plaza |
+| O modelo antigo continua após editar | Abra `/model` novamente; se a lista não atualizar, encerre e abra o Droid de novo |
+
+### FAQ
+
+### Por que devo usar o provedor compatível?
+
+O `provider: "openai"` do Droid usa a OpenAI Responses API. O provedor compatível da BetterToken oferece o endpoint e os IDs de modelo correspondentes.
+
+### Preciso de cabeçalhos personalizados?
+
+Nenhum cabeçalho extra é exigido em uma configuração padrão da BetterToken. Adicione cabeçalhos de tenant, roteamento ou auditoria apenas quando outro gateway os exigir explicitamente.
+
+### Onde posso conferir preços e uso?
+
+Use a <a href={"{{model-plaza-url}}"}>model plaza</a> para ver os preços atuais. O uso das solicitações e o saldo estão disponíveis no Dashboard da BetterToken.
+
+### FAQ relacionados
+
+- [API compatível com OpenAI versus API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP versus API Key e Base URL](/pt-br/faq/concepts/mcp-vs-api-key-base-url)
+- [O que são model_provider, base_url e wire_api?](/pt-br/faq/codex/model-provider-base-url-wire-api)
+- [Como configurar uma API compatível com OpenAI no Cline](/pt-br/faq/cline/openai-compatible-api)
+
+## Configuração avançada
+
+{/* tool-provider-support:start */}
+### Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
+
+<Accordion title="O que significa cada método de configuração">
+  - **Configuração manual**: informe a API Key, a Base URL e o Model.
+  - **Sem suporte**: ainda não há um método verificado de conexão direta.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guias relacionados
+
+- [Visão geral do Factory BYOK](https://docs.factory.ai/cli/byok/overview)
+
+## Detalhes técnicos
+
+<Accordion title="Protocolo, endpoint e campos internos do provedor">
+  Esta configuração usa `{{openai-base-url}}`. A ferramenta adiciona o caminho do endpoint compatível com OpenAI. Não acrescente `/chat/completions` nem `/responses`, a menos que um campo específico exija.
+</Accordion>

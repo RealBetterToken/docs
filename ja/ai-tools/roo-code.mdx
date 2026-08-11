@@ -1,0 +1,133 @@
+---
+title: "Roo Code のセットアップ：インストール、API Key、Base URL、カスタムモデル"
+sidebarTitle: "Roo Code"
+description: "Roo Code をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+icon: "r"
+---
+
+Roo Code を BetterToken に接続するには、API Key を用意し、以下の Base URL を入力して、モデル広場から現在の Model ID を選択します。
+
+## 主要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+## 前提条件
+
+- 現在のバージョンのツールがインストールされている
+- BetterToken API Key：<a href={"{{register-url}}"}>登録して取得</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>の Model ID
+
+### 追加要件
+
+- VS Code がインストールされている
+
+## インストール
+
+### Roo Code をインストールする
+
+VS Code を開き、拡張機能マーケットプレイスで **Roo Code** を検索してインストールします。
+
+## 手動設定
+
+この設定は Roo Code の設定 UI で完了します。設定ファイルを編集する必要はありません。
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+### 設定手順
+
+<Steps>
+  <Step title="競合する環境変数を削除する">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Roo Code の設定を開く">
+    Roo Code の **Settings** パネルを開きます。
+  </Step>
+
+  <Step title="API プロバイダーを設定する">
+    次の値を入力します。
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → BetterToken API Key
+    - **Model** → <a href={"{{model-plaza-url}}"}>モデル広場</a>からコピーした、**対応プロバイダーのモデル ID**
+  </Step>
+
+  <Step title="公式ドキュメントで明示的に要求される場合にのみ追加ヘッダーを設定する">
+    確認した公式 Roo Code 資料は OpenAI 互換またはカスタム API の設定に焦点を当てていますが、追加の `User-Agent` を BetterToken の必須手順として扱っていません。
+
+    カスタムゲートウェイ、テナントルーティング、可観測性、キャッシュレイヤーも使用している場合は、その上流サービスの公式ドキュメントに従ってのみヘッダーを追加してください。
+  </Step>
+
+  <Step title="保存して使い始める">
+    **Save** と **Done** をクリックしてから、設定したモデルを選択します。
+  </Step>
+
+  <Step title="Roo Code を再起動する">
+    設定を保存した後、設定したモデルを選択する前に VS Code を再起動するか、Roo Code 拡張機能を再読み込みします。
+  </Step>
+</Steps>
+
+<Note>
+  Roo Code の OpenAI Compatible プロバイダーは、引き続き OpenAI 形式のツール呼び出しに依存します。追加ヘッダーが必要な場合は、`User-Agent` が BetterToken で必須だと想定せず、現在の Roo Code ドキュメントまたは上流ゲートウェイの要件に従ってください。
+</Note>
+
+## 接続を確認する
+
+短いテストプロンプトを送信します。認証または Model ID のエラーなしでツールがレスポンスを返せば、接続は機能しています。設定を変更した後はツールを完全に再起動してください。
+
+## モデルを切り替える
+
+モデルセレクターを開くか、設定の `Model` フィールドを変更します。<a href={"{{model-plaza-url}}"}>モデル広場</a>にある正確な Model ID を使用してから、現在のセッションを再起動してください。
+
+## よくあるエラー
+
+| エラー | 確認事項 |
+| --- | --- |
+| `401` または `Unauthorized` | BetterToken API Key を確認し、先頭または末尾の空白を削除します。 |
+| `404` | Base URL を確認し、特定の Endpoint パスを追加しないでください。 |
+| `model not found` | モデル広場から現在の Model ID をコピーします。 |
+| 変更が反映されない | 設定を保存して、ツールを完全に再起動します。 |
+
+
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key / Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider、base_url、wire_api とは何ですか？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+
+## 詳細設定
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技術詳細
+
+<Accordion title="プロトコル、Endpoint、内部プロバイダーフィールド">
+  この設定では `{{openai-base-url}}` を使用します。ツールが OpenAI 互換の Endpoint パスを追加します。特定のフィールドで明示的に要求されない限り、`/chat/completions` や `/responses` を追加しないでください。
+</Accordion>

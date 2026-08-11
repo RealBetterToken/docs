@@ -1,0 +1,86 @@
+---
+title: "Pourquoi un modèle ne connaît-il pas sa propre version ?"
+sidebarTitle: "Auto-identification du modèle"
+description: "Découvrez pourquoi un modèle peut indiquer incorrectement sa version dans un appel API et comment vérifier quel modèle a réellement été utilisé."
+---
+
+## Réponse courte
+
+Il est normal qu’un modèle indique incorrectement sa propre version. Cela ne prouve pas que vous avez appelé le mauvais modèle.
+
+Le paramètre `model` est principalement utilisé par le serveur API pour le routage. Le modèle peut ne pas voir ce champ et peut ne pas connaître le nom final de publication si ce nom a été attribué après l’entraînement. Les produits web officiels répondent souvent correctement, car la couche produit injecte une consigne système qui indique son identité au modèle.
+
+Lorsque vous appelez un modèle via une API sans ajouter d’information d’identité dans le message système, le modèle peut deviner un nom plus ancien à partir de ses données d’entraînement.
+
+## Quand cela se produit
+
+- Vous appelez un nouveau modèle, mais il indique être une ancienne version
+- Le site officiel donne correctement la version, mais pas l’appel API
+- Le même modèle se présente différemment dans plusieurs outils
+- Vous voulez vérifier si la passerelle API a appelé le modèle demandé
+- Un utilisateur traite « Quel modèle es-tu ? » comme méthode de vérification
+
+## Pourquoi cela se produit
+
+Les noms de modèles sont souvent finalisés après l’entraînement. Pendant l’entraînement, le modèle apprend des modèles de langage, de code et de connaissance. Il peut ne pas apprendre le nom de produit final utilisé après la publication.
+
+Dans une requête API, le champ `model` indique au serveur vers quel modèle router. Ce n’est pas du contenu de discussion ordinaire, et le modèle peut ne pas le recevoir comme information d’identité.
+
+Les produits web officiels peuvent ajouter des instructions cachées telles que « Vous êtes ce modèle. » Les appels API n’ajoutent généralement pas automatiquement cette consigne d’identité.
+
+## Comment vérifier le modèle réellement utilisé
+
+Ne vous fiez pas uniquement à la question « Quelle version es-tu ? » posée au modèle. Vérifiez plutôt le chemin de la requête et les champs de réponse.
+
+| Méthode de vérification | Éléments à contrôler |
+| --- | --- |
+| Journaux d’appels | Le modèle utilisé pour chaque requête dans le tableau de bord |
+| Champs de réponse API | Le champ `model` dans le JSON de réponse |
+| Model ID | Le Model ID de votre requête provient du fournisseur actuel ou de la model plaza |
+| fournisseur | L’API Key, la Base URL et le Model ID appartiennent au même groupe |
+
+Example response:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+La forme exacte de réponse dépend du format API. La vérification importante porte sur le champ de modèle renvoyé par le serveur et l’enregistrement du tableau de bord, et non sur l’auto-présentation du modèle.
+
+## Comment faire répondre le modèle avec une identité précise
+
+Si votre produit doit faire en sorte que le modèle se décrive d’une manière précise, placez cette identité dans le message système :
+
+```text
+You are Claude Sonnet 5, called through the BetterToken API.
+```
+
+Cela fonctionne comme le produit web officiel : la couche application indique au modèle quelle identité il doit déclarer.
+
+<Warning>
+  Un message système modifie uniquement l’auto-description et le style de comportement du modèle. Il ne modifie pas le modèle réellement routé. Le routage réel reste déterminé par la Base URL, l’API Key, le fournisseur et le Model ID.
+</Warning>
+
+## Erreurs fréquentes
+
+- Utiliser « Quel modèle es-tu ? » comme seule méthode de vérification.
+- Supposer que le fournisseur a remplacé le modèle parce que l’auto-description est incorrecte.
+- Supposer que le paramètre `model` entre toujours dans le contexte du modèle.
+- Ignorer les journaux du tableau de bord et le champ de réponse `model`.
+- Ajouter l’identité du modèle au message système et supposer que le modèle réel a changé.
+
+## À propos de BetterToken
+
+Le tableau de bord BetterToken vous aide à vérifier l’API Key, le Model ID, les enregistrements de requêtes et l’utilisation du solde. Lorsque vous devez confirmer que le modèle est correct, vérifiez d’abord le journal d’appel et les champs de réponse.
+
+Si l’auto-description contredit les journaux, fiez-vous aux journaux et aux champs de réponse.
+
+## Documentation associée
+
+- [Comment choisir le bon modèle d’IA ?](/fr/faq/model-calling/model-selection-guide)
+- [Comment renseigner la Base URL ?](/fr/faq/model-calling/base-url-config)
+- [Quelle différence entre API compatible OpenAI et API compatible Anthropic ?](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Comment passer de Sonnet à Opus dans Claude Code ?](/fr/faq/claude-code/switch-sonnet-opus)

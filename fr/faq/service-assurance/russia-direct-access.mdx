@@ -1,0 +1,76 @@
+---
+title: "Les utilisateurs russes ont-ils besoin d’un VPN pour utiliser l’API ?"
+sidebarTitle: "Accès direct en Russie"
+description: "Découvrez comment les utilisateurs russes peuvent accéder directement au site régional et à l’API, quand un VPN n’est pas nécessaire et comment dépanner les problèmes réseau."
+---
+
+## Réponse courte
+
+Le site régional russe est conçu pour un accès direct depuis la Russie. En utilisation normale, vous pouvez accéder directement au site web et aux points de terminaison API sans VPN.
+
+Si vous utilisez Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw ou un autre external tool depuis la Russie, l’important est de saisir la bonne Base URL, API Key et le bon Model ID. Vous n’avez généralement pas besoin d’une couche VPN supplémentaire.
+
+## Adresses recommandées
+
+| Scénario | Adresse recommandée |
+| --- | --- |
+| Site web et console | `{{anthropic-base-url}}` |
+| Documentation | `{{site-url}}` |
+| Claude Code / compatible Anthropic | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline et autres outils compatibles OpenAI | `{{openai-base-url}}` |
+
+Le site régional russe utilise le domaine BetterToken. Utilisez les liens BetterToken pour la Base URL, la page d’inscription, la console et la model plaza.
+
+## Quand vous n’avez pas besoin de VPN
+
+- Accéder au site web et à la console BetterToken
+- Créer ou gérer des API Keys
+- Configurer un point de terminaison compatible Anthropic dans Claude Code
+- Configurer un point de terminaison compatible OpenAI dans Codex CLI, Cursor, Cline, OpenCode ou OpenClaw
+- Consulter la documentation, la model plaza et les enregistrements d’utilisation
+
+Un VPN peut envoyer le trafic par une route instable. Cela peut augmenter la latence, provoquer des problèmes de vérification TLS ou déclencher des contrôles de risque. À moins que votre réseau d’entreprise n’ait des restrictions particulières, n’utilisez pas de VPN comme configuration par défaut.
+
+## Si vous ne pouvez pas accéder au service, vérifiez d’abord ces éléments
+
+1. Vérifiez le domaine : ne confondez pas le site principal et le site de documentation.
+2. Utilisez HTTPS : l’adresse doit commencer par `https://`.
+3. Vérifiez l’heure système de votre appareil. Une heure incorrecte peut empêcher la vérification du certificat TLS.
+4. Testez un autre réseau, par exemple en passant du Wi-Fi de bureau à un point d’accès mobile.
+5. Vérifiez qu’un pare-feu local, outil proxy ou logiciel antivirus ne bloque pas la requête.
+6. Dans la configuration de l’outil, vérifiez que la Base URL ne contient pas de chemin supplémentaire. Par exemple, n’ajoutez pas `/v1` dans une configuration Claude Code compatible Anthropic.
+
+## Commandes de test simples
+
+Vous pouvez d’abord vérifier si le site est accessible :
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+Pour tester le point de terminaison compatible OpenAI :
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` vérifie uniquement la connexion et les en-têtes de réponse. Il ne vérifie pas que votre API Key fonctionne. Pour tester l’API Key, envoyez une véritable requête de modèle ou utilisez la fonction de test de votre outil.
+
+## Erreurs fréquentes
+
+- Supposer que « aucun VPN requis » signifie que chaque environnement réseau fonctionnera toujours.
+- Définir la Base URL Claude Code sur `{{openai-base-url}}`.
+- Définir la Base URL de Codex CLI, Cursor ou Cline sur l’adresse racine sans `/v1`.
+- Basculer de manière répétée entre VPN, proxy et passerelle locale, ce qui rend la route réelle de la requête incertaine.
+- Tester uniquement le site de documentation au lieu de la Base URL API.
+
+## À propos de BetterToken
+
+Le service régional russe utilise le domaine BetterToken. Les utilisateurs russes doivent utiliser les liens d’inscription régionaux, la console et les Base URLs API pour réduire l’incertitude liée au paiement, à l’accès et au routage réseau.
+
+## Documentation associée
+
+- [Comment renseigner la Base URL ?](/fr/faq/model-calling/base-url-config)
+- [Comment choisir le bon modèle d’IA ?](/fr/faq/model-calling/model-selection-guide)
+- [Quelle différence entre API compatible OpenAI et API compatible Anthropic ?](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)

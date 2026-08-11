@@ -1,0 +1,75 @@
+---
+title: "Cline で BetterToken OpenAI 互換 API を設定する方法"
+sidebarTitle: "Cline OpenAI-compatible"
+description: "BetterToken 用に正しい Cline プロバイダー、Base URL、API Key、モデル ID を入力し、接続を確認してよくあるエラーを解決します。"
+---
+
+## 要点
+
+Cline で **OpenAI Compatible** を選択し、**Base URL** に `{{openai-base-url}}` を設定して、BetterToken API Key を貼り付け、**GPT プロバイダー**のモデル ID を入力します。Claude Code 用の Anthropic 互換アドレスを使用せず、公式の **OpenAI** プロバイダーも選択しないでください。
+
+| Cline 項目 | BetterToken の値 |
+| --- | --- |
+| API Provider | `OpenAI Compatible` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | お使いの BetterToken API Key |
+| Model ID | <a href={"{{model-plaza-url}}"}>モデル広場</a>の **GPT プロバイダー**から取得したモデル ID |
+
+<Info>
+  この FAQ は各項目の値と接続のトラブルシューティングを扱います。インストールから始める場合は、[完全な Cline 設定ガイド](/ja/ai-tools/cline)に従ってください。
+</Info>
+
+## 完全な設定
+
+<Steps>
+  <Step title="API Key とモデル ID を準備する">
+    API Key を作成し、<a href={"{{model-plaza-url}}"}>モデル広場</a>の **GPT プロバイダー**から現在利用できるモデル ID をコピーします。マーケティング上の表示名ではなく、表示された ID をそのまま入力してください。
+  </Step>
+  <Step title="Cline 設定を開く">
+    VS Code で Cline パネルを開き、歯車アイコンをクリックします。
+  </Step>
+  <Step title="OpenAI Compatible を選択する">
+    **API Provider** で **OpenAI Compatible** を選択します。このプロバイダーは Cline をサードパーティの OpenAI 互換エンドポイントに接続します。
+  </Step>
+  <Step title="4 つの必須値を入力する">
+    上の表を使用して、Provider、Base URL、API Key、モデル ID を入力します。Base URL には `/v1` を含める必要があります。
+
+    **Use Azure Identity Authentication** が表示される場合は、無効のままにします。BetterToken は Azure Identity ではなく API Key で認証します。
+  </Step>
+  <Step title="接続を確認する">
+    Cline で **Verify** をクリックします。確認に成功したら、タスクを作成して簡単なプロンプトを送信し、モデルが応答しツール呼び出しが機能することを確認します。
+  </Step>
+</Steps>
+
+## 変更すべき詳細項目は？
+
+Cline には Context Window、Max Output Tokens、Image Support、Computer Use が表示される場合もあります。最初の接続ではデフォルトを維持してください。モデル広場またはモデルドキュメントで該当する機能と上限が確認できた場合にだけ、項目を変更します。
+
+モデル価格は変更される可能性があります。ローカル Cline 設定に保存した固定価格に頼らず、<a href={"{{model-plaza-url}}"}>モデル広場</a>で現在のモデルと価格を確認してください。
+
+## よくあるエラー
+
+| 症状 | 最初に確認すること | 解決方法 |
+| --- | --- | --- |
+| `Invalid API Key` または `401` | Key が完全で現在のアカウントに属しているか | Key を再度コピーし、前後の空白を削除して、公式 OpenAI Key と混在させない |
+| `Model Not Found` | モデル ID が GPT プロバイダーに属しているか | 大文字・小文字やサフィックスを変えずに、モデル広場から利用可能な ID をコピーする |
+| `404` またはエンドポイントが見つからない | `/v1` が欠けていないか | Anthropic 互換の Claude Code アドレスではなく `{{openai-base-url}}` を使用する |
+| 接続タイムアウト | ローカルネットワーク、ファイアウォール、古いプロキシ設定 | ブラウザで BetterToken を開けることを確認し、無効なプロキシを無効にしてから **Verify** を再実行する |
+| 古い設定が引き続き適用される | Cline セッションが更新されていない | 設定を保存し、Cline を開き直すか **Developer: Reload Window** を実行する |
+
+## この設定が適用される範囲
+
+これらの値は、BetterToken OpenAI 互換エンドポイントを通じて Cline を **GPT プロバイダー**のモデルに接続します。Cline Rules、Memory Bank、MCP、ローカルツール権限は変更しません。
+
+Claude Code では、`/v1` なしの Anthropic 互換アドレスを使用し、[Claude Code 設定ガイド](/ja/ai-tools/claude-code)に従ってください。
+
+## 関連ドキュメント
+
+- [完全な Cline 設定ガイド](/ja/ai-tools/cline)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Base URL、API Key、モデル ID の関係](/ja/faq/model-calling/base-url-config)
+- [MCP と API Key・Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+
+## 参照
+
+- [Cline OpenAI Compatible プロバイダー](https://docs.cline.bot/provider-config/openai-compatible)

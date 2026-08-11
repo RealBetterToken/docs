@@ -1,0 +1,80 @@
+---
+title: "適切な AI モデルの選び方"
+sidebarTitle: "モデルを選ぶ"
+description: "プロトコル、プロバイダー、タスクの種類、品質、速度、コンテキスト長、コストを基準に AI モデルを選ぶ方法を説明します。"
+---
+
+## 要点
+
+モデル名だけで選ばないでください。まず外部ツールが必要とするプロトコルとプロバイダーを確認します。その後、タスクの種類、品質、速度、コンテキスト長、コストを比較します。
+
+BetterToken を使う場合、Claude Code では通常 **Claude プロバイダー**を使います。Codex CLI、Cursor、Cline、OpenCode、OpenClaw などの外部ツールでは通常 **GPT プロバイダー**を使います。Model ID は <a href={"{{model-plaza-url}}"}>model plaza</a> からコピーしてください。
+
+## この情報が必要になる場合
+
+- **Claude プロバイダー**と **GPT プロバイダー**のどちらを使うべきか分からない
+- Claude Code、Codex CLI、Cursor、Cline などを切り替えて使う
+- モデルは動作するが、コストが高い、速度が遅い、またはコンテキストが短い
+- バッチ処理に低コストのモデルを使いたい
+- 同じ API gateway を複数の AI コーディングツールに接続したい
+
+## 外部ツールを確認してからモデルを選ぶ
+
+最初にモデルのランキングを比較するのではなく、クライアントが想定するプロトコルを確認します。
+
+| 用途 | 推奨プロバイダー | 一般的な Base URL |
+| --- | --- | --- |
+| Claude Code | Claude プロバイダー | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Claude プロバイダー、またはローカル gateway が要求するグループ | gateway の設定に従う |
+| Codex CLI | GPT プロバイダー | `{{openai-base-url}}` |
+| Cursor | GPT プロバイダー | `{{openai-base-url}}` |
+| Cline | GPT プロバイダー | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | GPT プロバイダー | `{{openai-base-url}}` |
+
+プロトコルまたはプロバイダーが間違っていると、モデル自体は存在していても、`model not found`、認証エラー、無効なリクエスト形式などで失敗する場合があります。
+
+## タスクの種類で選ぶ
+
+| タスクの種類 | 優先する項目 |
+| --- | --- |
+| 複雑なコーディング、設計、長時間のタスク | 推論品質、コンテキストウィンドウ、ツール呼び出しの安定性 |
+| 日常的な質問応答と軽い生成 | 速度とコスト |
+| 一括翻訳、分類、要約 | 単価、スループット、安定性 |
+| コードレビューと技術ドキュメント | コード理解、長いコンテキスト、出力の安定性 |
+| 探索的なタスク | 中程度のコストのモデルから始め、重要な手順では高性能モデルに切り替える |
+
+すべてのタスクをデフォルトで最も高価なモデルに送らないでください。多くのバッチ処理には深い推論や高い創造性は不要です。より高速で低コストのモデルが適していることがあります。
+
+## 推奨手順
+
+1. 外部ツールが OpenAI 互換 API と Anthropic 互換 API のどちらに対応しているか確認します。
+2. 外部ツールに応じて **Claude プロバイダー**または **GPT プロバイダー**を選びます。
+3. 現在の Model ID を <a href={"{{model-plaza-url}}"}>model plaza</a> からコピーします。
+4. 小さなタスクで品質、速度、コストをテストします。
+5. そのモデルを長期的に使う前に、ダッシュボードで使用量を確認します。
+6. 1 つのモデルだけを設定せず、複雑なタスク用に高性能な予備モデルを用意します。
+
+## よくある間違い
+
+- 表示名だけを見て Model ID を確認しない。
+- **Claude プロバイダー**のモデルを GPT または OpenAI 互換ツールで使う。
+- **GPT プロバイダー**のモデルを Anthropic 互換の Claude Code 設定で使う。
+- 最新モデルがすべてのタスクで常に最適だと考える。
+- 出力品質だけを比較し、コンテキスト長、速度、コストを考慮しない。
+- 小規模なテストをせずに本番トラフィックを新しいモデルへ移す。
+
+## BetterToken について
+
+BetterToken では、API Key、残高、利用記録を 1 か所で管理できます。同じダッシュボードでモデル呼び出しを管理できますが、各外部ツールには対応するプロトコルとプロバイダーを設定する必要があります。
+
+簡単なルール：
+
+- Claude Code は **Claude プロバイダー**と `{{anthropic-base-url}}` を使う
+- Codex CLI、Cursor、Cline、OpenCode、OpenClaw は **GPT プロバイダー**と `{{openai-base-url}}` を使う
+
+## 関連ドキュメント
+
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Base URL の設定方法](/ja/faq/model-calling/base-url-config)
+- [モデルが自身のバージョンを認識していない理由](/ja/faq/model-calling/model-version-identity)
+- [Claude Code が多くの Token を使う理由](/ja/faq/token-cost/claude-code-token-usage)

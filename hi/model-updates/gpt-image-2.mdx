@@ -1,0 +1,73 @@
+---
+title: "GPT Image 2 अब उपलब्ध है"
+description: "BetterToken ने GPT Image 2 को 29 अप्रैल 2026 को high-quality image generation, posters, marketing assets और visual drafts के लिए अपडेट किया।"
+tag: "NEW"
+---
+
+release date: 29 अप्रैल 2026
+
+BetterToken ने `gpt-image-2` image generation model entry जोड़ा है। current available model ID के लिए <a href={"{{model-plaza-url}}"}>model plaza</a> जांचें, फिर इसे OpenAI-compatible image generation API से call करें।
+
+OpenAI ने ChatGPT Images 2.0 को 21 अप्रैल 2026 को पेश किया और अपने developer docs में `gpt-image-2` को नवीनतम GPT Image model के रूप में सूचीबद्ध किया। OpenAI GPT Image 2 को fast, high-quality image generation और editing, text व image input, image output, flexible sizes और high-fidelity image inputs के model के रूप में बताता है।
+
+## मुख्य विशेषताएं
+
+- **उच्च image quality**: OpenAI, GPT Image 2 को अपना highest-performance image generation model बताता है, जो polished visual assets के लिए उपयुक्त है
+- **अधिक flexible sizes**: `gpt-image-2`, common square, landscape, portrait, 2K और 4K use cases सहित अधिक valid image dimensions support करता है; 2K से बड़े sizes फिलहाल experimental हैं
+- **higher-fidelity image input**: image editing और reference-image workflows में `gpt-image-2`, image inputs को high fidelity पर process करता है, जो product photos, portraits और brand assets के लिए उपयोगी है
+- **मजबूत text और complex information**: OpenAI का system card कहता है कि ChatGPT Images 2.0, world knowledge, instruction following, dense text और complex detail generation में सुधार करता है
+- **streaming partial images**: Image API, `stream` और `partial_images` से partial images लौटा सकता है, जिससे product experiences अधिक responsive लगते हैं
+
+## अच्छे use cases
+
+- product launch posters, campaign assets और social images
+- docs, blogs और long-form articles के लिए illustrations
+- apps, websites और SaaS interfaces के लिए visual concept drafts
+- product images, advertising images और brand direction exploration
+- Chinese या multilingual text वाला visual content
+
+## API setup
+
+OpenAI-compatible protocol के लिए उपयोग करें:
+
+| Setting | Value |
+|---------|-------|
+| `Base URL` | `{{openai-base-url}}` |
+| Authentication | `Authorization: Bearer YOUR_API_KEY` |
+| Model ID | `gpt-image-2` |
+| Endpoint | `POST /v1/images/generations` |
+
+```bash
+curl {{images-generations-url}} \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "Create a modern Chinese launch poster for an AI coding tool, with a clear headline, product UI, and clean background",
+    "size": "1024x1024",
+    "quality": "high"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
+```
+
+पूरी parameter list के लिए [text-to-image दस्तावेज](/hi/api-reference/images-generations) देखें।
+
+## setup guidance
+
+अपना application, script या external tool उपयोग करते हों तो पुष्टि करें कि वह OpenAI-compatible image generation endpoint support करता है। image generation `{{openai-base-url}}` उपयोग करता है; Claude Code / Anthropic protocol endpoint उपयोग न करें।
+
+<a href={"{{model-plaza-url}}"}>model plaza</a> से current model ID copy करें। ChatGPT UI mode names को API parameters के रूप में उपयोग न करें।
+
+## ध्यान दें
+
+- image generation में औसतन `100` से `200` seconds लगते हैं। client, gateway या external-tool request timeouts `300` seconds से ऊपर सेट करें और application में waiting state दिखाएं।
+- `gpt-image-2` फिलहाल transparent backgrounds support नहीं करता। पहले non-transparent image generate करें, फिर जरूरत हो तो दूसरे image tool से background हटाएं।
+- image results default रूप से `b64_json` में लौटते हैं। image save करने से पहले base64 value decode करें।
+- large, high-quality images latency और cost बढ़ा सकती हैं। previews के लिए `quality: "low"` उपयोग करें।
+- images publish करने से पहले text, layout और brand elements के साथ review करें।
+
+## आधिकारिक स्रोत
+
+- [ChatGPT Images 2.0 का परिचय](https://openai.com/index/introducing-chatgpt-images-2-0/)
+- [GPT Image 2 model page](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [OpenAI image generation गाइड](https://platform.openai.com/docs/guides/images/image-generation)
+- [ChatGPT Images 2.0 System Card](https://deploymentsafety.openai.com/chatgpt-images-2-0/)

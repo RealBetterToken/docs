@@ -1,0 +1,65 @@
+---
+title: "Codex CLI、Codex App、Codex Web の違い"
+sidebarTitle: "CLI、App、Web の違い"
+description: "Codex CLI、Codex App、Codex Web / Cloud を、実行場所、設定、ローカル権限、プロバイダー設定の観点から比較します。"
+---
+
+## 短い答え
+
+Codex CLI はローカルターミナルで使うコーディングエージェントです。ローカルプロジェクト、コマンド実行、ファイル編集、`config.toml` の設定を中心に扱います。
+
+Codex App はデスクトップアプリケーションの入口です。グラフィカルなワークフロー、セッション管理、プラグイン、Remote Control、連携アプリ機能に適しています。
+
+Codex Web / Cloud はリモートまたはブラウザベースのエージェントワークフローに近いものです。ローカル CLI とは別の実行環境であり、ローカルのファイルアクセス、サンドボックス、承認ポリシー、設定ファイルが同じとは限りません。
+
+## 区別が必要な場面
+
+- CLI をインストールするか、App / Web を使うか決めるとき
+- Codex App の公式ログイン状態を維持しつつ、モデル呼び出しをサードパーティ API に送信したいとき
+- ローカルの `config.toml` を変更しても Web の動作が変わらないとき
+- ファイルアクセス、コマンド実行、承認がどこで行われるかを把握したいとき
+- Codex の利用に関するチームルールを作成するとき
+
+## 主な違い
+
+| 観点 | Codex CLI | Codex App | Codex Web / Cloud |
+| --- | --- | --- | --- |
+| 主な入口 | ローカルターミナル | デスクトップアプリ | ブラウザまたはリモート環境 |
+| 設定の中心 | `~/.codex/config.toml`、`AGENTS.md`、サンドボックス、承認 | ログイン状態、デスクトップ機能、プロバイダー切り替え | クラウドタスク、リモート環境、リポジトリ認可 |
+| ファイルアクセス | ローカルワークスペース | 現在のアプリワークスペースと機能に依存 | リモート環境と認可に依存 |
+| 適した用途 | ローカル開発、迅速なコマンド、スクリプト、コード編集 | デスクトップセッション、プラグイン、Remote Control | リモートタスク、クラウド開発ワークフロー |
+
+## 選び方
+
+主な作業がローカルでのコード編集とターミナル実行なら、Codex CLI を使用します。
+
+デスクトップワークフロー、プラグイン、Remote Control が主な用途なら、Codex App を使用します。公式ログイン状態を維持しながらサードパーティ API を使用する場合は、認証レイヤーとモデルリクエストレイヤーを分けて扱います。
+
+作業がリモート環境またはブラウザベースのタスクフローに属する場合は、Codex Web / Cloud を使用します。ローカルの `config.toml` がクラウド実行環境の動作を制御するとは考えないでください。
+
+## よくある間違い
+
+- ローカル CLI の `config.toml` の変更が Codex Web / Cloud にも自動で反映されると考えること。
+- Codex App の公式ログインとサードパーティの API Key を同じレイヤーとして扱うこと。
+- 3 つの画面すべてで同じファイルシステム権限があると考えること。
+- サンドボックスと承認の設定が特定の実行環境に適用されることを忘れること。
+- プラグイン、Remote Control、モデルプロバイダー設定を 1 つの設定レイヤーとして扱うこと。
+
+## BetterToken について
+
+BetterToken は、どの API プロバイダーがモデル呼び出しを受け取るかを決めるモデルリクエストレイヤーに属します。Codex CLI では、通常のカスタムプロバイダー設定は `config.toml` に記述します。Codex App で公式ログイン状態を維持する場合は、認証と推論ルーティングを分けて扱う必要があります。
+
+BetterToken は CLI、App、Web / Cloud 間の実行環境の境界を変更しません。
+
+## 関連ドキュメント
+
+- [Codex の BetterToken 設定ガイド](/ja/ai-tools/codex)
+- [公式 Codex ログイン状態をサードパーティ API と併用する方法](/ja/faq/codex/official-login-third-party-api)
+- [Codex CLI の config.toml を設定する方法](/ja/faq/codex/config-toml)
+- [Codex CLI のサンドボックスと承認モードとは？](/ja/faq/codex/sandbox-approval)
+
+## 参照
+
+- [Codex CLI ドキュメント](https://developers.openai.com/codex/cli)
+- [Codex App ドキュメント](https://developers.openai.com/codex/app)
+- [Codex Cloud ドキュメント](https://developers.openai.com/codex/cloud)

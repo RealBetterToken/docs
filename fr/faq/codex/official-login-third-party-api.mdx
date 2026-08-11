@@ -1,0 +1,111 @@
+---
+title: "Comment conserver ma connexion Codex officielle et mon historique de sessions avec une API tierce ?"
+sidebarTitle: "Conserver connexion et historique"
+description: "Utilisez CC Switch avec une API tierce ou un modèle personnalisé tout en conservant la connexion Codex officielle, les plugins, Remote Control et un historique de sessions unifié."
+---
+
+Vous pouvez utiliser une API tierce ou un modèle personnalisé sans perdre votre connexion Codex officielle. Activez deux améliorations Codex App dans CC Switch pour conserver les plugins officiels, Remote Control et un historique de sessions unifié.
+
+## Avant de commencer
+
+1. Utilisez CC Switch `v3.16.1` ou une version ultérieure.
+2. Connectez-vous une première fois à Codex avec votre compte officiel ChatGPT / Codex.
+3. Suivez les [étapes Codex CLI du guide de configuration CC Switch](/fr/ai-tools/cc-switch#codex-cli) pour ajouter et activer votre fournisseur API tiers ou modèle personnalisé dans CC Switch.
+
+<Warning>
+  Ne partagez pas d’API Keys, de tokens de connexion ni d’autres données d’authentification dans les captures d’écran, discussions, issues ou journaux.
+</Warning>
+
+## Activer les deux améliorations Codex App
+
+Dans CC Switch, ouvrez **Settings → General → Codex App Enhancements** et activez les deux interrupteurs :
+
+1. **Conserver la connexion officielle lors du changement de fournisseurs tiers**
+2. **Historique de sessions Codex unifié**
+
+<Frame>
+  <img
+    src="/images/codex-official-login-state/cc-switch-codex-app-enhancements.png"
+    alt="Améliorations Codex App de CC Switch avec Keep official login et Unified Codex session history activés."
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+### Conserver la connexion officielle, les plugins et Remote Control
+
+**Conserver la connexion officielle lors du changement de fournisseurs tiers** conserve la connexion Codex officielle lorsque vous passez à un fournisseur API tiers ou à un modèle personnalisé.
+
+Les requêtes de modèles utilisent toujours le fournisseur actuellement sélectionné dans CC Switch, tandis que Codex App peut continuer d’utiliser les fonctions qui nécessitent la connexion officielle, notamment les plugins officiels et Remote Control.
+
+Pour les étapes détaillées, consultez le guide CC Switch : [Conserver Codex Remote Control et les plugins officiels avec une API tierce](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-official-auth-preservation-guide-zh.md).
+
+### Afficher ensemble les sessions officielles et tierces
+
+**Historique de sessions Codex unifié** affiche dans une même liste les sessions créées avec l’abonnement officiel et les fournisseurs tiers.
+
+Lorsque vous l’activez, vous pouvez choisir de déplacer ou non les sessions officielles existantes dans cette liste. CC Switch sauvegarde automatiquement les sessions d’origine avant la migration.
+
+Pour les étapes détaillées, consultez le guide CC Switch : [Historique de sessions Codex unifié](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-unified-session-history-guide-zh.md).
+
+## Redémarrer Codex
+
+Après avoir activé les deux interrupteurs, quittez complètement Codex et redémarrez-le. Au redémarrage, Codex recharge la configuration CC Switch actuelle et l’historique de sessions unifié.
+
+## Vérifier que la configuration fonctionne
+
+Après le redémarrage, vérifiez les éléments suivants :
+
+1. Codex affiche toujours la connexion à votre compte officiel.
+2. Les plugins officiels ou Remote Control fonctionnent normalement.
+3. CC Switch a sélectionné votre fournisseur API tiers ou modèle personnalisé.
+4. Un message de test reçoit une réponse normale.
+
+<Note>
+  Un historique unifié permet d’afficher les sessions à un même endroit, mais ne garantit pas qu’une session existante puisse se poursuivre entre plusieurs fournisseurs. Reprenez autant que possible une session avec le fournisseur qui l’a créée. Pour un autre fournisseur, démarrez une nouvelle session.
+</Note>
+
+## Configuration manuelle
+
+La configuration manuelle est destinée aux utilisateurs avancés à l’aise avec la modification des fichiers Codex locaux. La plupart des utilisateurs devraient d’abord utiliser CC Switch.
+
+<Steps>
+  <Step title="Conserver la connexion Codex officielle">
+    Connectez-vous d’abord à votre compte officiel ChatGPT / Codex dans Codex App ou Codex CLI, puis vérifiez que Remote Control ou les plugins fonctionnent.
+
+    Conservez le contenu généré par votre connexion officielle dans `~/.codex/auth.json`. Ne copiez pas, ne synchronisez pas et ne partagez pas ses tokens.
+  </Step>
+
+  <Step title="Modifier config.toml">
+    Ouvrez `~/.codex/config.toml`, puis ajoutez ou fusionnez cette configuration de fournisseur :
+
+    ```toml
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
+    experimental_bearer_token = "YOUR_API_KEY"
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    Remplacez `YOUR_API_KEY` par votre BetterToken API Key. `requires_openai_auth = true` conserve la connexion officielle, tandis que `experimental_bearer_token` envoie les requêtes API tierces.
+  </Step>
+
+  <Step title="Redémarrer et vérifier">
+    Quittez complètement Codex et redémarrez-le. Vérifiez que la connexion officielle demeure, que Remote Control ou les plugins s’ouvrent et qu’un message de test reçoit une réponse normale.
+
+    Si le modèle est indisponible, vérifiez que `model` est un Model ID proposé par le fournisseur GPT dans la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+</Steps>

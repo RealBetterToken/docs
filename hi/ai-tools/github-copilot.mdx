@@ -1,0 +1,250 @@
+---
+title: "GitHub Copilot सेटअप: इंस्टॉलेशन, API key, Base URL और कस्टम मॉडल"
+sidebarTitle: "GitHub Copilot"
+description: "GitHub Copilot इंस्टॉल करें, BetterToken Base URL और API key कॉन्फ़िगर करें, संगत provider मॉडल चुनें और सामान्य त्रुटियां ठीक करें।"
+icon: "github"
+---
+
+GitHub Copilot को BetterToken से कनेक्ट करने के लिए API key तैयार करें, नीचे दिया Base URL भरें और model plaza से वर्तमान Model ID चुनें।
+
+## मुख्य सेटिंग्स
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API key |
+| पूर्ण request URL | `{{chat-completions-url}}` |
+| मॉडल | <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान Model ID |
+
+## आवश्यकताएं
+
+- टूल का वर्तमान संस्करण इंस्टॉल है
+- BetterToken API key: <a href={"{{register-url}}"}>रजिस्टर करें और प्राप्त करें</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> से Model ID
+
+### अतिरिक्त आवश्यकताएं
+
+- नवीनतम VS Code इंस्टॉल है
+- GitHub Copilot / Copilot Chat इंस्टॉल और sign in है
+- चुनी गई Model ID **supported provider** से है
+- कोई मॉडल ID उपलब्ध है, जैसे `YOUR_MODEL_ID`
+
+<Warning>
+  अपनी असली API Key को `chatLanguageModels.json` में मैन्युअल रूप से न लिखें। इसे VS Code API Key prompt में पेस्ट करें। VS Code `${input:chat.lm.secret...}` जैसा local secret reference बनाएगा।
+</Warning>
+
+## इंस्टॉल करें
+
+GitHub Copilot इंस्टॉल या खोलें, फिर नीचे का मैन्युअल सेटअप जारी रखें।
+
+## मैन्युअल सेटअप
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API key |
+| पूर्ण request URL | `{{chat-completions-url}}` |
+| मॉडल | <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान Model ID |
+
+### सेटअप चरण
+
+<Steps>
+  <Step title="मॉडल प्रबंधन खोलें">
+    Copilot Chat input क्षेत्र में मॉडल selector क्लिक करें, फिर **Manage Models...** चुनें।
+
+    <Frame>
+      <img
+        src="/images/github-copilot/manage-models-entry.png"
+        alt="Copilot Chat मॉडल selector से Manage Models खोलें।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Custom Endpoint जोड़ें">
+    **Language Models** में **Add Models** क्लिक करें, फिर **Custom Endpoint** चुनें।
+
+    <Frame>
+      <img
+        src="/images/github-copilot/add-custom-endpoint.png"
+        alt="Language Models में Add Models क्लिक करें और Custom Endpoint चुनें।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="समूह नाम भरें">
+    **Group Name** में भरें:
+
+    ```text
+    BetterToken
+    ```
+
+    फिर **Enter** दबाएं।
+
+    <Frame>
+      <img
+        src="/images/github-copilot/group-name.png"
+        alt="Group Name input में BetterToken भरें।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="API Key भरें">
+    VS Code API Key मांगेगा। अपनी BetterToken API Key पेस्ट करें, फिर **Enter** दबाएं।
+
+    यह मान configuration फ़ाइल में सीधे नहीं दिखेगा। VS Code इसे local secret के रूप में रखता है और ऐसा reference बनाता है:
+
+    ```json
+    "apiKey": "${input:chat.lm.secret.xxxxx}"
+    ```
+
+    <Warning>
+      `${input:chat.lm.secret...}` को अपनी असली API Key से न बदलें। VS Code द्वारा बनाया गया secret reference रखें।
+    </Warning>
+  </Step>
+
+  <Step title="API type चुनें">
+    **Custom Endpoint: API Type** में **Chat Completions** चुनें।
+
+    <Frame>
+      <img
+        src="/images/github-copilot/select-chat-completions.png"
+        alt="Custom Endpoint API Type में Chat Completions चुनें।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="JSON configuration संपादित करें">
+    VS Code `chatLanguageModels.json` खोलता है। configuration की पुष्टि करें या अपडेट करें:
+
+    <Frame>
+      <img
+        src="/images/github-copilot/chat-language-models-json.png"
+        alt="chatLanguageModels.json में BetterToken मॉडल URL, toolCalling, vision और token limit कॉन्फ़िगर करें।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    ```json
+    [
+      {
+        "name": "BetterToken",
+        "vendor": "customendpoint",
+        "apiKey": "${input:chat.lm.secret.xxxxx}",
+        "apiType": "chat-completions",
+        "models": [
+          {
+            "id": "YOUR_MODEL_ID",
+            "name": "YOUR_MODEL_ID",
+            "url": "{{chat-completions-url}}",
+            "toolCalling": true,
+            "vision": true,
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 64000
+          }
+        ]
+      }
+    ]
+    ```
+
+    इन फ़ील्ड की जांच करें:
+
+| फ़ील्ड | अनुशंसित मान |
+    | --- | --- |
+    | `name` | `BetterToken` |
+    | `apiType` | `chat-completions` |
+| `id` | `YOUR_MODEL_ID` या <a href={"{{model-plaza-url}}"}>model plaza</a> से समर्थित provider की अन्य मॉडल ID |
+| `name` | मॉडल ID जैसा ही |
+    | `url` | `{{chat-completions-url}}` |
+    | `toolCalling` | `true` |
+    | `vision` | `true` |
+    | `maxInputTokens` | `1000000` |
+    | `maxOutputTokens` | `64000` |
+  </Step>
+
+  <Step title="VS Code सहेजें और reload करें">
+    `chatLanguageModels.json` सहेजें, फिर चलाएं:
+
+    ```text
+    Developer: Reload Window
+    ```
+
+    reload के बाद Copilot Chat model selector पर लौटें और `YOUR_MODEL_ID` चुनें।
+  </Step>
+
+  <Step title="परीक्षण संदेश भेजें">
+    Copilot Chat में सरल संदेश भेजें:
+
+    ```text
+    Describe the model you are using in one sentence.
+    ```
+
+    यदि Copilot Chat सामान्य रूप से उत्तर देता है, तो BetterToken Custom Endpoint सफलतापूर्वक कॉन्फ़िगर है।
+  </Step>
+</Steps>
+
+## कनेक्शन सत्यापित करें
+
+छोटा test prompt भेजें। यदि टूल बिना authentication या Model ID त्रुटि के उत्तर देता है, तो कनेक्शन काम कर रहा है। configuration बदलने के बाद टूल को पूरी तरह रीस्टार्ट करें।
+
+## मॉडल बदलें
+
+मॉडल selector खोलें या configuration में `Model` फ़ील्ड बदलें। <a href={"{{model-plaza-url}}"}>model plaza</a> से सटीक Model ID उपयोग करें, फिर मौजूदा session रीस्टार्ट करें।
+
+## सामान्य त्रुटियां
+
+### API Key को prompt में क्यों भरना चाहिए?
+
+VS Code API Key को local secret storage में रखता है और JSON में `${input:chat.lm.secret...}` से reference करता है। यह असली API Key को JSON फ़ाइल में लिखने से अधिक सुरक्षित है।
+
+### Chat Completions क्यों उपयोग करें?
+
+सत्यापित काम करने वाला configuration **Chat Completions** उपयोग करता है। URL है:
+
+```text
+{{chat-completions-url}}
+```
+
+`/v1/responses` उपयोग न करें और `/v1` पर न रुकें।
+
+### क्या यह GitHub Copilot inline completion को बदल देता है?
+
+नहीं। यह Custom Endpoint मुख्यतः Copilot Chat language model call के लिए है। GitHub Copilot inline completion अब भी स्वयं GitHub Copilot उपलब्ध कराता है।
+
+### Invalid token दिखे तो क्या करें?
+
+इन बिंदुओं को क्रम से जांचें:
+
+1. API Key VS Code prompt में भरी गई है
+2. JSON में `${input:chat.lm.secret...}` reference है
+3. चुनी गई Model ID **supported provider** से है
+4. `url` is `{{chat-completions-url}}`
+5. `apiType` is `chat-completions`
+6. मॉडल ID <a href={"{{model-plaza-url}}"}>model plaza</a> से समर्थित provider का मॉडल है
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+## तकनीकी विवरण
+
+<Accordion title="Protocol, endpoint और आंतरिक provider फ़ील्ड">
+  GitHub Copilot URL फ़ील्ड को पूरा पता `{{chat-completions-url}}` चाहिए। VS Code इस फ़ील्ड में `/chat/completions` नहीं जोड़ता।
+</Accordion>

@@ -1,0 +1,76 @@
+---
+title: "Benötigen russische Nutzer ein VPN, um die API zu verwenden?"
+sidebarTitle: "Direkter Zugriff in Russland"
+description: "Erfahre, wie russische Nutzer auf regionale Website und API direkt zugreifen können, wann kein VPN benötigt wird und wie du Netzwerkprobleme behebst."
+---
+
+## Kurzantwort
+
+Die russische regionale Website ist für direkten Zugriff aus Russland ausgelegt. Bei normaler Nutzung kannst du Website und API-Endpunkte ohne VPN direkt aufrufen.
+
+Wenn du Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw oder ein anderes external tool aus Russland verwendest, ist das Eintragen der korrekten Base URL, des API Key und der Model ID entscheidend. Normalerweise benötigst du keine zusätzliche VPN-Schicht.
+
+## Empfohlene Adressen
+
+| Szenario | Empfohlene Adresse |
+| --- | --- |
+| Website und Konsole | `{{anthropic-base-url}}` |
+| Dokumentation | `{{site-url}}` |
+| Claude Code / Anthropic-kompatibel | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline und andere OpenAI-kompatible Tools | `{{openai-base-url}}` |
+
+Die russische regionale Website verwendet die BetterToken-Domain. Verwende BetterToken-Links für Base URL, Registrierungsseite, Konsole und model plaza.
+
+## Wann du kein VPN benötigst
+
+- Auf BetterToken-Website und Konsole zugreifen
+- API Keys erstellen oder verwalten
+- Einen Anthropic-kompatiblen Endpunkt in Claude Code konfigurieren
+- Einen OpenAI-kompatiblen Endpunkt in Codex CLI, Cursor, Cline, OpenCode oder OpenClaw konfigurieren
+- Dokumentation, model plaza und Nutzungsaufzeichnungen ansehen
+
+Ein VPN kann Traffic über eine instabile Route senden. Das kann Latenz erhöhen, TLS-Verifikationsprobleme verursachen oder Risikokontrollen auslösen. Verwende ein VPN nicht als Standardeinrichtung, es sei denn, dein Unternehmensnetzwerk hat besondere Einschränkungen.
+
+## Wenn du nicht auf den Dienst zugreifen kannst, prüfe zuerst Folgendes
+
+1. Bestätige die Domain: Verwechsle Hauptseite und Dokumentationsseite nicht.
+2. Verwende HTTPS: Sie sollte mit `https://`.
+3. Prüfe die Systemzeit auf deinem Gerät. Eine falsche Zeit kann die TLS-Zertifikatsprüfung beeinträchtigen.
+4. Teste ein anderes Netzwerk, etwa durch Wechsel von Büro-WLAN zu einem mobilen Hotspot.
+5. Prüfe, ob eine lokale Firewall, ein Proxy-Tool oder ein Antivirus-Produkt den Request blockiert.
+6. Stelle in der Tool-Konfiguration sicher, dass die Base URL keinen zusätzlichen Pfad enthält. Trage beispielsweise `/v1` nicht in eine Anthropic-kompatible Claude-Code-Einrichtung ein.
+
+## Einfache Testbefehle
+
+Du kannst zuerst testen, ob die Website erreichbar ist:
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+So testest du den OpenAI-kompatiblen Endpunkt:
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` prüft nur Verbindung und Antwort-Header. Es prüft nicht, ob dein API Key funktioniert. Um den API Key zu testen, sende einen echten Modell-Request oder verwende die Testfunktion in deinem Tool.
+
+## Häufige Fehler
+
+- Annehmen, dass „kein VPN erforderlich“ bedeutet, dass jede Netzwerkumgebung immer funktioniert.
+- Die Claude-Code-Base-URL auf `{{openai-base-url}}` setzen.
+- Die Base URL von Codex CLI, Cursor oder Cline auf die Stammadresse ohne `/v1` setzen.
+- Wiederholt zwischen VPN, Proxy und lokalem Gateway wechseln, sodass die tatsächliche Request-Route unklar wird.
+- Nur die Dokumentationsseite statt der API Base URL testen.
+
+## Über BetterToken
+
+Der russische regionale Dienst verwendet die BetterToken-Domain. Russische Nutzer sollten regionale Registrierungslinks, Konsole und API Base URLs verwenden, um Unsicherheit bei Zahlung, Zugriff und Netzwerk-Routing zu reduzieren.
+
+## Verwandte Dokumentation
+
+- [Wie sollte ich die Base URL ausfüllen?](/de/faq/model-calling/base-url-config)
+- [Wie wähle ich das richtige KI-Modell?](/de/faq/model-calling/model-selection-guide)
+- [Was ist der Unterschied zwischen OpenAI-kompatibler API und Anthropic-kompatibler API?](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)

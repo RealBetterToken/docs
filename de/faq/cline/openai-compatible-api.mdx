@@ -1,0 +1,75 @@
+---
+title: "BetterTokens OpenAI-kompatible API in Cline konfigurieren"
+sidebarTitle: "Cline OpenAI-kompatibel"
+description: "Trage in Cline für BetterToken den richtigen Provider, Base URL, API Key und Model ID ein, prüfe dann die Verbindung und behebe häufige Fehler."
+---
+
+## Direkte Antwort
+
+Wähle in Cline **OpenAI Compatible**, setze **Base URL** auf `{{openai-base-url}}`, füge deinen BetterToken API Key ein und trage eine Model ID vom **GPT-Provider** ein. Verwende nicht die Anthropic-kompatible Adresse für Claude Code und wähle nicht den offiziellen **OpenAI**-Provider.
+
+| Cline-Feld | BetterToken-Wert |
+| --- | --- |
+| API Provider | `OpenAI Compatible` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | Dein BetterToken API Key |
+| Model ID | Eine Model ID vom **GPT-Provider** in der <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+<Info>
+  Diese FAQ behandelt die Werte für jedes Feld und die Fehlerbehebung bei Verbindungen. Wenn du mit der Installation beginnen musst, folge der [vollständigen Cline-Einrichtungsanleitung](/de/ai-tools/cline).
+</Info>
+
+## Vollständige Einrichtung
+
+<Steps>
+  <Step title="API Key und Model ID vorbereiten">
+    Erstelle einen API Key und kopiere dann eine aktuell verfügbare Model ID vom **GPT-Provider** in der <a href={"{{model-plaza-url}}"}>model plaza</a>. Trage die ID genau wie angezeigt ein, statt den Marketing-Anzeigenamen zu verwenden.
+  </Step>
+  <Step title="Cline-Einstellungen öffnen">
+    Öffne den Cline-Bereich in VS Code und klicke auf das Zahnradsymbol.
+  </Step>
+  <Step title="OpenAI Compatible auswählen">
+    Wähle unter **API Provider** **OpenAI Compatible**. Dieser Provider verbindet Cline mit einem OpenAI-kompatiblen Endpunkt eines Drittanbieters.
+  </Step>
+  <Step title="Die vier erforderlichen Werte eingeben">
+    Fülle Provider, Base URL, API Key und Model ID anhand der obigen Tabelle aus. Die Base URL muss `/v1` enthalten.
+
+    Wenn **Use Azure Identity Authentication** erscheint, lasse es deaktiviert. BetterToken authentifiziert sich mit einem API Key, nicht mit Azure Identity.
+  </Step>
+  <Step title="Verbindung überprüfen">
+    Klicke in Cline auf **Verify**. Erstelle nach erfolgreicher Überprüfung eine Aufgabe und sende einen einfachen Prompt, um zu bestätigen, dass das Modell antwortet und Tool-Aufrufe funktionieren.
+  </Step>
+</Steps>
+
+## Welche erweiterten Felder solltest du ändern?
+
+Cline kann auch Context Window, Max Output Tokens, Image Support oder Computer Use anzeigen. Behalte für die erste Verbindung die Standardwerte bei. Ändere ein Feld nur, wenn die model plaza oder Modelldokumentation die relevante Fähigkeit und Grenze bestätigt.
+
+Modellpreise können sich ändern. Verlasse dich nicht auf einen festen Preis in lokalen Cline-Einstellungen; prüfe aktuelles Modell und Preis in der <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Häufige Fehler
+
+| Symptom | Zuerst prüfen | Lösung |
+| --- | --- | --- |
+| `Invalid API Key` oder `401` | Ob der Key vollständig ist und zum aktuellen Konto gehört | Kopiere den Key erneut, entferne umgebende Leerzeichen und mische ihn nicht mit einem offiziellen OpenAI Key |
+| `Model Not Found` | Ob die Model ID zum GPT-Provider gehört | Kopiere eine verfügbare ID aus der model plaza, ohne Groß-/Kleinschreibung oder Suffix zu ändern |
+| `404` oder Endpunkt nicht gefunden | Ob `/v1` fehlt | Verwende `{{openai-base-url}}`, nicht die Anthropic-kompatible Claude-Code-Adresse |
+| Verbindungs-Timeout | Lokales Netzwerk, Firewall oder veraltete Proxy-Einstellungen | Bestätige, dass BetterToken im Browser geöffnet wird, deaktiviere einen ungültigen Proxy und führe **Verify** erneut aus |
+| Alte Konfiguration gilt weiterhin | Die Cline-Sitzung wurde nicht aktualisiert | Speichere die Einstellungen, öffne Cline erneut oder führe **Developer: Reload Window** aus |
+
+## Wo diese Einrichtung gilt
+
+Diese Werte verbinden Cline über den OpenAI-kompatiblen BetterToken-Endpunkt mit Modellen des **GPT-Providers**. Sie ändern keine Cline Rules, Memory Bank, MCP oder lokalen Tool-Berechtigungen.
+
+Verwende für Claude Code die Anthropic-kompatible Adresse ohne `/v1` und folge der [Claude-Code-Einrichtungsanleitung](/de/ai-tools/claude-code).
+
+## Verwandte Dokumentation
+
+- [Vollständige Cline-Einrichtungsanleitung](/de/ai-tools/cline)
+- [OpenAI-kompatible und Anthropic-kompatible API: Unterschiede](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Wie Base URL, API Key und Model ID zusammenwirken](/de/faq/model-calling/base-url-config)
+- [MCP und API Key/Base URL im Vergleich](/de/faq/concepts/mcp-vs-api-key-base-url)
+
+## Referenzen
+
+- [Cline OpenAI-Compatible-Provider](https://docs.cline.bot/provider-config/openai-compatible)

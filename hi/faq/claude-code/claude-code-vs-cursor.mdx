@@ -1,0 +1,59 @@
+---
+title: "स्थानीय विकास के लिए Claude Code बनाम Cursor"
+sidebarTitle: "Claude Code बनाम Cursor"
+description: "स्थानीय project, editor integration, rules फ़ाइल, MCP, मॉडल setup और permission control के लिए Claude Code व Cursor की तुलना करें।"
+---
+
+## संक्षिप्त उत्तर
+
+Claude Code terminal coding agent के करीब है। यह मौजूदा repository में अच्छा काम करता है, जहां code पढ़ सकता है, command चला सकता है, फ़ाइल संपादित कर सकता है और `CLAUDE.md`, permission, hook व MCP का पालन कर सकता है।
+
+Cursor AI IDE के करीब है। editor में completion, chat, Composer, rule, indexing और code edit चाहिए तो यह अच्छा काम करता है।
+
+कोई भी दूसरे को पूरी तरह replace नहीं करता। चयन इस पर निर्भर है कि terminal agent workflow पसंद है या editor-native AI workflow।
+
+## मुख्य अंतर
+
+| आयाम | Claude Code | Cursor |
+| --- | --- | --- |
+| मुख्य प्रवेश point | terminal / command line | AI IDE |
+| Project context | `CLAUDE.md`, conversation context, tool read | Cursor Rules, indexing, editor context |
+| Permission control | permission, hook, confirmation flow | tool approval, editor permission, rule |
+| MCP | MCP tool समर्थित | MCP tool समर्थित |
+| Model setup | Claude / Anthropic-compatible पहले | OpenAI-compatible, custom provider, built-in मॉडल |
+| सबसे उपयुक्त | multi-step कार्य, command execution, repo-wide बदलाव | editor interaction, navigation, focused edit, completion |
+
+## कैसे चुनें
+
+repository जांचने, योजना बनाने, test चलाने और कई बदलाव करने के लिए agent से कहना पसंद हो तो Claude Code उपयोग करें।
+
+अधिकतर समय editor में बिताते हैं और AI से मौजूदा फ़ाइल, selection, index व project rule समझने की अपेक्षा है तो Cursor उपयोग करें।
+
+दोनों उपयोग करते हैं तो मॉडल API layer साझा कर सकते हैं, पर हर tool को अपने rule और permission boundary चाहिए।
+
+## सामान्य गलतियां
+
+- मान लेना कि Claude Code, Cursor Rules को अपने-आप पढ़ता है।
+- मान लेना कि `CLAUDE.md`, Cursor project rule की जगह लेता है।
+- workflow और permission के बजाय केवल मॉडल नामों की तुलना करना।
+- MCP को tool/context extension layer के बजाय मॉडल API मानना।
+- editor indexing और terminal command execution के अंतर को अनदेखा करना।
+
+## BetterToken के बारे में
+
+Claude Code और Cursor में मॉडल routing व उपयोग दृश्यता साझा करना चाहते हैं तो हर tool को उसके अपेक्षित protocol के साथ कॉन्फ़िगर करें।
+
+Claude Code सामान्यतः `{{anthropic-base-url}}` उपयोग करता है। Cursor और समान external tool सामान्यतः `{{openai-base-url}}` उपयोग करते हैं, जिनकी मॉडल ID **GPT provider** से कॉपी की जाती है।
+
+## संबंधित दस्तावेज
+
+- [Claude Code क्या है?](/hi/faq/claude-code/what-is-claude-code)
+- [Cursor में कस्टम OpenAI API कैसे कॉन्फ़िगर करें](/hi/faq/cursor/custom-openai-api)
+- [MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## संदर्भ
+
+- [Claude Code अवलोकन](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Cursor दस्तावेज](https://cursor.com/docs)
+- [Claude Code और Cursor पर Hacker News चर्चा](https://news.ycombinator.com/item?id=44353879)

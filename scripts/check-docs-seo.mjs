@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { betterTokenLocales } from './i18n-locales.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const legacyRoutes = [
@@ -133,8 +134,15 @@ assert(!/LLMEasy|LLMEASY|LLM Easy/.test(JSON.stringify(betterTokenConfig)), 'doc
 assert(!JSON.stringify(betterTokenConfig).includes('docs.llmeasy.ru'), 'docs.json contains the retired docs domain');
 assert(!JSON.stringify(betterTokenConfig).includes('www.llmeasy.ru'), 'docs.json contains the retired product domain');
 
-assertLanguageRoutes(betterTokenConfig, { ru: '', en: 'en/', zh: 'zh/' }, 'docs.json');
-assertRedirects(betterTokenConfig, ['', 'en/', 'zh/'], 'docs.json');
+const languagePrefixes = Object.fromEntries(
+  betterTokenLocales.map(({ language, routePrefix }) => [language, routePrefix]),
+);
+assertLanguageRoutes(betterTokenConfig, languagePrefixes, 'docs.json');
+assertRedirects(
+  betterTokenConfig,
+  betterTokenLocales.map(({ routePrefix }) => routePrefix),
+  'docs.json',
+);
 for (const [oldRoute, newRoute] of legacyRoutes) {
   const redirect = betterTokenConfig.redirects.find((item) => item.source === `/ru/${oldRoute}`);
   assert(redirect, `docs.json: missing historical Russian redirect /ru/${oldRoute}`);
@@ -144,7 +152,7 @@ for (const [oldRoute, newRoute] of legacyRoutes) {
 
 const mdxFiles = listMdxFiles(rootDir);
 for (const [oldRoute, newRoute] of legacyRoutes) {
-  for (const prefix of ['', 'en/', 'zh/']) {
+  for (const { routePrefix: prefix } of betterTokenLocales) {
     assert(
       fs.existsSync(path.join(rootDir, `${prefix}${newRoute}.mdx`)),
       `Missing canonical page: ${prefix}${newRoute}.mdx`,
@@ -170,7 +178,9 @@ for (const file of mdxFiles) {
   assert(!text.includes('https://www.llmeasy.ru'), `${path.relative(rootDir, file)} contains the retired product domain`);
 }
 
-const zedFiles = ['ai-tools/zed.mdx', 'en/ai-tools/zed.mdx', 'zh/ai-tools/zed.mdx'];
+const zedFiles = betterTokenLocales.map(
+  ({ routePrefix }) => `${routePrefix}ai-tools/zed.mdx`,
+);
 const zedMetadata = zedFiles.map((file) => ({ file, ...readFrontmatter(file) }));
 for (const metadata of zedMetadata) {
   assert(metadata.title, `${metadata.file}: title must not be empty`);

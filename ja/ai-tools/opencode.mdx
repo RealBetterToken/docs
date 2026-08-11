@@ -1,0 +1,150 @@
+---
+title: "OpenCode のカスタムモデル：API Key、Base URL、JSON 設定"
+sidebarTitle: "OpenCode"
+description: "/connect、opencode.json、API Key、Base URL、Model ID を使って、OpenCode を BetterToken の OpenAI 互換 Chat Completions に接続します。"
+icon: "brackets-curly"
+---
+
+OpenCode は `@ai-sdk/openai-compatible` を使って BetterToken に接続します。OpenCode のプロバイダー名は **BetterToken** または **OpenAI Compatible** にします。GPT、Kimi、GLM は BetterToken 内のモデルプロバイダーであり、OpenCode のプロバイダー名ではありません。
+
+## 主な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| モデル | `YOUR_MODEL_ID` |
+
+## 前提条件
+
+- 最新版の OpenCode をインストールする
+- <a href={"{{register-url}}"}>BetterToken API Key を作成する</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> またはキーの **Setup** ダイアログから Model ID をコピーする
+
+## インストール
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## コマンドラインで設定する
+
+BetterToken の自動設定スクリプトが、OpenCode の BetterToken プロバイダーを作成または更新します。このスクリプトには Node.js が必要です。API Key または Model ID を引数で指定しなかった場合は、実行時に入力を求められます。
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-opencode-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-opencode-provider-ps1-url}}" -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+スクリプトの完了後に `bettertoken/YOUR_MODEL_ID` を選択します。OpenCode がすでに起動している場合は、テストする前に再起動してください。
+
+## 手動で設定する
+
+### 方法 1：/connect で認証情報を保存する
+
+OpenCode を起動し、次のコマンドを実行します。
+
+```text
+/connect
+```
+
+**Other** を選択し、プロバイダー ID に `bettertoken`、続いて `YOUR_API_KEY` を入力します。OpenCode は認証情報をローカルに保存します。
+
+### 方法 2：JSON を設定する
+
+グローバル設定ファイルは `~/.config/opencode/opencode.json` です。プロジェクトではルートディレクトリの `opencode.json` を使用できます。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "{{openai-base-url}}"
+      },
+      "models": {
+        "YOUR_MODEL_ID": {
+          "name": "YOUR_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+`/connect` を使わない場合は、`"apiKey": "YOUR_API_KEY"` を `options` の下に追加します。実際のキーを含む設定をコミットしないでください。
+
+## 接続を確認する
+
+プロジェクトで `opencode` を実行し、`bettertoken/YOUR_MODEL_ID` を選択して短いメッセージを送信します。通常の応答が返れば設定は完了です。JSON を変更した後は OpenCode を再起動してください。
+
+## モデルを切り替える
+
+新しい `YOUR_MODEL_ID` を `provider.bettertoken.models` に追加し、最上位の `model` を更新します。保存して OpenCode を再起動してください。
+
+## よくあるエラー
+
+| エラー | 対処方法 |
+| --- | --- |
+| `401` | `/connect` をもう一度実行するか、`apiKey` を確認します。 |
+| `404` | `{{openai-base-url}}` だけを `baseURL` に使い、`/chat/completions` を追加しないでください。 |
+| モデルが見つからない | 最上位の `model` を `models` 内の ID と完全に一致させます。 |
+| 設定が反映されない | プロジェクトの `opencode.json` がグローバル設定を上書きしていないか確認し、OpenCode を再起動します。 |
+
+## 詳細設定
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | コマンドライン + 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **コマンドライン + 手動設定**：生成されたコマンドを使うか、すべての手順を手動で設定します。
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 関連するよくある質問
+
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key・Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider、base_url、wire_api とは？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+
+### 任意：CC Switch でプロバイダーを管理する
+
+複数の外部ツールのプロバイダーをまとめて管理する場合は、[CC Switch での OpenCode 設定](/ja/ai-tools/cc-switch#opencode)を参照してください。
+
+## 技術的な詳細
+
+<Accordion title="プロバイダーとモデルプロバイダー">
+  OpenCode のプロバイダーは `bettertoken` で、`@ai-sdk/openai-compatible` と Chat Completions を使います。GPT、Kimi、GLM は BetterToken 内のモデルプロバイダーです。選択した完全な Model ID を `models` に追加してください。
+</Accordion>

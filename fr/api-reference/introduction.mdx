@@ -1,0 +1,62 @@
+---
+title: "Référence API"
+description: "URL de requête, authentification et point d’entrée pour tester l’API Chat Completions BetterToken compatible avec OpenAI."
+---
+
+La référence API publique de BetterToken couvre actuellement uniquement l’**API Chat Completions compatible avec OpenAI**. Les autres protocoles ne sont pas encore pris en charge de façon uniforme sur tous les canaux ; Responses API et Anthropic Messages API ne sont donc pas publiées comme interfaces publiques.
+
+## Fournisseurs pris en charge
+
+| Fournisseur | Statut |
+| --- | --- |
+| Claude | Non pris en charge |
+| GPT | Configuration manuelle |
+| Kimi | Configuration manuelle |
+| GLM | Configuration manuelle |
+
+## Informations de connexion
+
+| Champ | Valeur |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| URL de requête complète | `{{chat-completions-url}}` |
+| Méthode | `POST` |
+| Autorisation | `Bearer YOUR_API_KEY` |
+| Modèle | `YOUR_MODEL_ID` |
+
+Copiez un Model ID actuel depuis le <a href={"{{model-plaza-url}}"}>model plaza</a> ou la boîte de dialogue **Setup** de l’API Key dans la Console.
+
+<Warning>
+  Lorsqu’un outil demande une **Base URL**, saisissez `{{openai-base-url}}`. Utilisez `{{chat-completions-url}}` uniquement lorsque l’outil demande explicitement une URL de requête complète.
+</Warning>
+
+## Test rapide
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+Une réponse réussie contient `choices[0].message.content`.
+
+## Tests interactifs et exemples de SDK
+
+Ouvrez la page [OpenAI Chat Completions API](/fr/api-reference/chat-completions) pour :
+
+- envoyer une requête depuis le Playground
+- consulter les paramètres de la requête et le schéma de la Response
+- copier des exemples curl, Python et JavaScript
+
+<Note>
+  Ne stockez jamais une véritable API Key dans la documentation, les captures d’écran ou du code public. Remplacez `YOUR_API_KEY` et `YOUR_MODEL_ID` par vos propres valeurs.
+</Note>

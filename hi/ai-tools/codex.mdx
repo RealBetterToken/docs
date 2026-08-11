@@ -1,0 +1,174 @@
+---
+title: "Codex CLI/App custom प्रदाता: config.toml, API Key और Base URL"
+sidebarTitle: "Codex"
+description: "config.toml, BETTERTOKEN_API_KEY, Responses Base URL और मौजूदा Model ID से Codex CLI/App custom प्रदाता सेट करें।"
+icon: "code"
+---
+
+Codex CLI और Codex App, OpenAI Responses से BetterToken को कनेक्ट करते हैं। Configuration file `~/.codex/config.toml` है और API Key `BETTERTOKEN_API_KEY` से दी जाती है।
+
+## मुख्य सेटिंग
+
+| Field | मान |
+| --- | --- |
+| API Key | `BETTERTOKEN_API_KEY` environment variable |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## आवश्यकताएं
+
+- Node.js इंस्टॉल करें
+- <a href={"{{register-url}}"}>BetterToken API Key बनाएं</a>
+- <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> या Key **Setup** dialog से Model ID कॉपी करें
+
+## इंस्टॉल करें
+
+```bash
+npm install -g @openai/codex
+```
+
+## Command-line सेटअप
+
+BetterToken automatic setup script Codex प्रदाता configuration लिखता है। इसके लिए Node.js आवश्यक है। API Key या Model ID argument में न देने पर script उन्हें दर्ज करने को कहता है।
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-codex-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-codex-provider-ps1-url}}" -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+पूरा होने पर `~/.codex/config.toml` खोलें। Windows पर `%USERPROFILE%\.codex\config.toml` खोलें। पुष्टि करें कि `model`, `review_model` और BetterToken प्रदाता सही लिखे गए हैं, फिर Codex को पूरी तरह restart करें।
+
+## मैन्युअल सेटअप
+
+GPT, Kimi और GLM समान `config.toml` structure उपयोग करते हैं। केवल `YOUR_MODEL_ID` को चुने गए प्रदाता के मौजूदा Model ID से बदलें। One-click command-line सेटअप अभी केवल GPT के लिए उपलब्ध है।
+
+### API Key सेट करें
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    इसे स्थायी रखने के लिए यह line `~/.zshrc` या `~/.bashrc` में जोड़ें।
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
+    $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  BetterToken API Key को `~/.codex/auth.json` में न डालें। वह file official Codex login के लिए है; custom प्रदाता को `env_key` से environment variable पढ़ना चाहिए।
+</Warning>
+
+### config.toml सेट करें
+
+`~/.codex/config.toml` संपादित करें:
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "BETTERTOKEN_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+`model_provider = "custom"` का `[model_providers.custom]` table से मेल खाना आवश्यक है। दोनों `YOUR_MODEL_ID` मान मौजूदा पूरे Model ID से बदलें।
+
+## कनेक्शन सत्यापित करें
+
+नया terminal खोलकर चलाएं:
+
+```bash
+codex
+```
+
+छोटा task भेजें। Login, `401` या मॉडल त्रुटि के बिना Streaming Response सेटअप की पुष्टि करता है।
+
+## मॉडल बदलें
+
+`model` बदलें और जरूरत हो तो `review_model` भी बदलें। File save करें, मौजूदा Codex process रोकें और दोबारा शुरू करें। Setup dialog या मॉडल प्लाज़ा का Model ID उपयोग करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | समाधान |
+| --- | --- |
+| `401` या OpenAI sign-in prompt | `BETTERTOKEN_API_KEY` जांचें और `requires_openai_auth = false` की पुष्टि करें। |
+| प्रदाता नहीं मिला | `model_provider = "custom"` को `[model_providers.custom]` से मिलाएं। |
+| API mode त्रुटि | `wire_api = "responses"` बनाए रखें; Chat Completions पर न बदलें। |
+| मॉडल नहीं मिला | `YOUR_MODEL_ID` को Setup या मॉडल प्लाज़ा के मौजूदा पूरे ID से बदलें। |
+| Configuration लागू नहीं | नया terminal खोलें, environment variable सत्यापित करें और Codex को पूरी तरह restart करें। |
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | कमांड लाइन + मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **कमांड लाइन + मैन्युअल सेटअप**: तैयार कमांड का उपयोग करें या पूरे मैन्युअल चरणों का पालन करें।
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Codex Extension
+
+Codex VS Code Extension `config.toml` साझा करता है, लेकिन official login बनाए रखने के लिए अलग authentication configuration चाहिए। [Codex Extension सेटअप गाइड](/hi/ai-tools/codex-vscode) देखें।
+
+<Warning>
+  CLI/App सेटअप और official login वाला Extension सेटअप दो अलग विकल्प हैं। एक TOML file में दो `[model_providers.custom]` table paste न करें।
+</Warning>
+
+### संबंधित FAQ
+
+- [Codex CLI क्या है?](/hi/faq/codex/what-is-codex-cli)
+- [Codex CLI, Codex App और Codex Web की तुलना](/hi/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex config.toml सेटअप गाइड](/hi/faq/codex/config-toml)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [review_model और reasoning_effort का क्या अर्थ है?](/hi/faq/codex/review-model-reasoning-effort)
+- [AGENTS.md क्या है और इसे कैसे लिखें?](/hi/faq/codex/agents-md)
+- [Codex CLI sandbox और approval mode क्या हैं?](/hi/faq/codex/sandbox-approval)
+- [Third-party API के साथ official Codex login बनाए रखें](/hi/faq/codex/official-login-third-party-api)
+- [OpenAI-compatible API और Anthropic-compatible API की तुलना](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code और Codex CLI की तुलना](/hi/faq/concepts/claude-code-vs-codex-cli)
+- [CC Switch से Codex प्रदाता प्रबंधित करें](/hi/ai-tools/cc-switch#codex-cli)
+
+### Official संदर्भ
+
+- [Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)
+
+## तकनीकी विवरण
+
+<Accordion title="Responses protocol">
+  Codex OpenAI Responses उपयोग करता है। `base_url` को `{{openai-base-url}}` पर सेट करें और `wire_api = "responses"` बनाए रखें। Codex `/responses` जोड़ता है।
+</Accordion>

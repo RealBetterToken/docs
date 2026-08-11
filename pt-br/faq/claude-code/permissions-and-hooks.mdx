@@ -1,0 +1,147 @@
+---
+title: "Como configurar permissões e hooks no Claude Code"
+sidebarTitle: "Permissões e hooks"
+description: "Use /permissions e settings.json para configurar regras de allow, ask e deny e depois adicione, teste e solucione problemas dos hooks do Claude Code."
+---
+
+## Resposta direta
+
+Execute `/permissions` no Claude Code para ver e gerenciar regras de permissão. Para mantê-las, coloque `allow`, `ask` e `deny` em `settings.json`. Hooks usam os mesmos arquivos e executam formatação, testes ou verificações de segurança durante chamadas de ferramentas. A precedência é **deny → ask → allow**, portanto uma regra de allow não substitui uma regra de deny.
+
+Essas configurações controlam as ferramentas locais do seu computador. A BetterToken altera apenas Base URL, API Key e roteamento da API de modelos; ela não ignora permissões locais nem executa hooks por você.
+
+## Escolha permissões ou hooks
+
+| Necessidade | Use |
+| --- | --- |
+| Executar um comando específico sem perguntar | `permissions.allow` |
+| Perguntar sempre antes de uma operação | `permissions.ask` |
+| Bloquear leituras confidenciais ou comandos perigosos | `permissions.deny` |
+| Formatar ou testar após uma alteração de arquivo | Hook `PostToolUse` |
+| Verificar ou bloquear uma ação antes da execução | Hook `PreToolUse` |
+| Explicar convenções da equipe ao modelo | `CLAUDE.md`, não uma regra de permissão |
+
+## Escolha o escopo correto
+
+| Arquivo | Escopo | Versionar no repositório? |
+| --- | --- | --- |
+| `~/.claude/settings.json` | Todos os projetos do usuário atual | Não |
+| `.claude/settings.json` | Projeto e equipe atuais | Sim |
+| `.claude/settings.local.json` | Projeto atual nesta máquina | Não |
+
+<Warning>
+  Coloque permissões, hooks e variáveis de ambiente em `settings.json`, não em `~/.claude.json`. O segundo armazena estado do aplicativo e configurações da interface.
+</Warning>
+
+## Configure regras mínimas de permissão
+
+<Steps>
+  <Step title="Examine as regras existentes com /permissions">
+    No Claude Code, execute:
+
+    ```text
+    /permissions
+    ```
+
+    A interface mostra regras allow, ask e deny com os arquivos de origem. Verifique regras de equipe ou gerenciadas antes de escolher uma configuração de usuário ou projeto.
+  </Step>
+  <Step title="Adicione regras restritas">
+    Este exemplo de projeto permite testes e lint comuns, pergunta antes de cada `git push` e bloqueia leituras de `.env`:
+
+    ```json
+    {
+      "permissions": {
+        "allow": [
+          "Bash(npm run lint *)",
+          "Bash(npm test *)"
+        ],
+        "ask": [
+          "Bash(git push *)"
+        ],
+        "deny": [
+          "Read(./.env)",
+          "Read(./.env.*)"
+        ]
+      }
+    }
+    ```
+
+    Substitua os comandos por scripts existentes no projeto. Não ative `bypassPermissions` apenas para remover confirmações; a documentação oficial limita esse modo a contêineres ou VMs isoladas.
+  </Step>
+  <Step title="Verifique em /permissions">
+    Salve o arquivo e execute `/permissions` novamente. Confirme que cada regra aparece com a origem esperada e acione um caso de allow, ask e deny para verificar o comportamento.
+  </Step>
+</Steps>
+
+## Adicione um hook de formatação copiável
+
+Este exemplo executa o formatador do projeto depois de o Claude Code usar `Edit` ou `Write`:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Se o arquivo já tiver `permissions`, combine `hooks` no mesmo objeto JSON de nível superior. Não crie um `.claude/hooks.json` separado. Execute primeiro `npm run format` manualmente para confirmar que funciona.
+
+<Warning>
+  Hooks de comando são executados com as permissões do usuário do sistema. Use apenas scripts revisados e nunca imprima API Keys, tokens, conteúdo de `.env` ou outros segredos em um hook.
+</Warning>
+
+## Verifique o hook
+
+1. Execute `/hooks` no Claude Code.
+2. Abra **PostToolUse** e confirme que aparecem `Edit|Write` e `npm run format`.
+3. Peça ao Claude que altere um arquivo de teste.
+4. Confira a saída do hook e a formatação do arquivo e confirme que ele foi executado uma vez sem erros.
+
+O Claude Code normalmente recarrega as mudanças de configuração automaticamente. Se isso não ocorrer, saia da sessão e reinicie o Claude Code.
+
+## Erros comuns
+
+| Sintoma | Causa | Correção |
+| --- | --- | --- |
+| Regras de permissão não são aplicadas | Estão em `~/.claude.json` ou no diretório errado | Mova-as para `~/.claude/settings.json`, `.claude/settings.json` ou `.claude/settings.local.json` |
+| Uma ação permitida continua bloqueada | Ela corresponde a uma regra deny ou gerenciada | Consulte as origens em `/permissions`; deny tem precedência sobre ask e allow |
+| Um hook não é executado | Evento ou matcher não corresponde à ferramenta | Examine `/hooks`; `PreToolUse` executa antes, `PostToolUse` após sucesso e matchers diferenciam maiúsculas de minúsculas |
+| O hook executa, mas o comando falha | Script, diretório de trabalho ou dependência incorreto | Execute primeiro o mesmo comando manualmente no diretório do projeto |
+| Confirmações permanecem após conectar a BetterToken | Provedor de API e permissões locais são separados | Mantenha a Base URL da BetterToken e configure permissões restritas do Claude Code separadamente |
+| É preciso desativar todos os hooks temporariamente | Um hook pode interferir na depuração | Adicione `"disableAllHooks": true` e remova ou defina como `false` depois da depuração |
+
+## Limites da BetterToken
+
+A BetterToken gerencia acesso à API de modelos do Claude Code, roteamento, saldo e uso. O Claude Code continua controlando:
+
+- Acesso de leitura e gravação de arquivos
+- Comportamento de confirmação do Bash
+- Quando os hooks são executados e quais scripts executam
+- Sandbox, MCP e regras de projeto
+
+Para erros `401`, de Base URL ou de mapeamento de modelos, consulte o [guia de configuração do Claude Code](/pt-br/ai-tools/claude-code). Para confirmações de comandos e automação, solucione aqui permissões e hooks.
+
+## Documentos relacionados
+
+- [Configuração do Claude Code com a BetterToken](/pt-br/ai-tools/claude-code)
+- [O que é CLAUDE.md no Claude Code?](/pt-br/faq/claude-code/claude-md)
+- [Por que o Claude Code usa muitos tokens](/pt-br/faq/token-cost/claude-code-token-usage)
+- [MCP do Claude Code versus API Key e Base URL](/pt-br/faq/concepts/mcp-vs-api-key-base-url)
+
+## Referências
+
+- [Permissões do Claude Code](https://code.claude.com/docs/en/permissions)
+- [Guia de hooks do Claude Code](https://code.claude.com/docs/en/hooks-guide)
+- [Referência de hooks do Claude Code](https://code.claude.com/docs/en/hooks)
+- [Depurar a configuração do Claude Code](https://code.claude.com/docs/en/debug-your-config)

@@ -1,0 +1,75 @@
+---
+title: "Claude Desktop Cowork 또는 Code mode가 Gateway에서 실패하면 어떻게 하나요?"
+sidebarTitle: "Claude Desktop Cowork / Code 오류"
+description: "BetterToken을 Gateway로 연결한 후 발생하는 Claude Desktop Cowork failures와 Code mode errors를 해결하세요."
+---
+
+Claude Desktop에서 BetterToken Gateway를 구성한 후 다음 symptoms는 보통 API Key 자체가 invalid하다는 뜻이 아닙니다.
+
+- Cowork mode가 작동하지 않음
+- Code mode에 `Claude Code process exited with code 1`이 표시됨
+- 같은 API Key가 terminal의 Claude Code CLI에서는 작동함
+
+이 issues는 보통 두 가지 별도 causes에서 발생합니다. desktop Gateway auth scheme가 provider와 일치하지 않거나 Claude Desktop의 bundled Claude Code version update가 아직 완료되지 않았습니다.
+
+아직 Gateway를 구성하지 않았다면 [Claude Desktop에서 BetterToken API 사용](/ko/faq/claude-desktop-bettertoken-api)부터 시작하세요.
+
+## 먼저 Cowork mode 해결
+
+**Root cause**: **Gateway auth scheme**가 provider와 일치하지 않습니다.
+
+Claude Desktop Gateway settings에서 provider에 따라 auth scheme를 선택하세요.
+
+- BetterToken API Key가 valid하면 **Gateway auth scheme**를 `x-api-key`로 설정
+- BetterToken API Key가 valid하면 **Gateway auth scheme**를 `bearer`로 설정
+
+올바른 scheme를 선택하면 Claude Desktop이 해당 group의 available models를 자동으로 fetch합니다. auth scheme가 잘못되면 Cowork mode의 Gateway authentication이 실패할 수 있습니다.
+
+<Steps>
+  <Step title="third-party inference settings 열기">
+    macOS menu bar에서 **Developer** → **Configure Third-Party Inference...**를 선택하세요.
+  </Step>
+
+  <Step title="auth scheme 변경">
+    provider에 따라 **Gateway auth scheme**를 선택하세요. **Claude provider**에는 `x-api-key`를, **GPT provider**에는 `bearer`를 사용하세요.
+  </Step>
+
+  <Step title="config 저장">
+    **Apply locally**를 클릭하여 local Gateway config를 저장하세요.
+  </Step>
+</Steps>
+
+이 변경 후 Cowork mode는 보통 다시 작동합니다.
+
+## 다음으로 Code mode exit errors 해결
+
+Cowork는 작동하지만 Code mode의 `</>` tab에 여전히 `Claude Code process exited with code 1`이 표시된다면 Claude Desktop이 아직 이전 bundled Claude Code version을 사용하는지 확인하세요.
+
+**Root cause**: Claude Desktop이 background에서 더 새로운 Claude Code version을 downloading 중일 수 있습니다. download가 끝나기 전에는 Code mode가 이전 installed Claude Code version으로 fall back할 수 있습니다. 이전 version은 Code mode의 third-party Gateway usage와 compatible하지 않을 수 있으므로 process가 즉시 종료됩니다.
+
+**해결 방법**:
+
+<Steps>
+  <Step title="새로운 Claude Code version download 완료 대기">
+    background Claude Code update가 완료되도록 Claude Desktop을 잠시 열어 두세요.
+  </Step>
+
+  <Step title="Claude Desktop 완전 종료">
+    **Cmd+Q**로 app을 완전히 종료하세요. window만 닫지 마세요.
+  </Step>
+
+  <Step title="다시 열고 새 Code session 시작">
+    Claude Desktop을 다시 연 다음 Code mode로 가서 새 session을 시작하세요.
+  </Step>
+</Steps>
+
+<Note>
+  logs에 Claude Desktop이 `2.1.111` 같은 이전 Claude Code version으로 fall back하고 `2.1.119`와 같은 더 새로운 version이 아직 ready되지 않았다고 표시되면 새 version의 download가 끝날 때까지 기다린 후 app을 다시 시작하세요.
+</Note>
+
+## 빠른 참고
+
+| 증상 | 일반적인 root cause | 해결 방법 |
+|---------|-------------------|-----|
+| Cowork mode가 작동하지 않음 | **Gateway auth scheme**가 provider와 일치하지 않음 | **Claude provider**에는 `x-api-key`, **GPT provider**에는 `bearer`를 사용한 다음 **Apply locally**를 클릭 |
+| Code mode에 `Claude Code process exited with code 1`이 표시됨 | Claude Desktop이 이전 Claude Code version으로 fall back함 | 새로운 version의 download가 끝날 때까지 기다리고 **Cmd+Q**로 완전 종료한 다음 다시 열기 |

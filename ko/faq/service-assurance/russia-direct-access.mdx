@@ -1,0 +1,76 @@
+---
+title: "Russian users는 API 사용에 VPN이 필요한가요?"
+sidebarTitle: "Direct access in Russia"
+description: "Russian users가 regional site와 API에 직접 access하는 방법, VPN이 필요 없는 경우 및 network issues를 troubleshoot하는 방법을 알아보세요."
+---
+
+## 짧은 답변
+
+Russian regional site는 Russia에서 direct access하도록 built되었습니다. normal use에서는 VPN 없이 website와 API endpoints에 directly access할 수 있습니다.
+
+Russia에서 Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw 또는 other external tool을 사용한다면 important part는 correct Base URL, API Key, Model ID를 입력하는 것입니다. 보통 extra VPN layer는 필요하지 않습니다.
+
+## 권장 addresses
+
+| Scenario | 권장 address |
+| --- | --- |
+| Website와 console | `{{anthropic-base-url}}` |
+| Documentation | `{{site-url}}` |
+| Claude Code용 Anthropic-compatible | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline 및 other OpenAI-compatible tools | `{{openai-base-url}}` |
+
+Russian regional site는 BetterToken domain을 사용합니다. Base URL, registration page, console, model plaza에는 BetterToken links를 사용하세요.
+
+## VPN이 필요 없는 경우
+
+- BetterToken website와 console access
+- API Keys create 또는 manage
+- Claude Code에서 Anthropic-compatible endpoint configure
+- Codex CLI, Cursor, Cline, OpenCode 또는 OpenClaw에서 OpenAI-compatible endpoint configure
+- docs, model plaza, usage records view
+
+VPN은 traffic을 unstable route로 보낼 수 있습니다. 이로 인해 latency가 증가하거나 TLS verification problems가 발생하거나 risk controls가 triggered될 수 있습니다. company network에 special restrictions가 없다면 VPN을 default setup으로 사용하지 마세요.
+
+## service에 access할 수 없다면 먼저 확인할 사항
+
+1. domain을 confirm하세요. main site와 docs site를 mix up하지 마세요.
+2. HTTPS를 사용하세요. address는 `https://`. 이 형식으로 start해야 합니다.
+3. device의 system time을 확인하세요. incorrect time은 TLS certificate verification을 break할 수 있습니다.
+4. office Wi-Fi에서 mobile hotspot으로 switch하는 등 another network를 test하세요.
+5. local firewall, proxy tool, antivirus product가 request를 block하는지 확인하세요.
+6. tool configuration에서 Base URL에 extra path가 없는지 확인하세요. 예를 들어 Claude Code Anthropic-compatible setup에 `/v1`를 넣지 마세요.
+
+## 간단한 test commands
+
+먼저 site가 reachable한지 test할 수 있습니다.
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+OpenAI-compatible endpoint를 test하려면 다음을 실행하세요.
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I`는 connection과 response headers만 확인합니다. API Key가 works하는지 verify하지는 않습니다. API Key를 test하려면 real model request를 send하거나 tool 안의 test function을 사용하세요.
+
+## 일반적인 실수
+
+- “no VPN required”가 every network environment에서 항상 works한다는 의미라고 가정함
+- Claude Code Base URL을 `{{openai-base-url}}`로 설정함
+- Codex CLI, Cursor 또는 Cline Base URL을 `/v1` 없는 root address로 설정함
+- VPN, proxy, local gateway를 repeatedly switching하여 actual request route를 unclear하게 만듦
+- API Base URL 대신 docs site만 test함
+
+## BetterToken 정보
+
+Russian regional service는 BetterToken domain을 사용합니다. Russian users는 payment, access, network routing의 uncertainty를 줄이기 위해 regional registration links, console, API Base URLs를 사용해야 합니다.
+
+## 관련 문서
+
+- [Base URL은 어떻게 입력하나요?](/ko/faq/model-calling/base-url-config)
+- [올바른 AI model을 선택하는 방법](/ko/faq/model-calling/model-selection-guide)
+- [OpenAI-compatible API와 Anthropic-compatible API의 차이점](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)

@@ -1,0 +1,188 @@
+---
+title: "API de generación de imágenes compatible con OpenAI: guía de GPT Image 2"
+description: "Genera imágenes a partir de texto con GPT Image 2 y la API de BetterToken compatible con OpenAI: API Key, Base URL, parámetros, Python, JavaScript y gestión de errores."
+openapi: "api-reference/openapi.json POST /v1/images/generations"
+---
+
+`POST /v1/images/generations`
+
+El endpoint de texto a imagen usa un cuerpo de solicitud `application/json`. Envía un prompt, mantén abierta la solicitud HTTP y lee la imagen generada desde `data[0].b64_json` en la misma respuesta.
+
+<Note>
+  Usa `{{openai-base-url}}` como `Base URL`. Envía tu BetterToken API Key mediante `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+<Tip>
+  Puedes introducir `Authorization` y el cuerpo de la solicitud en el Playground de la derecha. Después, envía la solicitud directamente a `{{images-generations-url}}`.
+</Tip>
+
+<Warning>
+  No incluyas API Keys en código frontend del navegador, repositorios Git, tickets, capturas de pantalla ni registros. En llamadas mediante un proxy del servidor, guarda las API Keys únicamente en variables de entorno del servidor o en un gestor de secretos.
+</Warning>
+
+## Inicio rápido con curl
+
+Usa `{{openai-base-url}}` como Base URL y envía una solicitud a `{{images-generations-url}}`:
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+## Valores recomendados
+
+Envía estos campos de forma explícita en cada solicitud:
+
+```json
+{
+  "model": "gpt-image-2",
+  "n": 1,
+  "response_format": "b64_json",
+  "output_format": "png"
+}
+```
+
+| Parámetro | Valor | Función |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | Selecciona el modelo de imagen. |
+| `prompt` | Una descripción de texto | Descripción obligatoria de la imagen. Incluye el sujeto, el estilo, la composición y las restricciones importantes. |
+| `size` | Por ejemplo, `1024x1024` | Selecciona el tamaño y la proporción de la salida. |
+| `n` | `1` | Número de imágenes de una solicitud. Envía solicitudes separadas para generar varias imágenes. |
+| `response_format` | `b64_json` | Devuelve el contenido de la imagen como base64 en `data[0].b64_json`. |
+| `output_format` | `png` | Permite guardar el resultado como PNG. |
+
+Para generar varias imágenes, envía varias solicitudes independientes. No dependas de una sola solicitud con `n > 1`.
+
+## Tamaños recomendados
+
+| `size` | Proporción | Uso |
+| --- | --- | --- |
+| `auto` | Automática | Selección automática del tamaño |
+| `1024x1024` | `1:1` | Imágenes cuadradas, avatares, portadas y recursos |
+| `1536x1024` | `3:2` | Pósteres horizontales, banners y escenas |
+| `1024x1536` | `2:3` | Portadas móviles y pósteres verticales |
+| `1536x1152` | `4:3` | Imágenes horizontales estándar, productos y gráficos de contenido |
+| `1152x1536` | `3:4` | Imágenes verticales estándar, portadas móviles y pósteres verticales |
+| `2048x2048` | `1:1` | Imágenes cuadradas de alta resolución |
+| `2048x1152` | `16:9` | Imágenes horizontales de alta resolución |
+| `3840x2160` | `16:9` | Imágenes horizontales 4K |
+| `2160x3840` | `9:16` | Imágenes verticales 4K |
+
+`size` representa la proporción y el nivel de tamaño esperados. El servidor puede asignar o ajustar los píxeles devueltos. Usa las dimensiones de la imagen decodificada en lugar de recortar la salida por la fuerza al valor solicitado.
+
+## Guarda la imagen
+
+Una respuesta correcta sigue la estructura de imagen compatible con OpenAI:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Lee `data[0].b64_json` y guárdalo como contenido de imagen en base64. La respuesta puede incluir campos adicionales como `revised_prompt`; permite esos campos en tu cliente.
+
+Define siempre `output_format: "png"`. Después, guarda la imagen decodificada como `.png` sin inspeccionar las cabeceras del archivo.
+
+```python
+import base64
+import json
+from pathlib import Path
+
+response = json.loads(Path("response.json").read_text(encoding="utf-8"))
+b64_json = response["data"][0]["b64_json"]
+
+if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
+    b64_json = b64_json.split(",", 1)[1]
+
+image_bytes = base64.b64decode(b64_json)
+Path("output.png").write_bytes(image_bytes)
+```
+
+### Ejemplo con JavaScript (Node.js)
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
+<Warning>
+  No confíes en `output_format: "jpeg"` ni en `output_format: "webp"` para recibir directamente archivos JPEG o WebP. El endpoint actual puede seguir devolviendo contenido de imagen PNG. Si tu producto necesita JPEG o WebP, recibe primero el PNG y conviértelo en tu propio código.
+</Warning>
+
+## Flujo de respuesta
+
+Este endpoint es síncrono. Después de enviar `POST /images/generations`, mantén abierta la solicitud HTTP hasta que responda el servidor. Cuando la generación se completa, el contenido de la imagen se devuelve en `data[0].b64_json`.
+
+El endpoint no devuelve un `task_id`, y no existe un endpoint separado para consultar el estado o descargar el resultado.
+
+## Tiempos de espera y reintentos
+
+- Configura tiempos de espera de varios minutos en el cliente HTTP.
+- Reintenta los errores de transporte, `408`, `409`, `425`, `429` y `5xx`.
+- No reintentes automáticamente `400`, `401`, parámetros ausentes ni solicitudes mal formadas.
+- Usa espera exponencial, por ejemplo, `3s`, `8s` y `15s`.
+- Si no puedes aceptar imágenes duplicadas, registra tu propio ID de solicitud antes de reintentar.
+
+## Gestión de errores
+
+Los errores suelen devolver JSON. Al mostrar un error, lee primero `error.message`, después `message` y, por último, el texto del estado HTTP.
+
+| Estado HTTP | Significado | Qué hacer |
+| --- | --- | --- |
+| `400` | JSON mal formado, parámetro ausente o tamaño no admitido | Comprueba el cuerpo de la solicitud. No reintentes automáticamente. |
+| `401` | Falta la API Key o no es válida | Comprueba la cabecera `Authorization: Bearer YOUR_API_KEY`. |
+| `402` | Saldo o cuota insuficientes | Añade saldo o usa una Key disponible. |
+| `429` | Límite de frecuencia, límite de concurrencia o servicio original ocupado | Espera y reintenta con espera exponencial. |
+| `5xx` | Fallo del gateway o del servicio original | Reintenta la solicitud. Si vuelve a fallar, registra el ID de la solicitud y el mensaje de error. |
+
+## Lista de integración
+
+- La Base URL es `{{openai-base-url}}`.
+- La cabecera contiene `Authorization: Bearer YOUR_API_KEY`.
+- La solicitud usa `application/json` y `POST /images/generations`.
+- `model` es `gpt-image-2`, `response_format` es `b64_json`, `output_format` es `png` y `n` es `1`.
+- `size` es uno de los valores recomendados, como `1024x1024`.
+- Tu cliente HTTP permite varios minutos para la generación.
+
+## Documentación relacionada
+
+- [De imagen a imagen](/es/api-reference/images-edits)
+- [GPT Image 2 ya está disponible](/es/model-updates/gpt-image-2)

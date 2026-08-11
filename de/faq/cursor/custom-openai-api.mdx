@@ -1,0 +1,61 @@
+---
+title: "Eigene OpenAI API in Cursor: Base URL, API Key und Modelle"
+sidebarTitle: "Cursor eigene API"
+description: "Konfiguriere eine eigene OpenAI API in Cursor mit BetterToken API Key, Override OpenAI Base URL und GPT Model ID und behebe 401- sowie Modell-nicht-gefunden-Fehler."
+---
+
+## Kurzantwort
+
+Um BetterToken als eigene OpenAI API in Cursor zu verbinden, trage einen BetterToken API Key ein, aktiviere Override OpenAI Base URL und setze ihn auf `{{openai-base-url}}`. Füge dann eine aktuelle GPT Model ID aus der model plaza hinzu. API Key, Base URL und Model ID müssen alle zum selben Provider gehören.
+
+## Wann das wichtig ist
+
+- Du möchtest, dass Cursor einen OpenAI-kompatiblen Drittanbieter-Provider verwendet
+- Du musst Override OpenAI Base URL festlegen
+- Du fügst ein eigenes Modell hinzu
+- Du siehst „Modell nicht gefunden“ oder Authentifizierungsfehler
+- Du möchtest, dass Cursor, Codex und andere Tools eine Modellrouting-Schicht teilen
+
+## Bedeutung der Felder
+
+| Feld | Rolle |
+| --- | --- |
+| API Key | Anmeldedaten zur Authentifizierung |
+| Base URL | OpenAI-kompatibler Endpunkt, normalerweise eine `/v1`-URL |
+| Model ID | Vom Provider erkannte Modellkennung |
+| Eigenes Modell | Manuell hinzugefügtes oder in Cursor ausgewähltes Modell |
+
+## Empfohlene Schritte
+
+1. Erstelle einen API Key im Provider-Dashboard.
+2. Füge den API Key in den Cursor-Modelleinstellungen hinzu.
+3. Trage die Provider-Base-URL in Override OpenAI Base URL ein.
+4. Füge eine vom Provider unterstützte Model ID hinzu oder wähle sie aus.
+5. Speichere und prüfe mit einem einfachen Request.
+
+## Häufige Fehler
+
+- Einen API Key von einem Provider und eine Base URL von einem anderen verwenden.
+- Einen Claude-Modellnamen in die OpenAI-kompatible Konfiguration eintragen.
+- Einen UI-Anzeigenamen statt einer API-Model-ID verwenden.
+- Denken, dass Cursor Rules die API-Authentifizierung beeinflussen.
+- Vergessen, dass eine globale Überschreibung andere OpenAI-Modelle beeinflussen kann.
+
+## Über BetterToken
+
+Cursor und ähnliche external tools verwenden normalerweise eine OpenAI-kompatible Einrichtung. Die BetterToken Base URL lautet `{{openai-base-url}}`, und Model IDs stammen vom **GPT-Provider** in der <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+Trage die Claude-Code-`{{anthropic-base-url}}` nicht in die OpenAI-kompatible Cursor-Konfiguration ein.
+
+## Verwandte Dokumentation
+
+- [Cursor Rules, AGENTS.md und .cursorignore](/de/faq/cursor/rules-agents-cursorignore)
+- [MCP in Cursor konfigurieren](/de/faq/cursor/mcp)
+- [OpenAI-kompatible API und Anthropic-kompatible API: Unterschiede](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Was sind model_provider, base_url und wire_api?](/de/faq/codex/model-provider-base-url-wire-api)
+
+## Referenzen
+
+- [Cursor-Dokumentation](https://cursor.com/docs)
+- [Cursor-Forum: API Key und Base URL für eigenes Modell](https://forum.cursor.com/t/can-the-api-key-and-base-url-corresponding-to-a-custom-model-be-set-separately-when-adding-a-cursor/137108)
+- [Cursor-Forum: OpenAI API und Override Base URL](https://forum.cursor.com/t/openai-api-and-override-base-url-values/148140)

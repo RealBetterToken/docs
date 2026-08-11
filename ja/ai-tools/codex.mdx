@@ -1,0 +1,174 @@
+---
+title: "Codex CLI/App のカスタムプロバイダー：config.toml、API Key、Base URL"
+sidebarTitle: "Codex"
+description: "config.toml、BETTERTOKEN_API_KEY、Responses の Base URL、現在の Model ID を使って Codex CLI/App のカスタムプロバイダーを設定します。"
+icon: "code"
+---
+
+Codex CLI と Codex App は、OpenAI Responses を使って BetterToken に接続します。設定ファイルは `~/.codex/config.toml` で、API Key は `BETTERTOKEN_API_KEY` から渡します。
+
+## 主要設定
+
+| フィールド | 値 |
+| --- | --- |
+| API Key | 環境変数 `BETTERTOKEN_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 前提条件
+
+- Node.js をインストールします
+- <a href={"{{register-url}}"}>BetterToken API Key を作成します</a>
+- <a href={"{{model-plaza-url}}"}>モデル一覧</a>または Key の **Setup** ダイアログから Model ID をコピーします
+
+## インストール
+
+```bash
+npm install -g @openai/codex
+```
+
+## コマンドラインでの設定
+
+BetterToken の自動設定スクリプトは、Codex のプロバイダー設定を書き込みます。Node.js が必要です。API Key または Model ID を引数で渡さなかった場合は、実行時に入力します。
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-codex-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-codex-provider-ps1-url}}" -OutFile "$env:TEMP\install-codex-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-codex-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+スクリプトが完了したら、`~/.codex/config.toml`（Windows では `%USERPROFILE%\.codex\config.toml`）を開き、`model`、`review_model`、BetterToken プロバイダーが正しく書き込まれていることを確認して、Codex を完全に再起動します。
+
+## 手動設定
+
+GPT、Kimi、GLM は同じ `config.toml` 構造を使用します。`YOUR_MODEL_ID` だけを、選択したプロバイダーの現在の Model ID に置き換えてください。ワンクリックのコマンドライン設定は、現在 GPT でのみ利用できます。
+
+### API Key を設定する
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    設定を保持するには、この行を `~/.zshrc` または `~/.bashrc` に追加します。
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
+    $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  BetterToken API Key を `~/.codex/auth.json` に保存しないでください。このファイルは Codex の公式ログイン用です。カスタムプロバイダーは `env_key` を通じて環境変数を読み込みます。
+</Warning>
+
+### config.toml を設定する
+
+`~/.codex/config.toml` を編集します。
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "BETTERTOKEN_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+`model_provider = "custom"` は `[model_providers.custom]` テーブルと一致させてください。2 つの `YOUR_MODEL_ID` を、現在の完全な Model ID に置き換えます。
+
+## 接続の確認
+
+新しいターミナルを開いて実行します。
+
+```bash
+codex
+```
+
+短いタスクを送信します。ログイン、`401`、モデルに関するエラーがなく、ストリーミング応答が返れば設定は完了です。
+
+## モデルの切り替え
+
+`model` と、必要に応じて `review_model` を変更します。ファイルを保存し、実行中の Codex プロセスを停止してから再起動してください。Setup ダイアログまたはモデル一覧の Model ID を使用します。
+
+## よくあるエラー
+
+| エラー | 対処方法 |
+| --- | --- |
+| `401` または OpenAI のサインイン画面が表示される | `BETTERTOKEN_API_KEY` を確認し、`requires_openai_auth = false` が設定されていることを確認します。 |
+| プロバイダーが見つからない | `model_provider = "custom"` と `[model_providers.custom]` を一致させます。 |
+| API モードのエラー | `wire_api = "responses"` を維持し、Chat Completions に変更しないでください。 |
+| モデルが見つからない | `YOUR_MODEL_ID` を、Setup またはモデル一覧にある現在の完全な ID に置き換えます。 |
+| 設定が反映されない | 新しいターミナルを開き、環境変数を確認して、Codex を完全に再起動します。 |
+
+## 高度な設定
+
+{/* tool-provider-support:start */}
+### 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | コマンドライン + 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **コマンドライン + 手動設定**：生成されたコマンドを使うか、すべての手順を手動で設定します。
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Codex 拡張機能
+
+Codex VS Code 拡張機能は `config.toml` を共有しますが、公式ログインを維持するには別の認証設定が必要です。[Codex 拡張機能の設定ガイド](/ja/ai-tools/codex-vscode)を参照してください。
+
+<Warning>
+  CLI/App の設定と、公式ログインを使う拡張機能の設定は別の選択肢です。同じ TOML ファイルに `[model_providers.custom]` テーブルを 2 つ貼り付けないでください。
+</Warning>
+
+### 関連する質問
+
+- [Codex CLI とは](/ja/faq/codex/what-is-codex-cli)
+- [Codex CLI、Codex App、Codex Web の違い](/ja/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex の config.toml 設定ガイド](/ja/faq/codex/config-toml)
+- [model_provider、base_url、wire_api とは](/ja/faq/codex/model-provider-base-url-wire-api)
+- [review_model と reasoning_effort とは](/ja/faq/codex/review-model-reasoning-effort)
+- [AGENTS.md とは何か、どのように書くか](/ja/faq/codex/agents-md)
+- [Codex CLI の sandbox モードと approval モードとは](/ja/faq/codex/sandbox-approval)
+- [サードパーティ API を使いながら Codex の公式ログインを維持する方法](/ja/faq/codex/official-login-third-party-api)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code と Codex CLI の違い](/ja/faq/concepts/claude-code-vs-codex-cli)
+- [CC Switch で Codex プロバイダーを管理する](/ja/ai-tools/cc-switch#codex-cli)
+
+### 公式リファレンス
+
+- [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)
+
+## 技術情報
+
+<Accordion title="Responses プロトコル">
+  Codex は OpenAI Responses を使用します。`base_url` を `{{openai-base-url}}` に設定し、`wire_api = "responses"` を維持してください。Codex が `/responses` を追加します。
+</Accordion>

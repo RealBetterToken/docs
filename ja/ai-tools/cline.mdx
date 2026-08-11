@@ -1,0 +1,133 @@
+---
+title: "Cline の設定：インストール、API Key、Base URL、カスタムモデル"
+sidebarTitle: "Cline"
+description: "Cline をインストールし、BetterToken の Base URL と API Key、互換プロバイダーのモデルを設定して、よくあるエラーを解決します。"
+icon: "c"
+---
+
+Cline を BetterToken に接続するには、API Key を用意し、次の Base URL とモデル一覧にある現在の Model ID を入力します。
+
+## 主要設定
+
+| フィールド | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル一覧</a>にある現在の Model ID |
+
+## 前提条件
+
+- 現在のバージョンのツールをインストールします
+- BetterToken API Key：<a href={"{{register-url}}"}>登録して取得します</a>
+- <a href={"{{model-plaza-url}}"}>モデル一覧</a>にある Model ID
+
+### 追加要件
+
+- VS Code をインストールします
+
+## インストール
+
+### Cline をインストールする
+
+VS Code を開き、拡張機能マーケットプレイスで **Cline** を検索してインストールします。
+
+## 手動設定
+
+Cline の設定画面で次の操作を行います。設定ファイルを編集する必要はありません。
+
+| フィールド | 値 |
+| --- | --- |
+| API Key | 使用する BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル一覧</a>にある現在の Model ID |
+
+### 設定手順
+
+<Steps>
+  <Step title="競合する環境変数を削除する">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Cline の設定画面を開く">
+    Cline のサイドバーで **Use your own API key** をクリックします。
+  </Step>
+
+  <Step title="API プロバイダーを設定する">
+    次のフィールドを入力します。
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → BetterToken API Key
+    - **Model** → <a href={"{{model-plaza-url}}"}>モデル一覧</a>からコピーした、**対応プロバイダーの Model ID**
+  </Step>
+
+  <Step title="公式ドキュメントで必要な場合だけ追加の headers を設定する">
+    Cline の OpenAI 互換設定に関する公式ドキュメントでは、`Base URL`、API Key、Model ID を設定します。BetterToken への接続で追加の `User-Agent` は通常必要ありません。
+
+    カスタム gateway、tenant routing、observability、cache レイヤーも使用する場合は、その upstream サービスの公式ドキュメントに従って必要なヘッダーだけを追加してください。
+  </Step>
+
+  <Step title="設定を保存する">
+    **Done** をクリックします。
+  </Step>
+
+  <Step title="Cline を再起動する">
+    設定を保存した後、VS Code を再起動するか Cline 拡張機能を再読み込みして、新しい設定を反映します。
+  </Step>
+</Steps>
+
+## 接続の確認
+
+短いテストプロンプトを送信します。認証エラーや Model ID エラーがなく応答が返れば、接続は完了です。設定を変更した後は、ツールを完全に再起動してください。
+
+## モデルの切り替え
+
+モデル選択を開くか、設定の `Model` フィールドを変更します。<a href={"{{model-plaza-url}}"}>モデル一覧</a>にある正確な Model ID を使用し、現在のセッションを再起動してください。
+
+## よくあるエラー
+
+| エラー | 確認項目 |
+| --- | --- |
+| `401` または `Unauthorized` | BetterToken API Key を確認し、前後の空白を削除します。 |
+| `404` | Base URL を確認し、特定のエンドポイントパスを追加しないでください。 |
+| `model not found` | モデル一覧から現在の Model ID をコピーします。 |
+| 変更が反映されない | 設定を保存し、ツールを完全に再起動します。 |
+
+
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key / Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [Cursor でカスタム OpenAI API を設定する方法](/ja/faq/cursor/custom-openai-api)
+
+<Note>
+  最初に `Base URL`、API Key、Model ID、ツールのバージョンを確認してください。`User-Agent` が BetterToken の必須設定だと判断しないでください。
+</Note>
+
+## 高度な設定
+
+{/* tool-provider-support:start */}
+### 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技術情報
+
+<Accordion title="プロトコル、エンドポイント、内部プロバイダーフィールド">
+  この設定では `{{openai-base-url}}` を使用します。ツールが OpenAI 互換エンドポイントのパスを追加します。特定のフィールドで明示的に必要な場合を除き、`/chat/completions` や `/responses` を追加しないでください。
+</Accordion>

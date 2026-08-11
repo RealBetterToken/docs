@@ -1,0 +1,86 @@
+---
+title: "Por que um modelo não sabe a própria versão?"
+sidebarTitle: "Identidade do modelo"
+description: "Saiba por que um modelo pode informar a própria versão incorretamente em uma chamada à API e como verificar qual modelo foi usado."
+---
+
+## Resposta curta
+
+É normal um modelo informar a própria versão incorretamente. Isso não prova que a chamada usou o modelo errado.
+
+O parâmetro `model` é usado principalmente pelo servidor da API para roteamento. O modelo pode não ver esse campo e talvez não conheça o nome final se ele tiver sido definido após o treinamento. Produtos web oficiais costumam responder corretamente porque a camada do produto injeta um prompt de sistema com a identidade.
+
+Ao chamar um modelo pela API sem informar a identidade na mensagem de sistema, ele pode deduzir um nome antigo com base nos dados de treinamento.
+
+## Quando isso acontece
+
+- Você chama um modelo novo, mas ele afirma ser uma versão antiga
+- O site oficial informa a versão corretamente, mas a chamada à API não
+- O mesmo modelo se apresenta de formas diferentes em ferramentas distintas
+- Você quer verificar se o gateway chamou o modelo solicitado
+- Um usuário trata “Qual modelo você é?” como método de verificação
+
+## Por que isso acontece
+
+Os nomes dos modelos muitas vezes são definidos após o treinamento. Durante o treinamento, o modelo aprende padrões de linguagem, código e conhecimento, mas pode não aprender o nome final usado no lançamento.
+
+Em uma solicitação à API, o campo `model` indica ao servidor qual modelo deve receber a chamada. Ele não é conteúdo comum do chat e talvez não seja fornecido ao modelo como identidade.
+
+Produtos web oficiais podem adicionar instruções ocultas como “Você é este modelo”. Chamadas à API geralmente não adicionam esse prompt automaticamente.
+
+## Como verificar o modelo realmente usado
+
+Não dependa apenas de perguntar “Qual é a sua versão?”. Verifique o caminho da solicitação e os campos da resposta.
+
+| Método de verificação | O que verificar |
+| --- | --- |
+| Logs de chamadas | O modelo usado em cada solicitação no painel |
+| Campos da resposta | O campo `model` no JSON da resposta |
+| ID de modelo | Se o ID da solicitação veio do provedor atual ou da model plaza |
+| Provedor | Se API Key, Base URL e ID de modelo pertencem ao mesmo provedor |
+
+Exemplo de resposta:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+O formato exato depende da API. O importante é conferir o campo de modelo retornado pelo servidor e o registro no painel, não a apresentação feita pelo próprio modelo.
+
+## Como fazer o modelo responder com uma identidade específica
+
+Se o seu produto precisa que o modelo se descreva de uma forma específica, coloque a identidade na mensagem de sistema:
+
+```text
+You are Claude Sonnet 5, called through the BetterToken API.
+```
+
+Isso funciona como no produto web oficial: a camada do aplicativo informa ao modelo como ele deve se identificar.
+
+<Warning>
+  Uma mensagem de sistema altera apenas a descrição e o estilo de comportamento do modelo. Ela não muda o modelo realmente roteado. O roteamento continua sendo determinado por Base URL, API Key, provedor e ID de modelo.
+</Warning>
+
+## Erros comuns
+
+- Usar “Qual modelo você é?” como único método de verificação.
+- Achar que o provedor trocou o modelo porque a apresentação está errada.
+- Achar que o parâmetro `model` sempre entra no contexto do modelo.
+- Ignorar os logs do painel e o campo `model` da resposta.
+- Adicionar uma identidade à mensagem de sistema e achar que o modelo real mudou.
+
+## Sobre a BetterToken
+
+O painel da BetterToken ajuda a conferir API Key, ID de modelo, registros de solicitações e uso do saldo. Para confirmar se o modelo está correto, consulte primeiro o log da chamada e os campos da resposta.
+
+Se a apresentação do modelo contradizer os logs, confie nos logs e nos campos da resposta.
+
+## Documentos relacionados
+
+- [Como escolher o modelo de IA certo?](/pt-br/faq/model-calling/model-selection-guide)
+- [Como preencher a Base URL?](/pt-br/faq/model-calling/base-url-config)
+- [Qual é a diferença entre APIs compatíveis com OpenAI e Anthropic?](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Como alternar entre Sonnet e Opus no Claude Code?](/pt-br/faq/claude-code/switch-sonnet-opus)

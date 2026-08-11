@@ -1,0 +1,188 @@
+---
+title: "Aider のセットアップ：インストール、API Key、Base URL、カスタムモデル"
+sidebarTitle: "Aider"
+description: "Aider をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+icon: "wrench"
+---
+
+Aider を BetterToken に接続するには、API Key を用意し、以下の Base URL を入力して、モデル広場から現在の Model ID を選択します。
+
+## 主要設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+## 前提条件
+
+- 現在のバージョンのツールがインストールされていること
+- BetterToken API Key：<a href={"{{register-url}}"}>登録して取得</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>にある Model ID
+
+### 追加要件
+
+- Python をインストール
+
+## インストール
+
+### Aider をインストールする
+
+ターミナルで次のコマンドを実行します。
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+インストール後、Aider が利用可能であることを確認します。
+
+```bash
+aider --help
+```
+
+## 手動設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+### 現在のターミナルで BetterToken を設定する
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="{{openai-base-url}}"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/YOUR_MODEL_ID
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "{{openai-base-url}}"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    `setx` の実行後に PowerShell を閉じて開き直します。その後、プロジェクトディレクトリに移動して実行します。
+
+    ```powershell
+    aider --model openai/YOUR_MODEL_ID
+    ```
+  </Tab>
+</Tabs>
+
+`YOUR_API_KEY` を BetterToken API Key に置き換えます。`YOUR_MODEL_ID` は例です。モデル広場にある現在の**対応プロバイダーの Model ID**に置き換え、`openai/` プレフィックスはそのままにします。
+
+### .env で設定を保存する
+
+ターミナルを開くたびに変数を設定しないよう、プロジェクトの Git ルートに `.env` ファイルを作成します。
+
+```dotenv
+OPENAI_API_BASE={{openai-base-url}}
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/YOUR_MODEL_ID
+```
+
+API Key がコミットされないよう、`.env` を `.gitignore` に追加します。その後、プロジェクトディレクトリに移動して実行します。
+
+```bash
+aider
+```
+
+プロジェクトごとに別のファイルを使用する場合は、明示的に指定します。
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+### 任意：.aider.conf.yml を使用する
+
+機密でない設定だけを保存するには、ホームまたはプロジェクトディレクトリに `.aider.conf.yml` を作成します。
+
+```yaml
+model: openai/YOUR_MODEL_ID
+openai-api-base: "{{openai-base-url}}"
+```
+
+API Key は共有 YAML ファイルではなく、`OPENAI_API_KEY` 環境変数に保持します。
+
+### モデルを変更する
+
+起動コマンドのモデルを、現在の**対応プロバイダーの Model ID**に置き換えます。
+
+```bash
+aider --model openai/YOUR_MODEL_ID
+```
+
+`openai/` プレフィックスは削除しないでください。Model ID は設定した Endpoint と互換性が必要です。
+
+## 接続の確認
+
+短いテストプロンプトを送信します。認証エラーや Model ID エラーなしでツールから Response が返れば、接続は機能しています。設定を変更した後はツールを完全に再起動してください。
+
+## モデルの切り替え
+
+モデルセレクターを開くか、設定内の `Model` フィールドを変更します。<a href={"{{model-plaza-url}}"}>モデル広場</a>にある正確な Model ID を使用し、現在のセッションを再起動します。
+
+## よくあるエラー
+
+| 症状 | 対処方法 |
+| --- | --- |
+| `401`、`Unauthorized`、`Invalid API key` | `OPENAI_API_KEY` を確認し、BetterToken API Key であることと余分な空白がないことを確かめます。 |
+| `model not found` またはモデルが利用できない | モデル広場から現在の**対応プロバイダーの Model ID**をコピーし、`openai/model-id` として Aider に渡します。 |
+| Request URL が正しくない、または `404` | `OPENAI_API_BASE` が `{{openai-base-url}}` であることを確認します。`/chat/completions` は追加しません。 |
+| Windows が新しい変数を読み取らない | `setx` は新しく開いたターミナルにのみ反映されます。現在の PowerShell ウィンドウを閉じ、新しいウィンドウを開きます。 |
+| Aider が不明なモデルを報告する | まず Model ID と API プロバイダーを確認します。Aider は新しいモデルに警告を表示することがありますが、モデル広場の現在の ID を使用する必要があります。 |
+
+### セットアップ FAQ
+
+**Aider ではどの Base URL を使用しますか？**
+
+`{{openai-base-url}}` を使用します。これは BetterToken の OpenAI 互換 Base URL です。
+
+**モデル名に `openai/` プレフィックスが必要なのはなぜですか？**
+
+Aider はこのプレフィックスで OpenAI 互換モデルを識別します。省略すると、Aider が誤ったプロバイダーを選択する可能性があります。
+
+**API Key を `.aider.conf.yml` に記載できますか？**
+
+推奨しません。プロジェクトファイルで API Key が公開されるリスクを減らすため、環境変数または Git で無視する `.env` ファイルを使用してください。
+
+## 高度な設定
+
+{/* tool-provider-support:start */}
+### 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 関連ガイド
+
+- [Continue CLI のカスタムモデル設定](/ja/ai-tools/continue-cli)
+- [Codex CLI のカスタムプロバイダー設定](/ja/ai-tools/codex)
+- [Cursor のカスタム API、Base URL、API Key 設定](/ja/ai-tools/cursor)
+- [Cline で OpenAI 互換 API を設定する](/ja/ai-tools/cline)
+
+## 技術情報
+
+<Accordion title="Protocol、Endpoint、内部プロバイダーフィールド">
+  この設定では `{{openai-base-url}}` を使用します。ツールが OpenAI 互換の Endpoint パスを追加します。特定のフィールドで明示的に必要とされない限り、`/chat/completions` や `/responses` を追加しないでください。
+</Accordion>

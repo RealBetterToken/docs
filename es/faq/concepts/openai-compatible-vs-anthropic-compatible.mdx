@@ -1,0 +1,75 @@
+---
+title: "API compatible con OpenAI frente a API compatible con Anthropic"
+sidebarTitle: "Tipos de API compatibles"
+description: "Conoce las diferencias entre las API compatibles con OpenAI y Anthropic, y elige el Base URL correcto para Claude Code, Codex, Cursor y Cline."
+---
+
+## Respuesta rápida
+
+Una API compatible con OpenAI y una API compatible con Anthropic son dos capas de compatibilidad distintas. Ambas sirven para enviar solicitudes a modelos, pero difieren en el formato de las solicitudes, los campos, la semántica de las herramientas y lo que espera cada cliente.
+
+Codex CLI, Cursor, Cline, OpenCode y OpenClaw suelen usar endpoints compatibles con OpenAI. Claude Code y algunas rutas de Claude Desktop Gateway usan endpoints compatibles con Anthropic.
+
+No elijas el protocolo solo por el nombre del modelo. Usa el protocolo que espera la herramienta y, después, el Base URL, la API Key y el Model ID correspondientes.
+
+## Cuándo es importante
+
+- Ves dos Base URL y no sabes cuál usar
+- Claude Code funciona, pero Codex o Cursor falla
+- Codex funciona, pero Claude Code muestra errores de endpoint o autenticación
+- Quieres usar una API Key en varias herramientas
+- Estás configurando un API gateway, un router de modelos o un proxy local
+
+## Conceptos principales
+
+| Concepto | Significado |
+| --- | --- |
+| API compatible con OpenAI | Un endpoint que sigue las convenciones de solicitud de OpenAI |
+| API compatible con Anthropic | Un endpoint que sigue las convenciones de solicitud de Anthropic o Claude |
+| Base URL | La dirección raíz de la API que usa el cliente |
+| API Key | La credencial del proveedor seleccionado |
+| Model ID | El identificador de modelo disponible para ese proveedor y protocolo |
+| Gateway | Una capa de compatibilidad, enrutamiento, facturación u observabilidad entre el cliente y los proveedores |
+
+## Elección recomendada
+
+Empieza por la herramienta:
+
+| Herramienta | Protocolo habitual | Base URL en esta documentación |
+| --- | --- | --- |
+| Claude Code | Compatible con Anthropic | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Compatible con Anthropic o ruta local | Sigue la configuración del Gateway |
+| Codex CLI | Compatible con OpenAI / Responses | `{{openai-base-url}}` |
+| Cursor | Compatible con OpenAI | `{{openai-base-url}}` |
+| Cline | Proveedor compatible con OpenAI | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | Compatible con OpenAI | `{{openai-base-url}}` |
+
+Si una herramienta espera API con el formato de OpenAI, no uses el Base URL de Anthropic para Claude Code. Si espera API con el formato de Anthropic, no uses el endpoint `/v1` compatible con OpenAI.
+
+## Errores comunes
+
+- Suponer que un mismo nombre de modelo funciona sin cambios en todos los protocolos.
+- Introducir el Base URL compatible con OpenAI en Claude Code.
+- Introducir el Base URL compatible con Anthropic en Codex, Cursor o Cline.
+- Tratar una suscripción a Claude.ai o ChatGPT como una API Key.
+- Cambiar solo la API Key y dejar el Base URL y el Model ID sin corresponder.
+
+## Acerca de BetterToken
+
+BetterToken proporciona patrones de acceso compatibles con Anthropic y OpenAI. Puedes gestionar API Keys, saldo e historial de uso en un único panel, pero cada cliente debe usar el protocolo que realmente admite.
+
+Regla sencilla: Claude Code usa compatibilidad con Anthropic; Codex, Cursor, Cline, OpenCode y OpenClaw suelen usar compatibilidad con OpenAI.
+
+## Documentación relacionada
+
+- [Guía de configuración de Claude Code](/es/ai-tools/claude-code)
+- [Guía de configuración de Codex](/es/ai-tools/codex)
+- [Guía de configuración de Cursor](/es/ai-tools/cursor)
+- [Cómo configurar la API Key y el Base URL en Claude Code](/es/faq/claude-code/api-key-base-url)
+
+## Referencias
+
+- [Compatibilidad de Anthropic con el SDK de OpenAI](https://docs.anthropic.com/en/api/openai-sdk)
+- [Versionado de la API de Anthropic](https://docs.anthropic.com/en/api/versioning)
+- [Referencia de Responses API de OpenAI](https://developers.openai.com/api/reference/responses/overview/)
+- [Explicación de las API compatibles con Anthropic](https://bentoml.com/llm/model-interaction/anthropic-compatible-api)

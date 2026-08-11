@@ -1,0 +1,147 @@
+---
+title: "Claude Code में permission और hook कैसे कॉन्फ़िगर करें"
+sidebarTitle: "Permission और hook"
+description: "/permissions और settings.json से allow, ask व deny rule कॉन्फ़िगर करें, फिर Claude Code hook जोड़ें, सत्यापित करें और समस्या हल करें।"
+---
+
+## सीधा उत्तर
+
+permission rule देखने और प्रबंधित करने के लिए Claude Code में `/permissions` चलाएं। इन्हें बनाए रखने के लिए `allow`, `ask` और `deny` को `settings.json` में रखें। hook उसी settings फ़ाइल का उपयोग करते हैं और tool call के आसपास formatting, test या safety check चलाते हैं। permission precedence **deny → ask → allow** है, इसलिए allow rule deny rule को override नहीं कर सकता।
+
+ये setting आपके कंप्यूटर के local tool नियंत्रित करती हैं। BetterToken केवल model API Base URL, API Key और routing बदलता है; यह local permission bypass नहीं करता या आपके लिए hook नहीं चलाता।
+
+## permission या hook चुनें
+
+| आवश्यकता | उपयोग |
+| --- | --- |
+| बिना prompt किसी खास command को चलाना | `permissions.allow` |
+| operation से पहले हर बार पूछना | `permissions.ask` |
+| संवेदनशील फ़ाइल read या खतरनाक command रोकना | `permissions.deny` |
+| फ़ाइल बदलाव के बाद format या test | `PostToolUse` hook |
+| action चलने से पहले जांचना या रोकना | `PreToolUse` hook |
+| मॉडल को team convention बताना | permission rule नहीं, `CLAUDE.md` |
+
+## सही scope चुनें
+
+| फ़ाइल | scope | repository में commit करें? |
+| --- | --- | --- |
+| `~/.claude/settings.json` | वर्तमान user के सभी project | नहीं |
+| `.claude/settings.json` | वर्तमान project और team | हां |
+| `.claude/settings.local.json` | इस मशीन पर वर्तमान project | नहीं |
+
+<Warning>
+  permission, hook और environment variable को `settings.json` में रखें, `~/.claude.json` में नहीं। बाद वाली फ़ाइल application state और UI setting रखती है।
+</Warning>
+
+## न्यूनतम permission rule कॉन्फ़िगर करें
+
+<Steps>
+  <Step title="/permissions से मौजूदा rule जांचें">
+    Claude Code में चलाएं:
+
+    ```text
+    /permissions
+    ```
+
+    UI allow, ask और deny rule को उनकी source फ़ाइलों के साथ दिखाता है। user या project setting चुनने से पहले मौजूदा team या managed rule जांचें।
+  </Step>
+  <Step title="संकीर्ण rule जोड़ें">
+    यह project-level उदाहरण सामान्य test व lint अनुमति देता है, हर `git push` से पहले पूछता है और `.env` read रोकता है:
+
+    ```json
+    {
+      "permissions": {
+        "allow": [
+          "Bash(npm run lint *)",
+          "Bash(npm test *)"
+        ],
+        "ask": [
+          "Bash(git push *)"
+        ],
+        "deny": [
+          "Read(./.env)",
+          "Read(./.env.*)"
+        ]
+      }
+    }
+    ```
+
+    command को अपने project में मौजूद script से बदलें। केवल prompt हटाने के लिए `bypassPermissions` चालू न करें; आधिकारिक दस्तावेज उस mode को isolated container या VM तक सीमित करता है।
+  </Step>
+  <Step title="/permissions में सत्यापित करें">
+    फ़ाइल सहेजें और `/permissions` फिर चलाएं। पुष्टि करें कि हर rule अपेक्षित source में दिखता है, फिर behavior जांचने के लिए एक allow, ask और deny case trigger करें।
+  </Step>
+</Steps>
+
+## कॉपी करने योग्य formatting hook जोड़ें
+
+यह उदाहरण Claude Code द्वारा `Edit` या `Write` उपयोग करने के बाद project formatter चलाता है:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+फ़ाइल में `permissions` पहले से हो तो `hooks` को उसी top-level JSON object में merge करें। अलग `.claude/hooks.json` न बनाएं। सफलता की पुष्टि के लिए पहले `npm run format` मैन्युअल रूप से चलाएं।
+
+<Warning>
+  command hook आपके system user की permission से चलते हैं। केवल समीक्षा किए script उपयोग करें और hook से API Key, token, `.env` content या अन्य secret कभी print न करें।
+</Warning>
+
+## hook सत्यापित करें
+
+1. Claude Code में `/hooks` चलाएं।
+2. **PostToolUse** खोलें और पुष्टि करें कि उसमें `Edit|Write` व `npm run format` सूचीबद्ध हैं।
+3. Claude से test फ़ाइल बदलने को कहें।
+4. hook output और फ़ाइल format जांचें, तथा पुष्टि करें कि hook एक बार बिना त्रुटि चला।
+
+Claude Code सामान्यतः settings बदलाव अपने-आप reload करता है। ऐसा न हो तो session से बाहर निकलें और Claude Code रीस्टार्ट करें।
+
+## सामान्य त्रुटियां
+
+| लक्षण | कारण | समाधान |
+| --- | --- | --- |
+| permission rule कभी लागू नहीं होते | वे `~/.claude.json` या गलत directory में हैं | इन्हें `~/.claude/settings.json`, `.claude/settings.json` या `.claude/settings.local.json` में ले जाएं |
+| allowed action अब भी block है | यह deny या managed rule से मेल खाता है | `/permissions` में source जांचें; deny की precedence ask व allow से अधिक है |
+| hook कभी नहीं चलता | event या matcher tool से मेल नहीं खाता | `/hooks` जांचें; `PreToolUse` execution से पहले, `PostToolUse` सफलता के बाद चलता है और matcher case-sensitive हैं |
+| hook चलता है पर command विफल होता है | गलत script, working directory या dependency | पहले project directory से वही command मैन्युअल रूप से चलाएं |
+| BetterToken जोड़ने के बाद भी prompt रहते हैं | API provider और local permission अलग हैं | BetterToken Base URL रखें और संकीर्ण Claude Code permission अलग से कॉन्फ़िगर करें |
+| सभी hook अस्थायी रूप से बंद करने हैं | hook debugging में बाधा डाल सकता है | `"disableAllHooks": true` जोड़ें, फिर debugging के बाद हटाएं या `false` सेट करें |
+
+## BetterToken सीमाएं
+
+BetterToken Claude Code model API access, model routing, balance और usage संभालता है। Claude Code फिर भी नियंत्रित करता है:
+
+- फ़ाइल read और write access
+- Bash confirmation behavior
+- hook कब चलते और कौन से script चलाते हैं
+- Sandbox, MCP और project rule
+
+`401`、Base URL या मॉडल mapping त्रुटि के लिए [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code) देखें। command prompt और automation के लिए यहां permission व hook समस्या हल करें।
+
+## संबंधित दस्तावेज
+
+- [BetterToken के साथ Claude Code सेटअप](/hi/ai-tools/claude-code)
+- [Claude Code में CLAUDE.md क्या है?](/hi/faq/claude-code/claude-md)
+- [Claude Code बहुत token क्यों उपयोग करता है](/hi/faq/token-cost/claude-code-token-usage)
+- [Claude Code MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+
+## संदर्भ
+
+- [Claude Code permission](https://code.claude.com/docs/en/permissions)
+- [Claude Code hooks गाइड](https://code.claude.com/docs/en/hooks-guide)
+- [Claude Code hooks संदर्भ](https://code.claude.com/docs/en/hooks)
+- [Claude Code configuration debug करें](https://code.claude.com/docs/en/debug-your-config)

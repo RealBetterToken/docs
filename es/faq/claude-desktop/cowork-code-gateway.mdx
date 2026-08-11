@@ -1,0 +1,75 @@
+---
+title: "¿Qué hago si los modos Cowork o Code de Claude Desktop fallan con un Gateway?"
+sidebarTitle: "Errores de Cowork / Code"
+description: "Corrige fallos de Cowork y errores del modo Code en Claude Desktop después de conectar BetterToken como Gateway."
+---
+
+Después de configurar BetterToken Gateway en Claude Desktop, los siguientes síntomas no suelen indicar que la API Key sea incorrecta:
+
+- El modo Cowork no funciona
+- El modo Code muestra `Claude Code process exited with code 1`
+- La misma API Key funciona en Claude Code CLI desde una terminal
+
+Estos problemas suelen tener dos causas distintas: el esquema de autenticación del Gateway de escritorio no coincide con el proveedor o la versión de Claude Code incluida en Claude Desktop aún no ha terminado de actualizarse.
+
+Si aún no has configurado el Gateway, empieza por [usar la API de BetterToken en Claude Desktop](/es/faq/claude-desktop-bettertoken-api).
+
+## Corrige primero el modo Cowork
+
+**Causa principal**: **Gateway auth scheme** no coincide con el proveedor.
+
+En la configuración de Claude Desktop Gateway, elige el esquema de autenticación según el proveedor:
+
+- Para un proveedor Claude, establece **Gateway auth scheme** en `x-api-key`
+- Para un proveedor GPT, establece **Gateway auth scheme** en `bearer`
+
+Después de seleccionar el esquema correcto, Claude Desktop obtiene automáticamente los modelos disponibles para ese grupo. Si el esquema no es correcto, el modo Cowork puede fallar al autenticarse con el Gateway.
+
+<Steps>
+  <Step title="Abre la configuración de inferencia de terceros">
+    En la barra de menús de macOS, elige **Developer** → **Configure Third-Party Inference...**.
+  </Step>
+
+  <Step title="Cambia el esquema de autenticación">
+    Elige **Gateway auth scheme** según el proveedor: usa `x-api-key` para un **proveedor Claude** y `bearer` para un **proveedor GPT**.
+  </Step>
+
+  <Step title="Guarda la configuración">
+    Haz clic en **Apply locally** para guardar la configuración local del Gateway.
+  </Step>
+</Steps>
+
+El modo Cowork suele volver a funcionar después de este cambio.
+
+## Corrige después los errores de cierre del modo Code
+
+Si Cowork funciona, pero el modo Code —la pestaña `</>`— sigue mostrando `Claude Code process exited with code 1`, comprueba si Claude Desktop todavía usa una versión anterior de Claude Code incluida en la aplicación.
+
+**Causa principal**: Claude Desktop puede estar descargando en segundo plano una versión más reciente de Claude Code. Antes de que termine la descarga, el modo Code puede recurrir a una versión anterior instalada de Claude Code. Esa versión puede no ser compatible con el uso de un Gateway de terceros en modo Code, por lo que el proceso se cierra de inmediato.
+
+**Cómo corregirlo**:
+
+<Steps>
+  <Step title="Espera a que termine la descarga de la versión nueva de Claude Code">
+    Mantén Claude Desktop abierto durante un tiempo para que finalice la actualización de Claude Code en segundo plano.
+  </Step>
+
+  <Step title="Cierra Claude Desktop por completo">
+    Usa **Cmd+Q** para cerrar la aplicación por completo. No cierres solo la ventana.
+  </Step>
+
+  <Step title="Vuelve a abrir la aplicación e inicia una sesión de Code nueva">
+    Abre Claude Desktop de nuevo, entra en el modo Code e inicia una sesión nueva.
+  </Step>
+</Steps>
+
+<Note>
+  Si los registros muestran que Claude Desktop recurre a una versión anterior de Claude Code, como `2.1.111`, mientras una versión más reciente, como `2.1.119`, aún no está lista, espera a que termine la descarga y reinicia la aplicación.
+</Note>
+
+## Referencia rápida
+
+| Síntoma | Causa habitual | Solución |
+|---------|-------------------|-----|
+| El modo Cowork no funciona | **Gateway auth scheme** no coincide con el proveedor | Usa `x-api-key` para un **proveedor Claude** o `bearer` para un **proveedor GPT** y, después, haz clic en **Apply locally** |
+| El modo Code muestra `Claude Code process exited with code 1` | Claude Desktop recurre a una versión anterior de Claude Code | Espera a que termine la descarga de la versión nueva, cierra por completo con **Cmd+Q** y vuelve a abrir la aplicación |

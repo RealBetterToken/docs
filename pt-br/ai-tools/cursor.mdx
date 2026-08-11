@@ -1,0 +1,203 @@
+---
+title: "Configurar o Cursor: instalação, API Key, Base URL e modelos personalizados"
+sidebarTitle: "Cursor"
+description: "Instale o Cursor, configure a Base URL e a API Key do BetterToken, escolha um modelo de um provedor compatível e resolva erros comuns."
+icon: "arrow-pointer"
+---
+
+Para conectar o Cursor ao BetterToken, prepare uma API Key, informe a Base URL abaixo e escolha um Model ID atual no model plaza.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Um Model ID atual do <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Pré-requisitos
+
+- A versão atual da ferramenta está instalada
+- Uma BetterToken API Key: <a href={"{{register-url}}"}>cadastre-se e obtenha uma</a>
+- Um Model ID do <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionais
+
+- Cursor instalado ([baixar o Cursor](https://www.cursor.com))
+
+## Instalação
+
+Baixe e instale a versão atual no [site do Cursor](https://www.cursor.com). Entre com uma conta do Cursor compatível com modelos personalizados e continue com as etapas abaixo.
+
+<Warning>
+  O Cursor permite configurar modelos personalizados somente em contas de um plano avançado pago ou superior. Se sua conta ou versão do cliente não mostrar opções de modelo personalizado, API Key ou Base URL, verifique primeiro o plano do Cursor e a versão do cliente.
+</Warning>
+
+<Warning>
+  **Problema conhecido:** **Override OpenAI Base URL** é uma configuração global. Quando ativada, ela afeta todas as API Keys configuradas no Cursor, inclusive as chaves Anthropic e GPT usadas pelos modelos integrados do Cursor. A comunidade oficial do Cursor confirmou esse comportamento: configurar uma Base URL afeta todas as chaves e modelos ([tópico da comunidade](https://forum.cursor.com/t/cursor-models-fail-when-using-byok-openai-key-with-overridden-base-url-glm-4-7/147218)).
+
+  Se os modelos Claude / GPT integrados do Cursor pararem de funcionar depois que você ativar **Override OpenAI Base URL**, desative **Override OpenAI Base URL** quando não estiver usando o BetterToken. Atualmente, o Cursor não permite uma Base URL diferente para cada modelo; esse recurso continua registrado como uma solicitação ([solicitação de recurso](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219)).
+</Warning>
+
+## Configuração manual
+
+Conclua esta configuração na interface de ajustes do Cursor. Não é necessário editar um arquivo de configuração.
+
+| Campo do Cursor | Valor |
+| --- | --- |
+| **Override OpenAI Base URL** | Ativado |
+| **Base URL** | `{{openai-base-url}}` |
+| **OpenAI API Key** | Sua BetterToken API Key |
+| Modelo personalizado | Um Model ID completo de um provedor compatível |
+
+### Configuração
+
+<Steps>
+  <Step title="Abra a página de ajustes de modelos">
+    No Cursor, clique em **Settings** no canto inferior esquerdo e abra **Models**. Role até **API Keys**.
+
+    <Frame>
+      <img
+        src="/images/cursor/settings-api-key.png"
+        alt="Página de ajustes do Cursor com os campos Settings, Models, API Keys, OpenAI API Key e Override OpenAI Base URL."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Informe a Base URL e a API Key">
+    Em **API Keys**, configure os campos nesta ordem:
+
+    1. Ative **Override OpenAI Base URL**
+    2. Informe `{{openai-base-url}}` no campo Base URL
+    3. Cole sua BetterToken API Key em **OpenAI API Key**
+    4. Depois de preencher a URL e a Key, ative o botão **OpenAI API Key**
+
+    Informe a Key antes de ativar o botão. Isso faz o Cursor mostrar a caixa de confirmação de autenticação.
+  </Step>
+
+  <Step title="Ative a OpenAI API Key">
+    Na caixa de confirmação, clique em **Enable OpenAI API Key**.
+
+    <Frame>
+      <img
+        src="/images/cursor/enable-openai-api-key.png"
+        alt="Caixa de confirmação do Cursor solicitando a ativação de uma OpenAI API Key própria."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Atualize a lista e ative os modelos">
+    De volta a **Models**, clique no botão de atualização à direita antes de selecionar um modelo. Aguarde a atualização da lista terminar.
+
+    Selecione somente modelos do provedor compatível com o endpoint configurado. Ao usar uma BetterToken API Key, escolha no model plaza um Model ID do **provedor compatível** e ative o botão desse modelo.
+
+    <Frame>
+      <img
+        src="/images/cursor/models-refresh-select.png"
+        alt="Seção Models do Cursor com o botão de atualização e os seletores de modelos."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Volte ao chat e desative Auto">
+    Depois da configuração, volte à tela de chat do Cursor e abra o seletor de modelos abaixo do campo de entrada. Se **Auto** estiver ativado, desative-o primeiro.
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-disable-auto.png"
+        alt="Seletor de modelos do chat do Cursor com o botão Auto que deve ser desativado."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Selecione o modelo e inicie o chat">
+    Escolha o modelo que você ativou de um provedor compatível e comece a usar o chat.
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-select-model.png"
+        alt="Campo de entrada do chat do Cursor com um modelo ativado selecionado no seletor de modelos."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Verificar a conexão
+
+Envie uma solicitação curta de teste. Se a ferramenta responder sem erros de autenticação ou de Model ID, a conexão funciona. Reinicie completamente a ferramenta depois de alterar a configuração.
+
+## Trocar de modelo
+
+Abra o seletor de modelos ou altere o campo `Model` na configuração. Use o Model ID exato do <a href={"{{model-plaza-url}}"}>model plaza</a> e reinicie a sessão atual.
+
+## Erros comuns
+
+### Erros de API personalizada e API Key
+
+Antes de trocar modelos ou Keys, compare seus ajustes com a [configuração de API OpenAI personalizada no Cursor](/pt-br/faq/cursor/custom-openai-api).
+
+### O Cursor não mostra os campos Custom API, API Key ou Base URL
+
+Verifique o plano do Cursor e a versão do cliente. Modelos personalizados estão disponíveis somente nos planos pagos compatíveis. Depois de atualizar o Cursor, abra **Settings** → **Models** novamente.
+
+### Não é possível ativar ou verificar a API Key
+
+Informe a Base URL `{{openai-base-url}}` e a API Key antes de ativar o botão **OpenAI API Key**. Não acrescente `/chat/completions` à Base URL nem use uma Key do provedor Claude.
+
+### O modelo não aparece depois da atualização
+
+Confirme se o Model ID selecionado pertence ao **provedor compatível**, aguarde a atualização terminar e ative somente um modelo desse provedor. O model plaza sempre mostra os IDs atuais.
+
+### Os modelos integrados do Cursor param de funcionar
+
+**Override OpenAI Base URL** é uma configuração global. Quando não estiver usando o BetterToken, desative esse botão para que o Cursor volte a usar a própria Base URL.
+
+### O chat seleciona outro modelo
+
+Abra o seletor de modelos e desative **Auto**. Depois, selecione manualmente o modelo ativado.
+
+### Perguntas relacionadas
+
+- [Configuração de API OpenAI personalizada no Cursor](/pt-br/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md e .cursorignore](/pt-br/faq/cursor/rules-agents-cursorignore)
+- [Como configurar MCP no Cursor](/pt-br/faq/cursor/mcp)
+- [Claude Code ou Cursor para desenvolvimento local](/pt-br/faq/claude-code/claude-code-vs-cursor)
+- [Configurar um provedor personalizado no Codex CLI](/pt-br/ai-tools/codex)
+- [Configurar uma API compatível com OpenAI no Cline](/pt-br/ai-tools/cline)
+- [API compatível com OpenAI ou API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## Configuração avançada
+
+{/* tool-provider-support:start */}
+### Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
+
+<Accordion title="O que significa cada método de configuração">
+  - **Configuração manual**: informe a API Key, a Base URL e o Model.
+  - **Sem suporte**: ainda não há um método verificado de conexão direta.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Detalhes técnicos
+
+<Accordion title="Protocolo, endpoint e campos internos do provedor">
+  Esta configuração usa `{{openai-base-url}}`. A ferramenta acrescenta o caminho do endpoint compatível com OpenAI. Não adicione `/chat/completions` nem `/responses`, a menos que um campo específico exija isso explicitamente.
+
+### Observações
+
+- Não use Model IDs do provedor Claude no fluxo Codex / compatível com OpenAI
+- Não mantenha nomes de modelos Claude inseridos diretamente; use um Model ID atual de um provedor compatível no <a href={"{{model-plaza-url}}"}>model plaza</a>
+</Accordion>

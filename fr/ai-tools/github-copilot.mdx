@@ -1,0 +1,250 @@
+---
+title: "Configurer GitHub Copilot : installation, API Key, Base URL et modèles personnalisés"
+sidebarTitle: "GitHub Copilot"
+description: "Installez GitHub Copilot, configurez la Base URL et l’API Key BetterToken, choisissez un modèle d’un fournisseur compatible et résolvez les erreurs courantes."
+icon: "github"
+---
+
+Pour connecter GitHub Copilot à BetterToken, préparez une API Key, saisissez la Base URL ci-dessous et choisissez un Model ID actuel dans le model plaza.
+
+## Paramètres principaux
+
+| Champ | Valeur |
+| --- | --- |
+| API Key | BetterToken API Key |
+| URL complète de Request | `{{chat-completions-url}}` |
+| Model | Un Model ID actuel du <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Prérequis
+
+- La version actuelle de l’outil est installée
+- Une BetterToken API Key : <a href={"{{register-url}}"}>inscrivez-vous pour en obtenir une</a>
+- Un Model ID du <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Exigences supplémentaires
+
+- La dernière version de VS Code est installée
+- GitHub Copilot / Copilot Chat est installé et connecté
+- Le Model ID sélectionné provient du **fournisseur compatible**
+- Un model ID est disponible, par exemple `YOUR_MODEL_ID`
+
+<Warning>
+  N’écrivez pas manuellement votre API Key réelle dans `chatLanguageModels.json`. Collez-la dans l’invite API Key de VS Code. VS Code générera une référence secrète locale telle que `${input:chat.lm.secret...}`.
+</Warning>
+
+## Installation
+
+Installez ou ouvrez GitHub Copilot, puis poursuivez avec la configuration manuelle ci-dessous.
+
+## Configuration manuelle
+
+| Champ | Valeur |
+| --- | --- |
+| API Key | BetterToken API Key |
+| URL complète de Request | `{{chat-completions-url}}` |
+| Model | Un Model ID actuel du <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Étapes de configuration
+
+<Steps>
+  <Step title="Ouvrir la gestion des modèles">
+    Dans la zone de saisie Copilot Chat, cliquez sur le sélecteur de modèle, puis choisissez **Manage Models...**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/manage-models-entry.png"
+        alt="Ouvrez Manage Models depuis le sélecteur de modèle Copilot Chat."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Ajouter un Custom Endpoint">
+    Dans **Language Models**, cliquez sur **Add Models**, puis choisissez **Custom Endpoint**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/add-custom-endpoint.png"
+        alt="Cliquez sur Add Models dans Language Models et choisissez Custom Endpoint."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Saisir le nom du groupe">
+    Dans **Group Name**, saisissez :
+
+    ```text
+    BetterToken
+    ```
+
+    Appuyez ensuite sur **Enter**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/group-name.png"
+        alt="Saisissez BetterToken dans le champ Group Name."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Saisir l’API Key">
+    VS Code demandera l’API Key. Collez votre BetterToken API Key, puis appuyez sur **Enter**.
+
+    Cette valeur ne sera pas affichée directement dans le fichier de configuration. VS Code la stocke comme secret local et génère une référence telle que :
+
+    ```json
+    "apiKey": "${input:chat.lm.secret.xxxxx}"
+    ```
+
+    <Warning>
+      Ne remplacez pas `${input:chat.lm.secret...}` par votre API Key réelle. Conservez la référence secrète générée par VS Code.
+    </Warning>
+  </Step>
+
+  <Step title="Sélectionner le type d’API">
+    Dans **Custom Endpoint: API Type**, sélectionnez **Chat Completions**.
+
+    <Frame>
+      <img
+        src="/images/github-copilot/select-chat-completions.png"
+        alt="Sélectionnez Chat Completions dans Custom Endpoint API Type."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Modifier la configuration JSON">
+    VS Code ouvre `chatLanguageModels.json`. Confirmez ou mettez à jour la configuration :
+
+    <Frame>
+      <img
+        src="/images/github-copilot/chat-language-models-json.png"
+        alt="Configurez l’URL de modèle BetterToken, toolCalling, vision et les limites de token dans chatLanguageModels.json."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    ```json
+    [
+      {
+        "name": "BetterToken",
+        "vendor": "customendpoint",
+        "apiKey": "${input:chat.lm.secret.xxxxx}",
+        "apiType": "chat-completions",
+        "models": [
+          {
+            "id": "YOUR_MODEL_ID",
+            "name": "YOUR_MODEL_ID",
+            "url": "{{chat-completions-url}}",
+            "toolCalling": true,
+            "vision": true,
+            "maxInputTokens": 1000000,
+            "maxOutputTokens": 64000
+          }
+        ]
+      }
+    ]
+    ```
+
+    Vérifiez ces champs :
+
+    | Champ | Valeur recommandée |
+    | --- | --- |
+    | `name` | `BetterToken` |
+    | `apiType` | `chat-completions` |
+    | `id` | `YOUR_MODEL_ID` ou un autre model ID d’un fournisseur compatible du <a href={"{{model-plaza-url}}"}>model plaza</a> |
+| `name` | Identique au model ID |
+    | `url` | `{{chat-completions-url}}` |
+    | `toolCalling` | `true` |
+    | `vision` | `true` |
+    | `maxInputTokens` | `1000000` |
+    | `maxOutputTokens` | `64000` |
+  </Step>
+
+  <Step title="Enregistrer et recharger VS Code">
+    Enregistrez `chatLanguageModels.json`, puis exécutez :
+
+    ```text
+    Developer: Reload Window
+    ```
+
+    Après le rechargement, revenez au sélecteur de modèle Copilot Chat et choisissez `YOUR_MODEL_ID`.
+  </Step>
+
+  <Step title="Envoyer un message de test">
+    Envoyez un message simple dans Copilot Chat :
+
+    ```text
+    Describe the model you are using in one sentence.
+    ```
+
+    Si Copilot Chat répond normalement, le Custom Endpoint BetterToken est configuré avec succès.
+  </Step>
+</Steps>
+
+## Vérifier la connexion
+
+Envoyez un court prompt de test. Si l’outil renvoie une réponse sans erreur d’authentification ni erreur de Model ID, la connexion fonctionne. Redémarrez complètement l’outil après avoir modifié sa configuration.
+
+## Changer de modèle
+
+Ouvrez le sélecteur de modèle ou modifiez le champ `Model` dans la configuration. Utilisez le Model ID exact du <a href={"{{model-plaza-url}}"}>model plaza</a>, puis redémarrez la session actuelle.
+
+## Erreurs courantes
+
+### Pourquoi saisir l’API Key dans l’invite ?
+
+VS Code stocke l’API Key dans le stockage local de secrets et la référence dans le JSON avec `${input:chat.lm.secret...}`. C’est plus sûr que d’écrire l’API Key réelle dans le fichier JSON.
+
+### Pourquoi utiliser Chat Completions ?
+
+La configuration dont le fonctionnement a été vérifié utilise **Chat Completions**. L’URL est :
+
+```text
+{{chat-completions-url}}
+```
+
+N’utilisez pas `/v1/responses` et ne vous arrêtez pas à `/v1`.
+
+### Cela remplace-t-il la complétion en ligne GitHub Copilot ?
+
+Non. Ce Custom Endpoint est principalement utilisé pour les appels de modèle de langage Copilot Chat. La complétion en ligne GitHub Copilot reste fournie par GitHub Copilot lui-même.
+
+### Que faire si Invalid token s’affiche ?
+
+Vérifiez ces éléments dans l’ordre :
+
+1. L’API Key a été saisie dans l’invite VS Code
+2. Le JSON conserve la référence `${input:chat.lm.secret...}`
+3. Le Model ID sélectionné provient du **fournisseur compatible**
+4. `url` is `{{chat-completions-url}}`
+5. `apiType` is `chat-completions`
+6. Le model ID est celui d’un modèle d’un fournisseur compatible du <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+## Configuration avancée
+
+{/* tool-provider-support:start */}
+### Fournisseurs compatibles
+
+| Fournisseur | État |
+| --- | --- |
+| Claude | Non compatible |
+| GPT | Configuration manuelle |
+| Kimi | Configuration manuelle |
+| GLM | Configuration manuelle |
+
+<Note>Les états concernent la méthode de configuration de BetterToken décrite sur cette page.</Note>
+
+<Accordion title="Signification des méthodes de configuration">
+  - **Configuration manuelle** : saisissez l’API Key, la Base URL et le Model.
+  - **Non compatible** : aucune méthode de connexion directe vérifiée n’est disponible pour le moment.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Détails techniques
+
+<Accordion title="Protocole, endpoint et champs internes du fournisseur">
+  Le champ d’URL GitHub Copilot exige l’adresse complète `{{chat-completions-url}}`. VS Code n’ajoute pas `/chat/completions` pour ce champ.
+</Accordion>

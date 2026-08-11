@@ -1,0 +1,68 @@
+---
+title: "Was sind Sandbox- und Freigabemodi in Codex CLI?"
+sidebarTitle: "Sandbox / Freigabe"
+description: "Verstehe Codex-CLI-Sandboxing, Freigabemodi, automatische Überprüfung, Grenzen für lokale Befehle und die Unterschiede zu API-Provider-Einstellungen."
+---
+
+## Kurzantwort
+
+Die Sandbox steuert, auf welche Dateien Codex CLI zugreifen kann, ob Befehle das Netzwerk nutzen dürfen und wo lokale Ausführung erlaubt ist. Der Freigabemodus steuert, welche Aktionen eine Bestätigung erfordern.
+
+Dies sind lokale Sicherheitsmechanismen, keine Modell-Provider-Einstellungen. Selbst wenn du Modell-Requests über ein Drittanbieter-API-Gateway leitest, steuert Codex CLI Dateizugriff und Befehlsausführung weiterhin über Sandbox- und Freigabeeinstellungen.
+
+Gute Sandbox- und Freigabeeinstellungen bringen Geschwindigkeit und Sicherheit ins Gleichgewicht: Routinearbeit kann mit weniger Unterbrechungen fortschreiten, während risikoreichere Operationen weiterhin eine Bestätigung erfordern.
+
+## Wann das wichtig ist
+
+- Codex fragt vor jedem Befehl nach einer Bestätigung
+- Du möchtest, dass Tests automatisch laufen, ohne riskante Befehle zu erlauben
+- Du benötigst Codex zum Bearbeiten von Dateien außerhalb des aktuellen Workspace
+- Du arbeitest auf einem gemeinsam genutzten Rechner, einem Unternehmens-Repository oder einem sensiblen Projekt
+- Du musst erklären, warum die Wahl des API-Providers nicht dasselbe wie lokale Berechtigungen ist
+
+## Grundlegende Konzepte
+
+| Konzept | Bedeutung |
+| --- | --- |
+| Sandbox | Grenze für Dateisystem-, Netzwerk- und Befehlszugriff |
+| Freigabe | Ob bestimmte Aktionen eine Nutzerbestätigung benötigen |
+| Automatische Überprüfung | Zusätzlicher Review-Mechanismus für geeignete riskante Aktionen |
+| Workspace | Aktuelles Projektverzeichnis und erlaubte Pfadgrenze |
+| Netzwerkzugriff | Ob Codex Befehle ausführen kann, die externe Dienste erreichen |
+
+## Empfohlene Vorgehensweise
+
+1. Beginne in gewöhnlichen Projekten mit konservativen Einstellungen.
+2. Erlaube Schreibzugriffe nur im aktuellen Workspace.
+3. Lasse gängige Tests, Formatierung und schreibgeschützte Befehle reibungslos laufen.
+4. Behalte Bestätigungen für das Löschen von Dateien, das Zurücksetzen des Git-Status, Schreiben außerhalb des Workspace und Netzwerkzugriff bei.
+5. Dokumentiere erlaubte Befehle und Pre-Commit-Prüfungen in `AGENTS.md`.
+
+Verwende keine breiten Berechtigungen nur, um einige Nachfragen zu vermeiden. Echte Effizienz entsteht durch klare Aufgaben, stabile Projektregeln und kleine Verifikationsschritte.
+
+## Häufige Fehler
+
+- Denken, dass ein Wechsel des API-Providers lokale Sandbox-Berechtigungen ändert.
+- Freigaben deaktivieren, während Codex auf einem nicht vertrauenswürdigen Repository arbeitet.
+- Netzwerkbefehle erlauben, ohne akzeptable Dienste festzulegen.
+- Git-Reset, Dateilöschung und Abhängigkeitsinstallation als Befehle mit geringem Risiko behandeln.
+- Abschließen, ohne Diff und Testergebnisse zu prüfen.
+
+## Über BetterToken
+
+BetterToken verarbeitet nur die Modell-API-Request-Schicht, etwa API Key, Base URL, Modellrouting und Nutzungsaufzeichnungen. Es ändert weder Sandbox noch Freigabemodus von Codex CLI.
+
+Wenn dein Problem Dateizugriff, Befehlsbestätigung oder Netzwerkberechtigung betrifft, prüfe die lokale Codex-CLI-Konfiguration statt des API-Gateways.
+
+## Verwandte Dokumentation
+
+- [Codex mit BetterToken einrichten](/de/ai-tools/codex)
+- [Codex CLI config.toml konfigurieren](/de/faq/codex/config-toml)
+- [Was sind model_provider, base_url und wire_api?](/de/faq/codex/model-provider-base-url-wire-api)
+- [Was ist Codex CLI?](/de/faq/codex/what-is-codex-cli)
+
+## Referenzen
+
+- [Codex-Freigaben und Sicherheit](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex-Sandboxing](https://developers.openai.com/codex/concepts/sandboxing)
+- [Automatische Überprüfung des Codex-Sandboxing](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

@@ -1,0 +1,127 @@
+---
+title: "Configurer TRAE : installation, API Key, Base URL et modèles personnalisés"
+sidebarTitle: "TRAE"
+description: "Installez TRAE, configurez la Base URL et l’API Key BetterToken, choisissez un modèle d’un fournisseur compatible et résolvez les erreurs courantes."
+icon: "bolt"
+---
+
+Pour connecter TRAE à BetterToken, préparez une API Key, saisissez la Base URL ci-dessous et choisissez un Model ID actuel dans le model plaza.
+
+## Paramètres principaux
+
+| Champ | Valeur |
+| --- | --- |
+| API Key | BetterToken API Key |
+| URL complète de Request | `{{chat-completions-url}}` |
+| Model | Un Model ID actuel du <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Prérequis
+
+- La version actuelle de l’outil est installée
+- Une BetterToken API Key : <a href={"{{register-url}}"}>inscrivez-vous pour en obtenir une</a>
+- Un Model ID du <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Exigences supplémentaires
+
+## Installation
+
+Installez ou ouvrez TRAE, puis poursuivez avec la configuration manuelle ci-dessous.
+
+## Configuration manuelle
+
+| Champ | Valeur |
+| --- | --- |
+| API Key | BetterToken API Key |
+| URL complète de Request | `{{chat-completions-url}}` |
+| Model | Un Model ID actuel du <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Configuration
+
+<Steps>
+  <Step title="Ouvrir les paramètres">
+    En mode **IDE**, cliquez sur l’icône **Settings** en haut à droite pour ouvrir le centre de paramètres.
+
+    Vous pouvez aussi ouvrir le mode **SOLO** et cliquer sur l’icône **Settings** en haut à droite du panneau de chat.
+  </Step>
+
+  <Step title="Ouvrir le panneau de modèles">
+    Dans la navigation de gauche, choisissez **Model** pour ouvrir le panneau **Model**.
+  </Step>
+
+  <Step title="Ajouter un modèle">
+    Cliquez sur **+ Add model**.
+
+    ![Le panneau de modèles TRAE avec l’entrée Settings, l’élément de navigation Model et le bouton d’ajout de modèle mis en évidence.](/images/trae/add-model.png)
+  </Step>
+
+  <Step title="Renseigner la configuration du modèle">
+    Lorsque la fenêtre **Add model** apparaît, renseignez les champs comme suit :
+
+    | Champ | Valeur |
+    |-------|-------|
+    | Provider | `OpenAI` |
+    | Model | `Custom model` |
+    | Model ID | un **model ID d’un fournisseur compatible** copié depuis le <a href={"{{model-plaza-url}}"}>model plaza</a> |
+| API key | votre API Key copiée depuis la console BetterToken |
+    | Custom request URL | `{{chat-completions-url}}` |
+
+    ![La fenêtre d’ajout de modèle TRAE avec OpenAI sélectionné, un modèle personnalisé sélectionné et les champs pour le model ID, l’API key et l’URL de Request personnalisée.](/images/trae/model-config.png)
+  </Step>
+
+  <Step title="Enregistrer et commencer à l’utiliser">
+    Cliquez sur **Confirm** pour enregistrer la configuration, puis choisissez le nouveau modèle d’un fournisseur compatible.
+  </Step>
+</Steps>
+
+<Note>
+  BetterToken prend en charge TRAE uniquement avec des **modèles d’un fournisseur compatible**. N’utilisez pas de noms de modèles Claude fixes et ne définissez pas l’URL de Request personnalisée sur `{{openai-base-url}}`.
+</Note>
+
+## Vérifier la connexion
+
+Envoyez un court prompt de test. Si l’outil renvoie une réponse sans erreur d’authentification ni erreur de Model ID, la connexion fonctionne. Redémarrez complètement l’outil après avoir modifié sa configuration.
+
+## Changer de modèle
+
+Ouvrez le sélecteur de modèle ou modifiez le champ `Model` dans la configuration. Utilisez le Model ID exact du <a href={"{{model-plaza-url}}"}>model plaza</a>, puis redémarrez la session actuelle.
+
+## Erreurs courantes
+
+| Erreur | Vérifications |
+| --- | --- |
+| `401` ou `Unauthorized` | Vérifiez la BetterToken API Key et supprimez les espaces initiaux ou finaux. |
+| `404` | Vérifiez la Base URL et n’ajoutez pas de chemin d’endpoint spécifique. |
+| `model not found` | Copiez un Model ID actuel depuis le model plaza. |
+| Les modifications ne sont pas appliquées | Enregistrez la configuration et redémarrez complètement l’outil. |
+
+
+- [API OpenAI compatible et API Anthropic compatible](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP, API Key et Base URL](/fr/faq/concepts/mcp-vs-api-key-base-url)
+- [Que sont model_provider, base_url et wire_api ?](/fr/faq/codex/model-provider-base-url-wire-api)
+- [Configurer une API OpenAI compatible dans Cline](/fr/faq/cline/openai-compatible-api)
+
+## Configuration avancée
+
+{/* tool-provider-support:start */}
+### Fournisseurs compatibles
+
+| Fournisseur | État |
+| --- | --- |
+| Claude | Non compatible |
+| GPT | Configuration manuelle |
+| Kimi | Configuration manuelle |
+| GLM | Configuration manuelle |
+
+<Note>Les états concernent la méthode de configuration de BetterToken décrite sur cette page.</Note>
+
+<Accordion title="Signification des méthodes de configuration">
+  - **Configuration manuelle** : saisissez l’API Key, la Base URL et le Model.
+  - **Non compatible** : aucune méthode de connexion directe vérifiée n’est disponible pour le moment.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Détails techniques
+
+<Accordion title="Protocole, endpoint et champs internes du fournisseur">
+  TRAE nécessite l’URL de Request personnalisée complète `{{chat-completions-url}}`, et non seulement la Base URL.
+</Accordion>

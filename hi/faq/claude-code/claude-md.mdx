@@ -1,0 +1,71 @@
+---
+title: "Claude Code में CLAUDE.md क्या है और इसे कैसे लिखें?"
+sidebarTitle: "CLAUDE.md"
+description: "जानें कि CLAUDE.md Claude Code में क्या करता है, इसमें क्या शामिल या नहीं करना चाहिए, और यह hook व MCP से कैसे अलग है।"
+---
+
+## संक्षिप्त उत्तर
+
+`CLAUDE.md` एक project instruction फ़ाइल है जिसे Claude Code context के रूप में लोड कर सकता है। यह project structure, command, coding convention, testing expectation, security boundary और collaboration rule के लिए सही जगह है।
+
+यह enforcement mechanism नहीं है। Claude Code इसे guidance की तरह पढ़ता है। यदि rule को किसी खास समय चलना है, तो केवल `CLAUDE.md` पर निर्भर रहने के बजाय hook या tool configuration उपयोग करें।
+
+उपयोगी `CLAUDE.md` छोटा, विशिष्ट और maintained होता है। इसका उपयोग उन project fact के लिए करें जिन्हें अन्यथा हर session में दोहराते।
+
+## यह कब महत्वपूर्ण है
+
+- Claude Code बार-बार समान project structure या command पूछता है
+- team को साझा testing, style या safety rule चाहिए
+- दोहराए context और token usage कम करना चाहते हैं
+- Claude Code repository-विशिष्ट convention छोड़ देता है
+- अन्य agent या teammate को तेजी से onboard करना चाहते हैं
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Project `CLAUDE.md` | साझा project instruction, सामान्यतः repository के साथ commit |
+| Personal rule | user-विशिष्ट preference जिन्हें हमेशा commit नहीं करना चाहिए |
+| Local rule | machine-विशिष्ट note या अस्थायी preference |
+| Hooks | tool उपयोग के आसपास trigger होने वाले command; enforced behavior के लिए बेहतर |
+| MCP | external tool और data source; project rule फ़ाइल नहीं |
+
+## अनुशंसित सामग्री
+
+`CLAUDE.md` को संक्षिप्त project handbook के रूप में लिखें:
+
+- project क्या है और महत्वपूर्ण directory कहां हैं
+- सामान्य build, test और formatting command
+- edit से पहले सम्मान करने योग्य architecture boundary
+- पूरा करने से पहले चलाने वाले सबसे तेज check
+- secret, log या private config जिन्हें उजागर नहीं करना है
+- documentation, test, naming और error-handling convention
+
+लंबे tutorial, अस्थायी plan और एक-बार के task note से बचें। कोई rule केवल एक क्षेत्र पर लागू हो तो उसे अधिक संकीर्ण scope दें। behavior enforce करना हो तो hook उपयोग करें।
+
+## सामान्य गलतियां
+
+- `CLAUDE.md` को system prompt या hard permission layer मानना।
+- इसे बहुत लंबा बनाना, जिससे context cost बढ़ती और पालन कठिन होता है।
+- पुरानी deployment note, अस्थायी TODO और पुराने निर्णय हमेशा जोड़ते रहना।
+- फ़ाइल में API Key, token, cookie या private config रखना।
+- `CLAUDE.md`, `AGENTS.md` और Cursor Rules में टकराव वाली instruction रखना।
+
+## BetterToken के बारे में
+
+project BetterToken उपयोग करे तो `CLAUDE.md` Claude Code को याद दिला सकता है कि Claude Code Anthropic-compatible `{{anthropic-base-url}}` उपयोग करता है, जबकि Codex और external tool OpenAI-compatible `{{openai-base-url}}` उपयोग करते हैं।
+
+असली API Key को `CLAUDE.md` में न रखें। इन्हें local environment variable, local config फ़ाइल या protected secret system में रखें।
+
+## संबंधित दस्तावेज
+
+- [Claude Code क्या है और कैसे काम करता है?](/hi/faq/claude-code/what-is-claude-code)
+- [Claude Code में API Key और Base URL कैसे कॉन्फ़िगर करें](/hi/faq/claude-code/api-key-base-url)
+- [Claude Code इतने token क्यों उपयोग करता है और लागत कैसे कम करें](/hi/faq/token-cost/claude-code-token-usage)
+- [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code)
+
+## संदर्भ
+
+- [Claude आपके project को कैसे याद रखता है](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Claude Code hooks संदर्भ](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Code लागत](https://docs.anthropic.com/en/docs/claude-code/costs)

@@ -1,0 +1,147 @@
+---
+title: "Claude Code에서 permissions와 hooks 구성"
+sidebarTitle: "Permissions와 hooks"
+description: "/permissions와 settings.json으로 allow, ask 및 deny rules를 구성한 다음 Claude Code hooks를 추가, 확인 및 문제 해결하세요."
+---
+
+## 바로 답변
+
+Claude Code에서 `/permissions`를 실행하여 permission rules를 보고 관리하세요. rules를 persist하려면 `allow`, `ask`, `deny`를 `settings.json`에 넣으세요. Hooks는 같은 settings files를 사용하며 tool calls 전후로 formatting, tests 또는 safety checks를 실행합니다. permission precedence는 **deny → ask → allow**이므로 allow rule은 deny rule을 override할 수 없습니다.
+
+이 settings는 computer의 local tools를 제어합니다. BetterToken은 model API Base URL, API Key 및 routing만 변경하며 local permissions를 bypass하거나 hooks를 대신 실행하지 않습니다.
+
+## permissions 또는 hooks 선택
+
+| 요구 사항 | 사용 |
+| --- | --- |
+| prompt 없이 specific command 실행 | `permissions.allow` |
+| operation 전에 매번 질문 | `permissions.ask` |
+| sensitive file reads 또는 dangerous commands 차단 | `permissions.deny` |
+| file change 후 format 또는 test | `PostToolUse` hook |
+| 실행 전 action 확인 또는 차단 | `PreToolUse` hook |
+| model에 team conventions 설명 | permission rule이 아닌 `CLAUDE.md` |
+
+## 올바른 scope 선택
+
+| File | Scope | repository에 commit? |
+| --- | --- | --- |
+| `~/.claude/settings.json` | current user의 모든 projects | 아니요 |
+| `.claude/settings.json` | current project 및 team | 예 |
+| `.claude/settings.local.json` | 이 machine의 current project | 아니요 |
+
+<Warning>
+  permissions, hooks 및 environment variables는 `settings.json`에 넣고 `~/.claude.json`에는 넣지 마세요. 후자는 application state와 UI settings를 저장합니다.
+</Warning>
+
+## 최소 permission rules 구성
+
+<Steps>
+  <Step title="/permissions로 existing rules 검사">
+    Claude Code에서 다음을 실행하세요.
+
+    ```text
+    /permissions
+    ```
+
+    UI는 allow, ask, deny rules와 source files를 표시합니다. user 또는 project setting을 선택하기 전에 existing team 또는 managed rules를 확인하세요.
+  </Step>
+  <Step title="narrow rules 추가">
+    이 project-level example은 일반 tests와 lint를 allow하고 매 `git push` 전에 ask하며 `.env` reads를 block합니다.
+
+    ```json
+    {
+      "permissions": {
+        "allow": [
+          "Bash(npm run lint *)",
+          "Bash(npm test *)"
+        ],
+        "ask": [
+          "Bash(git push *)"
+        ],
+        "deny": [
+          "Read(./.env)",
+          "Read(./.env.*)"
+        ]
+      }
+    }
+    ```
+
+    commands를 project에 있는 scripts로 바꾸세요. prompts를 제거하기 위해서만 `bypassPermissions`를 enable하지 마세요. 공식 documentation은 해당 mode를 isolated containers 또는 VMs로 제한합니다.
+  </Step>
+  <Step title="/permissions에서 확인">
+    file을 저장하고 `/permissions`를 다시 실행하세요. 각 rule이 expected source 아래에 표시되는지 확인한 후 allow, ask, deny case를 각각 하나씩 trigger하여 behavior를 확인하세요.
+  </Step>
+</Steps>
+
+## 복사 가능한 formatting hook 추가
+
+이 example은 Claude Code가 `Edit` 또는 `Write`를 사용한 후 project formatter를 실행합니다.
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+file에 이미 `permissions`가 있다면 `hooks`를 같은 top-level JSON object에 merge하세요. standalone `.claude/hooks.json`을 만들지 마세요. 먼저 `npm run format`을 수동 실행하여 성공하는지 확인하세요.
+
+<Warning>
+  Command hooks는 system user의 permissions로 실행됩니다. 검토한 scripts만 사용하고 hook에서 API Keys, tokens, `.env` contents 또는 다른 secrets를 출력하지 마세요.
+</Warning>
+
+## hook 확인
+
+1. Claude Code에서 `/hooks`를 실행하세요.
+2. **PostToolUse**를 열고 `Edit|Write`와 `npm run format`이 표시되는지 확인하세요.
+3. Claude에게 test file을 수정하게 하세요.
+4. hook output과 file format을 확인하고 hook이 errors 없이 한 번 실행되었는지 확인하세요.
+
+Claude Code는 보통 settings changes를 자동으로 reload합니다. 그렇지 않다면 session을 종료하고 Claude Code를 다시 시작하세요.
+
+## 일반적인 오류
+
+| 증상 | 원인 | 해결 방법 |
+| --- | --- | --- |
+| Permission rules가 적용되지 않음 | `~/.claude.json` 또는 wrong directory에 있음 | `~/.claude/settings.json`, `.claude/settings.json` 또는 `.claude/settings.local.json`으로 이동 |
+| allowed action이 계속 blocked됨 | deny 또는 managed rule과 match됨 | `/permissions`에서 sources를 확인하세요. deny가 ask 및 allow보다 우선합니다. |
+| hook이 실행되지 않음 | event 또는 matcher가 tool과 match하지 않음 | `/hooks`를 검사하세요. `PreToolUse`는 execution 전, `PostToolUse`는 success 후 실행되며 matchers는 case-sensitive입니다. |
+| hook은 실행되지만 command가 실패함 | wrong script, working directory 또는 dependency | 먼저 project directory에서 같은 command를 수동으로 실행 |
+| BetterToken 연결 후에도 prompts가 남음 | API provider와 local permissions가 분리됨 | BetterToken Base URL을 유지하고 narrow Claude Code permissions를 별도로 구성 |
+| 모든 hooks를 일시적으로 disable해야 함 | hook이 debugging을 방해할 수 있음 | `"disableAllHooks": true`를 추가한 후 debugging 뒤 제거하거나 `false`로 설정 |
+
+## BetterToken boundaries
+
+BetterToken은 Claude Code model API access, model routing, balance 및 usage를 처리합니다. Claude Code는 다음을 계속 제어합니다.
+
+- file read 및 write access
+- Bash confirmation behavior
+- hooks의 실행 시점과 실행 scripts
+- sandbox, MCP 및 project rules
+
+`401`, Base URL 또는 model mapping errors는 [Claude Code 설정 가이드](/ko/ai-tools/claude-code)를 참조하세요. command prompts와 automation은 여기에서 permissions와 hooks를 문제 해결하세요.
+
+## 관련 문서
+
+- [BetterToken으로 Claude Code 설정](/ko/ai-tools/claude-code)
+- [Claude Code의 CLAUDE.md란 무엇인가요?](/ko/faq/claude-code/claude-md)
+- [Claude Code가 많은 tokens를 사용하는 이유](/ko/faq/token-cost/claude-code-token-usage)
+- [Claude Code MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+
+## 참고 자료
+
+- [Claude Code permissions](https://code.claude.com/docs/en/permissions)
+- [Claude Code hooks 가이드](https://code.claude.com/docs/en/hooks-guide)
+- [Claude Code hooks 참고 자료](https://code.claude.com/docs/en/hooks)
+- [Claude Code configuration debugging](https://code.claude.com/docs/en/debug-your-config)

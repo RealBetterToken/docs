@@ -1,0 +1,165 @@
+---
+title: "Configurar Grok CLI: instalación, API Key, Base URL y modelos personalizados"
+sidebarTitle: "Grok CLI"
+description: "Instala Grok CLI, configura la Base URL y la API Key de BetterToken, elige un modelo de un proveedor compatible y corrige los errores habituales."
+icon: "g"
+---
+
+Para conectar Grok CLI con BetterToken, prepara una API Key, introduce la Base URL indicada a continuación y elige un ID de modelo vigente en la model plaza.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Requisitos previos
+
+- La versión actual de la herramienta está instalada
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate y obtén una</a>
+- Un ID de modelo de la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+## Instalación
+
+### Instala Grok CLI
+
+Ejecuta este comando en Windows, macOS o Linux:
+
+```bash
+npm install -g @vibe-kit/grok-cli
+```
+
+Si no se encuentra `grok` después de instalarlo, cierra la terminal, vuelve a abrirla y ejecuta `grok --help`. Comprueba que el directorio global de paquetes de `npm` esté incluido en `PATH`.
+
+## Configuración manual
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Qué necesitas
+
+- Node.js y `npm`
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate aquí</a>
+- Un **ID de modelo de un proveedor compatible** disponible actualmente en la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Configura la Base URL y la API Key
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    <Steps>
+      <Step title="Elimina las variables en conflicto">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
+
+      <Step title="Define las variables de BetterToken">
+        ```bash
+        export GROK_BASE_URL="{{openai-base-url}}"
+        export GROK_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
+
+      <Step title="Inicia Grok CLI con un modelo">
+        ```bash
+        grok --model YOUR_MODEL_ID
+        ```
+
+        Sustituye `YOUR_MODEL_ID` por un **ID de modelo de un proveedor compatible** vigente en la model plaza.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    <Steps>
+      <Step title="Define las variables para la ventana actual de PowerShell">
+        ```powershell
+        $env:GROK_BASE_URL = "{{openai-base-url}}"
+        $env:GROK_API_KEY = "YOUR_API_KEY"
+        ```
+      </Step>
+
+      <Step title="Inicia Grok CLI con un modelo">
+        ```powershell
+        grok --model YOUR_MODEL_ID
+        ```
+
+        Estas variables se aplican solo a la ventana actual de PowerShell. Cuando abras una ventana nueva, vuelve a definirlas mediante el método de almacenamiento de secretos aprobado por tu equipo.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Verifica la conexión
+
+Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+
+Después de iniciar Grok CLI, envía un prompt breve. Si responde sin errores de autenticación ni de ID del modelo, la conexión está lista. Cada vez que cambies las variables de entorno, termina la sesión actual de Grok CLI e inicia otra.
+
+## Cambia de modelo
+
+Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
+
+## Errores habituales
+
+| Síntoma | Qué comprobar |
+| --- | --- |
+| `grok: command not found` | Instala de nuevo, abre otra terminal y comprueba `grok --help`. |
+| `401`, `Unauthorized` o `Invalid API key` | Comprueba `GROK_API_KEY`, asegúrate de no haber copiado espacios adicionales e inicia Grok CLI en la misma terminal donde definiste la variable. |
+| `model not found` o modelo no disponible | Copia un ID de modelo vigente del **proveedor compatible** en la model plaza. No uses un ID del proveedor Claude. |
+| Las solicitudes siguen usando un servicio anterior | Comprueba `GROK_BASE_URL`, no añadas `/chat/completions` y reinicia la terminal y Grok CLI. |
+| Error de conexión | Confirma que la Base URL sea `{{openai-base-url}}` y que tu red pueda acceder a `bettertoken.ai` mediante HTTPS. |
+
+### Preguntas de configuración
+
+**¿Qué Base URL debo usar en Grok CLI?**
+
+Usa `{{openai-base-url}}`. Es la Base URL de BetterToken compatible con OpenAI.
+
+**¿Qué API Key y modelo debo seleccionar?**
+
+Usa una BetterToken API Key y un modelo del mismo grupo.
+
+**¿Tengo que cambiar el proxy del sistema o activar una VPN?**
+
+Configura primero la Base URL y la API Key en la terminal. La ruta de red necesaria depende de tu entorno local y de las políticas de tu organización.
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guías relacionadas
+
+- [Configurar Codex CLI con un proveedor personalizado](/es/ai-tools/codex)
+- [Configurar una API, Base URL y API Key personalizadas en Cursor](/es/ai-tools/cursor)
+- [Configurar una API compatible con OpenAI en Cline](/es/ai-tools/cline)
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP frente a API Key y Base URL](/es/faq/concepts/mcp-vs-api-key-base-url)
+
+## Detalles técnicos
+
+<Accordion title="Protocolo, endpoint y campos internos del proveedor">
+  Esta configuración usa `{{openai-base-url}}`. La herramienta añade la ruta del endpoint compatible con OpenAI. No añadas `/chat/completions` ni `/responses` salvo que un campo concreto lo exija explícitamente.
+</Accordion>

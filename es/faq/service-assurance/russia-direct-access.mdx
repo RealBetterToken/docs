@@ -1,0 +1,76 @@
+---
+title: "Cómo diagnosticar problemas de acceso a la API"
+sidebarTitle: "Acceso y diagnóstico de red"
+description: "Comprueba las direcciones de BetterToken, la configuración del protocolo y la red local para diagnosticar problemas de acceso al sitio y a la API."
+---
+
+## Respuesta breve
+
+Empieza la configuración con las direcciones oficiales de BetterToken y comprueba primero la conexión directa de tu red. Si el sitio o la API no responden, revisa el protocolo, la Base URL, el DNS, el firewall y cualquier proxy o VPN de tu entorno.
+
+Si usas Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw u otra herramienta externa, introduce la Base URL, la API Key y el ID de modelo correctos. La ruta de red necesaria depende de tu entorno local y de las políticas de tu organización.
+
+## Direcciones recomendadas
+
+| Situación | Dirección recomendada |
+| --- | --- |
+| Sitio web y consola | `{{anthropic-base-url}}` |
+| Documentación | `{{site-url}}` |
+| Claude Code / compatible con Anthropic | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline y otras herramientas compatibles con OpenAI | `{{openai-base-url}}` |
+
+Usa los enlaces oficiales de BetterToken para la Base URL, la página de registro, la consola y la model plaza. No mezcles direcciones de productos o protocolos distintos.
+
+## Configuración de red inicial
+
+- Prueba primero el sitio web y la consola desde tu conexión habitual
+- Crea o administra las API Keys únicamente desde las páginas oficiales
+- En Claude Code, configura el endpoint compatible con Anthropic
+- En Codex CLI, Cursor, Cline, OpenCode u OpenClaw, configura el endpoint compatible con OpenAI
+- Comprueba por separado la documentación, la model plaza y los registros de uso
+
+Una capa adicional de proxy o VPN puede cambiar la ruta de la solicitud y dificultar el diagnóstico. Si tu red exige una de estas capas, anota qué ruta estás usando y comprueba por separado el DNS, TLS y el firewall.
+
+## Si no puedes acceder al servicio, comprueba primero lo siguiente
+
+1. Confirma el dominio: no confundas el sitio principal con el sitio de documentación.
+2. Usa HTTPS: la dirección debe comenzar por `https://`.
+3. Comprueba la hora del sistema. Una hora incorrecta puede impedir la verificación del certificado TLS.
+4. Prueba otra red, por ejemplo, cambia la red Wi-Fi de la oficina por un punto de acceso móvil.
+5. Comprueba si un firewall local, una herramienta de proxy o el antivirus bloquean la solicitud.
+6. Verifica que la Base URL de la herramienta no contenga una ruta adicional. Por ejemplo, no añadas `/v1` en una configuración de Claude Code compatible con Anthropic.
+
+## Comandos de prueba sencillos
+
+Primero puedes comprobar si el sitio responde:
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+Para probar el endpoint compatible con OpenAI:
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` comprueba únicamente la conexión y las cabeceras de respuesta. No verifica si tu API Key funciona. Para probar la API Key, envía una solicitud real al modelo o usa la función de prueba de tu herramienta.
+
+## Errores habituales
+
+- Suponer que una prueba correcta en una red garantiza que todas las redes funcionarán igual.
+- Establecer la Base URL de Claude Code en `{{openai-base-url}}`.
+- Configurar Codex CLI, Cursor o Cline con la dirección raíz sin `/v1`.
+- Cambiar repetidamente entre VPN, proxy y gateway local hasta perder de vista la ruta real de la solicitud.
+- Probar solo el sitio de documentación en lugar de la Base URL de la API.
+
+## Acerca de BetterToken
+
+BetterToken proporciona direcciones distintas para los protocolos compatibles con Anthropic y OpenAI. Usa la dirección correspondiente a tu herramienta y consulta los registros de solicitud para separar los errores de red de los errores de autenticación o de modelo.
+
+## Documentación relacionada
+
+- [¿Cómo debo completar la Base URL?](/es/faq/model-calling/base-url-config)
+- [¿Cómo elijo el modelo de IA adecuado?](/es/faq/model-calling/model-selection-guide)
+- [¿Qué diferencia hay entre una API compatible con OpenAI y una compatible con Anthropic?](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)

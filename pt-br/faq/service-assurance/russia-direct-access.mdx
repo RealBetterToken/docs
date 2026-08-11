@@ -1,0 +1,76 @@
+---
+title: "Preciso de VPN para usar a API?"
+sidebarTitle: "Acesso direto à API"
+description: "Saiba como acessar o site e a API da BetterToken, quando testar outra rede e como diagnosticar problemas de conexão."
+---
+
+## Resposta curta
+
+Em condições normais, você pode acessar diretamente o site e os endpoints da API da BetterToken. Uma VPN não faz parte da configuração necessária da API.
+
+Ao usar Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw ou outra ferramenta externa, o mais importante é informar a Base URL, a API Key e o ID de modelo corretos. Se houver falha de conexão, investigue a rota de rede separadamente da autenticação da API.
+
+## Endereços recomendados
+
+| Cenário | Endereço recomendado |
+| --- | --- |
+| Site e console | `{{anthropic-base-url}}` |
+| Documentação | `{{site-url}}` |
+| Claude Code / compatível com Anthropic | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline e outras ferramentas compatíveis com OpenAI | `{{openai-base-url}}` |
+
+Use os links oficiais da BetterToken para a Base URL, a página de cadastro, o console e a model plaza.
+
+## Quando não adicionar uma VPN à configuração
+
+- Ao acessar o site e o console da BetterToken
+- Ao criar ou gerenciar API Keys
+- Ao configurar um endpoint compatível com Anthropic no Claude Code
+- Ao configurar um endpoint compatível com OpenAI no Codex CLI, Cursor, Cline, OpenCode ou OpenClaw
+- Ao consultar a documentação, a model plaza e os registros de uso
+
+Uma VPN ou um proxy pode enviar o tráfego por outra rota. Isso pode aumentar a latência ou causar problemas de TLS. Se você usa uma rede corporativa com restrições, siga a política da organização e peça ao administrador que libere os domínios necessários.
+
+## Se não conseguir acessar o serviço, verifique primeiro
+
+1. Confirme o domínio: não confunda o site principal com o site da documentação.
+2. Use HTTPS: o endereço deve começar com `https://`.
+3. Verifique a data e a hora do dispositivo. Valores incorretos podem impedir a validação do certificado TLS.
+4. Teste outra rede, por exemplo, trocando o Wi-Fi do escritório por um ponto de acesso móvel.
+5. Verifique se um firewall local, proxy ou antivírus está bloqueando a solicitação.
+6. Confirme que a Base URL não inclui um caminho adicional. Por exemplo, não adicione `/v1` a uma configuração compatível com Anthropic no Claude Code.
+
+## Comandos simples de teste
+
+Primeiro, teste se o site está acessível:
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+Para testar o endpoint compatível com OpenAI:
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` verifica apenas a conexão e os cabeçalhos da resposta. Ele não confirma se a API Key funciona. Para testar a chave, envie uma solicitação real ao modelo ou use a função de teste da ferramenta.
+
+## Erros comuns
+
+- Achar que todas as redes têm a mesma rota e as mesmas políticas de acesso.
+- Definir a Base URL do Claude Code como `{{openai-base-url}}`.
+- Definir a Base URL do Codex CLI, Cursor ou Cline como o endereço raiz sem `/v1`.
+- Alternar repetidamente entre VPN, proxy e gateway local, dificultando a identificação da rota real.
+- Testar apenas o site da documentação, não a Base URL da API.
+
+## Sobre a BetterToken
+
+A BetterToken oferece endpoints compatíveis com os protocolos Anthropic e OpenAI. Use o endpoint correspondente à ferramenta e mantenha a API Key protegida. A disponibilidade de uma rota específica também depende da sua rede local, do provedor de internet e das políticas da organização.
+
+## Documentos relacionados
+
+- [Como preencher a Base URL?](/pt-br/faq/model-calling/base-url-config)
+- [Como escolher o modelo de IA certo?](/pt-br/faq/model-calling/model-selection-guide)
+- [Qual é a diferença entre uma API compatível com OpenAI e uma compatível com Anthropic?](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)

@@ -1,0 +1,119 @@
+---
+title: "Codex VS Code 拡張機能：カスタム Base URL、API Key、公式ログイン"
+sidebarTitle: "Codex VS Code Extension"
+description: "Codex VS Code 拡張機能で共有する config.toml を設定し、BetterToken Responses と公式ログイン、プラグイン、Remote Control を併用します。"
+icon: "/icons/codex-vscode.svg"
+---
+
+Codex VS Code 拡張機能は Codex CLI/App と `~/.codex/config.toml` を共有します。公式ログイン、プラグイン、Remote Control を維持したい場合は、このページを使用してください。
+
+## 主要設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 事前準備
+
+- 最新の Codex VS Code 拡張機能をインストール
+- 拡張機能または Codex App で公式ログインを完了
+- <a href={"{{register-url}}"}>BetterToken API Key を作成</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> または API Key の **Setup** ダイアログから Model ID をコピー
+
+## インストール
+
+VS Code Marketplace から拡張機能をインストールし、VS Code を再起動します。
+
+## 手動設定
+
+### 拡張機能を設定する
+
+`~/.codex/config.toml` を編集します。
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+experimental_bearer_token = "YOUR_API_KEY"
+```
+
+ファイルを保存し、VS Code で **Developer: Reload Window** を実行して Codex パネルを開き直します。
+
+<Note>
+  `requires_openai_auth = true` は公式ログインを維持します。`experimental_bearer_token` は BetterToken モデルへのリクエストを認証します。BetterToken API Key を `auth.json` に書き込まないでください。
+</Note>
+
+### CLI/App と拡張機能の認証を併用しない
+
+| シナリオ | 認証フィールド |
+| --- | --- |
+| Codex CLI/App のカスタムプロバイダーのみ | `env_key = "BETTERTOKEN_API_KEY"` と `requires_openai_auth = false` |
+| 公式ログインを使う拡張機能 | `requires_openai_auth = true` と `experimental_bearer_token = "YOUR_API_KEY"` |
+
+どちらも `[model_providers.custom]` を使用します。TOML ファイルには一方のテーブルだけを残してください。
+
+## 接続を確認する
+
+新しい拡張機能セッションを作成し、短いタスクを送信します。プラグインと Remote Control を利用でき、`YOUR_MODEL_ID` から応答が返れば設定は完了です。
+
+## モデルを切り替える
+
+`model` と必要に応じて `review_model` を変更し、**Developer: Reload Window** を実行します。Setup ダイアログまたは model plaza の Model ID を使用してください。
+
+## よくあるエラー
+
+| エラー | 対処方法 |
+| --- | --- |
+| 拡張機能が再ログインを求める | 公式ログインを復元し、`requires_openai_auth = true` を維持します。 |
+| `401` または `403` | `experimental_bearer_token` を再度コピーします。`auth.json` は上書きしません。 |
+| テーブルが重複している | もう一方の `[model_providers.custom]` テーブルを削除し、認証モードを 1 つにします。 |
+| モデルが見つからない | `YOUR_MODEL_ID` を現在利用できる完全な Model ID に置き換えます。 |
+| 設定が適用されない | ファイルを保存し、**Developer: Reload Window** を実行します。 |
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 関連ガイド
+
+- [Codex CLI/App のカスタムプロバイダー](/ja/ai-tools/codex)
+- [外部 API で Codex の公式ログインを維持する](/ja/faq/codex/official-login-third-party-api)
+- [Codex config.toml 設定ガイド](/ja/faq/codex/config-toml)
+- [model_provider、base_url、wire_api とは](/ja/faq/codex/model-provider-base-url-wire-api)
+
+### 公式リファレンス
+
+- [Codex IDE extension](https://developers.openai.com/codex/ide)
+- [Codex basic configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+
+## 技術詳細
+
+<Accordion title="拡張機能の認証が CLI/App と異なる理由">
+  拡張機能は一部の Codex 製品機能で公式ログインを使用するため、この設定では `requires_openai_auth = true` を維持します。純粋な CLI/App カスタムプロバイダーは環境変数と `requires_openai_auth = false` を使用します。どちらも `{{openai-base-url}}` 経由で OpenAI Responses リクエストを送信します。
+</Accordion>

@@ -1,0 +1,73 @@
+---
+title: "Codex CLI の AGENTS.md とは？"
+sidebarTitle: "AGENTS.md"
+description: "Codex CLI における AGENTS.md の役割、指示の優先順位、記載内容、よくある間違いを説明します。"
+---
+
+## 短い答え
+
+`AGENTS.md` は Codex 向けのプロジェクト指示ファイルです。リポジトリ構成、コマンド、テスト、コーディングスタイル、コミットルール、共同作業の方針を Codex に伝えます。
+
+これは一時的なタスクではなく、安定したプロジェクトルールのためのファイルです。今回だけの要件は現在の会話に記載してください。
+
+## 記載する内容
+
+- 依存関係のインストール、プロジェクトの起動、テストの実行方法
+- よく使う検証コマンド
+- コーディングスタイルと命名規則
+- 安易に変更すべきでないディレクトリ
+- 完了前に必要なチェック
+- コミュニケーションと出力に関するチームの方針
+
+## 記載しない内容
+
+- API Key、トークン、パスワード、非公開の認証情報
+- 一時的なタスク指示
+- 長い製品の背景説明
+- リポジトリと関係のない汎用プロンプト
+- 古くなったコマンドとパス
+
+## 推奨構成
+
+```md
+# Project instructions
+
+## Build and test
+- Run `npm test` before finishing behavior changes.
+- Run `npm run lint` after editing TypeScript files.
+
+## Style
+- Keep diffs small and focused.
+- Match existing component patterns.
+
+## Safety
+- Do not edit files outside this repository.
+- Do not commit secrets.
+```
+
+## よくある間違い
+
+- `AGENTS.md` を非常に長い汎用プロンプトにすること。
+- ファイルにシークレットを書き込むこと。
+- プロジェクトコマンドが変わっても更新しないこと。
+- `AGENTS.md` とユーザーレベルの `config.toml` を混同すること。
+- ルールがあるため差分とテストのレビューは不要だと考えること。
+
+## BetterToken について
+
+チームがモデルルーティングの統一に BetterToken を使用する場合でも、`AGENTS.md` は重要です。API レイヤーはモデルリクエストと使用履歴を扱い、`AGENTS.md` はプロジェクトの文脈と実行上の規範を扱います。
+
+両方を使用することで、設定の混乱と共同作業のコストを減らせます。
+
+## 関連ドキュメント
+
+- [Codex CLI とは？](/ja/faq/codex/what-is-codex-cli)
+- [Codex CLI の config.toml を設定する方法](/ja/faq/codex/config-toml)
+- [Codex CLI のサンドボックスと承認モードとは？](/ja/faq/codex/sandbox-approval)
+- [Claude Code の CLAUDE.md とは？](/ja/faq/claude-code/claude-md)
+
+## 参照
+
+- [Codex AGENTS.md ガイド](https://developers.openai.com/codex/guides/agents-md)
+- [Codex ベストプラクティス](https://developers.openai.com/codex/learn/best-practices)
+- [OpenAI Codex ディスカッション](https://github.com/openai/codex/discussions)

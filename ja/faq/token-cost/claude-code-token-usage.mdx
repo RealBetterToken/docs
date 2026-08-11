@@ -1,0 +1,74 @@
+---
+title: "Claude Code の Token 使用量が多くなる理由と費用を抑える方法"
+sidebarTitle: "Claude Code の Token 費用"
+description: "Claude Code の Token 使用量の内訳と、コンテキスト、CLAUDE.md、MCP、モデル選択、ワークフロー設計が費用に与える影響を説明します。"
+---
+
+## 簡単な回答
+
+Claude Code の Token 使用量は、最終回答として表示される部分だけではありません。読み取るファイル、プロジェクト指示、会話履歴、ツール結果、MCP ツールの説明、生成された出力、圧縮された要約などが含まれる場合があります。
+
+使用量が多くなる主な理由は、範囲の広いタスク、大きなコンテキスト、長いルールファイル、多数の MCP サーバー、繰り返しのやり直し、負荷の高いモデル選択の組み合わせです。
+
+実用的な対策は、各タスクの焦点を絞り、そのタスクに必要なコンテキストだけを読み込むことです。
+
+## 重要になる場面
+
+- Claude Code が各回答の前に多くのファイルを読み取る
+- 小さな変更が長い調査セッションに変わる
+- `CLAUDE.md` またはルールファイルが増え続ける
+- 多くの MCP サーバーを有効にしているが、ほとんど使用しない
+- Claude Code が同じ作業を何度もやり直す
+- チームで予測可能な API 支出が必要である
+
+## 主要な概念
+
+| 概念 | 意味 |
+| --- | --- |
+| Input tokens | ユーザープロンプト、コンテキスト、ファイル、ツール結果、指示 |
+| Output tokens | モデルが生成するテキスト、コード、レスポンス |
+| Context window | セッションで保持できる情報量 |
+| Prompt caching | 繰り返し使用する一部のコンテキストに対する費用削減 |
+| Compaction | コンテキストが増えたときに古い履歴を要約すること |
+| MCP overhead | ツール定義やツール結果がコンテキストに加わることがあります |
+
+## 推奨ワークフロー
+
+タスクの境界で費用を管理します。
+
+1. Claude Code には一度に 1 つの明確な目標を与えます。
+2. まず関連するファイルだけを読むように依頼します。
+3. 関連のないタスクへ切り替えるときは `/clear` を使用します。
+4. `CLAUDE.md` は短く具体的に保ちます。
+5. 現在の作業に不要な MCP サーバーは無効にします。
+6. 簡単な編集には軽量なモデルを使い、複雑な推論にはより高性能なモデルを使います。
+7. やり直しを減らすため、小さな変更ごとに最小限の関連チェックを実行します。
+
+API ゲートウェイを使用する場合は、ダッシュボードの利用状況を定期的に確認してください。ダッシュボードで詳細を確認できる場合は、入力、出力、キャッシュ、コンテキスト関連の消費を分けて確認します。
+
+## よくある間違い
+
+- 最終回答の長さだけを見て、ファイルやツール出力を見落とすこと。
+- `CLAUDE.md` を、すべてのセッションで読み込まれる長いマニュアルにしてしまうこと。
+- タスクに必要か確認せず、多くの MCP サーバーを有効にすること。
+- 「リポジトリ全体をリファクタリングして」のようなプロンプトから始めること。
+- API ゲートウェイが Claude Code のコンテキスト使用量を自動的に減らすと期待すること。
+
+## BetterToken について
+
+BetterToken では、API Key、残高、利用履歴を一元化できます。API レイヤーでモデルリクエストの費用を把握するのに役立ちます。
+
+ただし、Claude Code がどのファイルを読むか、`CLAUDE.md` がどれほど大きいか、どの MCP サーバーを有効にするか、タスクの範囲をどこまで広げるかは決めません。費用の削減は、引き続きワークフローとコンテキストの管理から始まります。
+
+## 関連ドキュメント
+
+- [Claude Code の CLAUDE.md とは何ですか？](/ja/faq/claude-code/claude-md)
+- [Claude Code とは何ですか？どのように動作しますか？](/ja/faq/claude-code/what-is-claude-code)
+- [Claude Code で API Key と Base URL を設定する方法](/ja/faq/claude-code/api-key-base-url)
+- [Claude Code セットアップガイド](/ja/ai-tools/claude-code)
+
+## 参考資料
+
+- [Claude Code の費用](https://docs.anthropic.com/en/docs/claude-code/costs)
+- [Claude Code の利用状況の監視](https://docs.anthropic.com/en/docs/claude-code/monitoring-usage)
+- [Claude Code 初心者向けの Token 使用に関するベストプラクティスの議論](https://www.reddit.com/r/ClaudeCode/comments/1rlimtx/claude_code_beginner_best_practice_token_usage/)

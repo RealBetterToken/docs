@@ -1,0 +1,69 @@
+---
+title: "Codex CLI とは？"
+sidebarTitle: "Codex CLI とは"
+description: "Codex CLI の仕組み、用途、Codex App と Codex Web との違いを説明します。"
+---
+
+## 短い答え
+
+Codex CLI は OpenAI のローカルコマンドライン型コーディングエージェントです。ターミナルで実行され、選択したワークスペースを読み取り、ファイルを編集し、コマンドを実行します。開発タスクでは、設定したサンドボックスと承認ルールに従います。
+
+ローカルリポジトリでのコード変更、コードレビュー、テスト修正、スクリプト作成、複数手順のエンジニアリング作業をエージェントに任せたいときに役立ちます。
+
+Codex CLI は通常の ChatGPT との会話とは異なります。コードを提案するだけでなく、現在のディレクトリ、プロジェクトの指示、ツールの実行結果、ローカル実行権限を使って作業します。
+
+## この情報が役立つ場面
+
+- 初めて `@openai/codex` をインストールするとき
+- Codex CLI、Codex App、Codex Web を比較するとき
+- ローカルプロジェクトのファイルをエージェントに編集させたいとき
+- カスタム API プロバイダー、Base URL、モデルを設定するとき
+- サンドボックス、承認、`AGENTS.md` を理解したいとき
+
+## 基本概念
+
+| 概念 | 意味 |
+| --- | --- |
+| Codex CLI | ローカルターミナルで実行する Codex コーディングエージェント |
+| ワークスペース | Codex が読み取り、検索、変更できるディレクトリ |
+| `config.toml` | モデル、プロバイダー、サンドボックス、承認などを設定するローカルの Codex 設定ファイル |
+| `AGENTS.md` | リポジトリのルールや共同作業の方針を Codex に伝えるプロジェクト指示ファイル |
+| サンドボックス | ファイルシステム、ネットワーク、コマンドアクセスに対するローカルのセキュリティ境界 |
+| 承認 | どの操作に確認が必要かを決めるポリシー |
+
+## 推奨ワークフロー
+
+1. 変更したいプロジェクトディレクトリ内で Codex CLI を起動します。
+2. 大きな変更の前に、関連ファイルや指示を確認するよう依頼します。
+3. 複雑な作業では、ファイルを変更する前に計画を作成するよう依頼します。
+4. タスクのリスクに合わせてサンドボックスと承認の設定を選びます。
+5. 継続的なプロジェクトルールは `AGENTS.md` に、今回だけの要件は現在の会話に記載します。
+
+サードパーティの API プロバイダーを使う場合は、`model_provider`、`base_url`、`wire_api`、`config.toml` 内のモデル関連の項目に注目します。Codex や他の OpenAI 互換ツールでは通常 OpenAI 互換エンドポイントを使用し、このドキュメントでは `{{openai-base-url}}` です。
+
+## よくある間違い
+
+- Codex CLI をチャット専用アシスタントとして扱うこと。
+- Codex CLI、Codex App、Codex Web が同じ環境で実行されると考えること。
+- 対応するプロバイダーと Base URL を設定せずに `model` だけを変更すること。
+- テスト、レビュー、コマンドの境界を設けずにサンドボックスと承認設定を緩めること。
+- OpenAI 互換と Anthropic 互換の Base URL を混同すること。
+
+## BetterToken について
+
+カスタムの OpenAI 互換プロバイダーを使用する場合、BetterToken は Codex CLI のモデル API レイヤーとして利用できます。API Key、Base URL、モデルルーティング、残高、使用履歴を管理します。
+
+BetterToken は Codex CLI のローカルサンドボックス、承認、`AGENTS.md`、コマンド実行ポリシーを置き換えるものではありません。
+
+## 関連ドキュメント
+
+- [Codex の BetterToken 設定ガイド](/ja/ai-tools/codex)
+- [Codex CLI、Codex App、Codex Web の違い](/ja/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex CLI の config.toml を設定する方法](/ja/faq/codex/config-toml)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 参照
+
+- [Codex CLI ドキュメント](https://developers.openai.com/codex/cli)
+- [OpenAI Codex の GitHub リポジトリ](https://github.com/openai/codex)
+- [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)

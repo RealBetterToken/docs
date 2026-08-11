@@ -1,0 +1,58 @@
+---
+title: "Claude Code में Sonnet और Opus कैसे बदलें"
+sidebarTitle: "Sonnet / Opus बदलें"
+description: "Claude Code में /model, मॉडल alias, पूरी मॉडल ID, provider अंतर और लागत प्रभाव समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+Claude Code में Sonnet, Opus या अन्य मॉडल बदलते समय समर्थित `/model` entry point या आधिकारिक मॉडल configuration path चुनें।
+
+मॉडल alias, पूरी मॉडल ID और provider mapping हमेशा एक जैसे नहीं होते। web UI में दिखा marketing name हमेशा API द्वारा पहचानी गई मॉडल ID नहीं होता।
+
+third-party gateway उपयोग करें तो उसी gateway या provider documentation में दिखी मॉडल ID उपयोग करें।
+
+## यह कब महत्वपूर्ण है
+
+- सस्ते और अधिक शक्तिशाली मॉडल के बीच बदलना चाहते हैं
+- Sonnet / Opus / Haiku alias दिखते हैं पर नहीं जानते क्या भरें
+- third-party Base URL या मॉडल gateway उपयोग करते हैं
+- Claude Code token लागत नियंत्रित करना चाहते हैं
+- model not found दिखता है या मॉडल चयन लागू नहीं होता
+
+## मॉडल नामों की तीन परतें
+
+| परत | अर्थ |
+| --- | --- |
+| Display name | UI में दिखने वाला मानव-अनुकूल नाम |
+| Alias | tool के भीतर छोटा नाम या shortcut |
+| Model ID | API द्वारा वास्तव में पहचाना गया identifier |
+
+सफल अनुरोध के लिए महत्वपूर्ण है कि वर्तमान provider Model ID पहचानता है या नहीं।
+
+## अनुशंसित अभ्यास
+
+1. पुष्टि करें कि वर्तमान provider कौन से मॉडल समर्थन देता है।
+2. Claude Code `/model` या आधिकारिक मॉडल configuration path उपयोग करें।
+3. third-party gateway उपयोग करने पर उसके model plaza से उपलब्ध मॉडल ID कॉपी करें।
+4. मॉडल चयन और लागत को साथ में देखें।
+5. मॉडल नाम हाथ से अनुमान न लगाएं।
+
+## BetterToken के बारे में
+
+Claude Code को BetterToken से जोड़ें तो <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान मॉडल ID कॉपी करें। Claude provider और GPT provider मॉडल अलग protocol path के हैं, इसलिए इन्हें न मिलाएं।
+
+मॉडल चयन quality, speed और लागत को प्रभावित करता है। usage record मॉडल में वास्तविक consumption की तुलना में मदद करते हैं।
+
+## संबंधित दस्तावेज
+
+- [Claude Code बहुत token क्यों उपयोग करता है](/hi/faq/token-cost/claude-code-token-usage)
+- [Claude Code में API Key और Base URL कैसे कॉन्फ़िगर करें](/hi/faq/claude-code/api-key-base-url)
+- [Claude Code permission और hook](/hi/faq/claude-code/permissions-and-hooks)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## संदर्भ
+
+- [Claude Code मॉडल कॉन्फ़िगरेशन](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code CLI संदर्भ](https://docs.anthropic.com/en/docs/claude-code/cli-reference)
+- [Claude Code लागत](https://docs.anthropic.com/en/docs/claude-code/costs)

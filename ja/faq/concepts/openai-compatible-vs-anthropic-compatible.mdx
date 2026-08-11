@@ -1,0 +1,75 @@
+---
+title: "OpenAI 互換 API と Anthropic 互換 API の違い"
+sidebarTitle: "互換 API の種類"
+description: "OpenAI 互換 API と Anthropic 互換 API の違いと、Claude Code、Codex、Cursor、Cline に適した Base URL の選び方を説明します。"
+---
+
+## 要点
+
+OpenAI 互換 API と Anthropic 互換 API は、異なる互換レイヤーです。どちらもモデルへのリクエストに使えますが、リクエスト形式、フィールド、ツールの意味、クライアントが想定する動作は異なります。
+
+Codex CLI、Cursor、Cline、OpenCode、OpenClaw は通常、OpenAI 互換エンドポイントを使います。Claude Code と一部の Claude Desktop Gateway ルートは Anthropic 互換エンドポイントを使います。
+
+モデル名だけで選ばないでください。外部ツールが想定するプロトコルを選び、それに合う Base URL、API Key、Model ID を使います。
+
+## この違いが重要になる場合
+
+- 2 つの Base URL のどちらを使うべきか分からない
+- Claude Code は動作するが、Codex または Cursor は失敗する
+- Codex は動作するが、Claude Code でエンドポイントまたは認証エラーが表示される
+- 1 つの API Key を複数の外部ツールで使いたい
+- API gateway、モデルルーター、ローカルプロキシを設定している
+
+## 主な概念
+
+| 概念 | 意味 |
+| --- | --- |
+| OpenAI 互換 API | OpenAI 形式のリクエスト規則に従うエンドポイント |
+| Anthropic 互換 API | Anthropic または Claude 形式のリクエスト規則に従うエンドポイント |
+| Base URL | クライアントが使う API のルートアドレス |
+| API Key | 選択したプロバイダーの認証情報 |
+| Model ID | そのプロバイダーとプロトコルで利用できるモデル識別子 |
+| Gateway | クライアントとプロバイダーの間で、互換性、ルーティング、課金、可観測性を提供するレイヤー |
+
+## 推奨される選び方
+
+まず外部ツールを確認します。
+
+| 外部ツール | 一般的なプロトコル | このドキュメントで使う Base URL |
+| --- | --- | --- |
+| Claude Code | Anthropic 互換 | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Anthropic 互換またはローカルルート | Gateway の設定に従う |
+| Codex CLI | OpenAI 互換 / Responses | `{{openai-base-url}}` |
+| Cursor | OpenAI 互換 | `{{openai-base-url}}` |
+| Cline | OpenAI 互換プロバイダー | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | OpenAI 互換 | `{{openai-base-url}}` |
+
+外部ツールが OpenAI 形式の API を想定している場合は、Claude Code 用の Anthropic Base URL を使わないでください。Anthropic 形式の API を想定している場合は、OpenAI 互換の `/v1` エンドポイントを使わないでください。
+
+## よくある間違い
+
+- 同じモデル名をすべてのプロトコルで変更せずに使えると考える。
+- Claude Code に OpenAI 互換 Base URL を設定する。
+- Codex、Cursor、Cline に Anthropic 互換 Base URL を設定する。
+- Claude.ai または ChatGPT のサブスクリプションを API Key として扱う。
+- API Key だけを変更し、Base URL と Model ID が一致していない状態にする。
+
+## BetterToken について
+
+BetterToken は Anthropic 互換と OpenAI 互換の両方のアクセス方式を提供します。API Key、残高、利用履歴は 1 つのダッシュボードで管理できますが、各クライアントには実際に対応しているプロトコルを設定する必要があります。
+
+簡単なルールとして、Claude Code は Anthropic 互換、Codex、Cursor、Cline、OpenCode、OpenClaw は通常 OpenAI 互換を使います。
+
+## 関連ドキュメント
+
+- [Claude Code の設定ガイド](/ja/ai-tools/claude-code)
+- [Codex の設定ガイド](/ja/ai-tools/codex)
+- [Cursor の設定ガイド](/ja/ai-tools/cursor)
+- [Claude Code で API Key と Base URL を設定する方法](/ja/faq/claude-code/api-key-base-url)
+
+## 参考資料
+
+- [Anthropic の OpenAI SDK 互換性](https://docs.anthropic.com/en/api/openai-sdk)
+- [Anthropic API のバージョニング](https://docs.anthropic.com/en/api/versioning)
+- [OpenAI Responses API リファレンス](https://developers.openai.com/api/reference/responses/overview/)
+- [Anthropic 互換 API の説明](https://bentoml.com/llm/model-interaction/anthropic-compatible-api)

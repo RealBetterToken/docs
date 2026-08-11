@@ -1,0 +1,136 @@
+---
+title: "config.toml do Codex: provedor personalizado, Base URL e API Key"
+sidebarTitle: "config.toml"
+description: "Configure o config.toml do Codex para um provedor personalizado: defina model_provider, Base URL, env_key da API Key e wire_api responses e corrija erros 401, 404 ou de modelo."
+---
+
+## Resposta direta
+
+Para usar um provedor personalizado no Codex CLI, edite `~/.codex/config.toml` no nível do usuário. Defina `model_provider = "custom"`, crie `[model_providers.custom]`, use `{{openai-base-url}}` como Base URL e defina `wire_api = "responses"`. Leia a BetterToken API Key por `env_key` e copie o ID de modelo do **provedor GPT**.
+
+## Encontre o arquivo de configuração correto
+
+| Ambiente | Configuração no nível do usuário |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | `~/.codex/config.toml` dentro do WSL |
+
+Na extensão Codex para VS Code, clique na engrenagem e escolha **Codex Settings → Open config.toml**. A CLI e a extensão da IDE compartilham as mesmas camadas de configuração.
+
+<Warning>
+  As configurações de provedor e autenticação pertencem a `~/.codex/config.toml` no nível do usuário. Arquivos `.codex/config.toml` do projeto podem conter substituições locais, mas o Codex ignora `model_provider` e `model_providers` neles. Coloque as instruções do projeto em `AGENTS.md`.
+</Warning>
+
+## Configuração mínima funcional
+
+<Steps>
+  <Step title="Defina a variável de ambiente da API Key">
+    macOS, Linux ou WSL:
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell:
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    Substitua `YOUR_API_KEY` pela sua BetterToken API Key. Para uso persistente, armazene-a em um ambiente protegido do sistema operacional, não no repositório do projeto.
+  </Step>
+  <Step title="Edite config.toml">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model` é apenas um exemplo. Copie um ID disponível no **provedor GPT** da <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+  <Step title="Reinicie e teste">
+    Encerre completamente o Codex, abra um novo terminal e execute:
+
+    ```bash
+    codex
+    ```
+
+    Envie um prompt simples. Uma resposta normal confirma que o provedor, a autenticação e o ID de modelo estão ativos.
+  </Step>
+</Steps>
+
+## Configuração completa recomendada
+
+Use esta versão quando precisar de um modelo de revisão e de um tempo limite de streaming maior:
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers.custom]
+name = "{{codex-provider-name}}"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+Combine os campos existentes no nível superior e o conteúdo de `[model_providers.custom]`. Não declare a mesma tabela TOML duas vezes.
+
+## Como os campos se relacionam
+
+| Campo | Finalidade | Valor da BetterToken |
+| --- | --- | --- |
+| `model_provider` | Seleciona um ID de provedor | `"custom"` |
+| `[model_providers.custom]` | Define o provedor | Deve corresponder a `model_provider` |
+| `base_url` | Endpoint de solicitações de modelo | `{{openai-base-url}}` |
+| `env_key` | Nome da variável de ambiente que contém a API Key | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | Protocolo do provedor | `"responses"` |
+| `requires_openai_auth` | Usa a autenticação oficial da OpenAI | `false` em uma configuração comum de API de terceiros |
+| `model` | ID de modelo padrão | Um ID atual do provedor GPT |
+
+<Note>
+  Para manter o login oficial do Codex App, os plugins e o Remote Control enquanto usa uma API de terceiros, use a [configuração específica de login oficial e sessões unificadas](/pt-br/faq/codex/official-login-third-party-api), não este exemplo comum de autenticação.
+</Note>
+
+## Erros comuns
+
+| Sintoma | Causa | Correção |
+| --- | --- | --- |
+| Provedor não encontrado | `model_provider` não corresponde ao nome da tabela | Use `custom` nos dois lugares |
+| API Key ausente na inicialização | A variável de ambiente não existe ou o terminal não a recarregou | Defina `MODEL_PROVIDER_API_KEY` e abra um novo terminal |
+| `401` ou `403` | Chave incorreta ou métodos de autenticação misturados | Copie a chave novamente; alinhe o nome de `env_key` e mantenha `requires_openai_auth = false` |
+| `404` | A Base URL não tem `/v1` ou usa o protocolo errado | Use `{{openai-base-url}}` |
+| Modelo não encontrado | O ID não está disponível ou não pertence ao provedor GPT | Copie um ID atual da model plaza |
+| Alterações não aplicadas | Camada, caminho ou ambiente WSL incorreto | Edite a configuração do usuário no ambiente que executa o Codex e reinicie-o |
+| Erro de análise TOML | Tabela duplicada, aspas ou aninhamento incorretos | Remova tabelas `[model_providers.custom]` duplicadas e confira as aspas |
+
+## Documentos relacionados
+
+- [Guia completo de configuração do Codex](/pt-br/ai-tools/codex)
+- [Configurar uma Base URL personalizada na extensão Codex para VS Code](/pt-br/ai-tools/codex-vscode)
+- [model_provider, base_url e wire_api explicados](/pt-br/faq/codex/model-provider-base-url-wire-api)
+- [Sandbox e modo de aprovação do Codex CLI](/pt-br/faq/codex/sandbox-approval)
+- [O que é AGENTS.md?](/pt-br/faq/codex/agents-md)
+
+## Referências
+
+- [Configuração básica do Codex](https://developers.openai.com/codex/config-basic)
+- [Referência de configuração do Codex](https://developers.openai.com/codex/config-reference)

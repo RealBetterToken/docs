@@ -1,0 +1,76 @@
+---
+title: "क्या रूसी users को API उपयोग के लिए VPN चाहिए?"
+sidebarTitle: "रूस में direct access"
+description: "जानें कि रूसी users regional site और API को सीधे कैसे access कर सकते हैं, VPN कब आवश्यक नहीं है और network issues कैसे troubleshoot करें।"
+---
+
+## संक्षिप्त उत्तर
+
+Russian regional site को रूस से direct access के लिए बनाया गया है। सामान्य उपयोग में आप website और API endpoints को VPN के बिना सीधे access कर सकते हैं।
+
+रूस से Claude Code, Codex CLI, Cursor, Cline, OpenCode, OpenClaw या अन्य external tool उपयोग करने पर, सही Base URL, API Key और Model ID दर्ज करना महत्वपूर्ण है। सामान्यतः अतिरिक्त VPN layer की जरूरत नहीं होती।
+
+## अनुशंसित addresses
+
+| Scenario | अनुशंसित address |
+| --- | --- |
+| website और console | `{{anthropic-base-url}}` |
+| documentation | `{{site-url}}` |
+| Claude Code / Anthropic-compatible के लिए | `{{anthropic-base-url}}` |
+| Codex CLI, Cursor, Cline और अन्य OpenAI-compatible tools | `{{openai-base-url}}` |
+
+Russian regional site BetterToken domain उपयोग करता है। Base URL, registration page, console और model plaza के लिए BetterToken links उपयोग करें।
+
+## VPN कब आवश्यक नहीं है
+
+- BetterToken website और console access करना
+- API Keys बनाना या manage करना
+- Claude Code में Anthropic-compatible endpoint कॉन्फ़िगर करना
+- Codex CLI, Cursor, Cline, OpenCode या OpenClaw में OpenAI-compatible endpoint कॉन्फ़िगर करना
+- docs, model plaza और usage records देखना
+
+VPN traffic को unstable route से भेज सकता है। इससे latency बढ़ सकती है, TLS verification problems हो सकती हैं या risk controls trigger हो सकते हैं। company network में विशेष restrictions न हों तो VPN को default setup के रूप में उपयोग न करें।
+
+## service access न हो तो पहले ये जांचें
+
+1. domain पुष्टि करें: main site और docs site को न मिलाएं।
+2. HTTPS उपयोग करें: address `https://`. से शुरू होना चाहिए।
+3. device पर system time जांचें। गलत time TLS certificate verification को तोड़ सकता है।
+4. अन्य network test करें, जैसे office Wi-Fi से mobile hotspot पर switch करना।
+5. जांचें कि local firewall, proxy tool या antivirus product request को block तो नहीं कर रहा।
+6. tool configuration में सुनिश्चित करें कि Base URL में extra path नहीं है। उदाहरण के लिए, Claude Code Anthropic-compatible setup में `/v1` न रखें।
+
+## सरल test commands
+
+पहले test करें कि site reachable है या नहीं:
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+OpenAI-compatible endpoint test करने के लिए:
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` केवल connection और response headers जांचता है। यह API Key काम करती है या नहीं नहीं जांचता। API Key test करने के लिए real model request भेजें या tool के भीतर test function उपयोग करें।
+
+## सामान्य गलतियां
+
+- मान लेना कि “VPN आवश्यक नहीं” का अर्थ हर network environment हमेशा काम करेगा।
+- Claude Code Base URL को `{{openai-base-url}}` पर सेट करना।
+- Codex CLI, Cursor या Cline Base URL को `/v1` के बिना root address पर सेट करना।
+- VPN, proxy और local gateway के बीच बार-बार switch करना, जिससे actual request route अस्पष्ट हो जाता है।
+- API Base URL के बजाय केवल docs site test करना।
+
+## BetterToken के बारे में
+
+Russian regional service BetterToken domain उपयोग करती है। रूसी users को payment, access और network routing की अनिश्चितता घटाने के लिए regional registration links, console और API Base URLs उपयोग करने चाहिए।
+
+## संबंधित दस्तावेज
+
+- [Base URL कैसे भरें?](/hi/faq/model-calling/base-url-config)
+- [सही AI model कैसे चुनें?](/hi/faq/model-calling/model-selection-guide)
+- [OpenAI-compatible API और Anthropic-compatible API में अंतर क्या है?](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)

@@ -1,0 +1,62 @@
+---
+title: "Referência da API"
+description: "URL de requisição, autenticação e ponto de entrada para testar a API Chat Completions compatível com OpenAI do BetterToken."
+---
+
+A referência pública da API do BetterToken cobre atualmente apenas a **API Chat Completions compatível com OpenAI**. O suporte a outros protocolos ainda não é uniforme em todos os canais. Por isso, a Responses API e a Anthropic Messages API não são publicadas como interfaces públicas.
+
+## Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+## Dados da conexão
+
+| Campo | Valor |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| URL completa da requisição | `{{chat-completions-url}}` |
+| Método | `POST` |
+| Autorização | `Bearer YOUR_API_KEY` |
+| Modelo | `YOUR_MODEL_ID` |
+
+Copie um Model ID atual do <a href={"{{model-plaza-url}}"}>model plaza</a> ou da janela **Setup** da API Key no Console.
+
+<Warning>
+  Quando uma ferramenta solicitar uma **Base URL**, informe `{{openai-base-url}}`. Use `{{chat-completions-url}}` somente quando a ferramenta pedir explicitamente a URL completa da requisição.
+</Warning>
+
+## Teste rápido
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+Uma resposta bem-sucedida contém `choices[0].message.content`.
+
+## Testes interativos e exemplos de SDK
+
+Abra [API Chat Completions da OpenAI](/pt-br/api-reference/chat-completions) para:
+
+- Enviar uma requisição pelo Playground
+- Consultar os parâmetros da requisição e o esquema da resposta
+- Copiar exemplos em curl, Python e JavaScript
+
+<Note>
+  Nunca armazene uma API Key real em documentação, capturas de tela ou código público. Substitua `YOUR_API_KEY` e `YOUR_MODEL_ID` pelos seus próprios valores.
+</Note>

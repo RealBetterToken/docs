@@ -1,0 +1,127 @@
+---
+title: "Kilo Code 설정: 설치, API Key, Base URL 및 사용자 지정 모델"
+sidebarTitle: "Kilo Code"
+description: "Kilo Code를 설치하고 BetterToken Base URL 및 API Key를 설정한 다음 호환되는 provider model을 선택하고 일반적인 오류를 해결하세요."
+icon: "puzzle-piece"
+---
+
+Kilo Code를 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 후 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 사전 요구 사항
+
+- 최신 버전의 도구가 설치되어 있음
+- BetterToken API Key: <a href={"{{register-url}}"}>등록하고 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+### 추가 요구 사항
+
+- VS Code가 설치되어 있음
+
+## 설치
+
+Kilo Code를 설치하거나 연 다음 아래의 수동 설정을 계속하세요.
+
+## 수동 설정
+
+Kilo Code settings UI에서 이 설정을 완료하세요. configuration file을 직접 수정할 필요가 없습니다.
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+### 설정
+
+<Steps>
+  <Step title="충돌하는 environment variables 제거">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Kilo Code settings 열기">
+    Kilo Code settings UI를 여세요.
+  </Step>
+
+  <Step title="API provider 설정">
+    다음을 입력하세요.
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → BetterToken API Key
+    - **Model** → <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 복사한 **지원되는 provider의 model ID**
+  </Step>
+
+  <Step title="공식 문서에서 명시적으로 요구할 때만 extra headers 설정">
+    확인한 Kilo Code 공식 자료에서는 OpenAI-compatible providers에 optional custom headers를 언급하지만, `User-Agent`를 BetterToken 설정의 필수 단계로 취급하지 않습니다.
+
+    custom gateway, tenant routing, observability 또는 caching layer도 사용한다면 해당 upstream service의 공식 문서에 따라서만 headers를 추가하세요.
+  </Step>
+
+  <Step title="Kilo Code 다시 시작">
+    config를 변경한 후 VS Code를 다시 시작하거나 Kilo Code extension을 다시 로드하여 새 settings를 적용하세요.
+  </Step>
+</Steps>
+
+<Note>
+  extra headers가 필요하면 `User-Agent`가 BetterToken에 필수라고 가정하지 말고 현재 Kilo Code 문서 또는 upstream gateway requirements를 따르세요.
+</Note>
+
+## 연결 확인
+
+짧은 테스트 prompt를 보내세요. 도구가 authentication 또는 Model ID 오류 없이 response를 반환하면 연결이 작동합니다. configuration을 변경한 후에는 도구를 완전히 다시 시작하세요.
+
+## 모델 전환
+
+model selector를 열거나 configuration의 `Model` field를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 다음 현재 session을 다시 시작하세요.
+
+## 일반적인 오류
+
+| 오류 | 확인할 사항 |
+| --- | --- |
+| `401` 또는 `Unauthorized` | BetterToken API Key를 확인하고 앞뒤 spaces를 제거하세요. |
+| `404` | Base URL을 확인하고 specific endpoint path를 추가하지 마세요. |
+| `model not found` | 모델 광장에서 현재 Model ID를 복사하세요. |
+| Changes가 적용되지 않음 | configuration을 저장하고 도구를 완전히 다시 시작하세요. |
+
+
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url 및 wire_api란 무엇인가요?](/ko/faq/codex/model-provider-base-url-wire-api)
+- [Cline에서 OpenAI-compatible API 구성](/ko/faq/cline/openai-compatible-api)
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 기술 세부 정보
+
+<Accordion title="Protocol, endpoint 및 내부 provider 필드">
+  이 설정은 `{{openai-base-url}}`을 사용합니다. 도구가 OpenAI-compatible endpoint path를 추가합니다. 특정 field에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+</Accordion>

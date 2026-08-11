@@ -1,0 +1,75 @@
+---
+title: "OpenAI-compatible API और Anthropic-compatible API की तुलना"
+sidebarTitle: "Compatible API प्रकार"
+description: "OpenAI-compatible और Anthropic-compatible API का अंतर तथा Claude Code, Codex, Cursor और Cline के लिए सही Base URL चुनना समझें।"
+---
+
+## त्वरित उत्तर
+
+OpenAI-compatible API और Anthropic-compatible API दो अलग compatibility layer हैं। दोनों से मॉडल Request भेजे जा सकते हैं, लेकिन उनके Request format, Field, tool semantics और client expectation अलग हैं।
+
+Codex CLI, Cursor, Cline, OpenCode और OpenClaw आमतौर पर OpenAI-compatible Endpoint उपयोग करते हैं। Claude Code और कुछ Claude Desktop Gateway path Anthropic-compatible Endpoint उपयोग करते हैं।
+
+केवल मॉडल नाम के आधार पर न चुनें। पहले टूल का अपेक्षित protocol चुनें, फिर उससे मेल खाने वाला Base URL, API Key और Model ID उपयोग करें।
+
+## यह अंतर कब महत्वपूर्ण है?
+
+- दो Base URL दिखें और पता न हो कि कौन-सा उपयोग करना है
+- Claude Code काम करे, लेकिन Codex या Cursor विफल हो
+- Codex काम करे, लेकिन Claude Code Endpoint या auth त्रुटि दिखाए
+- एक API Key को कई टूल में उपयोग करना हो
+- API gateway, मॉडल router या local proxy सेट करना हो
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| OpenAI-compatible API | OpenAI-शैली Request नियमों का पालन करने वाला Endpoint |
+| Anthropic-compatible API | Anthropic / Claude Request नियमों का पालन करने वाला Endpoint |
+| Base URL | Client द्वारा उपयोग किया जाने वाला API root address |
+| API Key | चुने गए प्रदाता का credential |
+| Model ID | उस प्रदाता और protocol में उपलब्ध मॉडल identifier |
+| Gateway | Client और प्रदाताओं के बीच compatibility, routing, billing या observability layer |
+
+## अनुशंसित विकल्प
+
+टूल से शुरू करें:
+
+| टूल | सामान्य protocol | इस दस्तावेज़ में Base URL |
+| --- | --- | --- |
+| Claude Code | Anthropic-compatible protocol के लिए | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Anthropic-compatible या local route | Gateway सेटअप का पालन करें |
+| Codex CLI | OpenAI-compatible / Responses के लिए | `{{openai-base-url}}` |
+| Cursor | OpenAI-compatible | `{{openai-base-url}}` |
+| Cline | OpenAI-compatible प्रदाता | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | OpenAI-compatible उपयोग | `{{openai-base-url}}` |
+
+टूल OpenAI-शैली API अपेक्षित करे तो Claude Code वाला Anthropic Base URL उपयोग न करें। टूल Anthropic-शैली API अपेक्षित करे तो OpenAI-compatible `/v1` Endpoint उपयोग न करें।
+
+## सामान्य गलतियां
+
+- यह मानना कि एक मॉडल नाम हर protocol में बिना बदलाव उपयोग हो सकता है
+- Claude Code में OpenAI-compatible Base URL डालना
+- Codex, Cursor या Cline में Anthropic-compatible Base URL डालना
+- Claude.ai या ChatGPT subscription को API Key मानना
+- Base URL और Model ID mismatch रखते हुए केवल API Key बदलना
+
+## BetterToken में उपयोग
+
+BetterToken Anthropic-compatible और OpenAI-compatible दोनों access pattern देता है। आप एक Dashboard में API Key, बैलेंस और usage history प्रबंधित कर सकते हैं, लेकिन हर client में वही protocol सेट करना होगा जिसका वह समर्थन करता है।
+
+सरल नियम: Claude Code Anthropic-compatible उपयोग करता है; Codex, Cursor, Cline, OpenCode और OpenClaw आमतौर पर OpenAI-compatible उपयोग करते हैं।
+
+## संबंधित दस्तावेज़
+
+- [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code)
+- [Codex सेटअप गाइड](/hi/ai-tools/codex)
+- [Cursor सेटअप गाइड](/hi/ai-tools/cursor)
+- [Claude Code में API Key और Base URL कैसे सेट करें](/hi/faq/claude-code/api-key-base-url)
+
+## संदर्भ
+
+- [Anthropic OpenAI SDK compatibility दस्तावेज़](https://docs.anthropic.com/en/api/openai-sdk)
+- [Anthropic API versioning](https://docs.anthropic.com/en/api/versioning)
+- [OpenAI Responses API reference](https://developers.openai.com/api/reference/responses/overview/)
+- [Anthropic-compatible API विवरण](https://bentoml.com/llm/model-interaction/anthropic-compatible-api)

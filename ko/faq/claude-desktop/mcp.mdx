@@ -1,0 +1,61 @@
+---
+title: "Claude Desktop에서 MCP 구성"
+sidebarTitle: "Claude Desktop MCP"
+description: "Claude Desktop에서 local MCP, remote MCP, connection status 및 MCP와 model APIs의 차이를 알아보세요."
+---
+
+## 짧은 답변
+
+Claude Desktop은 MCP servers를 통해 local tools와 data sources에 연결할 수 있습니다. Claude Desktop의 MCP configuration에서 server를 선언하고 connection을 restart 또는 refresh한 후 app에서 connection status를 확인하세요.
+
+MCP는 model API가 아닙니다. Claude Desktop이 tools 또는 context에 access하게 합니다. model requests는 여전히 Claude Desktop이 현재 사용하는 model 및 account path에 따라 달라집니다.
+
+## 필요한 경우
+
+- Claude Desktop이 local files, databases 또는 development tools에 access하게 하고 싶음
+- MCP server config가 보이지만 어디에 속하는지 모름
+- local MCP와 remote MCP를 비교 중임
+- MCP가 API Key / Base URL을 대체할 수 있다고 생각함
+- MCP가 연결되었는지 확인해야 함
+
+## Local MCP와 remote MCP 비교
+
+| 유형 | 의미 |
+| --- | --- |
+| Local MCP | machine에서 server를 실행하며 주로 local tools, files 또는 development environments용 |
+| Remote MCP | remote service에 연결하며 주로 cloud tools 또는 team services용 |
+| Desktop extension | desktop-oriented installation 및 distribution format |
+
+## 권장 설정
+
+1. model provider가 아니라 MCP server에 연결하는지 확인하세요.
+2. Claude Desktop docs에 따라 local 또는 remote MCP config를 추가하세요.
+3. Claude Desktop을 restart 또는 refresh하세요.
+4. Claude Desktop에서 MCP connection status를 확인하세요.
+5. MCP server에 필요한 permissions와 environment variables만 부여하세요.
+
+## 일반적인 실수
+
+- MCP server를 Base URL로 취급함
+- model API Key를 MCP configuration에 넣음
+- MCP가 model cost를 변경한다고 가정함
+- MCP server가 sensitive local data에 access할 수 있음을 잊음
+- local server가 실행 중이 아닐 때 Claude Desktop UI만 확인함
+
+## BetterToken 정보
+
+BetterToken은 MCP servers가 아니라 model API access를 처리합니다. Claude Desktop MCP는 tools를 연결합니다. BetterToken-style API layers는 model requests, balance 및 usage를 처리합니다.
+
+tool access와 unified model routing이 모두 필요하다면 MCP와 API access를 별도로 구성하세요.
+
+## 관련 문서
+
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [Claude Code와 Claude Desktop 비교](/ko/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code에서 Claude.ai account 또는 API Key 사용](/ko/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 참고 자료
+
+- [Claude Desktop에서 local MCP servers 시작하기](https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
+- [remote MCP로 custom connectors 시작하기](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)

@@ -1,0 +1,74 @@
+---
+title: "Por que o Claude Code usa tantos tokens e como reduzir o custo"
+sidebarTitle: "Custo de tokens do Claude Code"
+description: "Saiba de onde vem o uso de tokens no Claude Code e como contexto, CLAUDE.md, MCP, escolha do modelo e desenho do fluxo afetam o custo."
+---
+
+## Resposta rápida
+
+O uso de tokens do Claude Code não se limita à resposta final. Ele pode incluir arquivos lidos, instruções do projeto, histórico da conversa, resultados de ferramentas, descrições de ferramentas MCP, conteúdo gerado e resumos compactados.
+
+O uso elevado geralmente resulta da combinação de tarefas amplas, contexto grande, arquivos de regras longos, muitos servidores MCP, retrabalho e modelos mais pesados.
+
+A solução prática é manter cada tarefa focada e carregar apenas o contexto necessário.
+
+## Quando isso é importante
+
+- O Claude Code lê muitos arquivos antes de cada resposta
+- Uma pequena alteração vira uma longa sessão de exploração
+- O `CLAUDE.md` ou outros arquivos de regras continuam crescendo
+- Muitos servidores MCP estão ativos, mas raramente são usados
+- O Claude Code refaz o mesmo trabalho várias vezes
+- Sua equipe precisa de gastos previsíveis com a API
+
+## Conceitos principais
+
+| Conceito | Significado |
+| --- | --- |
+| Tokens de entrada | Prompts do usuário, contexto, arquivos, resultados de ferramentas e instruções |
+| Tokens de saída | Texto, código e respostas gerados pelo modelo |
+| Janela de contexto | Quantidade de informações que uma sessão pode conter |
+| Cache de prompt | Redução de custo para alguns contextos repetidos |
+| Compactação | Resumo do histórico antigo quando o contexto cresce |
+| Sobrecarga do MCP | Definições e resultados de ferramentas podem aumentar o contexto |
+
+## Fluxo recomendado
+
+Controle o custo nos limites da tarefa:
+
+1. Dê ao Claude Code um objetivo claro de cada vez.
+2. Peça que ele leia primeiro apenas os arquivos relevantes.
+3. Use `/clear` ao mudar para uma tarefa sem relação com a anterior.
+4. Mantenha o `CLAUDE.md` curto e específico.
+5. Desative os servidores MCP desnecessários para o trabalho atual.
+6. Use modelos mais leves em edições simples e modelos mais avançados em raciocínios complexos.
+7. Execute a menor verificação relevante após cada pequena alteração para reduzir o retrabalho.
+
+Se você usa um gateway de API, consulte regularmente o uso no painel. Diferencie o consumo de entrada, saída, cache e contexto quando o painel exibir esses detalhes.
+
+## Erros comuns
+
+- Considerar apenas o tamanho da resposta final e ignorar arquivos e resultados de ferramentas.
+- Transformar o `CLAUDE.md` em um manual longo carregado em todas as sessões.
+- Ativar muitos servidores MCP sem verificar se a tarefa precisa deles.
+- Começar com prompts como "refatore todo o repositório".
+- Esperar que um gateway de API reduza automaticamente o uso de contexto do Claude Code.
+
+## Sobre a BetterToken
+
+A BetterToken pode centralizar API Key, saldo e histórico de uso. Ela ajuda você a visualizar o custo das solicitações na camada de API.
+
+Ela não decide quais arquivos o Claude Code lê, o tamanho do `CLAUDE.md`, quais servidores MCP estão ativos nem a abrangência da tarefa. A redução de custo ainda começa pelo gerenciamento do fluxo e do contexto.
+
+## Documentos relacionados
+
+- [O que é CLAUDE.md no Claude Code?](/pt-br/faq/claude-code/claude-md)
+- [O que é o Claude Code e como ele funciona?](/pt-br/faq/claude-code/what-is-claude-code)
+- [Como configurar API Key e Base URL no Claude Code](/pt-br/faq/claude-code/api-key-base-url)
+- [Guia de configuração do Claude Code](/pt-br/ai-tools/claude-code)
+
+## Referências
+
+- [Custos do Claude Code](https://docs.anthropic.com/en/docs/claude-code/costs)
+- [Monitoramento de uso no Claude Code](https://docs.anthropic.com/en/docs/claude-code/monitoring-usage)
+- [Discussão sobre boas práticas de uso de tokens para iniciantes no Claude Code](https://www.reddit.com/r/ClaudeCode/comments/1rlimtx/claude_code_beginner_best_practice_token_usage/)

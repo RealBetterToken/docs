@@ -1,0 +1,130 @@
+---
+title: "BetterToken 문서"
+description: "사용자, 팀, 개발자를 위한 AI 모델 API 게이트웨이입니다. 하나의 API로 Claude와 GPT/Codex를 연결할 수 있습니다."
+---
+
+## BetterToken이란 무엇인가요?
+
+BetterToken은 사용자, 팀, 개발자를 위한 AI 모델 API 게이트웨이입니다. 하나의 API로 Claude와 GPT/Codex 모델에 연결하며 Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, CC Switch 같은 AI 코딩 도구를 지원합니다. 가입하면 $1의 체험 잔액을 받아 실제 개발 워크플로를 테스트할 수 있습니다.
+
+문서에서는 두 가지 연결 방식을 구분합니다.
+
+- **Claude Code / `ANTHROPIC_BASE_URL`**: `{{anthropic-base-url}}` 사용
+- **Codex / `OPENAI_BASE_URL` / 외부 도구**: `{{openai-base-url}}` 사용
+
+**주요 장점:**
+
+- **다중 공급원**: 여러 공급자를 동시에 연결합니다.
+- **동적 라우팅**: 느리거나 불안정한 업스트림을 자동으로 우회합니다.
+- **핵심 도구 집중**: Claude Code와 Codex 생태계의 안정성을 우선합니다.
+- **명확한 두 경로**: 모든 곳에서 하나의 `base_url`을 재사용하지 않고 프로토콜에 맞는 엔드포인트를 설정합니다.
+
+## 두 가지 연결 방식
+
+| 사용 환경 | Base URL | 설명 |
+|----------|----------|-------|
+| Claude Code | `{{anthropic-base-url}}` | Anthropic 프로토콜, `/v1` 접미사 없음 |
+| Codex / 외부 도구 | `{{openai-base-url}}` | OpenAI 방식 프로토콜, 외부 도구에서는 GPT 제공자 사용 |
+
+## 시작하기
+
+<Columns cols={2}>
+  <Card
+    title="빠른 시작"
+    icon="rocket"
+    href="/ko/quickstart"
+  >
+    Claude Code 경로 또는 Codex / 외부 도구 경로를 선택해 시작하세요.
+  </Card>
+  <Card
+    title="FAQ"
+    icon="circle-question"
+    href="/ko/faq"
+  >
+    Base URL, 모델 제공자, 403 오류, 인증 규칙을 확인하세요.
+  </Card>
+</Columns>
+
+## AI 코딩 도구 연결하기
+
+<Columns cols={2}>
+  <Card
+    title="Claude Code"
+    icon="terminal"
+    href="/ko/ai-tools/claude-code"
+  >
+    `ANTHROPIC_BASE_URL={{anthropic-base-url}}`로 설정하세요.
+  </Card>
+  <Card
+    title="Codex"
+    icon="code"
+    href="/ko/ai-tools/codex"
+  >
+    OpenAI Responses와 함께 `{{openai-base-url}}`을 사용하세요.
+  </Card>
+  <Card
+    title="Cursor"
+    icon="pen-to-square"
+    href="/ko/ai-tools/cursor"
+  >
+    외부 도구에서는 GPT 제공자와 OpenAI 호환 설정을 사용하세요.
+  </Card>
+  <Card
+    title="OpenClaw"
+    icon="paw"
+    href="/ko/ai-tools/openclaw"
+  >
+    BetterToken을 연결한 뒤 `/new`와 `/status`로 현재 세션을 확인하세요.
+  </Card>
+  <Card
+    title="CC Switch"
+    icon="toggle-left"
+    href="/ko/ai-tools/cc-switch"
+  >
+    하나의 GUI에서 Claude Code, Codex, OpenCode, OpenClaw용 BetterToken 설정을 관리하세요.
+  </Card>
+</Columns>
+
+## BetterToken이 해결하는 문제
+
+여러 AI 모델과 코딩 도구를 함께 사용하는 개발자와 팀은 프로토콜 차이, 엔드포인트 설정, 사용량 관리 때문에 통합에 어려움을 겪습니다. BetterToken은 Anthropic 프로토콜과 OpenAI 호환 프로토콜이라는 두 개의 안정적인 엔드포인트로 Claude 및 GPT/Codex 모델을 제공하는 API 프록시입니다. 사용량을 투명하게 확인할 수 있으며 Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, CC Switch 같은 AI 코딩 도구에서 바로 사용할 수 있습니다. 기존 워크플로를 바꾸지 않고 Base URL과 API Key만 교체하면 됩니다.
+
+## 개발자 엔드포인트
+
+BetterToken은 개발자를 위한 다중 모델 API 게이트웨이이며 두 개의 표준 진입점을 제공합니다.
+
+| 프로토콜 | Base URL | 용도 |
+| --- | --- | --- |
+| Anthropic | https://bettertoken.ai | Claude Code |
+| OpenAI 호환 | https://bettertoken.ai/v1 | Codex 및 기타 외부 도구 |
+
+가입 후 API Key를 만들고 Claude 또는 GPT 제공자를 선택하세요. Cursor, Cline, OpenClaw, OpenCode, CC Switch 등에서 Base URL을 교체하면 연결할 수 있습니다. 요청, Token 사용량, 잔액은 Dashboard에서 확인할 수 있습니다.
+
+## 팀과 비용 관리
+
+Claude 또는 GPT/Codex를 안정적으로 사용해야 하는 팀은 여러 제공자의 라우팅과 비용을 한곳에서 관리할 수 있습니다. BetterToken은 실제 사용량에 따른 투명한 과금과 여러 제공자 사이의 동적 라우팅을 하나의 API 프록시 계층으로 제공합니다. 팀은 Dashboard에서 API Key별 사용량과 잔액을 확인하고 Claude Code나 Codex 같은 실제 워크플로별로 예산을 배분할 수 있습니다.
+
+## 핵심 FAQ
+
+**BetterToken이란 무엇인가요?** 사용자, 팀, 개발자를 위한 AI 모델 API 게이트웨이이자 프록시입니다.
+
+**어떤 문제를 해결하나요?** 여러 모델과 도구를 하나의 안정적인 통합 계층으로 연결하고 프로토콜, 라우팅, 사용량 관리를 단순화합니다.
+
+**어떤 모델을 지원하나요?** Anthropic 프로토콜을 통한 Claude 모델과 OpenAI 호환 프로토콜을 통한 GPT/Codex 모델을 지원합니다.
+
+**어떤 도구를 지원하나요?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode, CC Switch를 지원합니다.
+
+**어떻게 시작하나요?** 계정을 등록해 $1의 체험 잔액을 받은 뒤 BetterToken API Key를 만드세요. 호환되는 제공자 모델을 선택하고 도구의 Base URL을 교체하면 됩니다.
+
+**지원 채널은 무엇인가요?** Telegram과 support@bettertoken.ai를 이용할 수 있습니다.
+
+## 문의하기
+
+고객 지원이 필요하면 Telegram으로 BetterToken에 문의하세요.
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+이메일은 <a href="mailto:support@bettertoken.ai">support@bettertoken.ai</a>로 보내 주세요.
+
+- 공식 웹사이트: <a href="https://bettertoken.ai/">https://bettertoken.ai/</a>
+- 서비스 콘솔: <a href="https://bettertoken.ai/workspace">https://bettertoken.ai/workspace</a>
+- 문의 페이지: <a href="https://bettertoken.ai/contacts">https://bettertoken.ai/contacts</a>

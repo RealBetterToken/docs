@@ -1,0 +1,127 @@
+---
+title: "Claude Desktop のサードパーティモデル：カスタム API と Codex の設定"
+sidebarTitle: "Claude Desktop のサードパーティモデル"
+description: "BetterToken のカスタム API Key、CC Switch のモデルマッピング、Gateway 設定、401 の解決を使い、Claude Desktop でサードパーティの GPT と Codex モデルを使用します。"
+---
+
+Claude Desktop は CC Switch Gateway を通じてサードパーティの GPT と Codex モデルを使用できます。CC Switch `v3.16.5` 以降で BetterToken API Key を追加し、OpenAI Responses API 形式を選択してモデルをマッピングし、プロキシを有効にして Claude Desktop を再起動します。
+
+<Info>
+  Claude Desktop と CC Switch は最新バージョンを使用してください。この設定には BetterToken API Key が必要です。
+</Info>
+
+## 設定手順
+
+<Steps>
+  <Step title="Claude Desktop と CC Switch を更新する">
+    Claude Desktop を最新バージョンに、CC Switch を `v3.16.5` 以降に更新します。
+
+    - [Claude Desktop をダウンロードする](https://claude.ai/download)
+    - [CC Switch をダウンロードする](https://github.com/farion1231/cc-switch/releases)
+  </Step>
+
+  <Step title="Claude Desktop に切り替えてプロバイダーを追加する">
+    CC Switch を開きます。上部ツールバーで **Claude Desktop** アイコンを選択し、右上の **+** をクリックしてプロバイダーを追加します。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
+        alt="CC Switch で Claude Desktop に切り替え、右上のプラスボタンをクリックしてプロバイダーを追加します。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="基本項目を入力する">
+    次の値を入力します。
+
+    - **Provider Name**: `BetterToken-codex`
+    - **API Key**: お使いの BetterToken API Key
+    - **API Endpoint**: `{{anthropic-base-url}}`
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
+        alt="BetterToken-codex、API Key、API Endpoint の項目がある CC Switch のプロバイダー編集画面。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="モデルマッピングを設定する">
+    **API Format** を **OpenAI Responses API (Requires routing)** に設定し、**Fetch Models** をクリックします。
+
+    次のマッピングを使用し、**Declare 1M** を有効のままにします。
+
+    | モデルの役割 | リクエストするモデル |
+    | --- | --- |
+    | Sonnet | `gpt-5.6-terra` |
+    | Opus | `gpt-5.6-sol` |
+    | Fable | `gpt-5.6-sol` |
+    | Haiku | `gpt-5.6-luna` |
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
+        alt="OpenAI Responses API を選択し、Sonnet、Opus、Fable、Haiku のマッピングを設定した CC Switch。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    <a href={"{{model-plaza-url}}"}>モデル広場</a>の GPT プロバイダーで現在利用可能なモデル ID を使用してください。
+  </Step>
+
+  <Step title="保存、切り替え、プロキシを有効にする">
+    プロバイダーを保存した後、Claude Desktop のプロバイダーリストに戻ります。
+
+    1. 新しい **BetterToken-codex** プロバイダーを選択し、**In use** と表示されることを確認します。
+    2. 左上のプロキシスイッチをオンにします。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
+        alt="CC Switch で BetterToken-codex がアクティブになり、左上のプロキシスイッチが有効になっています。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Claude Desktop を再起動してモデルを選択する">
+    Claude Desktop を完全に終了してから、もう一度開きます。左下の **Gateway** は設定が有効であることを示します。
+
+    メッセージボックスのモデルメニューから必要なモデルを選択して、作業を開始します。
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
+        alt="再起動後の Claude Desktop。左下に Gateway、メッセージボックスにモデル選択メニューが表示されています。"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## トラブルシューティング
+
+### Claude Desktop に Gateway が表示されない
+
+CC Switch で **BetterToken-codex** が **In use** に設定され、プロキシスイッチがオンであることを確認します。Claude Desktop を完全に終了してから、もう一度開きます。
+
+### モデルリストが空である
+
+プロバイダー編集画面を開き、**Fetch Models** をクリックして、モデルマッピングが保存されたことを確認します。<a href={"{{model-plaza-url}}"}>モデル広場</a>の GPT プロバイダーからモデル ID を使用し、Claude Desktop を再起動します。
+
+### `401` または `Unauthorized`
+
+BetterToken API Key を入力したことを確認します。Key を置き換えた後、プロバイダーを保存し、プロキシを再度有効にして Claude Desktop を再起動します。
+
+### リクエストが BetterToken 経由で送信されない
+
+Claude Desktop Official ではなく **BetterToken-codex** がアクティブであり、左上のプロキシスイッチが有効のままであることを確認します。
+
+## 関連ガイド
+
+- [CC Switch で BetterToken を設定する](/ja/ai-tools/cc-switch)
+- [Codex CLI でカスタムプロバイダーを設定する](/ja/ai-tools/codex)
+- [Cline で OpenAI 互換 API を設定する](/ja/ai-tools/cline)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)

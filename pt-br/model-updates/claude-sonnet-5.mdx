@@ -1,0 +1,46 @@
+---
+title: "Claude Sonnet 5 já está disponível"
+description: "A BetterToken atualizou o Claude Sonnet 5 em 1º de julho de 2026 para Claude Code, agentes de programação, trabalhos com contexto extenso e fluxos que precisam de um modelo Sonnet mais avançado."
+tag: "NEW"
+---
+
+Data de lançamento: 1º de julho de 2026
+
+A BetterToken atualizou a opção do modelo `Claude Sonnet 5`. Consulte a <a href={"{{model-plaza-url}}"}>model plaza</a> para ver o ID de modelo disponível e os preços atuais. Depois, configure-o seguindo o guia do Claude Code ou da ferramenta externa correspondente ao seu cliente.
+
+O `Claude Sonnet 5` é a nova geração da família Sonnet. A Anthropic o apresenta como uma evolução do `Claude Sonnet 4.6`, com os maiores avanços em programação, tarefas com agentes e trabalho profissional.
+
+## Destaques
+
+- **Mais adequado para programação e agentes**: segundo a Anthropic, os maiores avanços do Sonnet 5 em relação ao Sonnet 4.6 estão na programação e em tarefas com agentes
+- **Janela de contexto maior**: o Sonnet 5 oferece por padrão uma janela de contexto de `1M tokens` e até `128K tokens` de saída
+- **Raciocínio adaptativo ativado por padrão**: solicitações sem o campo `thinking` são executadas com raciocínio adaptativo
+- **Migração simples**: se você já usa o Sonnet 4.6, pode migrar a maioria das solicitações alterando o ID de modelo para `claude-sonnet-5`
+- **Comportamento de segurança mais claro**: em conteúdo de alto risco sobre segurança cibernética, o modelo pode recusar a solicitação com `stop_reason: "refusal"` em vez de retornar um erro HTTP
+
+## Observações sobre a migração
+
+Se você estiver migrando do Sonnet 4.6 para o Sonnet 5, revise primeiro estas configurações:
+
+- **Revise `max_tokens`**: o histórico de raciocínio e a resposta final compartilham o mesmo limite de saída. Por isso, tarefas próximas do limite podem precisar de mais espaço
+- **Remova orçamentos manuais de raciocínio**: `thinking: { "type": "enabled", "budget_tokens": ... }` não é mais aceito no Sonnet 5; use o raciocínio adaptativo
+- **Não defina parâmetros de amostragem diferentes do padrão**: valores não padrão de `temperature`, `top_p` ou `top_k` podem retornar um erro `400`
+- **Recalcule os tokens**: o Sonnet 5 usa um novo tokenizador, então o mesmo texto pode produzir mais tokens do que no Sonnet 4.6
+
+## Orientações de configuração
+
+Se você usa o Claude Code, comece pelo [guia de configuração do Claude Code](/pt-br/ai-tools/claude-code). Cada provedor usa protocolos e padrões de configuração de modelo diferentes:
+
+- Provedor `Claude`: use `{{anthropic-base-url}}`
+- Provedor `GPT` ou ferramentas externas: siga o guia da ferramenta correspondente com `{{openai-base-url}}`
+
+Use o nome de modelo exibido no momento na <a href={"{{model-plaza-url}}"}>model plaza</a>. Não fixe no código um nome de modelo que não apareça nessa página.
+
+<Tip>
+  Se você executa tarefas de programação com contexto extenso, correções automáticas, revisão de código ou fluxos de agentes com várias etapas, teste primeiro o `claude-sonnet-5`. Se o custo for importante para sua carga de trabalho, faça uma estimativa com os preços da model plaza antes de migrar.
+</Tip>
+
+## Referências
+
+- [Novidades do Claude Sonnet 5](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5)
+- [Claude Sonnet 5 - Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5.html)

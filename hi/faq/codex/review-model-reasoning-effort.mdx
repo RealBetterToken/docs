@@ -1,0 +1,58 @@
+---
+title: "Codex CLI में review_model और reasoning_effort का क्या अर्थ है?"
+sidebarTitle: "review_model / reasoning"
+description: "review_model, model_reasoning_effort, /review और /model समझें, तथा जानें कि ये settings Codex CLI में cost और quality को कैसे प्रभावित करती हैं।"
+---
+
+## संक्षिप्त उत्तर
+
+`review_model`, वह model है जिसे Codex code review workflows के लिए उपयोग करता है। `model_reasoning_effort`, Responses API समर्थित models के लिए reasoning strength नियंत्रित करता है।
+
+दोनों fields quality, speed और usage cost को प्रभावित कर सकते हैं। उच्च reasoning settings complex tasks के लिए बेहतर हैं, लेकिन वे अधिक उपयोग कर सकते हैं।
+
+## Field संबंध
+
+| Field | भूमिका |
+| --- | --- |
+| `model` | सामान्य काम के लिए default model |
+| `review_model` | `/review` जैसे review workflows के लिए उपयोग model |
+| `model_reasoning_effort` | main model की reasoning strength |
+| `/model` | model या reasoning बदलाव के लिए in-session entry point |
+| `/review` | Codex से current changes review कराने का entry point |
+
+## अनुशंसित config
+
+```toml
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+```
+
+छोटे त्वरित edits के लिए reasoning effort कम कर सकते हैं। cross-file refactors, कठिन debugging या long-context tasks के लिए उच्च reasoning effort अधिक उपयुक्त है।
+
+## सामान्य गलतियां
+
+- सोचना कि `review_model`, सभी tasks के लिए main model को बदल देता है।
+- reasoning effort को temperature setting मानना।
+- current provider द्वारा असमर्थित model ID उपयोग करना।
+- हर task के लिए सबसे उच्च reasoning effort उपयोग करना।
+- actual usage और result quality जांचे बिना केवल model names देखना।
+
+## BetterToken के बारे में
+
+अलग models और reasoning settings usage को प्रभावित करते हैं। BetterToken usage records, वास्तविक tasks में input, output और cost की तुलना में मदद करते हैं।
+
+**GPT provider** से model IDs copy करें ताकि current provider उन्हें पहचान सके।
+
+## संबंधित दस्तावेज
+
+- [Codex CLI config.toml कैसे कॉन्फ़िगर करें](/hi/faq/codex/config-toml)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Codex BetterToken सेटअप गाइड](/hi/ai-tools/codex)
+- [Codex CLI sandbox और approval modes क्या हैं?](/hi/faq/codex/sandbox-approval)
+
+## संदर्भ
+
+- [Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)
+- [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)

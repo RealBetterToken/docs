@@ -1,0 +1,111 @@
+---
+title: "third-party API उपयोग करते समय official Codex login और session history कैसे रखें?"
+sidebarTitle: "login और history बनाए रखें"
+description: "official Codex login, plugins, Remote Control और unified session history बनाए रखते हुए CC Switch के साथ third-party API या custom model उपयोग करें।"
+---
+
+आप official Codex login खोए बिना third-party API या custom model उपयोग कर सकते हैं। official plugins, Remote Control और unified session history बनाए रखने के लिए CC Switch में दो Codex App Enhancements चालू करें।
+
+## शुरू करने से पहले
+
+1. CC Switch `v3.16.1` या बाद का version उपयोग करें।
+2. अपने official ChatGPT / Codex account से Codex में एक बार sign in करें।
+3. CC Switch में अपना third-party API provider या custom model जोड़ने और सक्षम करने के लिए [CC Switch सेटअप गाइड में Codex CLI चरण](/hi/ai-tools/cc-switch#codex-cli) देखें।
+
+<Warning>
+  API Keys, login tokens या अन्य authentication data को screenshots, chats, issues या logs में साझा न करें।
+</Warning>
+
+## दोनों Codex App Enhancements सक्षम करें
+
+CC Switch में **Settings → General → Codex App Enhancements** खोलें और दोनों switches चालू करें:
+
+1. **third-party providers बदलते समय official login बनाए रखें**
+2. **एकीकृत Codex session history**
+
+<Frame>
+  <img
+    src="/images/codex-official-login-state/cc-switch-codex-app-enhancements.png"
+    alt="CC Switch Codex App Enhancements, जिसमें Keep official login और Unified Codex session history सक्षम हैं।"
+    style={{ borderRadius: '0.5rem' }}
+  />
+</Frame>
+
+### official login, plugins और Remote Control बनाए रखें
+
+**Keep official login when switching third-party providers**, third-party API provider या custom model पर स्विच करने पर official Codex login बनाए रखता है।
+
+model requests फिर भी CC Switch में वर्तमान में चुने provider का उपयोग करते हैं, जबकि Codex App official login की जरूरत वाली सुविधाओं, जैसे official plugins और Remote Control, का उपयोग जारी रख सकता है।
+
+विस्तृत चरणों के लिए CC Switch गाइड देखें: [third-party API उपयोग करते समय Codex Remote Control और official plugins बनाए रखें](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-official-auth-preservation-guide-zh.md)।
+
+### official और third-party sessions साथ देखें
+
+**Unified Codex session history**, official subscription और third-party providers से बनाए गए sessions को एक history list में दिखाता है।
+
+इसे सक्षम करने पर आप चुन सकते हैं कि मौजूदा official sessions को उस list में स्थानांतरित करना है या नहीं। CC Switch migration से पहले original sessions का अपने-आप backup लेता है।
+
+विस्तृत चरणों के लिए CC Switch गाइड देखें: [Unified Codex session history](https://github.com/farion1231/cc-switch/blob/main/docs/guides/codex-unified-session-history-guide-zh.md)।
+
+## Codex रीस्टार्ट करें
+
+दोनों switches चालू करने के बाद Codex को पूरी तरह बंद करके रीस्टार्ट करें। रीस्टार्ट के बाद Codex current CC Switch configuration और unified session history को फिर load करता है।
+
+## पुष्टि करें कि setup काम करता है
+
+रीस्टार्ट के बाद निम्न पुष्टि करें:
+
+1. Codex अब भी आपका official account login दिखाता है।
+2. official plugins या Remote Control सामान्य रूप से काम करते हैं।
+3. CC Switch में आपका third-party API provider या custom model चुना हुआ है।
+4. test message सामान्य रूप से लौटता है।
+
+<Note>
+  unified history आपको sessions एक स्थान पर देखने देता है, लेकिन यह guarantee नहीं करता कि मौजूदा session providers के बीच जारी रह सकता है। संभव होने पर session को उसी provider से resume करें जिसने उसे बनाया था। अन्य provider के लिए नया session शुरू करें।
+</Note>
+
+## Manual setup
+
+Manual setup उन advanced users के लिए है जो local Codex files संपादित करने में सहज हैं। अधिकांश users को पहले CC Switch उपयोग करना चाहिए।
+
+<Steps>
+  <Step title="official Codex login बनाए रखें">
+    पहले Codex App या Codex CLI में अपने official ChatGPT / Codex account से sign in करें, फिर पुष्टि करें कि Remote Control या plugins काम करते हैं।
+
+    अपने official login से बनाई content को `~/.codex/auth.json` में रखें। उसके tokens को copy, sync या share न करें।
+  </Step>
+
+  <Step title="config.toml संपादित करें">
+    `~/.codex/config.toml` खोलें, फिर यह provider configuration जोड़ें या merge करें:
+
+    ```toml
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = true
+    experimental_bearer_token = "YOUR_API_KEY"
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    `YOUR_API_KEY` को अपने BetterToken API Key से बदलें। `requires_openai_auth = true`, official login बनाए रखता है, जबकि `experimental_bearer_token`, third-party API requests भेजता है।
+  </Step>
+
+  <Step title="रीस्टार्ट करें और सत्यापित करें">
+    Codex को पूरी तरह बंद करके रीस्टार्ट करें। पुष्टि करें कि official login बना रहता है, Remote Control या plugins खुलते हैं और test message सामान्य रूप से लौटता है।
+
+    यदि model उपलब्ध नहीं है, तो पुष्टि करें कि `model`, <a href={"{{model-plaza-url}}"}>model plaza</a> में GPT provider द्वारा दिया गया Model ID है।
+  </Step>
+</Steps>

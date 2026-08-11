@@ -1,0 +1,78 @@
+---
+title: "Responses API와 Messages API의 Input Tokens가 다른 이유는 무엇인가요?"
+sidebarTitle: "Responses vs Messages tokens"
+description: "same API Key와 model이 Responses API 및 Messages API에서 different input tokens를 report하는 이유와 requests를 fairly compare하는 방법을 알아보세요."
+---
+
+## 빠른 답변
+
+same API Key, model, user message를 사용해도 Responses API와 Messages API는 different input token counts를 report할 수 있습니다. Usage는 sent sentence만이 아니라 model이 received하는 full context에 따라 달라집니다.
+
+Codex-compatible Responses route를 통해 served되는 일부 GPT models의 경우 `instructions`가 omitted되면 upstream이 official Codex base instructions를 supply할 수 있습니다. 해당 instructions는 model context에 enter하고 response의 `instructions` field에 나타납니다. Messages API는 different protocol path를 사용하며 same Codex base instructions를 automatically 사용하지 않으므로 same short question도 여기서는 few input tokens만 report할 수 있습니다.
+
+BetterToken은 이 prompt를 ordinary OpenAI-compatible requests에 add하지 않으며, 존재한다고 해서 Codex App을 사용 중이라는 뜻은 아닙니다. selected upstream의 Responses route implementation에서 나온 것입니다.
+
+## input tokens로 count될 수 있는 항목
+
+| Content | input tokens로 count될 수 있음 |
+| --- | --- |
+| User message | 예 |
+| `instructions`, system 또는 developer prompts | 예 |
+| Conversation history와 summaries | 예 |
+| File content, code context 및 attachments | 예 |
+| Tool definitions와 tool results | 예 |
+| cache에서 served된 repeated context | cache read tokens로 reported |
+
+Responses API에서 `instructions`는 system 또는 developer-level message로 model context에 enter합니다. request record 또는 response에 long `instructions` value가 표시되면 이는 additional input tokens의 significant source입니다.
+
+## usage records 읽는 방법
+
+- `input_tokens`: this request의 model context에 entered한 total input입니다. ordinary input과 cache reads가 포함될 수 있습니다.
+- `cache_read_input_tokens`: cache에서 retrieved한 input의 part입니다. this request's context의 일부로 remains하며 server가 cached context processing을 reused했다는 것을 indicates합니다. billing rule은 model의 cached-input price를 따릅니다.
+- `output_tokens`: this request에 대해 model이 generated한 content입니다.
+
+예를 들어 Responses record는 `input_tokens` `4393`을 표시할 수 있으며 여기에는 `cache_read_input_tokens` `3840`이 포함됩니다. 모든 `4393` tokens가 context에 participated했지만 `3840`은 cache reads이므로 모두 ordinary input으로 billed되지는 않습니다. <a href={"{{model-plaza-url}}"}>모델 광장</a>에 표시된 current billing rules를 사용하여 ordinary input, cache reads, output을 separately review하세요.
+
+## direct API call에 `instructions`가 포함될 수 있는 이유
+
+`instructions`는 model에 system- 또는 developer-level guidance를 add하는 데 사용되는 official Responses API field입니다. Responses protocol은 이 field를 allows하지만 `/v1/responses`를 call한다는 이유만으로 Codex prompt를 prescribe하지는 않습니다.
+
+model이 Codex-compatible Responses route를 통해 served되면 upstream implementation은 official Codex `base_instructions`를 load하고 final model에 default `instructions`로 send하며 response에 echo할 수 있습니다. 따라서 original HTTP body에는 `model`과 `input`만 포함되어도 response에는 `You are Codex...`로 beginning하는 long value가 여전히 포함될 수 있습니다.
+
+different upstream domains가 exactly same text를 return할 수 있습니다. 해당 providers는 same Codex-compatible gateway implementation, same official model metadata 또는 same final Codex Responses backend를 사용할 수 있습니다. Different domain names가 different model routes 또는 base instructions를 guarantee하지는 않습니다.
+
+BetterToken의 ordinary OpenAI-compatible relay는 해당 Codex base instructions를 generate하지 않습니다. BetterToken은 submit한 `instructions`를 preserves하고 upstream response를 returns합니다. Chat Completions와 Messages는 different protocol entry points를 사용하므로 same default를 necessarily receive하지 않습니다.
+
+source를 identify하려면 다음 steps를 사용하세요.
+
+1. request가 created되는 위치에서 redacted raw HTTP body를 log하세요. `instructions`, `system`, `developer` messages가 `input`, conversation history, tools 또는 files에 있는지 확인하세요.
+2. same API Key와 Model ID로 `model`과 하나의 `input`만 containing하는 minimal request를 send하세요. `instructions`, history 또는 tools는 send하지 마세요.
+3. two responses에서 `instructions`와 usage를 compare하세요.
+4. outbound body에 `instructions`가 없지만 response에 long value가 여전히 포함되면 upstream Responses path에서 added된 것입니다. further verification을 위해 request time, request ID, model, redacted body를 BetterToken support에 send하세요.
+
+## two protocols를 fairly compare하는 방법
+
+investigating할 때 다음 checklist를 사용하세요.
+
+1. same Model ID를 사용합니다.
+2. exactly same user message를 send합니다.
+3. both requests에 same system, developer 또는 `instructions` content를 사용합니다. minimal test에서는 both에서 extra content를 omit합니다.
+4. different conversation history, files, attachments, tools 또는 MCP context를 include하지 마세요.
+5. total cost만 compare하지 말고 input, cache, output을 separately compare합니다.
+
+same key, Model ID, user message로 both endpoints에 minimal requests를 send하세요. 이렇게 하면 protocol behavior와 client-supplied context를 distinguish하기가 쉬워집니다.
+
+## API 선택 방법
+
+- Responses API reasoning, tools 또는 Codex-compatible behavior가 필요하면 `/v1/responses`를 사용하고 ordinary input과 cache reads를 separately review하세요.
+- simple chat만 필요하고 model이 Chat Completions 또는 Messages도 supports한다면 endpoint를 choose하기 전에 output quality, compatibility, cost를 compare하세요.
+- total `input_tokens`만으로 cost를 estimate하지 마세요. Cached input은 normal하게 separate billing rule을 따릅니다.
+
+local `instructions` field를 removing해도 upstream이 added한 default Codex instructions는 remove할 수 없습니다. 해당 default가 없는 protocol이 필요하다면 target model이 Chat Completions 또는 Messages를 supports하는지 먼저 confirm하세요.
+
+## 관련 문서
+
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [BetterToken으로 Codex CLI configure](/ko/ai-tools/codex)
+
+- [OpenAI Responses API reference 문서](https://platform.openai.com/docs/api-reference/responses)

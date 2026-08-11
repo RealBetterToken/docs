@@ -1,0 +1,90 @@
+---
+title: "Qu’est-ce que max_tokens ? Que se passe-t-il si je ne le définis pas ?"
+sidebarTitle: "max_tokens"
+description: "Comprenez max_tokens, max_completion_tokens et max_output_tokens, ainsi que la définition d’une limite de tokens de sortie pour les appels de modèles."
+---
+
+## Réponse courte
+
+`max_tokens` limite le nombre de tokens que le modèle peut générer dans une réponse. Les API et les modèles utilisent des noms de champs, des paramètres obligatoires et des comportements par défaut différents.
+
+Pour une sortie stable, définissez une limite de sortie explicite pour les réponses longues, la génération de code et les tâches de documentation. Pour les appels d’API Claude / compatibles Anthropic, vous devez généralement envoyer `max_tokens` explicitement.
+
+## Concepts fondamentaux
+
+| Concept | Signification |
+| --- | --- |
+| Tokens d’entrée | Vos messages, le contexte, le contenu des fichiers, les résultats d’outils et d’autres entrées |
+| Tokens de sortie | La réponse visible générée par le modèle |
+| Tokens de raisonnement | Tokens de raisonnement cachés utilisés en interne par certains modèles de raisonnement |
+| Fenêtre de contexte | La limite partagée utilisée par les entrées, les sorties et certains tokens internes |
+| Limite de sortie | La sortie visible maximale générée dans une réponse |
+
+Si la limite de sortie est trop faible, la réponse peut être tronquée. Si elle est très élevée, le modèle ne générera pas toujours autant de tokens, mais les tâches à longue sortie peuvent coûter davantage.
+
+## Différents noms de paramètres
+
+| Paramètre | Cas d’utilisation courant |
+| --- | --- |
+| `max_tokens` | Claude / Anthropic Messages API et certaines configurations Chat Completions |
+| `max_completion_tokens` | Certains modèles de raisonnement OpenAI via Chat Completions |
+| `max_output_tokens` | Champ de limite de sortie courant pour OpenAI Responses API |
+
+Si vous utilisez Codex CLI ou un autre outil fondé sur la Responses API, utilisez le champ actuellement pris en charge par cet outil ou fournisseur. Ne codez pas en dur le même nom de paramètre pour chaque modèle.
+
+## Que se passe-t-il si vous ne le définissez pas ?
+
+Le comportement diffère selon le fournisseur et l’API :
+
+| Scénario | Résultat possible |
+| --- | --- |
+| API Claude / compatible Anthropic | Peut exiger une valeur `max_tokens` explicite |
+| Chat Completions compatible OpenAI | Peut utiliser le comportement par défaut du modèle |
+| OpenAI Responses API | Peut utiliser `max_output_tokens` ou la valeur par défaut de l’outil |
+| Autres modèles | Peuvent avoir leurs propres limites de sortie par défaut |
+
+Le même code peut produire des longueurs de sortie différentes après un changement de modèle. Pour limiter les surprises en production, définissez une limite de sortie explicite.
+
+## Plages recommandées
+
+| Tâche | Plage suggérée |
+| --- | --- |
+| Questions-réponses générales | `1024` - `4096` |
+| Explication de code / petites modifications | `4096` - `8192` |
+| Rédaction longue / tâches de programmation complexes | `8192` ou plus, selon la limite du modèle |
+| Tâches par lots | Utilisez une limite plus faible pour éviter des réponses trop longues inattendues |
+
+Consultez la <a href={"{{model-plaza-url}}"}>model plaza</a> et la documentation du modèle en amont pour connaître le maximum réel. Les limites de sortie des modèles peuvent changer selon la version.
+
+## Que faire si la sortie est tronquée ?
+
+Si la réponse contient `finish_reason: "length"`, le modèle a généralement atteint la limite de sortie.
+
+Procédez au dépannage dans cet ordre :
+
+1. Augmentez le champ de limite de sortie pris en charge par l’API actuelle.
+2. Vérifiez que vous utilisez le bon nom de paramètre.
+3. Rendez la consigne plus ciblée pour réduire la sortie inutile.
+4. Utilisez un modèle avec une fenêtre de sortie plus grande.
+5. Divisez la tâche en plusieurs étapes.
+
+## Erreurs fréquentes
+
+- Supposer qu’une valeur `max_tokens` plus élevée fait toujours écrire davantage le modèle.
+- Réessayer après une troncature sans vérifier `finish_reason`.
+- Utiliser un ancien nom de champ avec un modèle de raisonnement.
+- Ignorer les tokens de raisonnement cachés lors de l’estimation du contexte et du coût.
+- Ignorer la limite maximale de sortie du modèle.
+
+## À propos de BetterToken
+
+BetterToken enregistre l’utilisation au niveau de l’API Key et des requêtes de modèles. Vous pouvez utiliser le tableau de bord pour observer l’utilisation des tokens pour différents modèles et tâches.
+
+Le champ de limite de sortie est toujours déterminé par le format API et le modèle utilisés. Lors de sa configuration, vérifiez ensemble le modèle, la Base URL, le format API et le nom du paramètre.
+
+## Documentation associée
+
+- [Pourquoi Claude Code utilise-t-il autant de tokens ?](/fr/faq/token-cost/claude-code-token-usage)
+- [Comment choisir le bon modèle d’IA ?](/fr/faq/model-calling/model-selection-guide)
+- [Comment renseigner la Base URL ?](/fr/faq/model-calling/base-url-config)
+- [Que sont review_model et reasoning_effort dans Codex CLI ?](/fr/faq/codex/review-model-reasoning-effort)

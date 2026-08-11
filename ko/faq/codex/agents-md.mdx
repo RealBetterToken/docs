@@ -1,0 +1,73 @@
+---
+title: "Codex CLI의 AGENTS.md란 무엇인가요?"
+sidebarTitle: "AGENTS.md"
+description: "Codex CLI에서 AGENTS.md의 역할, instruction hierarchy의 작동 방식, 포함할 내용 및 일반적인 실수를 알아보세요."
+---
+
+## 짧은 답변
+
+`AGENTS.md`는 Codex용 project instruction file입니다. repository structure, commands, tests, coding style, commit rules 및 collaboration preferences를 Codex에 알려줍니다.
+
+one-time tasks가 아니라 stable project rules를 위한 것입니다. one-time requirements는 current conversation에 작성하세요.
+
+## 포함할 내용
+
+- dependencies 설치, project 시작 및 tests 실행 방법
+- 일반적인 validation commands
+- coding style 및 naming conventions
+- 함부로 변경해서는 안 되는 directories
+- finishing 전 필수 checks
+- communication 및 output에 대한 team preferences
+
+## 포함하지 말아야 할 내용
+
+- API Keys, tokens, passwords 또는 private credentials
+- temporary task instructions
+- 긴 product background stories
+- repository와 무관한 generic prompts
+- outdated commands 및 paths
+
+## 권장 구조
+
+```md
+# Project instructions
+
+## Build and test
+- Run `npm test` before finishing behavior changes.
+- Run `npm run lint` after editing TypeScript files.
+
+## Style
+- Keep diffs small and focused.
+- Match existing component patterns.
+
+## Safety
+- Do not edit files outside this repository.
+- Do not commit secrets.
+```
+
+## 일반적인 실수
+
+- `AGENTS.md`를 매우 긴 universal prompt로 만듦
+- file에 secrets를 작성함
+- project commands가 변경되었을 때 업데이트를 잊음
+- `AGENTS.md`를 user-level `config.toml`과 섞음
+- rules가 diffs와 tests 검토 필요성을 없앤다고 가정함
+
+## BetterToken 정보
+
+team이 BetterToken으로 model routing을 unify한다면 `AGENTS.md`는 여전히 중요합니다. API layer는 model requests와 usage records를 처리합니다. `AGENTS.md`는 project context와 execution norms를 처리합니다.
+
+둘 다 사용하여 configuration confusion과 collaboration cost를 줄이세요.
+
+## 관련 문서
+
+- [Codex CLI란 무엇인가요?](/ko/faq/codex/what-is-codex-cli)
+- [Codex CLI config.toml 구성](/ko/faq/codex/config-toml)
+- [Codex CLI sandbox 및 approval modes란?](/ko/faq/codex/sandbox-approval)
+- [Claude Code의 CLAUDE.md란 무엇인가요?](/ko/faq/claude-code/claude-md)
+
+## 참고 자료
+
+- [Codex AGENTS.md 가이드](https://developers.openai.com/codex/guides/agents-md)
+- [Codex 권장 사항](https://developers.openai.com/codex/learn/best-practices)
+- [OpenAI Codex discussions](https://github.com/openai/codex/discussions)

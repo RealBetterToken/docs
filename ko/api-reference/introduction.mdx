@@ -1,0 +1,62 @@
+---
+title: "API 레퍼런스"
+description: "BetterToken OpenAI 호환 Chat Completions API의 요청 URL, 인증 방식, 테스트 진입점을 확인하세요."
+---
+
+현재 공개된 BetterToken API 레퍼런스는 **OpenAI 호환 Chat Completions API**만 다룹니다. 다른 프로토콜은 모든 채널에서 일관되게 지원되지 않으므로 Responses API와 Anthropic Messages API는 공개 인터페이스로 제공하지 않습니다.
+
+## 지원하는 제공자
+
+| 제공자 | 상태 |
+| --- | --- |
+| Claude | 지원하지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+## 연결 정보
+
+| 필드 | 값 |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| Full request URL | `{{chat-completions-url}}` |
+| Method | `POST` |
+| Authorization | `Bearer YOUR_API_KEY` |
+| Model | `YOUR_MODEL_ID` |
+
+<a href={"{{model-plaza-url}}"}>모델 광장</a> 또는 콘솔의 API Key **설정** 대화 상자에서 현재 Model ID를 복사하세요.
+
+<Warning>
+  도구에서 **Base URL**을 요구하면 `{{openai-base-url}}`을 입력하세요. 도구가 전체 요청 URL을 명시적으로 요구할 때만 `{{chat-completions-url}}`을 사용하세요.
+</Warning>
+
+## 빠른 테스트
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+성공한 응답에는 `choices[0].message.content`가 포함됩니다.
+
+## 대화형 테스트와 SDK 예제
+
+[OpenAI Chat Completions API](/ko/api-reference/chat-completions) 페이지에서 다음 작업을 수행할 수 있습니다.
+
+- Playground에서 요청 보내기
+- 요청 매개변수와 응답 스키마 확인하기
+- curl, Python, JavaScript 예제 복사하기
+
+<Note>
+  실제 API Key를 문서, 스크린샷, 공개 코드에 저장하지 마세요. `YOUR_API_KEY`와 `YOUR_MODEL_ID`를 자신의 값으로 교체하세요.
+</Note>

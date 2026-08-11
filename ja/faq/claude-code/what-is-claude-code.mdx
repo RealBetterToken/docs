@@ -1,0 +1,69 @@
+---
+title: "Claude Code とは？どのように動作しますか？"
+sidebarTitle: "Claude Code とは"
+description: "Claude Code の概要、コードベースとの連携方法、コンテキスト、ツール権限、MCP、API プロバイダーの関係を説明します。"
+---
+
+## 短い答え
+
+Claude Code はソフトウェア開発向けのコーディングエージェントです。単なるチャット画面ではありません。コードベースの読み取り、ファイル編集、コマンド実行を行い、ターミナル、IDE、デスクトップアプリ、ブラウザから開発タスクを支援できます。
+
+基本的なワークフローは、Claude Code がプロジェクトのコンテキストを読み取り、タスクを計画し、ツールを呼び出し、ファイルを編集し、必要に応じてチェックを実行する流れです。複数ファイルの変更、テスト修正、コードレビュー、スクリプト、より長いエンジニアリングタスク向けに設計されています。
+
+モデル API が扱うのは推論だけです。ローカル権限、ファイルアクセス、コマンド実行、フック、MCP ツールは、引き続き Claude Code とプロジェクト設定によって制御されます。
+
+## この情報が役立つ場面
+
+- 初めて Claude Code をインストールするとき
+- Claude Code にローカルリポジトリを変更させたいとき
+- ファイルを読む理由や多くの Token を使用する理由を理解したいとき
+- カスタム API Key と Base URL を接続する予定があるとき
+- Claude Code、Claude Desktop、Cursor、Codex CLI から選ぶとき
+
+## 主な概念
+
+| 概念 | 意味 |
+| --- | --- |
+| コーディングエージェント | コードを確認し、ツールを使い、ファイルを編集してコマンドを実行できる、開発向けエージェント |
+| 作業ディレクトリ | Claude Code が確認と変更を行えるプロジェクトディレクトリ |
+| ツールの使用 | ファイル読み取り、コード検索、ファイル編集、シェルコマンドなどの操作 |
+| コンテキスト | 会話履歴、ファイル、プロジェクトルール、`CLAUDE.md`、ツール結果 |
+| MCP | ツールとデータソースを追加するためのプロトコル。モデル API ではありません |
+| `CLAUDE.md` | Claude Code がコンテキストとして読み込めるプロジェクト指示ファイル |
+
+## 推奨ワークフロー
+
+1. 実際のプロジェクトディレクトリから Claude Code を起動します。
+2. 大きな変更の前に、関連ファイルを確認するよう依頼します。
+3. 複雑な作業では、実装前に計画を作成するよう依頼します。
+4. 少数のファイルを変更させてから、最も速い関連チェックを実行します。
+5. 安定したプロジェクトルールは `CLAUDE.md` に記載し、今回だけの指示は会話に残します。
+
+API ゲートウェイ経由で Claude Code を接続する場合は、エンドポイントが Anthropic 互換であることを確認してください。このドキュメントでは、Claude Code は `{{anthropic-base-url}}` を使用します。Claude Code の Anthropic プロトコル設定に OpenAI 互換の `{{openai-base-url}}` を使用しないでください。
+
+## よくある間違い
+
+- Claude Code を通常のチャット画面として扱い、ローカルファイルに変更を加えられることを忘れること。
+- ファイルやプロジェクト指示を読まずに、リポジトリ全体を理解できると期待すること。
+- MCP をモデル API として扱うこと。MCP はツールを追加し、API Key、Base URL、モデル ID は推論を設定します。
+- Claude.ai ログイン、Claude Console API、サードパーティ API ゲートウェイを混同すること。
+- レビュー、テスト、コマンドの境界なしに広いローカル実行を許可すること。
+
+## BetterToken について
+
+Claude Code でカスタム API Key と Base URL を使用すると、モデルリクエストを Anthropic 互換 API ゲートウェイ経由で送信できます。BetterToken はそのモデル API レイヤーに属し、API Key、残高、使用履歴の管理に役立ちます。
+
+BetterToken は Claude Code の権限、ファイルアクセス制御、フック、MCP 設定、プロジェクトルールを置き換えません。これらは Claude Code のワークフローに引き続き含まれます。
+
+## 関連ドキュメント
+
+- [Claude Code 設定ガイド](/ja/ai-tools/claude-code)
+- [Claude Code は Claude.ai アカウントと API Key のどちらを使用しますか？](/ja/faq/claude-code/claude-account-or-api-key)
+- [Claude Code で API Key と Base URL を設定する方法](/ja/faq/claude-code/api-key-base-url)
+- [Claude Code の CLAUDE.md とは？](/ja/faq/claude-code/claude-md)
+
+## 参照
+
+- [Claude Code の概要](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code クイックスタート](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [Claude がプロジェクトを記憶する方法](https://docs.anthropic.com/en/docs/claude-code/memory)

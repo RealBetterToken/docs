@@ -1,0 +1,59 @@
+---
+title: "local development에서 Claude Code와 Cursor 비교"
+sidebarTitle: "Claude Code와 Cursor"
+description: "local projects, editor integration, rules files, MCP, model setup 및 permission control에서 Claude Code와 Cursor를 비교하세요."
+---
+
+## 짧은 답변
+
+Claude Code는 terminal coding agent에 가깝습니다. code를 읽고 commands를 실행하며 files를 편집하고 `CLAUDE.md`, permissions, hooks 및 MCP를 따를 수 있는 기존 repositories에서 잘 작동합니다.
+
+Cursor는 AI IDE에 가깝습니다. editor 안에서 completion, chat, Composer, rules, indexing 및 code edits를 원할 때 잘 작동합니다.
+
+어느 쪽도 다른 쪽을 완전히 대체하지 않습니다. terminal agent workflow와 editor-native AI workflow 중 무엇을 선호하는지에 따라 선택하세요.
+
+## 주요 차이점
+
+| 구분 | Claude Code | Cursor |
+| --- | --- | --- |
+| 주요 진입점 | terminal / command line | AI IDE |
+| 프로젝트 context | `CLAUDE.md`, conversation context, tool reads | Cursor Rules, indexing, editor context |
+| Permission control | permissions, hooks, confirmation flow | tool approval, editor permissions, rules |
+| MCP | MCP tools 지원 | MCP tools 지원 |
+| Model setup | Claude / Anthropic-compatible 우선 | OpenAI-compatible, custom provider, built-in models |
+| 적합한 용도 | multi-step tasks, command execution, repo-wide changes | editor interaction, navigation, focused edits, completion |
+
+## 선택 방법
+
+agent에게 repo를 inspect하고 plan을 세우며 tests를 실행하고 일괄 changes를 수행하게 하는 방식을 선호한다면 Claude Code를 사용하세요.
+
+대부분의 시간을 editor에서 보내고 AI가 current file, selection, index 및 project rules를 이해하기를 원한다면 Cursor를 사용하세요.
+
+둘 다 사용한다면 model API layer를 공유할 수 있지만 각 tool에는 여전히 자체 rules와 permission boundaries가 필요합니다.
+
+## 일반적인 실수
+
+- Cursor Rules를 Claude Code가 자동으로 읽는다고 가정함
+- `CLAUDE.md`가 Cursor project rules를 대체한다고 가정함
+- workflow와 permissions 대신 model names만 비교함
+- MCP를 tool/context extension layer가 아니라 model API로 취급함
+- editor indexing과 terminal command execution의 차이를 무시함
+
+## BetterToken 정보
+
+Claude Code와 Cursor가 model routing 및 usage visibility를 공유하게 하려면 각 tool을 기대하는 protocol로 구성하세요.
+
+Claude Code는 보통 `{{anthropic-base-url}}`을 사용합니다. Cursor 및 유사한 external tools는 보통 **GPT provider**에서 복사한 model IDs와 함께 `{{openai-base-url}}`을 사용합니다.
+
+## 관련 문서
+
+- [Claude Code란 무엇인가요?](/ko/faq/claude-code/what-is-claude-code)
+- [Cursor에서 custom OpenAI API 구성](/ko/faq/cursor/custom-openai-api)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 참고 자료
+
+- [Claude Code 개요](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Cursor 문서](https://cursor.com/docs)
+- [Claude Code와 Cursor에 관한 Hacker News 토론](https://news.ycombinator.com/item?id=44353879)

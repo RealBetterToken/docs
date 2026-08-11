@@ -1,0 +1,58 @@
+---
+title: "Claude Code에서 Sonnet과 Opus 전환"
+sidebarTitle: "Sonnet / Opus 전환"
+description: "Claude Code에서 /model, model aliases, 전체 model IDs, provider differences 및 cost impact를 알아보세요."
+---
+
+## 짧은 답변
+
+Claude Code에서 Sonnet, Opus 또는 다른 model을 전환할 때는 지원되는 `/model` entry point 또는 official model configuration path를 우선 사용하세요.
+
+Model aliases, 전체 model IDs 및 provider mappings는 항상 동일하지 않습니다. web UI에 표시되는 marketing name이 API-recognized model ID인 것은 아닙니다.
+
+third-party gateway를 사용한다면 해당 gateway 또는 provider documentation에 표시된 model ID를 사용하세요.
+
+## 이 내용이 필요한 경우
+
+- 저렴한 model과 강력한 model 사이를 전환하고 싶음
+- Sonnet / Opus / Haiku aliases가 보이지만 입력할 값을 모름
+- third-party Base URL 또는 model gateway를 사용함
+- Claude Code token cost를 제어하고 싶음
+- model not found가 표시되거나 model selection이 적용되지 않음
+
+## model names의 세 가지 계층
+
+| 계층 | 의미 |
+| --- | --- |
+| Display name | UI에 표시되는 사람이 읽기 쉬운 name |
+| Alias | tool 안의 short name 또는 shortcut |
+| Model ID | API가 실제로 인식하는 identifier |
+
+성공한 request에서 중요한 것은 current provider가 Model ID를 인식하는지 여부입니다.
+
+## 권장 방법
+
+1. current provider가 지원하는 models를 확인하세요.
+2. Claude Code `/model` 또는 official model configuration path를 사용하세요.
+3. third-party gateway를 사용한다면 해당 model plaza에서 available model ID를 복사하세요.
+4. model choice와 cost를 함께 고려하세요.
+5. model names를 직접 추측하지 마세요.
+
+## BetterToken 정보
+
+Claude Code를 BetterToken으로 연결한다면 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 current model ID를 복사하세요. Claude provider와 GPT provider models는 다른 protocol paths에 속하므로 섞지 마세요.
+
+Model choice는 quality, speed 및 cost에 영향을 줍니다. usage records는 models 간 actual consumption을 비교하는 데 도움이 됩니다.
+
+## 관련 문서
+
+- [Claude Code가 많은 tokens를 사용하는 이유](/ko/faq/token-cost/claude-code-token-usage)
+- [Claude Code에서 API Key와 Base URL 구성](/ko/faq/claude-code/api-key-base-url)
+- [Claude Code permissions와 hooks](/ko/faq/claude-code/permissions-and-hooks)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 참고 자료
+
+- [Claude Code model configuration](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code CLI 참고 자료](https://docs.anthropic.com/en/docs/claude-code/cli-reference)
+- [Claude Code costs](https://docs.anthropic.com/en/docs/claude-code/costs)

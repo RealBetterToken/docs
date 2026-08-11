@@ -1,0 +1,178 @@
+---
+title: "Droid のセットアップ：インストール、API Key、Base URL、カスタムモデル"
+sidebarTitle: "Droid"
+description: "Droid をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+icon: "robot"
+---
+
+Droid を BetterToken に接続するには、API Key を用意し、以下の Base URL を入力して、モデル広場から現在の Model ID を選択します。
+
+## 主要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+## 前提条件
+
+- 現在のバージョンのツールがインストールされている
+- BetterToken API Key：<a href={"{{register-url}}"}>登録して取得</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>の Model ID
+
+### 追加要件
+
+## インストール
+
+### Droid をインストールする
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://app.factory.ai/cli | sh
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    irm https://app.factory.ai/cli/windows | iex
+    ```
+  </Tab>
+</Tabs>
+
+## 手動設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+### 設定手順
+
+<Steps>
+  <Step title="BetterToken API Key を設定する">
+    <Tabs>
+      <Tab title="macOS / Linux">
+        ```bash
+        export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+      <Tab title="Windows PowerShell">
+        ```powershell
+        $env:BETTERTOKEN_API_KEY="YOUR_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    `YOUR_API_KEY` を BetterToken API Key に置き換えます。Droid は JSON 設定で `${BETTERTOKEN_API_KEY}` の環境変数展開をサポートしています。
+  </Step>
+
+  <Step title="Droid の設定ファイルを編集する">
+    設定ファイルのパス：`~/.factory/settings.json`
+
+    ```json
+    {
+      "customModels": [
+        {
+          "displayName": "BetterToken Codex",
+          "model": "YOUR_MODEL_ID",
+          "baseUrl": "{{openai-base-url}}",
+          "apiKey": "${BETTERTOKEN_API_KEY}",
+          "provider": "openai"
+        }
+      ]
+    }
+    ```
+
+    `YOUR_MODEL_ID` を、<a href={"{{model-plaza-url}}"}>モデル広場</a>からコピーした現在の**対応プロバイダーのモデル ID**に置き換えます。
+  </Step>
+
+  <Step title="Droid を起動してモデルを選択する">
+    ```bash
+    cd /path/to/your/project
+    droid
+    ```
+
+    Droid で `/model` を入力し、**BetterToken Codex** を選択します。Factory は設定ファイルの変更を監視します。モデル一覧が更新されない場合は、Droid を終了して再起動してください。
+  </Step>
+
+  <Step title="小さなテストタスクを実行する">
+    「このプロジェクトのディレクトリ構造を説明してください」のような小さなタスクから始めます。Droid が結果を返したら、複数ファイルの編集や、より長いエージェントタスクに進みます。
+  </Step>
+</Steps>
+
+<Note>
+  `provider` を `openai` に設定します。Factory の BYOK 設定では、この値で OpenAI Responses API を選択します。`{{openai-base-url}}` と BetterToken API Key を使用してください。
+</Note>
+
+## 接続を確認する
+
+短いテストプロンプトを送信します。認証または Model ID のエラーなしでツールがレスポンスを返せば、接続は機能しています。設定を変更した後はツールを完全に再起動してください。
+
+## モデルを切り替える
+
+モデルセレクターを開くか、設定の `Model` フィールドを変更します。<a href={"{{model-plaza-url}}"}>モデル広場</a>にある正確な Model ID を使用してから、現在のセッションを再起動してください。
+
+## よくあるエラー
+
+### トラブルシューティング
+
+| 症状 | 確認事項 |
+| --- | --- |
+| `/model` にカスタムモデルがない | JSON を検証し、`model`、`baseUrl`、`apiKey`、`provider` がすべて存在することを確認します。 |
+| `Invalid provider` | UI の表示ラベルではなく、正確な小文字の値 `"openai"` を使用します。 |
+| `401` または `403` | API Key を再度コピーし、Droid プロセスが `BETTERTOKEN_API_KEY` を読めることと、アカウント残高を確認します。 |
+| `404` または Model not found | `{{openai-base-url}}` を使用し、モデル広場から現在の GPT モデル ID をコピーします。 |
+| 編集後も古いモデルが残る | `/model` をもう一度開きます。更新されない場合は、Droid を完全に終了して再起動します。 |
+
+### FAQ
+
+### 対応プロバイダーを使用すべき理由は何ですか？
+
+Droid の `provider: "openai"` は OpenAI Responses API を使用します。BetterToken の対応プロバイダーは、一致する OpenAI 互換 Endpoint とモデル ID を提供します。
+
+### カスタムヘッダーは必要ですか？
+
+標準的な BetterToken 設定では追加ヘッダーは不要です。別のゲートウェイで明示的に要求される場合にのみ、テナント、ルーティング、監査用のヘッダーを追加してください。
+
+### 価格と利用状況はどこで確認できますか？
+
+現在のモデル価格には、最新の<a href={"{{model-plaza-url}}"}>モデル広場</a>を使用してください。リクエスト使用量と残高は BetterToken Dashboard で確認できます。
+
+### 関連 FAQ
+
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key / Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider、base_url、wire_api とは何ですか？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 関連ガイド
+
+- [Factory BYOK の概要](https://docs.factory.ai/cli/byok/overview)
+
+## 技術詳細
+
+<Accordion title="プロトコル、Endpoint、内部プロバイダーフィールド">
+  この設定では `{{openai-base-url}}` を使用します。ツールが OpenAI 互換の Endpoint パスを追加します。特定のフィールドで明示的に要求されない限り、`/chat/completions` や `/responses` を追加しないでください。
+</Accordion>

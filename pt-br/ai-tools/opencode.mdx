@@ -1,0 +1,150 @@
+---
+title: "Modelos personalizados no OpenCode: API Key, Base URL e configuração JSON"
+sidebarTitle: "OpenCode"
+description: "Conecte o OpenCode ao Chat Completions compatível com OpenAI do BetterToken usando /connect, opencode.json, uma API Key, a Base URL e um Model ID."
+icon: "brackets-curly"
+---
+
+O OpenCode se conecta ao BetterToken com `@ai-sdk/openai-compatible`. Nomeie o provedor do OpenCode como **BetterToken** ou **OpenAI Compatible**. GPT, Kimi e GLM são provedores de modelos dentro do BetterToken, não nomes de provedores do OpenCode.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | `YOUR_MODEL_ID` |
+
+## Pré-requisitos
+
+- Instale a versão mais recente do OpenCode
+- <a href={"{{register-url}}"}>Crie uma BetterToken API Key</a>
+- Copie um Model ID do <a href={"{{model-plaza-url}}"}>model plaza</a> ou da janela **Setup** da chave
+
+## Instalar
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## Configuração pela linha de comando
+
+O script de configuração automática do BetterToken cria ou atualiza o provedor BetterToken no OpenCode. Ele requer Node.js. Se você não informar uma API Key ou um Model ID como argumento, o script solicitará esses dados.
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-opencode-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-opencode-provider-ps1-url}}" -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+Selecione `bettertoken/YOUR_MODEL_ID` quando o script terminar. Se o OpenCode já estiver em execução, reinicie-o antes de testar.
+
+## Configuração manual
+
+### Opção 1: salvar as credenciais com /connect
+
+Inicie o OpenCode e execute:
+
+```text
+/connect
+```
+
+Escolha **Other**, informe `bettertoken` como identificador do provedor e depois insira `YOUR_API_KEY`. O OpenCode armazena a credencial localmente.
+
+### Opção 2: configurar o JSON
+
+O arquivo global é `~/.config/opencode/opencode.json`. Um projeto pode usar `opencode.json` no diretório raiz.
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "{{openai-base-url}}"
+      },
+      "models": {
+        "YOUR_MODEL_ID": {
+          "name": "YOUR_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+Se você não usar `/connect`, adicione `"apiKey": "YOUR_API_KEY"` em `options`. Nunca faça commit de uma configuração que contenha uma chave real.
+
+## Verificar a conexão
+
+Execute `opencode` em um projeto, selecione `bettertoken/YOUR_MODEL_ID` e envie uma mensagem curta. Uma resposta normal confirma a configuração. Reinicie o OpenCode depois de alterar o JSON.
+
+## Trocar de modelo
+
+Adicione um novo `YOUR_MODEL_ID` em `provider.bettertoken.models`, atualize o `model` de nível superior, salve e reinicie o OpenCode.
+
+## Erros comuns
+
+| Erro | Solução |
+| --- | --- |
+| `401` | Execute `/connect` novamente ou verifique `apiKey`. |
+| `404` | Use somente `{{openai-base-url}}` como `baseURL`; não acrescente `/chat/completions`. |
+| Modelo não encontrado | Faça o `model` de nível superior corresponder exatamente a um ID em `models`. |
+| Configuração não aplicada | Verifique se o `opencode.json` do projeto substitui o arquivo global e reinicie o OpenCode. |
+
+## Configuração avançada
+
+{/* tool-provider-support:start */}
+### Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Linha de comando e configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
+
+<Accordion title="O que significa cada método de configuração">
+  - **Configuração pela linha de comando e manual**: use um comando gerado ou siga todas as etapas manuais.
+  - **Configuração manual**: informe a API Key, a Base URL e o Model.
+  - **Sem suporte**: ainda não há um método verificado de conexão direta.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Perguntas frequentes relacionadas
+
+- [API compatível com OpenAI ou API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP ou API Key e Base URL](/pt-br/faq/concepts/mcp-vs-api-key-base-url)
+- [O que são model_provider, base_url e wire_api?](/pt-br/faq/codex/model-provider-base-url-wire-api)
+- [Como configurar uma API compatível com OpenAI no Cline](/pt-br/faq/cline/openai-compatible-api)
+
+### Opcional: gerenciar o provedor com o CC Switch
+
+Para gerenciar provedores de várias ferramentas em um só lugar, consulte [Configurar o OpenCode no CC Switch](/pt-br/ai-tools/cc-switch#opencode).
+
+## Detalhes técnicos
+
+<Accordion title="Provedor e provedor do modelo">
+  O provedor do OpenCode é `bettertoken`, baseado em `@ai-sdk/openai-compatible` e Chat Completions. GPT, Kimi e GLM são provedores de modelos no BetterToken; adicione o Model ID completo escolhido a `models`.
+</Accordion>

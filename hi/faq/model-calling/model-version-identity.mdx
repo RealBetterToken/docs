@@ -1,0 +1,86 @@
+---
+title: "model को अपना version क्यों नहीं पता होता?"
+sidebarTitle: "model self-identification"
+description: "जानें कि API call से model अपने version का गलत उत्तर क्यों दे सकता है, और वास्तव में उपयोग हुए model को कैसे सत्यापित करें।"
+---
+
+## संक्षिप्त उत्तर
+
+model का अपने version का गलत उत्तर देना सामान्य है। इससे यह सिद्ध नहीं होता कि आपने गलत model call किया।
+
+`model` parameter मुख्यतः API server द्वारा routing के लिए उपयोग होता है। हो सकता है model वह field न देखे, और training के बाद नाम दिए जाने पर उसे final release name न पता हो। official web products अक्सर सही उत्तर देते हैं क्योंकि product layer model को उसकी identity बताने वाला system prompt inject करती है।
+
+system message में identity information जोड़े बिना API से model call करने पर model अपने training data से पुराना नाम अनुमानित कर सकता है।
+
+## यह कब होता है
+
+- आप नया model call करते हैं, लेकिन वह खुद को पुराना version बताता है
+- official website version सही बताती है, लेकिन API call नहीं
+- समान model अलग tools में अलग तरह से अपना परिचय देता है
+- आप जांचना चाहते हैं कि API gateway ने अनुरोधित model call किया या नहीं
+- user “आप कौन-सा model हैं?” को verification method मानता है
+
+## ऐसा क्यों होता है
+
+model names अक्सर training के बाद final होते हैं। training के दौरान model language, code और knowledge patterns सीखता है। हो सकता है वह release के बाद उपयोग होने वाला final product name न सीखे।
+
+API request में `model` field server को बताती है कि किस model पर route करना है। यह सामान्य chat content नहीं है और model को identity information के रूप में नहीं मिल सकती।
+
+official web products “आप यह model हैं” जैसे hidden instructions जोड़ सकते हैं। API calls सामान्यतः वह identity prompt automatically नहीं जोड़ते।
+
+## वास्तव में उपयोग हुए model को कैसे सत्यापित करें
+
+केवल model से “आप कौन-सा version हैं?” पूछने पर निर्भर न रहें। इसके बजाय request path और response fields जांचें।
+
+| Verification method | क्या जांचें |
+| --- | --- |
+| call logs | dashboard में प्रत्येक request के लिए उपयोग model |
+| API response fields | response JSON में `model` field |
+| Model ID | आपकी request का Model ID current provider या model plaza से आया है |
+| provider | API Key, Base URL और Model ID समान group से संबंधित हैं |
+
+example response:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+सटीक response shape API format पर निर्भर है। महत्वपूर्ण जांच server द्वारा लौटाया गया model field और dashboard record है, model का self-introduction नहीं।
+
+## model से विशिष्ट identity के साथ उत्तर कैसे दिलाएं
+
+यदि आपके product को model से खुद का विशेष तरीके से वर्णन कराना है, तो वह identity system message में रखें:
+
+```text
+You are Claude Sonnet 5, called through the BetterToken API.
+```
+
+यह official web product की तरह काम करता है: application layer model को बताती है कि उसे खुद को क्या कहना चाहिए।
+
+<Warning>
+  system message केवल model का self-description और behavior style बदलता है। यह वास्तव में routed model नहीं बदलता। वास्तविक routing अब भी Base URL, API Key, provider और Model ID से तय होती है।
+</Warning>
+
+## सामान्य गलतियां
+
+- “आप कौन-सा model हैं?” को एकमात्र verification method उपयोग करना।
+- self-description गलत होने पर मान लेना कि provider ने model बदल दिया।
+- मान लेना कि `model` parameter हमेशा model context में जाता है।
+- dashboard logs और response `model` field अनदेखा करना।
+- system message में model identity जोड़कर मान लेना कि actual model बदल गया।
+
+## BetterToken के बारे में
+
+BetterToken dashboard API Key, Model ID, request records और balance usage जांचने में मदद करता है। model सही है या नहीं इसकी पुष्टि के लिए पहले call log और response fields जांचें।
+
+self-description का logs से विरोध होने पर logs और response fields पर भरोसा करें।
+
+## संबंधित दस्तावेज
+
+- [सही AI model कैसे चुनें?](/hi/faq/model-calling/model-selection-guide)
+- [Base URL कैसे भरें?](/hi/faq/model-calling/base-url-config)
+- [OpenAI-compatible API और Anthropic-compatible API में अंतर क्या है?](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code में Sonnet और Opus के बीच कैसे switch करें?](/hi/faq/claude-code/switch-sonnet-opus)

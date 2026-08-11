@@ -1,0 +1,151 @@
+---
+title: "よくある質問"
+description: "BetterToken のアカウント、請求、使用量、設定に関するよくある質問です。"
+---
+
+## AI コーディングツールに関する質問
+
+ここでは、Claude Code、Codex、Cursor、Cline などの AI コーディングツールについて説明します。各ツールの概要に続いて、API Key、Base URL、プロトコルの選択、使用量の確認を BetterToken とどのように組み合わせるかを解説します。
+
+- [Claude Code とは何か、どのように動作するか](/ja/faq/claude-code/what-is-claude-code)
+- [Claude Code と Claude Desktop の違い](/ja/faq/claude-code/claude-code-vs-claude-desktop)
+- [ローカル開発での Claude Code と Cursor の違い](/ja/faq/claude-code/claude-code-vs-cursor)
+- [Claude Code は Claude.ai アカウントと API Key のどちらを使うか](/ja/faq/claude-code/claude-account-or-api-key)
+- [Claude Code で API Key と Base URL を設定する方法](/ja/faq/claude-code/api-key-base-url)
+- [Claude Code の CLAUDE.md とは](/ja/faq/claude-code/claude-md)
+- [Claude Code で Sonnet と Opus を切り替える方法](/ja/faq/claude-code/switch-sonnet-opus)
+- [Claude Code の権限と hooks](/ja/faq/claude-code/permissions-and-hooks)
+- [Claude Code の Token 使用量が多い理由とコストを抑える方法](/ja/faq/token-cost/claude-code-token-usage)
+- [Claude Desktop で MCP を設定する方法](/ja/faq/claude-desktop/mcp)
+- [Claude Desktop でサードパーティモデルを使えるか](/ja/faq/claude-desktop/third-party-models)
+- [Claude Desktop Cowork と Code Gateway の違い](/ja/faq/claude-desktop/cowork-code-gateway)
+- [Codex CLI とは](/ja/faq/codex/what-is-codex-cli)
+- [Codex CLI、Codex App、Codex Web の違い](/ja/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex CLI の config.toml を設定する方法](/ja/faq/codex/config-toml)
+- [Codex CLI の model_provider、base_url、wire_api とは](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI の review_model と reasoning_effort とは](/ja/faq/codex/review-model-reasoning-effort)
+- [Codex CLI の AGENTS.md とは](/ja/faq/codex/agents-md)
+- [Codex CLI の sandbox モードと approval モードとは](/ja/faq/codex/sandbox-approval)
+- [Codex が API モードで GPT-5.5 を使用できない理由](/ja/faq/codex/gpt-5.5-api-mode)
+- [サードパーティ API を使いながら Codex の公式ログインを維持する方法](/ja/faq/codex/official-login-third-party-api)
+- [Cursor でカスタム OpenAI API Key と Base URL を設定する方法](/ja/faq/cursor/custom-openai-api)
+- [Cursor Rules、AGENTS.md、.cursorignore の説明](/ja/faq/cursor/rules-agents-cursorignore)
+- [Cursor で MCP を設定する方法](/ja/faq/cursor/mcp)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code と Codex CLI の違い](/ja/faq/concepts/claude-code-vs-codex-cli)
+- [MCP と API Key / Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+
+## アカウントと請求
+
+<AccordionGroup>
+  <Accordion title="BetterToken の使用料金はどのように計算されますか？">
+    BetterToken は実際の Token 使用量に基づいて課金し、追加のマークアップを加えずに Anthropic / OpenAI の料金に従います。新しいアカウントには $1 のトライアルクレジットが付与されます。
+
+    詳細は<a href={"{{pricing-url}}"}>料金ページ</a>を参照してください。
+  </Accordion>
+
+  <Accordion title="登録後に返金を申請できますか？">
+    支払い済みのチャージは返金できます。トライアルクレジットは返金できません。返金が必要な場合はサポートにお問い合わせください。
+  </Accordion>
+
+  <Accordion title="同じ API Key を複数のツールで使えますか？">
+    はい。同じ API Key を Claude Code、Codex、Cursor などのツールで同時に使用できます。使用量は共有されます。
+  </Accordion>
+
+  <Accordion title="使用量はどこで確認できますか？">
+    Dashboard にログインすると、現在の使用量と請求記録を確認できます。
+  </Accordion>
+</AccordionGroup>
+
+## インストールと設定
+
+<AccordionGroup>
+  <Accordion title="BetterToken の base_url は何ですか？">
+    BetterToken では、プロトコルに応じて 2 つのエンドポイントを使い分けます。
+
+    | 用途 | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` |
+    | Codex / `OPENAI_BASE_URL` / 外部ツール | `{{openai-base-url}}` |
+
+    すべてのツールで同じアドレスを使い回さないでください。
+  </Accordion>
+
+  <Accordion title="Claude Code でモデルを指定する必要がありますか？">
+    使用するプロバイダーによって異なります。
+
+    **Claude プロバイダー**では、`ANTHROPIC_BASE_URL` と `ANTHROPIC_AUTH_TOKEN` だけを設定します。モデル変数は**不要**です。
+
+    **GPT プロバイダー**では、`ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` を使って Claude Code のモデルマッピングを追加します。現在の **GPT プロバイダー**のモデル ID を<a href={"{{model-plaza-url}}"}>モデル一覧</a>からコピーしてください。
+  </Accordion>
+
+  <Accordion title="Codex でモデルを指定する必要がありますか？">
+    はい。<a href={"{{model-plaza-url}}"}>モデル一覧</a>から現在の **GPT プロバイダー**のモデル ID をコピーして入力します。
+
+    詳細は [Codex 設定ガイド](/ja/ai-tools/codex)を参照してください。
+  </Accordion>
+
+  <Accordion title="Cursor などの外部ツールでモデルを指定する必要がありますか？">
+    はい。Cursor、Cline、Zed、OpenClaw などの外部ツールでは **GPT プロバイダー**を使用します。現在のモデル ID を<a href={"{{model-plaza-url}}"}>モデル一覧</a>からコピーしてください。
+
+    これらのツールに Claude のモデル名を直接書き込んだままにしないでください。
+
+    詳細は [Cursor 設定ガイド](/ja/ai-tools/cursor)を参照してください。
+  </Accordion>
+
+  <Accordion title="OpenClaw などの外部ツールで追加の headers は必要ですか？">
+    通常は必要ありません。
+
+    確認した公式ドキュメントでは、Cursor、Cline、Zed などの一般的な外部ツールは `Base URL`、API key、モデル ID を主に使用します。OpenCode と OpenClaw は任意の `headers` に対応していますが、公式ドキュメントではカスタムヘッダーや固有の認証要件向けの機能として説明されており、BetterToken の必須設定ではありません。
+
+    追加のヘッダーは、ツールの公式ドキュメント、独自の upstream gateway、tenant routing、observability、cache レイヤーで明示的に必要な場合だけ設定してください。
+  </Accordion>
+
+  <Accordion title="設定後に認証が失敗する場合はどうすればよいですか？">
+    次の項目を確認してください。
+
+    1. API Key が正しく、余分な空白が入っていないこと
+    2. Claude Code では `{{anthropic-base-url}}`、Codex または外部ツールでは `{{openai-base-url}}` を使用していること
+    3. 古い `ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_BASE_URL`、`OPENAI_API_KEY`、`OPENAI_BASE_URL` が設定を上書きしていないこと
+    4. 外部ツールについては、バージョン制限、モデルの allowlist、upstream gateway が明示的に要求する追加ヘッダーなど、公式の追加要件がないか確認すること
+
+    問題が解決しない場合は、サポートにお問い合わせください。
+  </Accordion>
+</AccordionGroup>
+
+## 信頼性と使用制限
+
+<AccordionGroup>
+  <Accordion title="BetterToken はどのように信頼性を維持しますか？">
+    BetterToken は複数のプロバイダーに接続し、次の仕組みを使用します。
+
+    - **複数プロバイダー**：1 つのプロバイダーに障害が発生しても、すべてのリクエストが停止するわけではありません
+    - **動的ルーティング**：BetterToken は高速で安定した経路をリアルタイムに選択します
+    - **優先的な互換性維持**：Claude Code と Codex エコシステムを中心に信頼性を維持します
+  </Accordion>
+
+  <Accordion title="使用制限や timeout が発生した場合はどうすればよいですか？">
+    BetterToken は個別プロバイダーの使用制限と timeout を自動的に処理します。問題が続く場合は、次を確認してください。
+
+    1. 残高が十分にあること
+    2. ツールの timeout を長くすること（`API_TIMEOUT_MS=3000000` を推奨）
+    3. 現在の quota 状態をサポートに確認すること
+  </Accordion>
+
+  <Accordion title="BetterToken は本番環境に適していますか？">
+    BetterToken は主に Claude Code や Codex などの AI コーディングツールを使用する個人開発者向けです。大規模な本番 API ワークロードでは、自身の要件に基づいて評価してください。
+  </Accordion>
+</AccordionGroup>
+
+## プライバシーとセキュリティ
+
+<AccordionGroup>
+  <Accordion title="BetterToken はリクエストの内容を保存しますか？">
+    BetterToken は relay として動作し、会話内容を永続化しません。詳細は<a href={"{{privacy-url}}"}>プライバシーポリシー</a>を参照してください。
+  </Accordion>
+
+  <Accordion title="API Key が漏えいした場合はどうすればよいですか？">
+    すぐに Dashboard にログインし、古い Key を削除して新しい Key を作成します。その後、その Key を使っているすべてのツールを更新してください。
+  </Accordion>
+</AccordionGroup>

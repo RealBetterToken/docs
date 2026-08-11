@@ -1,0 +1,86 @@
+---
+title: "model이 자신의 version을 모르는 이유는 무엇인가요?"
+sidebarTitle: "Model self-identification"
+description: "API call에서 model이 자신의 version을 잘못 답할 수 있는 이유와 실제 사용된 model을 verify하는 방법을 알아보세요."
+---
+
+## 짧은 답변
+
+model이 자신의 version을 잘못 답하는 것은 정상입니다. 이것이 wrong model을 호출했다는 증거는 아닙니다.
+
+`model` parameter는 주로 API server가 routing에 사용합니다. model은 해당 field를 보지 못할 수 있으며 name이 training 후에 assigned되었다면 final release name을 모를 수 있습니다. official web products는 product layer가 model에 identity를 알려주는 system prompt를 inject하므로 올바르게 답하는 경우가 많습니다.
+
+system message에 identity information을 추가하지 않고 API로 model을 호출하면 model은 training data의 older name을 guess할 수 있습니다.
+
+## 이런 일이 발생하는 경우
+
+- new model을 호출했지만 older version이라고 답하는 경우
+- official website는 version을 올바르게 답하지만 API call은 그렇지 않은 경우
+- same model이 different tools에서 자신을 다르게 소개하는 경우
+- API gateway가 requested model을 호출했는지 확인하려는 경우
+- user가 “What model are you?”를 verification method로 취급하는 경우
+
+## 발생 원인
+
+Model names는 종종 training 후에 finalized됩니다. training 중 model은 language, code, knowledge patterns를 학습합니다. release 후 사용되는 final product name은 학습하지 못할 수 있습니다.
+
+API request에서 `model` field는 server에 route할 model을 알려줍니다. 이는 normal chat content가 아니므로 model이 identity information으로 받지 못할 수 있습니다.
+
+Official web products는 “You are this model.”과 같은 hidden instructions를 추가할 수 있습니다. API calls는 보통 해당 identity prompt를 automatically 추가하지 않습니다.
+
+## 실제 사용된 model을 verify하는 방법
+
+model에 “What version are you?”라고 묻는 것에만 의존하지 마세요. 대신 request path와 response fields를 확인하세요.
+
+| Verification method | 확인할 항목 |
+| --- | --- |
+| Call logs | dashboard의 each request에 사용된 model |
+| API response fields | response JSON의 `model` field |
+| Model ID | request의 Model ID가 current provider 또는 model plaza에서 왔는지 |
+| provider | API Key, Base URL, Model ID가 same group에 속하는지 |
+
+Example response:
+
+```json
+{
+  "model": "claude-sonnet-5",
+  "choices": []
+}
+```
+
+exact response shape는 API format에 따라 다릅니다. 중요한 것은 model의 self-introduction이 아니라 server가 returned하는 model field와 dashboard record입니다.
+
+## model이 specific identity로 답하게 하는 방법
+
+product에서 model이 자신을 specific way로 describe해야 한다면 system message에 해당 identity를 넣으세요.
+
+```text
+You are Claude Sonnet 5, called through the BetterToken API.
+```
+
+이는 official web product와 같이 작동합니다. application layer가 model에 자신을 누구라고 말해야 하는지 알려줍니다.
+
+<Warning>
+  system message는 model의 self-description과 behavior style만 변경합니다. actually routed되는 model은 변경하지 않습니다. real routing은 여전히 Base URL, API Key, provider, Model ID로 결정됩니다.
+</Warning>
+
+## 일반적인 실수
+
+- “What model are you?”를 only verification method로 사용함
+- self-description이 wrong하다는 이유로 provider가 model을 swapped했다고 가정함
+- `model` parameter가 항상 model context에 들어간다고 가정함
+- dashboard logs와 response `model` field를 무시함
+- system message에 model identity를 추가하고 actual model이 changed했다고 가정함
+
+## BetterToken 정보
+
+BetterToken의 dashboard는 API Key, Model ID, request records, balance usage를 확인하는 데 도움이 됩니다. model이 correct한지 confirm해야 할 때는 call log와 response fields를 먼저 확인하세요.
+
+self-description이 logs와 conflicts하면 logs와 response fields를 신뢰하세요.
+
+## 관련 문서
+
+- [올바른 AI model을 선택하는 방법](/ko/faq/model-calling/model-selection-guide)
+- [Base URL은 어떻게 입력하나요?](/ko/faq/model-calling/base-url-config)
+- [OpenAI-compatible API와 Anthropic-compatible API의 차이점](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code에서 Sonnet과 Opus를 switch하는 방법](/ko/faq/claude-code/switch-sonnet-opus)

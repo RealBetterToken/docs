@@ -1,0 +1,65 @@
+---
+title: "Codex CLI बनाम Codex App बनाम Codex Web"
+sidebarTitle: "CLI vs App vs Web"
+description: "runtime location, setup model, local permissions और provider configuration के आधार पर Codex CLI, Codex App और Codex Web / Cloud की तुलना करें।"
+---
+
+## संक्षिप्त उत्तर
+
+Codex CLI, local terminal coding agent है। यह local projects, command execution, file edits और `config.toml` configuration पर केंद्रित है।
+
+Codex App desktop application entry point है। यह graphical workflows, session management, plugins, Remote Control और companion app features के लिए अधिक उपयुक्त है।
+
+Codex Web / Cloud, remote या browser-based agent workflow के अधिक निकट है। यह local CLI का समान runtime नहीं है और जरूरी नहीं कि वही local file access, sandbox, approval policy या config file साझा करे।
+
+## इन्हें अलग पहचानने की जरूरत कब है
+
+- आप तय कर रहे हैं कि CLI install करना है या App / Web उपयोग करना है
+- आप Codex App official login state बनाए रखते हुए model calls को third-party API से route करना चाहते हैं
+- आपने local `config.toml` बदला, लेकिन Web behavior नहीं बदला
+- आपको जानना है कि file access, command execution और approvals कहां होते हैं
+- आप Codex उपयोग के लिए team rules लिख रहे हैं
+
+## मुख्य अंतर
+
+| आयाम | Codex CLI | Codex App | Codex Web / Cloud |
+| --- | --- | --- | --- |
+| मुख्य entry point | local terminal | desktop app | browser या remote environment |
+| configuration focus | `~/.codex/config.toml`, `AGENTS.md`, sandbox, approval | login state, desktop features, provider switching | cloud tasks, remote environments, repository authorization |
+| file access | local workspace | current app workspace और features पर निर्भर | remote environment और authorization पर निर्भर |
+| सर्वोत्तम उपयोग | local development, तेज commands, scripts, code edits | desktop sessions, plugins, Remote Control | remote tasks और cloud development workflows |
+
+## कैसे चुनें
+
+जब आपका मुख्य workflow local code editing और terminal execution हो, तब Codex CLI उपयोग करें।
+
+जब आपकी मुख्य जरूरत desktop workflow, plugins या Remote Control हो, तब Codex App उपयोग करें। third-party API के साथ official login state रखना हो तो authentication layer को model request layer से अलग रखें।
+
+जब आपका काम remote environment या browser-based task flow में हो, तब Codex Web / Cloud उपयोग करें। यह न मानें कि local `config.toml` cloud runtime behavior नियंत्रित करता है।
+
+## सामान्य गलतियां
+
+- मान लेना कि local CLI `config.toml` बदलाव Codex Web / Cloud पर अपने-आप लागू होते हैं।
+- Codex App official login और third-party API Key को समान layer मानना।
+- मान लेना कि तीनों surfaces की filesystem permissions समान हैं।
+- भूल जाना कि sandbox और approval settings किसी specific runtime पर लागू होते हैं।
+- plugins, Remote Control और model provider settings को एक configuration layer मानना।
+
+## BetterToken के बारे में
+
+BetterToken model request layer में आता है: कौन सा API provider model calls प्राप्त करता है। Codex CLI में सामान्य custom provider setup आमतौर पर `config.toml` में होता है। official login state बनाए रखने वाले Codex App scenarios में authentication और inference routing को अलग-अलग संभालना होता है।
+
+BetterToken, CLI, App और Web / Cloud के बीच runtime boundary नहीं बदलता।
+
+## संबंधित दस्तावेज
+
+- [Codex BetterToken सेटअप गाइड](/hi/ai-tools/codex)
+- [third-party API के साथ official Codex login state कैसे बनाए रखें](/hi/faq/codex/official-login-third-party-api)
+- [Codex CLI config.toml कैसे कॉन्फ़िगर करें](/hi/faq/codex/config-toml)
+- [Codex CLI sandbox और approval modes क्या हैं?](/hi/faq/codex/sandbox-approval)
+
+## संदर्भ
+
+- [Codex CLI दस्तावेज](https://developers.openai.com/codex/cli)
+- [Codex App दस्तावेज](https://developers.openai.com/codex/app)
+- [Codex Cloud दस्तावेज](https://developers.openai.com/codex/cloud)

@@ -1,0 +1,73 @@
+---
+title: "BetterToken data security की रक्षा कैसे करता है?"
+sidebarTitle: "data security"
+description: "BetterToken API calls के लिए data security boundary, HTTPS transport, logs, usage records और user-side security practices समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+BetterToken एक API gateway है। इसकी मुख्य भूमिका आपकी request को selected upstream model तक forward करना और service चलाने के लिए आवश्यक billing, usage व troubleshooting information record करना है।
+
+API उपयोग करते समय data minimization का पालन करें। prompts, files या tool output में अनावश्यक personal data, secrets, payment information या business-sensitive content न रखें। API Keys को environment variables, secret managers या CI secrets में रखें। उन्हें public repositories में commit न करें।
+
+## Data security boundary
+
+| प्रकार | विवरण |
+| --- | --- |
+| API Key | आपकी requests को authenticate करता है और आपको इसे सुरक्षित रखना चाहिए |
+| request content | model को भेजे गए prompts, context, file snippets या tool results |
+| response content | model द्वारा लौटाया गया text, code या structured output |
+| usage information | model, tokens, cost, status code, request time और अन्य billing या troubleshooting metadata |
+| upstream model | inference request process करने वाली model service या provider |
+
+BetterToken आपको API Keys, balance और usage records एक जगह manage करने में मदद करता है। यह आपके स्वयं के data masking, access control या project security process को नहीं बदलता।
+
+## Transport security
+
+सभी API calls को HTTPS उपयोग करना चाहिए। Base URL कॉन्फ़िगर करते समय docs में दिखाया गया `https://` address उपयोग करें।
+
+API Keys या request content को plaintext HTTP से न भेजें। कोई client, proxy या local tool TLS verification disable करने को कहे तो setup उपयोग करने से पहले कारण जांचें। इसे default न बनाएं।
+
+## Logs और usage records
+
+billing, balance deduction, error troubleshooting और risk control के लिए API gateway को आमतौर पर ऐसी request metadata record करनी पड़ती है:
+
+- request time
+- उपयोग API Key या provider
+- requested model
+- token usage
+- request सफल हुई या नहीं
+- error status
+
+यह information मुख्यतः billing, usage analysis और issue diagnosis के लिए उपयोग होती है। समस्या report करते समय request time, model, error code और request id दें। पूरा API Key या sensitive prompt content न भेजें।
+
+## user-side recommendations
+
+1. API Keys को code repositories में commit न करें।
+2. screenshots, logs या support tickets में पूरा API Key expose न करें।
+3. production और test environments के लिए अलग API Keys उपयोग करें।
+4. dashboard में usage records नियमित जांचें।
+5. member के जाने, project समाप्त होने या leak की आशंका होने पर पुराने keys disable करें।
+6. prompts में identity documents, bank cards, passwords, private keys या अन्य highly sensitive data भेजने से बचें।
+7. sensitive business data process करना हो तो model को भेजने से पहले उसे mask और minimize करें।
+
+## usage असामान्य दिखने पर क्या करें
+
+यदि API Key पर abnormal calls दिखें:
+
+1. console में suspicious API Key को disable या delete करें।
+2. recent call records में model, time और request source जांचें।
+3. key leaks के लिए code repositories, CI logs, local config और third-party tool settings जांचें।
+4. नया API Key बनाएं और केवल required environments में वितरित करें।
+5. कारण न मिले तो time range, model और abnormal amount के साथ support से संपर्क करें।
+
+## BetterToken के बारे में
+
+BetterToken model request access, forwarding, billing और usage display संभालता है। security साझा जिम्मेदारी है: platform service-side access control और billing flow संभालता है, जबकि आप API Keys सुरक्षित रखते हैं, permissions assign करते हैं, prompt data minimize करते हैं और tools को सुरक्षित रूप से कॉन्फ़िगर करते हैं।
+
+## संबंधित दस्तावेज
+
+- [Claude Code में API Key और Base URL कैसे कॉन्फ़िगर करें?](/hi/faq/claude-code/api-key-base-url)
+- [MCP और API Key / Base URL में अंतर क्या है?](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [API Key, Base URL और Model ID को कैसे troubleshoot करें?](/hi/faq/model-calling/base-url-config)
+- [Claude Code permissions और hooks क्या हैं?](/hi/faq/claude-code/permissions-and-hooks)

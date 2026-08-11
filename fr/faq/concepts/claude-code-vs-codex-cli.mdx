@@ -1,0 +1,67 @@
+---
+title: "Claude Code et Codex CLI : différences"
+sidebarTitle: "Claude Code vs Codex"
+description: "Comparez Claude Code et Codex CLI selon l’environnement d’exécution, les fichiers de configuration, le protocole de modèle, les autorisations et les fichiers d’instructions de projet."
+---
+
+## Réponse courte
+
+Claude Code et Codex CLI sont tous deux des agents de programmation pour le développement local, mais ils appartiennent à des écosystèmes différents et utilisent des limites de configuration différentes.
+
+Claude Code est plus proche de l’écosystème Anthropic / Claude. Sa configuration courante comprend `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE.md`, les autorisations, les hooks et MCP.
+
+Codex CLI est plus proche de l’écosystème OpenAI / Codex. Sa configuration courante comprend `~/.codex/config.toml`, `model_provider`, `wire_api = "responses"`, `AGENTS.md`, le sandbox et l’approbation.
+
+## Quand cela importe
+
+- Vous choisissez un agent de programmation IA en terminal
+- Vous devez unifier la Base URL, l’API Key et la configuration de modèle
+- Vous voulez des instructions de projet durables
+- Vous vous intéressez aux limites d’exécution des commandes et d’approbation
+- Vous voulez que plusieurs outils partagent la même couche API de modèles
+
+## Différences clés
+
+| Aspect | Claude Code | Codex CLI |
+| --- | --- | --- |
+| Écosystème principal | Anthropic / Claude | OpenAI / Codex |
+| Protocole de modèle courant | Compatible Anthropic | Compatible OpenAI / Responses |
+| Configuration principale | Variables d’environnement, paramètres, autorisations, hooks | `config.toml`, sandbox, approbation, règles |
+| Fichier d’instructions de projet | `CLAUDE.md` | `AGENTS.md` |
+| Champs de modèle | Noms de modèles Claude, alias ou mappages de fournisseurs | `model`, `review_model`, ID de fournisseur |
+| Extension de l’outil | MCP, hooks, autorisations | MCP, plugins, règles, sandbox |
+
+## Comment choisir
+
+Utilisez d’abord Claude Code si vous travaillez déjà dans l’écosystème Claude et attachez de l’importance à `CLAUDE.md`, aux modèles Claude, aux hooks et à MCP.
+
+Utilisez d’abord Codex CLI si vous souhaitez gérer le fournisseur, le modèle, le modèle de revue, le sandbox et le comportement d’approbation avec `config.toml`.
+
+Si votre équipe utilise les deux, séparez l’interface de l’outil de la couche API de modèles. L’outil décide comment lire et modifier le code, exécuter des commandes et approuver les risques. La couche API décide quel fournisseur reçoit les requêtes, quel modèle est utilisé et comment l’utilisation est enregistrée.
+
+## Erreurs fréquentes
+
+- Penser que Claude Code et Codex CLI ne diffèrent que par le nom du modèle.
+- Traiter `CLAUDE.md` et `AGENTS.md` comme le même fichier.
+- Placer une Base URL compatible Anthropic dans Codex CLI.
+- Placer un point de terminaison `/v1` compatible OpenAI dans le paramètre de protocole Anthropic de Claude Code.
+- Supposer qu’un changement de fournisseur API modifie les autorisations locales de l’outil.
+
+## À propos de BetterToken
+
+BetterToken peut servir de couche API de modèles. Claude Code utilise généralement `{{anthropic-base-url}}`, tandis que Codex CLI et les autres outils compatibles OpenAI utilisent généralement `{{openai-base-url}}`.
+
+Il ne remplace ni `CLAUDE.md`, ni `AGENTS.md`, les autorisations, les hooks, le sandbox ou l’approbation. Ces éléments restent propres à chaque outil.
+
+## Documentation associée
+
+- [Qu’est-ce que Claude Code ?](/fr/faq/claude-code/what-is-claude-code)
+- [Qu’est-ce que Codex CLI ?](/fr/faq/codex/what-is-codex-cli)
+- [API compatible OpenAI et API compatible Anthropic : différences](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Quels sont les modes sandbox et approbation de Codex CLI ?](/fr/faq/codex/sandbox-approval)
+
+## Références
+
+- [Présentation de Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Documentation Codex CLI](https://developers.openai.com/codex/cli)
+- [Dépôt GitHub OpenAI Codex](https://github.com/openai/codex)

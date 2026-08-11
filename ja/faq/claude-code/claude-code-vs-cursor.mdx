@@ -1,0 +1,59 @@
+---
+title: "ローカル開発における Claude Code と Cursor の比較"
+sidebarTitle: "Claude Code vs Cursor"
+description: "ローカルプロジェクト、エディター統合、ルールファイル、MCP、モデル設定、権限管理の観点で Claude Code と Cursor を比較します。"
+---
+
+## 簡潔な回答
+
+Claude Code はターミナル型コーディングエージェントに近いツールです。コードの読み取り、コマンド実行、ファイル編集を行い、`CLAUDE.md`、権限、フック、MCP に従える既存リポジトリで適しています。
+
+Cursor は AI IDE に近いツールです。エディター内で補完、チャット、Composer、ルール、インデックス作成、コード編集を利用したい場合に適しています。
+
+どちらか一方がもう一方を完全に置き換えるものではありません。ターミナル型エージェントのワークフローと、エディターにネイティブな AI ワークフローのどちらを好むかで選択します。
+
+## 主な違い
+
+| 観点 | Claude Code | Cursor |
+| --- | --- | --- |
+| 主な入口 | Terminal / command line | AI IDE |
+| プロジェクトコンテキスト | `CLAUDE.md`、会話コンテキスト、ツールによる読み取り | Cursor Rules、インデックス、エディターコンテキスト |
+| 権限管理 | Permissions、フック、確認フロー | ツール承認、エディター権限、ルール |
+| MCP | MCP ツールをサポート | MCP ツールをサポート |
+| モデル設定 | Claude / Anthropic 互換を優先 | OpenAI 互換、カスタムプロバイダー、組み込みモデル |
+| 適した用途 | 複数ステップのタスク、コマンド実行、リポジトリ全体の変更 | エディター操作、ナビゲーション、対象を絞った編集、補完 |
+
+## 選び方
+
+エージェントにリポジトリの調査、計画、テスト実行、一連の変更を依頼したい場合は Claude Code を使用します。
+
+作業の大半をエディターで行い、現在のファイル、選択範囲、インデックス、プロジェクトルールを AI に理解させたい場合は Cursor を使用します。
+
+両方を使用する場合、モデル API レイヤーは共有できますが、各ツールにはそれぞれ独自のルールと権限境界が必要です。
+
+## よくある間違い
+
+- Cursor Rules が Claude Code に自動的に読み込まれると思い込むこと。
+- `CLAUDE.md` が Cursor のプロジェクトルールを置き換えると思い込むこと。
+- ワークフローや権限ではなくモデル名だけを比較すること。
+- MCP をツールまたはコンテキストの拡張レイヤーではなく、モデル API として扱うこと。
+- エディターのインデックス作成とターミナルのコマンド実行の違いを見落とすこと。
+
+## BetterToken について
+
+Claude Code と Cursor でモデルルーティングと使用状況の可視性を共有したい場合は、各ツールを想定するプロトコルで設定します。
+
+Claude Code は通常 `{{anthropic-base-url}}` を使用します。Cursor と同様の外部ツールは通常 `{{openai-base-url}}` を使用し、モデル ID は **GPT プロバイダー**からコピーします。
+
+## 関連ドキュメント
+
+- [Claude Code とは何ですか？](/ja/faq/claude-code/what-is-claude-code)
+- [Cursor でカスタム OpenAI API を設定する](/ja/faq/cursor/custom-openai-api)
+- [MCP と API Key、Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 参考資料
+
+- [Claude Code の概要](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Cursor ドキュメント](https://cursor.com/docs)
+- [Claude Code と Cursor に関する Hacker News の議論](https://news.ycombinator.com/item?id=44353879)

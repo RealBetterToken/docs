@@ -1,0 +1,188 @@
+---
+title: "OpenAI-Compatible Image Generation API: GPT Image 2 गाइड"
+description: "GPT Image 2 और BetterToken के OpenAI-compatible API से text से इमेज बनाएं: API Key, Base URL, parameter, Python, JavaScript और त्रुटियां।"
+openapi: "api-reference/openapi.json POST /v1/images/generations"
+---
+
+`POST /v1/images/generations`
+
+text-to-image endpoint `application/json` request body उपयोग करता है। prompt भेजें, HTTP request खुला रखें और उसी response में `data[0].b64_json` से generated इमेज पढ़ें।
+
+<Note>
+  `{{openai-base-url}}` को `Base URL` के रूप में उपयोग करें। BetterToken API Key को `Authorization: Bearer YOUR_API_KEY` से भेजें।
+</Note>
+
+<Tip>
+  पेज के दाईं ओर Playground में `Authorization` और request body भरें, फिर अनुरोध सीधे `{{images-generations-url}}` पर भेजें।
+</Tip>
+
+<Warning>
+  API key को frontend browser code, Git repository, ticket, screenshot या log में न रखें। server-side proxy call के लिए API key केवल server environment variable या secret manager में रखें।
+</Warning>
+
+## curl के साथ त्वरित शुरुआत
+
+`{{openai-base-url}}` को Base URL के रूप में उपयोग करें और `{{images-generations-url}}` पर अनुरोध भेजें:
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+## अनुशंसित मान
+
+हर अनुरोध में इन फ़ील्ड को स्पष्ट रूप से भेजें:
+
+```json
+{
+  "model": "gpt-image-2",
+  "n": 1,
+  "response_format": "b64_json",
+  "output_format": "png"
+}
+```
+
+| parameter | क्या भेजें | उद्देश्य |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | इमेज मॉडल चुनता है। |
+| `prompt` | text description | जरूरी इमेज वर्णन। subject, style, composition और महत्वपूर्ण constraint शामिल करें। |
+| `size` | उदाहरण के लिए `1024x1024` | output size और aspect ratio चुनता है। |
+| `n` | `1` | एक अनुरोध की इमेज संख्या। कई इमेज के लिए अलग अनुरोध भेजें। |
+| `response_format` | `b64_json` | `data[0].b64_json` में base64 के रूप में इमेज content लौटाता है। |
+| `output_format` | `png` | परिणाम को PNG के रूप में सहेजने देता है। |
+
+कई स्वतंत्र अनुरोध भेजकर कई इमेज बनाएं। `n > 1` वाले एक अनुरोध पर निर्भर न रहें।
+
+## अनुशंसित आकार
+
+| `size` | अनुपात | उपयोग |
+| --- | --- | --- |
+| `auto` | Auto | अपने-आप आकार चयन |
+| `1024x1024` | `1:1` | वर्गाकार इमेज, avatar, cover, asset |
+| `1536x1024` | `3:2` | landscape poster, banner, scene |
+| `1024x1536` | `2:3` | portrait mobile cover और poster |
+| `1536x1152` | `4:3` | मानक landscape इमेज, product image, content graphic |
+| `1152x1536` | `3:4` | मानक portrait इमेज, mobile cover, vertical poster |
+| `2048x2048` | `1:1` | high-resolution वर्गाकार इमेज |
+| `2048x1152` | `16:9` | high-resolution landscape इमेज |
+| `3840x2160` | `16:9` | 4K landscape इमेज |
+| `2160x3840` | `9:16` | 4K portrait इमेज |
+
+`size` अपेक्षित aspect ratio और size tier दर्शाता है। वास्तविक लौटे pixel server द्वारा map या adjust किए जा सकते हैं। output को मांगे गए मान पर जबरन crop करने के बजाय decoded इमेज dimension उपयोग करें।
+
+## इमेज सहेजें
+
+सफल response OpenAI-compatible इमेज response स्वरूप का पालन करता है:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+`data[0].b64_json` पढ़ें और इसे base64 image content के रूप में सहेजें। response में `revised_prompt` जैसे अतिरिक्त field हो सकते हैं; इन्हें client में स्वीकार करें।
+
+`output_format: "png"` हमेशा सेट करें। फिर file header जांचे बिना decoded इमेज को `.png` के रूप में सहेजें।
+
+```python
+import base64
+import json
+from pathlib import Path
+
+response = json.loads(Path("response.json").read_text(encoding="utf-8"))
+b64_json = response["data"][0]["b64_json"]
+
+if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
+    b64_json = b64_json.split(",", 1)[1]
+
+image_bytes = base64.b64decode(b64_json)
+Path("output.png").write_bytes(image_bytes)
+```
+
+### JavaScript उदाहरण (Node.js)
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
+<Warning>
+  JPEG या WebP फ़ाइल सीधे पाने के लिए `output_format: "jpeg"` या `output_format: "webp"` पर निर्भर न रहें। वर्तमान endpoint अब भी PNG image content लौटा सकता है। product को JPEG या WebP चाहिए तो पहले PNG लें और अपने code में बदलें।
+</Warning>
+
+## response flow
+
+यह endpoint synchronous है। `POST /images/generations` भेजने के बाद server के response तक मौजूदा HTTP request खुला रखें। generation सफल होने पर image content `data[0].b64_json` में लौटता है।
+
+endpoint `task_id` नहीं लौटाता, और कोई अलग status query या result download endpoint नहीं है।
+
+## timeout और retry
+
+- HTTP client timeout को कई मिनट पर सेट करें।
+- transport error, `408`, `409`, `425`, `429` और `5xx` पर retry करें।
+- `400`, `401`, missing parameter या malformed request को अपने-आप retry न करें।
+- `3s`, `8s` और `15s` जैसे exponential backoff उपयोग करें।
+- duplicate image स्वीकार्य न हों तो retry से पहले अपनी request ID रिकॉर्ड करें।
+
+## त्रुटि प्रबंधन
+
+त्रुटियां सामान्यतः JSON लौटाती हैं। त्रुटि दिखाते समय पहले `error.message`, फिर `message`, फिर HTTP status text पढ़ें।
+
+| HTTP status | अर्थ | क्या करें |
+| --- | --- | --- |
+| `400` | malformed JSON, missing parameter या असमर्थित size | request body जांचें। अपने-आप retry न करें। |
+| `401` | API Key अनुपस्थित या अमान्य है | `Authorization: Bearer YOUR_API_KEY` header जांचें। |
+| `402` | अपर्याप्त balance या quota | balance जोड़ें या उपलब्ध key उपयोग करें। |
+| `429` | rate limit, concurrency limit या व्यस्त upstream | प्रतीक्षा करें और exponential backoff से retry करें। |
+| `5xx` | gateway या upstream विफलता | अनुरोध retry करें। फिर भी विफल हो तो request ID और त्रुटि संदेश रिकॉर्ड करें। |
+
+## एकीकरण जांचसूची
+
+- Base URL `{{openai-base-url}}` है।
+- header में `Authorization: Bearer YOUR_API_KEY` है।
+- अनुरोध `application/json` और `POST /images/generations` उपयोग करता है।
+- `model` `gpt-image-2`, `response_format` `b64_json`, `output_format` `png` और `n` `1` है।
+- `size` अनुशंसित मानों में से है, जैसे `1024x1024`।
+- HTTP client generation के लिए कई मिनट की अनुमति देता है।
+
+## संबंधित दस्तावेज
+
+- [Image to image](/hi/api-reference/images-edits)
+- [GPT Image 2 अब उपलब्ध है](/hi/model-updates/gpt-image-2)

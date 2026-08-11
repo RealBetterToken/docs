@@ -1,0 +1,188 @@
+---
+title: "OpenAI 互換画像生成 API：GPT Image 2 ガイド"
+description: "GPT Image 2 と BetterToken の OpenAI 互換 API を使用してテキストから画像を生成します。API Key、Base URL、パラメーター、Python、JavaScript、エラーを説明します。"
+openapi: "api-reference/openapi.json POST /v1/images/generations"
+---
+
+`POST /v1/images/generations`
+
+テキストから画像を生成する Endpoint では、`application/json` のリクエスト本文を使用します。プロンプトを送信し、HTTP リクエストを開いたままにして、同じレスポンスの `data[0].b64_json` から生成画像を読み取ります。
+
+<Note>
+  `{{openai-base-url}}` を `Base URL` として使用します。BetterToken API Key は `Authorization: Bearer YOUR_API_KEY` で渡します。
+</Note>
+
+<Tip>
+  ページ右側の Playground で `Authorization` とリクエスト本文を入力し、`{{images-generations-url}}` へ直接リクエストを送信できます。
+</Tip>
+
+<Warning>
+  API Key をフロントエンドのブラウザーコード、Git リポジトリ、チケット、スクリーンショット、ログに含めないでください。サーバー側のプロキシ呼び出しでは、API Key はサーバーの環境変数またはシークレットマネージャーにのみ保存してください。
+</Warning>
+
+## curl でのクイックスタート
+
+Base URL として `{{openai-base-url}}` を使用し、`{{images-generations-url}}` にリクエストを送信します。
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+## 推奨値
+
+すべてのリクエストで、次のフィールドを明示的に送信してください。
+
+```json
+{
+  "model": "gpt-image-2",
+  "n": 1,
+  "response_format": "b64_json",
+  "output_format": "png"
+}
+```
+
+| パラメーター | 送信する値 | 用途 |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | 画像モデルを選択します。 |
+| `prompt` | テキストによる説明 | 必須の画像説明です。被写体、スタイル、構図、重要な制約を含めます。 |
+| `size` | 例：`1024x1024` | 出力サイズとアスペクト比を選択します。 |
+| `n` | `1` | 1 リクエストで生成する画像数です。複数画像には個別のリクエストを送信します。 |
+| `response_format` | `b64_json` | `data[0].b64_json` に base64 形式で画像内容を返します。 |
+| `output_format` | `png` | 結果を PNG として保存できます。 |
+
+複数の画像を生成する場合は、複数の独立したリクエストを送信してください。`n > 1` を指定した 1 回のリクエストに依存しないでください。
+
+## 推奨サイズ
+
+| `size` | 比率 | 用途 |
+| --- | --- | --- |
+| `auto` | 自動 | サイズを自動選択 |
+| `1024x1024` | `1:1` | 正方形の画像、アバター、カバー、アセット |
+| `1536x1024` | `3:2` | 横長のポスター、バナー、シーン |
+| `1024x1536` | `2:3` | 縦長のモバイルカバーとポスター |
+| `1536x1152` | `4:3` | 標準的な横長画像、商品画像、コンテンツグラフィック |
+| `1152x1536` | `3:4` | 標準的な縦長画像、モバイルカバー、縦長ポスター |
+| `2048x2048` | `1:1` | 高解像度の正方形画像 |
+| `2048x1152` | `16:9` | 高解像度の横長画像 |
+| `3840x2160` | `16:9` | 4K 横長画像 |
+| `2160x3840` | `9:16` | 4K 縦長画像 |
+
+`size` は想定するアスペクト比とサイズ区分を表します。実際に返されるピクセルはサーバーでマッピングまたは調整される場合があります。出力を要求値に無理に切り抜くのではなく、デコードした画像の寸法を使用してください。
+
+## 画像を保存する
+
+成功時のレスポンスは、次の OpenAI 互換画像レスポンス形式に従います。
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+`data[0].b64_json` を読み取り、base64 の画像内容として保存します。レスポンスには `revised_prompt` などの追加フィールドが含まれる場合があるため、クライアントでこれらのフィールドを許可してください。
+
+常に `output_format: "png"` を設定してください。その後、ファイルヘッダーを確認せずに、デコードした画像を `.png` として保存します。
+
+```python
+import base64
+import json
+from pathlib import Path
+
+response = json.loads(Path("response.json").read_text(encoding="utf-8"))
+b64_json = response["data"][0]["b64_json"]
+
+if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
+    b64_json = b64_json.split(",", 1)[1]
+
+image_bytes = base64.b64decode(b64_json)
+Path("output.png").write_bytes(image_bytes)
+```
+
+### JavaScript の例（Node.js）
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
+<Warning>
+  `output_format: "jpeg"` または `output_format: "webp"` を指定して、JPEG または WebP ファイルを直接受け取れることに依存しないでください。現在の Endpoint は PNG の画像内容を返す場合があります。プロダクトで JPEG または WebP が必要な場合は、まず PNG を受け取り、自身のコードで変換してください。
+</Warning>
+
+## レスポンスの流れ
+
+この Endpoint は同期式です。`POST /images/generations` を送信した後、サーバーが応答するまで現在の HTTP リクエストを開いたままにしてください。生成に成功すると、画像内容が `data[0].b64_json` に返されます。
+
+この Endpoint は `task_id` を返さず、個別のステータス照会や結果ダウンロード用の Endpoint もありません。
+
+## タイムアウトと再試行
+
+- HTTP クライアントのタイムアウトは数分に設定します。
+- 通信エラー、`408`、`409`、`425`、`429`、`5xx` は再試行します。
+- `400`、`401`、パラメーター不足、形式不正のリクエストは自動再試行しないでください。
+- `3s`、`8s`、`15s` などの指数バックオフを使用します。
+- 重複画像を許容できない場合は、再試行前に独自のリクエスト ID を記録します。
+
+## エラー処理
+
+エラーは通常 JSON で返されます。エラーを表示する場合は、まず `error.message`、次に `message`、最後に HTTP ステータステキストを読み取ります。
+
+| HTTP ステータス | 意味 | 対処方法 |
+| --- | --- | --- |
+| `400` | JSON の形式不正、パラメーター不足、または未対応サイズ | リクエスト本文を確認します。自動再試行しないでください。 |
+| `401` | API Key がない、または無効 | `Authorization: Bearer YOUR_API_KEY` ヘッダーを確認します。 |
+| `402` | 残高またはクォータが不足 | 残高を追加するか、利用可能なキーを使用します。 |
+| `429` | レート制限、同時実行数制限、または上流の混雑 | 待機して指数バックオフで再試行します。 |
+| `5xx` | ゲートウェイまたは上流の障害 | リクエストを再試行します。失敗が続く場合は、リクエスト ID とエラーメッセージを記録します。 |
+
+## 統合チェックリスト
+
+- Base URL は `{{openai-base-url}}` です。
+- ヘッダーには `Authorization: Bearer YOUR_API_KEY` を含めます。
+- リクエストでは `application/json` と `POST /images/generations` を使用します。
+- `model` は `gpt-image-2`、`response_format` は `b64_json`、`output_format` は `png`、`n` は `1` です。
+- `size` には `1024x1024` などの推奨値を指定します。
+- HTTP クライアントで生成用に数分を許容します。
+
+## 関連ドキュメント
+
+- [画像から画像への変換](/ja/api-reference/images-edits)
+- [GPT Image 2 が利用可能になりました](/ja/model-updates/gpt-image-2)

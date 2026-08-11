@@ -1,0 +1,68 @@
+---
+title: "Claude Code에는 Claude.ai 계정과 API Key 중 무엇을 사용하나요?"
+sidebarTitle: "계정 또는 API Key"
+description: "Claude Code에서 Claude.ai login, Claude Console API, cloud providers 및 third-party API gateways의 차이를 알아보세요."
+---
+
+## 빠른 답변
+
+Claude Code는 여러 방식으로 authenticate할 수 있습니다. individual users는 주로 Claude.ai account로 sign in합니다. API users 또는 teams는 Claude Console, cloud providers 또는 지원되는 third-party provider path를 사용할 수 있습니다.
+
+Claude.ai account와 API Key는 같은 것이 아닙니다. Claude.ai login은 official product experience용입니다. API Key는 model API requests에 사용하며 일반적으로 Base URL 및 provider configuration과 함께 사용합니다.
+
+third-party API gateway를 사용한다면 중요한 fields는 API Key와 Base URL입니다. tool이 Anthropic-compatible 또는 OpenAI-compatible protocol을 기대하는지도 확인해야 합니다.
+
+## 이 내용이 필요한 경우
+
+- Claude Code setup 중 login prompt가 표시됨
+- Claude Pro 또는 Max가 API Key를 제공하는지 확실하지 않음
+- Claude Code를 custom API gateway를 통해 route하고 싶음
+- official login과 third-party provider 중 선택해야 함
+- team에 일관된 authentication pattern이 필요함
+
+## 주요 개념
+
+| 개념 | 의미 |
+| --- | --- |
+| Claude.ai account | Claude experiences를 위한 official product login |
+| Claude Console API | developer-side API access 및 usage management |
+| API Key | model API requests에 사용하는 credential |
+| Base URL | requests를 보내는 endpoint |
+| Provider | Claude Code가 사용하는 authentication 및 model-request source |
+| Third-party API gateway | tool과 model providers 사이의 compatibility, routing, billing 또는 observability layer |
+
+## 권장 decision flow
+
+1. official Claude Code experience만 원하고 Claude.ai plan을 사용한다면 official login으로 시작하세요.
+2. API billing 또는 team-managed API access가 필요하면 Claude Console 또는 team provider를 검토하세요.
+3. custom API gateway가 필요하면 Claude Code가 provider path를 지원하는지 확인한 다음 API Key와 Base URL을 설정하세요.
+4. official app features와 third-party inference provider가 모두 필요하면 official login state를 유지해야 하는지 결정하세요.
+
+이 문서에서 Anthropic-compatible Claude Code Base URL은 `{{anthropic-base-url}}`입니다.
+
+## 일반적인 실수
+
+- Claude.ai subscription을 API Key로 취급함
+- ChatGPT Plus 또는 다른 subscription credential을 Claude Code에 붙여넣음
+- API Key만 복사하고 Base URL 변경을 잊음
+- Claude Code의 Anthropic-compatible configuration에 OpenAI-compatible Base URL을 입력함
+- `auth.json`, refresh tokens 또는 session credentials를 API Keys처럼 공유함
+
+## BetterToken 정보
+
+API Key + Base URL path를 선택하면 BetterToken이 compatible endpoint와 API Keys, balance, usage history를 위한 dashboard를 제공할 수 있습니다.
+
+BetterToken은 Claude.ai login을 대체하거나 Claude.ai subscription을 API Key로 바꾸지 않습니다. model API layer만 처리합니다.
+
+## 관련 문서
+
+- [Claude Code 설정 가이드](/ko/ai-tools/claude-code)
+- [Claude Code에서 API Key와 Base URL 구성](/ko/faq/claude-code/api-key-base-url)
+- [third-party API를 사용하면서 Codex login state 유지](/ko/faq/codex/official-login-third-party-api)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 참고 자료
+
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Pro 또는 Max plan에서 Claude Code 사용](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
+- [Claude Code LLM gateway 구성](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)

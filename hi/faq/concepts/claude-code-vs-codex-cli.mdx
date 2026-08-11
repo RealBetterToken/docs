@@ -1,0 +1,67 @@
+---
+title: "Claude Code बनाम Codex CLI"
+sidebarTitle: "Claude Code vs Codex"
+description: "runtime, configuration files, model protocol, permissions और project instruction files के आधार पर Claude Code और Codex CLI की तुलना करें।"
+---
+
+## संक्षिप्त उत्तर
+
+Claude Code और Codex CLI दोनों local-development coding agents हैं, लेकिन वे अलग ecosystems से संबंधित हैं और अलग configuration boundaries उपयोग करते हैं।
+
+Claude Code, Anthropic / Claude ecosystem के अधिक निकट है। सामान्य configuration में `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE.md`, permissions, hooks और MCP शामिल होते हैं।
+
+Codex CLI, OpenAI / Codex ecosystem के अधिक निकट है। सामान्य configuration में `~/.codex/config.toml`, `model_provider`, `wire_api = "responses"`, `AGENTS.md`, sandbox और approval शामिल होते हैं।
+
+## यह कब महत्वपूर्ण है
+
+- आप terminal-based AI coding agent चुन रहे हैं
+- आपको Base URL, API Key और model configuration एकीकृत करने हैं
+- आपको durable project instructions चाहिए
+- आप command execution और approval boundaries को लेकर सजग हैं
+- आप चाहते हैं कि कई tools समान model API layer साझा करें
+
+## मुख्य अंतर
+
+| आयाम | Claude Code | Codex CLI |
+| --- | --- | --- |
+| मुख्य ecosystem | Anthropic / Claude | OpenAI / Codex |
+| सामान्य model protocol | Anthropic-compatible | OpenAI-compatible / Responses |
+| मुख्य configuration | environment variables, settings, permissions, hooks | `config.toml`, sandbox, approval, rules |
+| project instruction file | `CLAUDE.md` | `AGENTS.md` |
+| model fields | Claude model names, aliases या provider mappings | `model`, `review_model`, provider id |
+| tool extension | MCP, hooks, permissions | MCP, plugins, rules, sandbox |
+
+## कैसे चुनें
+
+यदि आप पहले से Claude ecosystem में काम करते हैं और `CLAUDE.md`, Claude models, hooks व MCP को महत्व देते हैं, तो पहले Claude Code उपयोग करें।
+
+यदि आप provider, model, review model, sandbox और approval behavior को `config.toml` से प्रबंधित करना चाहते हैं, तो पहले Codex CLI उपयोग करें।
+
+यदि आपकी team दोनों उपयोग करती है, तो tool frontend को model API layer से अलग रखें। tool तय करता है कि code कैसे पढ़ना व बदलना है, commands कैसे चलाने हैं और risk को कैसे approve करना है। API layer तय करती है कि requests कौन-सा provider प्राप्त करेगा, कौन-सा model उपयोग होगा और usage कैसे recorded होगी।
+
+## सामान्य गलतियां
+
+- सोचना कि Claude Code और Codex CLI केवल model name से अलग हैं।
+- `CLAUDE.md` और `AGENTS.md` को एक ही file मानना।
+- Codex CLI में Anthropic-compatible Base URL डालना।
+- Claude Code की Anthropic protocol setting में OpenAI-compatible `/v1` endpoint डालना।
+- मान लेना कि API provider switch tool की local permissions बदलता है।
+
+## BetterToken के बारे में
+
+BetterToken model API layer के रूप में काम कर सकता है। Claude Code आमतौर पर `{{anthropic-base-url}}` उपयोग करता है, जबकि Codex CLI और अन्य OpenAI-compatible tools सामान्यतः `{{openai-base-url}}` उपयोग करते हैं।
+
+यह `CLAUDE.md`, `AGENTS.md`, permissions, hooks, sandbox या approval को नहीं बदलता। वे अभी भी प्रत्येक tool से संबंधित हैं।
+
+## संबंधित दस्तावेज
+
+- [Claude Code क्या है?](/hi/faq/claude-code/what-is-claude-code)
+- [Codex CLI क्या है?](/hi/faq/codex/what-is-codex-cli)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Codex CLI sandbox और approval modes क्या हैं?](/hi/faq/codex/sandbox-approval)
+
+## संदर्भ
+
+- [Claude Code overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Codex CLI दस्तावेज](https://developers.openai.com/codex/cli)
+- [OpenAI Codex GitHub repository](https://github.com/openai/codex)

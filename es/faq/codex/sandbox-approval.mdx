@@ -1,0 +1,68 @@
+---
+title: "¿Qué son el sandbox y los modos de aprobación de Codex CLI?"
+sidebarTitle: "sandbox / aprobación"
+description: "Comprende el sandbox de Codex CLI, los modos de aprobación, la revisión automática, los límites de los comandos locales y su diferencia con la configuración del proveedor de API."
+---
+
+## Respuesta breve
+
+El sandbox controla a qué archivos puede acceder Codex CLI, si los comandos pueden utilizar la red y dónde se permite la ejecución local. El modo de aprobación controla qué acciones necesitan confirmación.
+
+Son mecanismos de seguridad locales, no opciones del proveedor de modelos. Aunque enrutes las solicitudes del modelo mediante un gateway de API de terceros, Codex CLI sigue controlando el acceso a archivos y la ejecución de comandos con la configuración del sandbox y de aprobación.
+
+Una configuración adecuada equilibra velocidad y seguridad: el trabajo habitual puede continuar con menos interrupciones, mientras que las operaciones de mayor riesgo siguen necesitando confirmación.
+
+## Cuándo es importante
+
+- Codex solicita confirmación antes de cada comando
+- Quieres ejecutar pruebas automáticamente sin permitir comandos arriesgados
+- Necesitas que Codex edite archivos fuera del workspace actual
+- Trabajas en un equipo compartido, un repositorio empresarial o un proyecto sensible
+- Necesitas explicar por qué elegir un proveedor de API no equivale a configurar permisos locales
+
+## Conceptos básicos
+
+| Concepto | Significado |
+| --- | --- |
+| Sandbox | Límite de acceso al sistema de archivos, la red y los comandos |
+| Aprobación | Determina si ciertas acciones necesitan confirmación del usuario |
+| Revisión automática | Mecanismo adicional de revisión para acciones de riesgo compatibles |
+| Workspace | Directorio actual del proyecto y límite de rutas permitido |
+| Acceso a la red | Determina si Codex puede ejecutar comandos que contacten con servicios externos |
+
+## Práctica recomendada
+
+1. Empieza con una configuración conservadora en proyectos normales.
+2. Permite la escritura solo dentro del workspace actual.
+3. Deja que las pruebas habituales, el formato y los comandos de solo lectura se ejecuten sin interrupciones.
+4. Conserva la confirmación para eliminar archivos, restablecer el estado de Git, escribir fuera del workspace y acceder a la red.
+5. Documenta los comandos permitidos y las comprobaciones previas al commit en `AGENTS.md`.
+
+No utilices permisos amplios solo para evitar algunas confirmaciones. La eficiencia procede de tareas claras, reglas estables del proyecto y comprobaciones pequeñas.
+
+## Errores habituales
+
+- Pensar que cambiar el proveedor de API modifica los permisos locales del sandbox.
+- Desactivar las aprobaciones mientras Codex trabaja en un repositorio que no es de confianza.
+- Permitir comandos de red sin definir qué servicios son aceptables.
+- Tratar el restablecimiento de Git, la eliminación de archivos y la instalación de dependencias como comandos de bajo riesgo.
+- Terminar sin comprobar el diff ni los resultados de las pruebas.
+
+## Cómo interviene BetterToken
+
+BetterToken solo gestiona la capa de solicitudes a la API del modelo, como API Key, Base URL, enrutamiento de modelos y registros de uso. No modifica el sandbox ni el modo de aprobación de Codex CLI.
+
+Si el problema está relacionado con el acceso a archivos, la confirmación de comandos o los permisos de red, revisa la configuración local de Codex CLI en lugar del gateway de API.
+
+## Documentación relacionada
+
+- [Guía para configurar Codex con BetterToken](/es/ai-tools/codex)
+- [Cómo configurar config.toml en Codex CLI](/es/faq/codex/config-toml)
+- [Qué son model_provider, base_url y wire_api](/es/faq/codex/model-provider-base-url-wire-api)
+- [Qué es Codex CLI](/es/faq/codex/what-is-codex-cli)
+
+## Referencias
+
+- [Aprobaciones y seguridad de Codex](https://developers.openai.com/codex/agent-approvals-security)
+- [Sandbox de Codex](https://developers.openai.com/codex/concepts/sandboxing)
+- [Revisión automática del sandbox de Codex](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

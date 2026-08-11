@@ -1,0 +1,62 @@
+---
+title: "API リファレンス"
+description: "BetterToken の OpenAI 互換 Chat Completions API について、リクエスト URL、認証、テスト方法を説明します。"
+---
+
+BetterToken の公開 API リファレンスが現在対象としているのは、**OpenAI 互換 Chat Completions API** だけです。他のプロトコルはすべてのチャネルで一貫して対応しているわけではないため、Responses API と Anthropic Messages API は公開インターフェースとして提供していません。
+
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+## 接続情報
+
+| 項目 | 値 |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| 完全なリクエスト URL | `{{chat-completions-url}}` |
+| メソッド | `POST` |
+| 認証 | `Bearer YOUR_API_KEY` |
+| モデル | `YOUR_MODEL_ID` |
+
+現在の Model ID は、<a href={"{{model-plaza-url}}"}>model plaza</a> または Console の API Key **Setup** ダイアログからコピーします。
+
+<Warning>
+  外部ツールで **Base URL** を求められた場合は、`{{openai-base-url}}` を入力します。`{{chat-completions-url}}` は、完全なリクエスト URL を明示的に求められた場合だけ使ってください。
+</Warning>
+
+## 簡単なテスト
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+成功したレスポンスには `choices[0].message.content` が含まれます。
+
+## 対話型テストと SDK の例
+
+[OpenAI Chat Completions API](/ja/api-reference/chat-completions) を開くと、次の操作ができます。
+
+- Playground からリクエストを送信する
+- リクエストパラメーターとレスポンススキーマを確認する
+- curl、Python、JavaScript の例をコピーする
+
+<Note>
+  実際の API Key をドキュメント、スクリーンショット、公開コードに保存しないでください。`YOUR_API_KEY` と `YOUR_MODEL_ID` は実際の値に置き換えます。
+</Note>

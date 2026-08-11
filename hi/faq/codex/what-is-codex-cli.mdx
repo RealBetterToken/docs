@@ -1,0 +1,69 @@
+---
+title: "Codex CLI क्या है?"
+sidebarTitle: "Codex CLI क्या है"
+description: "जानें कि Codex CLI क्या है, यह कैसे काम करता है, इसे कब उपयोग करें और यह Codex App व Codex Web से कैसे अलग है।"
+---
+
+## संक्षिप्त उत्तर
+
+Codex CLI, OpenAI का local command-line coding agent है। यह आपके terminal में चलता है, selected workspace पढ़ता है, files edit करता है, commands चलाता है और development tasks पर काम करते समय आपकी sandbox व approval settings का पालन करता है।
+
+जब आप local repository में code changes, code review, test fixes, scripts और multi-step engineering work में agent की सहायता चाहते हैं, तब यह उपयोगी है।
+
+Codex CLI सामान्य ChatGPT conversation से अलग है। यह केवल code सुझाता नहीं है। यह current directory, project instructions, tool results और local execution permissions के साथ काम करता है।
+
+## यह कब महत्वपूर्ण है
+
+- आप पहली बार `@openai/codex` install कर रहे हैं
+- आप Codex CLI, Codex App और Codex Web की तुलना कर रहे हैं
+- आप चाहते हैं कि agent local project की files edit करे
+- आपको custom API provider, Base URL या model कॉन्फ़िगर करना है
+- आप sandbox, approval और `AGENTS.md` समझना चाहते हैं
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Codex CLI | आपके local terminal में चलने वाला Codex coding agent |
+| Workspace | वह directory जिसे Codex पढ़, search और modify कर सकता है |
+| `config.toml` | models, providers, sandbox, approvals और अन्य behavior के लिए local Codex config file |
+| `AGENTS.md` | project instruction file जो Codex को repository rules और collaboration preferences बताती है |
+| Sandbox | filesystem, network और command access के लिए local security boundary |
+| Approval | कौन-से actions को confirmation चाहिए यह तय करने वाली policy |
+
+## अनुशंसित workflow
+
+1. जिस project directory को बदलना है, उसके अंदर Codex CLI शुरू करें।
+2. व्यापक edits करने से पहले उससे relevant files या instructions inspect करने को कहें।
+3. complex work के लिए files बदलने देने से पहले plan मांगें।
+4. task के risk के आधार पर sandbox और approval settings चुनें।
+5. durable project rules को `AGENTS.md` में और one-time requirements को current conversation में रखें।
+
+third-party API provider उपयोग करने पर `model_provider`, `base_url`, `wire_api` और `config.toml` के model fields पर ध्यान दें। Codex और अन्य OpenAI-compatible tools आमतौर पर OpenAI-compatible endpoint उपयोग करते हैं, जो इस documentation में `{{openai-base-url}}` है।
+
+## सामान्य गलतियां
+
+- Codex CLI को chat-only assistant मानना।
+- मान लेना कि Codex CLI, Codex App और Codex Web समान environment में चलते हैं।
+- matching provider और Base URL कॉन्फ़िगर किए बिना केवल `model` बदलना।
+- tests, review या command boundaries के बिना sandbox और approval settings ढीली करना।
+- OpenAI-compatible और Anthropic-compatible Base URLs को मिलाना।
+
+## BetterToken के बारे में
+
+custom OpenAI-compatible provider उपयोग करने पर BetterToken, Codex CLI के लिए model API layer के रूप में काम कर सकता है। यह API Key, Base URL, model routing, balance और usage records संभालता है।
+
+BetterToken, Codex CLI के local sandbox, approvals, `AGENTS.md` या command execution policy को नहीं बदलता।
+
+## संबंधित दस्तावेज
+
+- [Codex BetterToken सेटअप गाइड](/hi/ai-tools/codex)
+- [Codex CLI बनाम Codex App बनाम Codex Web](/hi/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex CLI config.toml कैसे कॉन्फ़िगर करें](/hi/faq/codex/config-toml)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## संदर्भ
+
+- [Codex CLI दस्तावेज](https://developers.openai.com/codex/cli)
+- [OpenAI Codex GitHub repository](https://github.com/openai/codex)
+- [Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)

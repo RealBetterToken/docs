@@ -1,0 +1,75 @@
+---
+title: "Cline에서 BetterToken OpenAI-compatible API 구성"
+sidebarTitle: "Cline OpenAI-compatible"
+description: "BetterToken에 맞는 Cline provider, Base URL, API Key 및 Model ID를 입력한 다음 연결을 확인하고 일반적인 errors를 해결하세요."
+---
+
+## 바로 답변
+
+Cline에서 **OpenAI Compatible**를 선택하고 **Base URL**을 `{{openai-base-url}}`로 설정한 뒤 BetterToken API Key를 붙여넣고 **GPT provider**의 Model ID를 입력하세요. Claude Code용 Anthropic-compatible address를 사용하지 말고 official **OpenAI** provider를 선택하지 마세요.
+
+| Cline field | BetterToken 값 |
+| --- | --- |
+| API Provider | `OpenAI Compatible` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | BetterToken API Key |
+| Model ID | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 **GPT provider** model ID |
+
+<Info>
+  이 FAQ는 각 field의 값과 connection troubleshooting에 집중합니다. installation부터 시작해야 한다면 [전체 Cline 설정 가이드](/ko/ai-tools/cline)를 따르세요.
+</Info>
+
+## 전체 설정
+
+<Steps>
+  <Step title="API Key와 Model ID 준비">
+    API Key를 만든 다음 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 **GPT provider**에서 현재 available Model ID를 복사하세요. marketing display name 대신 표시된 그대로 ID를 입력하세요.
+  </Step>
+  <Step title="Cline settings 열기">
+    VS Code에서 Cline panel을 열고 gear icon을 클릭하세요.
+  </Step>
+  <Step title="OpenAI Compatible 선택">
+    **API Provider** 아래에서 **OpenAI Compatible**를 선택하세요. 이 provider는 Cline을 third-party OpenAI-compatible endpoint에 연결합니다.
+  </Step>
+  <Step title="필수 values 네 개 입력">
+    위 table을 사용하여 Provider, Base URL, API Key 및 Model ID를 입력하세요. Base URL에는 `/v1`이 포함되어야 합니다.
+
+    **Use Azure Identity Authentication**이 표시되면 disabled로 두세요. BetterToken은 Azure Identity가 아닌 API Key로 authenticate합니다.
+  </Step>
+  <Step title="연결 확인">
+    Cline에서 **Verify**를 클릭하세요. verification에 성공하면 task를 만들고 간단한 prompt를 보내 model이 response하고 tool calls가 작동하는지 확인하세요.
+  </Step>
+</Steps>
+
+## 어떤 advanced fields를 변경해야 하나요?
+
+Cline에는 Context Window, Max Output Tokens, Image Support 또는 Computer Use도 표시될 수 있습니다. 첫 connection에서는 defaults를 유지하세요. 모델 광장 또는 model documentation이 relevant capability와 limit를 확인할 때만 field를 변경하세요.
+
+Model prices는 변경될 수 있습니다. local Cline settings에 저장된 fixed price에 의존하지 말고 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 current model과 price를 확인하세요.
+
+## 일반적인 오류
+
+| 증상 | 먼저 확인할 사항 | 해결 방법 |
+| --- | --- | --- |
+| `Invalid API Key` 또는 `401` | Key가 complete하고 current account에 속하는지 | Key를 다시 복사하고 surrounding spaces를 제거하며 official OpenAI Key와 섞지 마세요. |
+| `Model Not Found` | Model ID가 GPT provider에 속하는지 | 모델 광장에서 case 또는 suffix를 변경하지 않고 available ID를 복사하세요. |
+| `404` 또는 endpoint not found | `/v1` 누락 여부 | Anthropic-compatible Claude Code address가 아니라 `{{openai-base-url}}`을 사용하세요. |
+| Connection timeout | local network, firewall 또는 stale proxy settings | browser에서 BetterToken이 열리는지 확인하고 invalid proxy를 disable한 다음 **Verify**를 다시 실행하세요. |
+| Old configuration이 계속 적용됨 | Cline session이 refresh되지 않음 | settings를 저장하고 Cline을 다시 열거나 **Developer: Reload Window**를 실행하세요. |
+
+## 이 setup이 적용되는 곳
+
+이 values는 BetterToken OpenAI-compatible endpoint를 통해 Cline을 **GPT provider** models에 연결합니다. Cline Rules, Memory Bank, MCP 또는 local tool permissions는 변경하지 않습니다.
+
+Claude Code에는 `/v1` 없는 Anthropic-compatible address를 사용하고 [Claude Code 설정 가이드](/ko/ai-tools/claude-code)를 따르세요.
+
+## 관련 문서
+
+- [전체 Cline 설정 가이드](/ko/ai-tools/cline)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Base URL, API Key 및 Model ID의 관계](/ko/faq/model-calling/base-url-config)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+
+## 참고 자료
+
+- [Cline OpenAI Compatible provider 문서](https://docs.cline.bot/provider-config/openai-compatible)

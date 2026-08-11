@@ -1,0 +1,71 @@
+---
+title: "Was ist CLAUDE.md in Claude Code und wie solltest du es schreiben?"
+sidebarTitle: "CLAUDE.md"
+description: "Verstehe, was CLAUDE.md in Claude Code bewirkt, was enthalten sein sollte, was du vermeiden solltest und wie es sich von Hooks und MCP unterscheidet."
+---
+
+## Kurzantwort
+
+`CLAUDE.md` ist eine Projekt-Anweisungsdatei, die Claude Code als Kontext laden kann. Sie eignet sich für Projektstruktur, Befehle, Coding-Konventionen, Testerwartungen, Sicherheitsgrenzen und Regeln zur Zusammenarbeit.
+
+Sie ist kein Durchsetzungsmechanismus. Claude Code liest sie als Orientierung. Wenn eine Regel zu einem bestimmten Zeitpunkt ausgeführt werden muss, verwende Hooks oder eine Tool-Konfiguration, statt dich nur auf `CLAUDE.md` zu verlassen.
+
+Ein nützliches `CLAUDE.md` ist kurz, konkret und gepflegt. Verwende es für Projektfakten, die du sonst in jeder Sitzung wiederholen würdest.
+
+## Wann das wichtig ist
+
+- Claude Code fragt wiederholt nach derselben Projektstruktur oder denselben Befehlen
+- Dein Team möchte gemeinsame Test-, Stil- oder Sicherheitsregeln
+- Du möchtest wiederholten Kontext und Token-Nutzung reduzieren
+- Claude Code übersieht weiterhin Repository-spezifische Konventionen
+- Du möchtest, dass andere Agents oder Teammitglieder schneller eingearbeitet werden
+
+## Wichtige Konzepte
+
+| Konzept | Bedeutung |
+| --- | --- |
+| Projekt-`CLAUDE.md` | Gemeinsame Projektanweisungen, die normalerweise mit dem Repository eingecheckt werden |
+| Persönliche Regeln | Nutzerspezifische Präferenzen, die nicht immer eingecheckt werden sollten |
+| Lokale Regeln | Maschinenspezifische Notizen oder temporäre Präferenzen |
+| Hooks | Befehle, die rund um Tool-Nutzung ausgelöst werden; besser für erzwungenes Verhalten |
+| MCP | Externe Tools und Datenquellen; keine Projekt-Regeldatei |
+
+## Empfohlene Inhalte
+
+Schreibe `CLAUDE.md` als kompaktes Projekt-Handbuch:
+
+- Was das Projekt ist und wo wichtige Verzeichnisse liegen
+- Gängige Befehle für Build, Tests und Formatierung
+- Architekturgrenzen, die vor Bearbeitungen zu beachten sind
+- Die schnellsten vor dem Abschluss auszuführenden Prüfungen
+- Secrets, Logs oder private Konfigurationen, die nicht offengelegt werden dürfen
+- Konventionen für Dokumentation, Tests, Benennung und Fehlerbehandlung
+
+Vermeide lange Tutorials, temporäre Pläne und einmalige Aufgabenhinweise. Wenn eine Regel nur für einen Bereich gilt, grenze sie enger ein. Wenn ein Verhalten erzwungen werden muss, verwende Hooks.
+
+## Häufige Fehler
+
+- `CLAUDE.md` als System-Prompt oder harte Berechtigungsschicht behandeln.
+- Es zu lang machen, wodurch Kontextkosten steigen und es schwerer zu befolgen ist.
+- Alte Deployment-Notizen, temporäre TODOs und überholte Entscheidungen dauerhaft anhängen.
+- API Keys, Tokens, Cookies oder private Konfigurationen in die Datei schreiben.
+- `CLAUDE.md`, `AGENTS.md` und Cursor Rules mit widersprüchlichen Anweisungen pflegen.
+
+## Über BetterToken
+
+Wenn ein Projekt BetterToken verwendet, kann `CLAUDE.md` Claude Code daran erinnern, dass Claude Code die Anthropic-kompatible `{{anthropic-base-url}}` verwendet, während Codex und external tools die OpenAI-kompatible `{{openai-base-url}}` verwenden.
+
+Lege keine echten API Keys in `CLAUDE.md` ab. Speichere sie in lokalen Umgebungsvariablen, lokalen Konfigurationsdateien oder einem geschützten Secret-System.
+
+## Verwandte Dokumentation
+
+- [Was ist Claude Code und wie funktioniert es?](/de/faq/claude-code/what-is-claude-code)
+- [API Key und Base URL in Claude Code konfigurieren](/de/faq/claude-code/api-key-base-url)
+- [Warum Claude Code so viele Tokens nutzt und wie du Kosten reduzierst](/de/faq/token-cost/claude-code-token-usage)
+- [Claude-Code-Einrichtungsanleitung](/de/ai-tools/claude-code)
+
+## Referenzen
+
+- [Wie Claude sich an dein Projekt erinnert](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Claude-Code-Hooks-Referenz](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Kosten von Claude Code](https://docs.anthropic.com/en/docs/claude-code/costs)

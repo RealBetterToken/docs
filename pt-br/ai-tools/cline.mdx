@@ -1,0 +1,133 @@
+---
+title: "Configurar o Cline: instalação, API Key, Base URL e modelos personalizados"
+sidebarTitle: "Cline"
+description: "Instale o Cline, configure a Base URL e a API Key do BetterToken, escolha um modelo de um provedor compatível e resolva erros comuns."
+icon: "c"
+---
+
+Para conectar o Cline ao BetterToken, prepare uma API Key, informe a Base URL abaixo e escolha um Model ID atual no model plaza.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Um Model ID atual do <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Pré-requisitos
+
+- A versão atual da ferramenta está instalada
+- Uma BetterToken API Key: <a href={"{{register-url}}"}>cadastre-se e obtenha uma</a>
+- Um Model ID do <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionais
+
+- VS Code instalado
+
+## Instalação
+
+### Instalar o Cline
+
+Abra o VS Code, procure **Cline** no marketplace de extensões e instale-o.
+
+## Configuração manual
+
+Conclua esta configuração na interface do Cline. Não é necessário editar um arquivo de configuração.
+
+| Campo | Valor |
+| --- | --- |
+| API Key | Sua BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Um Model ID atual do <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Configuração
+
+<Steps>
+  <Step title="Remova variáveis de ambiente conflitantes">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Abra a interface de configuração do Cline">
+    Clique em **Use your own API key** na barra lateral do Cline.
+  </Step>
+
+  <Step title="Configure o provedor de API">
+    Preencha os campos:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → sua BetterToken API Key
+    - **Model** → um **Model ID de um provedor compatível** copiado do <a href={"{{model-plaza-url}}"}>model plaza</a>
+  </Step>
+
+  <Step title="Configure headers extras somente quando a documentação oficial exigir">
+    A documentação oficial de configuração compatível com OpenAI do Cline se concentra em `Base URL`, API Key e Model ID. Normalmente, não é necessário um `User-Agent` extra para conectar o BetterToken.
+
+    Se você também usa um gateway personalizado, roteamento de tenant ou uma camada de observabilidade ou cache, adicione headers somente de acordo com a documentação oficial desse serviço upstream.
+  </Step>
+
+  <Step title="Salve a configuração">
+    Clique em **Done**.
+  </Step>
+
+  <Step title="Reinicie o Cline">
+    Depois de salvar a configuração, reinicie o VS Code ou recarregue a extensão Cline para aplicar os novos ajustes.
+  </Step>
+</Steps>
+
+## Verificar a conexão
+
+Envie uma solicitação curta de teste. Se a ferramenta responder sem erros de autenticação ou de Model ID, a conexão funciona. Reinicie completamente a ferramenta depois de alterar a configuração.
+
+## Trocar de modelo
+
+Abra o seletor de modelos ou altere o campo `Model` na configuração. Use o Model ID exato do <a href={"{{model-plaza-url}}"}>model plaza</a> e reinicie a sessão atual.
+
+## Erros comuns
+
+| Erro | O que verificar |
+| --- | --- |
+| `401` ou `Unauthorized` | Verifique a BetterToken API Key e remova espaços no início ou no fim. |
+| `404` | Verifique a Base URL e não acrescente o caminho de um endpoint específico. |
+| `model not found` | Copie um Model ID atual do model plaza. |
+| As alterações não são aplicadas | Salve a configuração e reinicie completamente a ferramenta. |
+
+
+- [Como configurar uma API compatível com OpenAI no Cline](/pt-br/faq/cline/openai-compatible-api)
+- [API compatível com OpenAI ou API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP ou API Key e Base URL](/pt-br/faq/concepts/mcp-vs-api-key-base-url)
+- [Como configurar uma API OpenAI personalizada no Cursor](/pt-br/faq/cursor/custom-openai-api)
+
+<Note>
+  Verifique primeiro a `Base URL`, a API Key, o Model ID e a versão da ferramenta. Não presuma que `User-Agent` seja uma configuração obrigatória do BetterToken.
+</Note>
+
+## Configuração avançada
+
+{/* tool-provider-support:start */}
+### Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
+
+<Accordion title="O que significa cada método de configuração">
+  - **Configuração manual**: informe a API Key, a Base URL e o Model.
+  - **Sem suporte**: ainda não há um método verificado de conexão direta.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Detalhes técnicos
+
+<Accordion title="Protocolo, endpoint e campos internos do provedor">
+  Esta configuração usa `{{openai-base-url}}`. A ferramenta acrescenta o caminho do endpoint compatível com OpenAI. Não adicione `/chat/completions` nem `/responses`, a menos que um campo específico exija isso explicitamente.
+</Accordion>

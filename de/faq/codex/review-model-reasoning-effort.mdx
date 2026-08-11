@@ -1,0 +1,58 @@
+---
+title: "Was bedeuten review_model und reasoning_effort in Codex CLI?"
+sidebarTitle: "review_model / Reasoning"
+description: "Verstehe review_model, model_reasoning_effort, /review, /model und wie diese Einstellungen Kosten und Qualität in Codex CLI beeinflussen."
+---
+
+## Kurzantwort
+
+`review_model` ist das Modell, das Codex für Code-Review-Workflows verwendet. `model_reasoning_effort` steuert die Reasoning-Stärke für Modelle, die die Responses API unterstützen.
+
+Beide Felder können Qualität, Geschwindigkeit und Nutzungskosten beeinflussen. Höhere Reasoning-Einstellungen eignen sich besser für komplexe Aufgaben, können aber mehr verbrauchen.
+
+## Beziehungen der Felder
+
+| Feld | Rolle |
+| --- | --- |
+| `model` | Standardmodell für gewöhnliche Arbeit |
+| `review_model` | Modell für Review-Workflows wie `/review` |
+| `model_reasoning_effort` | Reasoning-Stärke für das Hauptmodell |
+| `/model` | Einstiegspunkt innerhalb der Sitzung für Modell- oder Reasoning-Änderungen |
+| `/review` | Einstiegspunkt, um Codex um ein Review aktueller Änderungen zu bitten |
+
+## Empfohlene Konfiguration
+
+```toml
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+```
+
+Für kleine schnelle Änderungen kannst du den Reasoning-Aufwand senken. Für dateiübergreifende Refaktorierungen, schwieriges Debugging oder Aufgaben mit langem Kontext ist ein höherer Reasoning-Aufwand angemessener.
+
+## Häufige Fehler
+
+- Denken, dass `review_model` das Hauptmodell für alle Aufgaben ersetzt.
+- Reasoning-Aufwand als Temperatureinstellung behandeln.
+- Eine vom aktuellen Provider nicht unterstützte Model ID verwenden.
+- Den höchsten Reasoning-Aufwand für jede Aufgabe verwenden.
+- Nur Modellnamen betrachten, ohne tatsächliche Nutzung und Ergebnisqualität zu prüfen.
+
+## Über BetterToken
+
+Unterschiedliche Modelle und Reasoning-Einstellungen beeinflussen die Nutzung. BetterToken-Nutzungsaufzeichnungen helfen dir, Eingabe, Ausgabe und Kosten bei realen Aufgaben zu vergleichen.
+
+Kopiere Model IDs vom **GPT-Provider**, damit der aktuelle Provider sie erkennen kann.
+
+## Verwandte Dokumentation
+
+- [Codex CLI config.toml konfigurieren](/de/faq/codex/config-toml)
+- [Was sind model_provider, base_url und wire_api?](/de/faq/codex/model-provider-base-url-wire-api)
+- [Codex mit BetterToken einrichten](/de/ai-tools/codex)
+- [Was sind Sandbox- und Freigabemodi in Codex CLI?](/de/faq/codex/sandbox-approval)
+
+## Referenzen
+
+- [Codex-Konfigurationsreferenz](https://developers.openai.com/codex/config-reference)
+- [Beispielkonfiguration für Codex](https://developers.openai.com/codex/config-sample)
+- [Codex-CLI-Slash-Befehle](https://developers.openai.com/codex/cli/slash-commands)

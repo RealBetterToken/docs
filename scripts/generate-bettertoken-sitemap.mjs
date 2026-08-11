@@ -3,17 +3,14 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { betterTokenLocales, xDefaultLanguage } from './i18n-locales.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const defaultConfigPath = path.join(rootDir, 'docs.json');
 const defaultOutputPath = path.join(rootDir, 'sitemap.xml');
 
 export const betterTokenSiteUrl = 'https://docs.bettertoken.ai';
-export const betterTokenLanguages = [
-  { language: 'ru', routePrefix: '', hreflang: 'ru' },
-  { language: 'en', routePrefix: 'en/', hreflang: 'en' },
-  { language: 'zh', routePrefix: 'zh/', hreflang: 'zh-CN' },
-];
+export const betterTokenLanguages = betterTokenLocales;
 export const hiddenApiReferenceRoutes = new Set();
 
 function collectNavPages(node, pages = []) {
@@ -85,12 +82,15 @@ export function buildBetterTokenSitemap(config) {
 
   for (const route of [...groups.keys()].sort()) {
     const variants = groups.get(route);
-    const russianUrl = variants.get('ru');
+    const xDefaultDefinition = betterTokenLanguages.find(
+      ({ language }) => language === xDefaultLanguage,
+    );
+    const xDefaultUrl = variants.get(xDefaultDefinition.hreflang);
     const alternates = betterTokenLanguages
       .filter(({ hreflang }) => variants.has(hreflang))
       .map(({ hreflang }) => [hreflang, variants.get(hreflang)]);
 
-    if (russianUrl) alternates.push(['x-default', russianUrl]);
+    if (xDefaultUrl) alternates.push(['x-default', xDefaultUrl]);
 
     for (const { hreflang } of betterTokenLanguages) {
       const url = variants.get(hreflang);

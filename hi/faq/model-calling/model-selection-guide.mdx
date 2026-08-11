@@ -1,0 +1,80 @@
+---
+title: "सही AI मॉडल कैसे चुनें?"
+sidebarTitle: "मॉडल चुनें"
+description: "Protocol, प्रदाता, task type, quality, speed, context length और cost के आधार पर AI मॉडल चुनना सीखें।"
+---
+
+## संक्षिप्त उत्तर
+
+केवल मॉडल नाम के आधार पर न चुनें। पहले पुष्टि करें कि टूल को कौन-सा protocol और प्रदाता चाहिए। फिर task type, quality, speed, context length और cost के आधार पर चुनें।
+
+BetterToken में Claude Code को आमतौर पर **Claude प्रदाता** उपयोग करना चाहिए। Codex CLI, Cursor, Cline, OpenCode, OpenClaw और अन्य बाहरी टूल को आमतौर पर **GPT प्रदाता** उपयोग करना चाहिए। <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से Model ID कॉपी करें।
+
+## यह गाइड कब चाहिए?
+
+- **Claude प्रदाता** या **GPT प्रदाता** में से क्या उपयोग करना है, यह स्पष्ट न हो
+- Claude Code, Codex CLI, Cursor, Cline या ऐसे टूल के बीच बदलते हों
+- मॉडल काम करे, लेकिन बहुत महंगा, धीमा या कम context वाला हो
+- Batch task के लिए कम लागत वाला मॉडल चाहिए
+- एक ही API gateway को कई AI कोडिंग टूल से कनेक्ट करना हो
+
+## पहले टूल देखें, फिर मॉडल चुनें
+
+पहला चरण मॉडल ranking की तुलना करना नहीं, बल्कि client का अपेक्षित protocol जांचना है।
+
+| उपयोग | अनुशंसित प्रदाता | सामान्य Base URL |
+| --- | --- | --- |
+| Claude Code | Claude प्रदाता | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Claude प्रदाता या local gateway का आवश्यक group | Gateway configuration का पालन करें |
+| Codex CLI | GPT प्रदाता | `{{openai-base-url}}` |
+| Cursor | GPT प्रदाता | `{{openai-base-url}}` |
+| Cline | GPT प्रदाता | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | GPT प्रदाता | `{{openai-base-url}}` |
+
+Protocol या प्रदाता गलत होने पर मॉडल मौजूद हो सकता है, लेकिन Request `model not found`, authentication error या invalid Request format के साथ विफल हो सकता है।
+
+## Task type के आधार पर चुनें
+
+| Task type | प्राथमिकता |
+| --- | --- |
+| जटिल coding, architecture, लंबे task | Reasoning quality, context window, tool-call stability |
+| रोज़मर्रा के सवाल और हल्का generation | Speed और cost |
+| Batch translation, classification, summary | Unit price, throughput, stability |
+| Code review और technical documentation | Code understanding, long context, stable output |
+| Exploratory task | Mid-cost मॉडल से शुरू करें, critical चरण में मजबूत मॉडल चुनें |
+
+हर task को default रूप से सबसे महंगे मॉडल पर न भेजें। कई batch task को deep reasoning या अधिक creativity की जरूरत नहीं होती। उनके लिए तेज और कम लागत वाला मॉडल बेहतर हो सकता है।
+
+## अनुशंसित वर्कफ़्लो
+
+1. पुष्टि करें कि टूल OpenAI-compatible या Anthropic-compatible API में से किसका समर्थन करता है।
+2. टूल के अनुसार **Claude प्रदाता** या **GPT प्रदाता** चुनें।
+3. <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से मौजूदा Model ID कॉपी करें।
+4. छोटे task से quality, speed और cost टेस्ट करें।
+5. लंबे समय तक मॉडल उपयोग करने से पहले Dashboard में usage देखें।
+6. केवल एक मॉडल सेट करने के बजाय जटिल task के लिए मजबूत backup मॉडल रखें।
+
+## सामान्य गलतियां
+
+- केवल display name देखना और Model ID की पुष्टि न करना
+- GPT / OpenAI-compatible टूल में **Claude प्रदाता** मॉडल उपयोग करना
+- Anthropic-compatible Claude Code सेटअप में **GPT प्रदाता** मॉडल उपयोग करना
+- यह मानना कि नया मॉडल हर task के लिए हमेशा बेहतर है
+- Context length, speed और cost को अनदेखा करके केवल output quality की तुलना करना
+- छोटे test के बिना production traffic को नए मॉडल पर भेजना
+
+## BetterToken में उपयोग
+
+BetterToken में API Key, बैलेंस और usage record एक जगह प्रबंधित किए जा सकते हैं। मॉडल call उसी Dashboard से प्रबंधित होते हैं, लेकिन हर टूल में समर्थित protocol और प्रदाता सेट करना होगा।
+
+सरल नियम:
+
+- Claude Code **Claude प्रदाता** और `{{anthropic-base-url}}` उपयोग करता है।
+- Codex CLI, Cursor, Cline, OpenCode और OpenClaw **GPT प्रदाता** और `{{openai-base-url}}` उपयोग करते हैं।
+
+## संबंधित दस्तावेज़
+
+- [OpenAI-compatible API और Anthropic-compatible API में क्या अंतर है?](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Base URL कैसे भरें?](/hi/faq/model-calling/base-url-config)
+- [मॉडल को अपना version क्यों नहीं पता होता?](/hi/faq/model-calling/model-version-identity)
+- [Claude Code इतने Token क्यों उपयोग करता है?](/hi/faq/token-cost/claude-code-token-usage)

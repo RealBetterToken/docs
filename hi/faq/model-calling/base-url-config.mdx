@@ -1,0 +1,108 @@
+---
+title: "Base URL कैसे भरें?"
+sidebarTitle: "Base URL सेटअप"
+description: "Claude Code, Codex CLI, Cursor, Cline और अन्य टूल में Base URL, /v1 path, API Key और Model ID को सही तरह मिलाना सीखें।"
+---
+
+## संक्षिप्त उत्तर
+
+Base URL टूल के अपेक्षित protocol से मेल खाना चाहिए। Claude Code आमतौर पर Anthropic-compatible root address उपयोग करता है। Codex CLI, Cursor, Cline, OpenCode, OpenClaw और अन्य बाहरी टूल आमतौर पर OpenAI-compatible `/v1` address उपयोग करते हैं।
+
+BetterToken में:
+
+| उपयोग | Base URL |
+| --- | --- |
+| Claude Code / Anthropic-compatible उपयोग | `{{anthropic-base-url}}` |
+| Codex CLI / OpenAI-compatible | `{{openai-base-url}}` |
+| Cursor, Cline, OpenCode, OpenClaw | `{{openai-base-url}}` |
+
+Path का अनुमान न लगाएं। API Key, Base URL और Model ID एक ही प्रदाता या gateway से होने चाहिए।
+
+## Base URL अलग क्यों हैं?
+
+अलग SDK अलग तरीके से path जोड़ते हैं।
+
+| Protocol या टूल प्रकार | सामान्य व्यवहार |
+| --- | --- |
+| OpenAI-compatible SDK | आमतौर पर `/v1` के अंतर्गत Chat Completions या Responses resource call करता है |
+| Anthropic-compatible SDK | आमतौर पर Message Endpoint path स्वयं जोड़ता है, इसलिए `/v1` दोबारा न जोड़ें |
+| टूल का built-in प्रदाता | Path अपने-आप जोड़ सकता है या पूरा Base URL मांग सकता है |
+
+एक मॉडल नाम होने का अर्थ यह नहीं कि वही Base URL हर जगह काम करेगा। टूल protocol, Base URL, API Key, प्रदाता और Model ID एक-दूसरे से मेल खाने चाहिए।
+
+## त्वरित संदर्भ
+
+| टूल | अनुशंसित सेटअप |
+| --- | --- |
+| Claude Code | BetterToken API Key के साथ `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Auth scheme सहित Gateway पेज का पालन करें |
+| Codex CLI | BetterToken API Key के साथ `{{openai-base-url}}` |
+| Cursor | BetterToken API Key के साथ `{{openai-base-url}}` |
+| Cline | OpenAI Compatible प्रदाता के साथ `{{openai-base-url}}` |
+| OpenCode / OpenClaw | BetterToken API Key के साथ `{{openai-base-url}}` |
+
+## सामान्य त्रुटियां
+
+| त्रुटि या लक्षण | संभावित कारण |
+| --- | --- |
+| `404 Not Found` | Base URL path SDK के अपेक्षित path से मेल नहीं खाता |
+| `model not found` | Model ID मौजूदा प्रदाता का नहीं है |
+| `invalid_api_key` | API Key और Base URL अलग service के हैं |
+| Authentication काम करता है, लेकिन मॉडल उपलब्ध नहीं | प्रदाता और Model ID मेल नहीं खाते |
+| Request लगातार विफल होते हैं | OpenAI-compatible टूल में Anthropic-compatible address या इसका उल्टा उपयोग हुआ है |
+
+## अनुशंसित troubleshooting क्रम
+
+1. पुष्टि करें कि टूल OpenAI-compatible या Anthropic-compatible API में से क्या अपेक्षित करता है।
+2. जांचें कि Base URL उस protocol से मेल खाता है।
+3. जांचें कि API Key उसी service का है।
+4. जांचें कि Model ID <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से लिया गया है और मौजूदा प्रदाता का है।
+5. `hello` जैसा minimal test Request भेजें।
+
+## Code उदाहरण
+
+OpenAI-compatible टूल आमतौर पर `/v1` address उपयोग करते हैं:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}"
+)
+
+response = client.chat.completions.create(
+    model="your-model-id",
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+Claude / Anthropic-compatible सेटअप आमतौर पर root address उपयोग करते हैं:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key="YOUR_API_KEY",
+    base_url="{{anthropic-base-url}}"
+)
+
+message = client.messages.create(
+    model="your-claude-model-id",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+## BetterToken में उपयोग
+
+BetterToken Anthropic-compatible और OpenAI-compatible दोनों access देता है। एक Dashboard में API Key, बैलेंस और usage record प्रबंधित किए जा सकते हैं, लेकिन हर client में समर्थित protocol address सेट करना होगा।
+
+सरल नियम: Claude Code `{{anthropic-base-url}}` उपयोग करता है; Codex CLI, Cursor, Cline, OpenCode और OpenClaw `{{openai-base-url}}` उपयोग करते हैं।
+
+## संबंधित दस्तावेज़
+
+- [OpenAI-compatible API और Anthropic-compatible API में क्या अंतर है?](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [सही AI मॉडल कैसे चुनें?](/hi/faq/model-calling/model-selection-guide)
+- [Codex CLI में model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Cline में OpenAI-compatible API कैसे सेट करें?](/hi/faq/cline/openai-compatible-api)

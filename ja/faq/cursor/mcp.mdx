@@ -1,0 +1,53 @@
+---
+title: "Cursor で MCP を設定する方法"
+sidebarTitle: "Cursor MCP"
+description: "Cursor MCP、プロジェクトとグローバル設定、mcp.json、ツール承認、MCP とモデル API 設定の違いを説明します。"
+---
+
+## 短い答え
+
+Cursor MCP は、エディター内の AI ワークフローに外部ツールとデータソースを接続します。これはモデル API 設定ではなく、OpenAI 互換 Base URL を置き換えるものではありません。
+
+Cursor では、MCP 設定に通常 `mcp.json`、プロジェクトまたはグローバル設定、環境変数、ツール承認が含まれます。
+
+## この情報が役立つ場面
+
+- Cursor で外部ツールを使用したいとき
+- プロジェクト固有の MCP サーバー設定が必要なとき
+- プロジェクト MCP とグローバル MCP を区別したいとき
+- ツール承認を理解したいとき
+- MCP が API Key / Base URL を置き換えられると考えているとき
+
+## MCP とモデル API
+
+| 項目 | Cursor MCP | OpenAI 互換 API |
+| --- | --- | --- |
+| 役割 | ツール、データソース、コンテキストを接続 | モデルプロバイダーを接続 |
+| 主な設定 | `mcp.json`、サーバー、env、承認 | API Key、Base URL、モデル ID |
+| 主なリスク | ツール権限とデータアクセス | 認証、課金、モデルの利用可否 |
+
+## 推奨事項
+
+1. モデルプロバイダーではなく、ツール機能を追加していることを確認します。
+2. Cursor ドキュメントに従い、グローバルまたはプロジェクト MCP 設定を選択します。
+3. MCP サーバーには、必要な環境変数だけを渡します。
+4. ファイル書き込みまたは外部サービスへのアクセスを行うツールには、ツール承認を残します。
+5. モデル API 設定と MCP 設定は別々にデバッグします。
+
+## BetterToken について
+
+BetterToken はモデル API レイヤーです。Cursor MCP はツールレイヤーです。両方を使用できますが、相互に置き換えるものではありません。
+
+目的がモデルルーティングの切り替えであれば、`{{openai-base-url}}` と **GPT プロバイダー**のモデルを設定します。目的が Cursor から外部ツールを呼び出すことであれば、MCP を設定します。
+
+## 関連ドキュメント
+
+- [MCP と API Key・Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [Cursor でカスタム OpenAI API を設定する方法](/ja/faq/cursor/custom-openai-api)
+- [Cursor Rules、AGENTS.md、.cursorignore](/ja/faq/cursor/rules-agents-cursorignore)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+
+## 参照
+
+- [Cursor MCP ドキュメント](https://cursor.com/docs/mcp)
+- [Cursor MCP Markdown ドキュメント](https://cursor.com/docs/mcp.md)

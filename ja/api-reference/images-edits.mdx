@@ -1,0 +1,139 @@
+---
+title: "画像から画像への変換（画像編集）"
+description: "BetterToken の OpenAI 互換 API を通じて、GPT Image 2 で参照画像から画像を生成または編集します。"
+openapi: "api-reference/openapi.json POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+画像から画像への変換 Endpoint では `multipart/form-data` のリクエスト本文を使用します。1 枚以上の参照画像をアップロードし、プロンプトとパラメーターフィールドをフォームフィールドとして送信します。
+
+<Note>
+  `{{openai-base-url}}` を `Base URL` として使用します。BetterToken API Key は `Authorization: Bearer YOUR_API_KEY` で渡します。
+</Note>
+
+<Tip>
+  ページ右側の Playground でフォームフィールドを入力し、参照画像をアップロードしてから、`{{images-edits-url}}` に直接リクエストを送信できます。
+</Tip>
+
+<Warning>
+  画像から画像への変換リクエストには通常の JSON 本文を使用しないでください。テキストフィールドとファイルフィールドは `multipart/form-data` で送信します。
+</Warning>
+
+## 推奨値
+
+すべてのリクエストで、次のフィールドを明示的に送信してください。
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+参照画像が 1 枚の場合は `image` を使用します。複数の参照画像には `image[]` フィールドを繰り返し使用します。
+
+## 1 枚の参照画像
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Use this reference image to create a more polished square product hero image while keeping the main style consistent.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## 複数の参照画像
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Combine these reference images into one consistent promotional poster.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Python の例
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Use this reference image to create a more polished square product hero image while keeping the main style consistent.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## 推奨サイズ
+
+| `size` | 比率 | 用途 |
+| --- | --- | --- |
+| `auto` | 自動 | サイズを自動選択 |
+| `1024x1024` | `1:1` | 正方形の画像、アバター、カバー、アセット |
+| `1536x1024` | `3:2` | 横長のポスター、バナー、シーン |
+| `1024x1536` | `2:3` | 縦長のモバイルカバーとポスター |
+| `1536x1152` | `4:3` | 標準的な横長画像、商品画像、コンテンツグラフィック |
+| `1152x1536` | `3:4` | 標準的な縦長画像、モバイルカバー、縦長ポスター |
+| `2048x2048` | `1:1` | 高解像度の正方形画像 |
+| `2048x1152` | `16:9` | 高解像度の横長画像 |
+| `3840x2160` | `16:9` | 4K 横長画像 |
+| `2160x3840` | `9:16` | 4K 縦長画像 |
+
+`size` は想定するアスペクト比とサイズ区分を表します。実際に返されるピクセルはサーバーでマッピングまたは調整される場合があります。出力を要求値に無理に切り抜くのではなく、デコードした画像の寸法を使用してください。
+
+## 画像を保存する
+
+成功時のレスポンスは、次の OpenAI 互換画像レスポンス形式に従います。
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+`data[0].b64_json` を読み取り、base64 の画像内容として保存します。常に `output_format: "png"` を設定すると、デコードした画像を `.png` として保存できます。
+
+## レスポンスの流れ
+
+この Endpoint は同期式です。`POST /images/edits` を送信した後、サーバーが応答するまで現在の HTTP リクエストを開いたままにしてください。生成に成功すると、画像内容が `data[0].b64_json` に返されます。
+
+この Endpoint は `task_id` を返さず、個別のステータス照会や結果ダウンロード用の Endpoint もありません。
+
+## 関連ドキュメント
+
+- [テキストから画像への生成](/ja/api-reference/images-generations)
+- [GPT Image 2 が利用可能になりました](/ja/model-updates/gpt-image-2)

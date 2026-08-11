@@ -1,0 +1,71 @@
+---
+title: "Claude Code의 CLAUDE.md란 무엇이며 어떻게 작성하나요?"
+sidebarTitle: "CLAUDE.md"
+description: "Claude Code에서 CLAUDE.md의 역할, 포함할 내용, 피할 내용 및 hooks와 MCP의 차이를 알아보세요."
+---
+
+## 빠른 답변
+
+`CLAUDE.md`는 Claude Code가 context로 load할 수 있는 project instruction file입니다. project structure, commands, coding conventions, testing expectations, security boundaries 및 collaboration rules를 두기에 좋습니다.
+
+이는 enforcement mechanism이 아닙니다. Claude Code는 이를 guidance로 읽습니다. rule이 특정 time에 실행되어야 한다면 `CLAUDE.md`에만 의존하지 말고 hooks 또는 tool configuration을 사용하세요.
+
+유용한 `CLAUDE.md`는 짧고 구체적이며 유지 관리됩니다. 매 session마다 반복할 project facts를 여기에 작성하세요.
+
+## 이 내용이 필요한 경우
+
+- Claude Code가 같은 project structure 또는 commands를 반복해서 질문함
+- team에 shared testing, style 또는 safety rules가 필요함
+- 반복 context와 token usage를 줄이고 싶음
+- Claude Code가 repository-specific conventions를 계속 놓침
+- 다른 agents 또는 teammates의 onboarding을 빠르게 하고 싶음
+
+## 주요 개념
+
+| 개념 | 의미 |
+| --- | --- |
+| Project `CLAUDE.md` | 보통 repository와 함께 commit하는 shared project instructions |
+| Personal rules | 항상 commit할 필요가 없는 user-specific preferences |
+| Local rules | machine-specific notes 또는 temporary preferences |
+| Hooks | tool use 전후로 triggered되는 commands로 enforced behavior에 더 적합함 |
+| MCP | external tools 및 data sources이며 project rule file이 아님 |
+
+## 권장 내용
+
+`CLAUDE.md`를 간결한 project handbook으로 작성하세요.
+
+- project의 용도와 중요한 directories의 위치
+- 일반적인 build, test 및 formatting commands
+- editing 전에 지켜야 할 architecture boundaries
+- finishing 전에 실행할 가장 빠른 checks
+- 노출해서는 안 되는 secrets, logs 또는 private config
+- documentation, test, naming 및 error-handling conventions
+
+긴 tutorials, temporary plans 및 one-off task notes는 피하세요. rule이 한 영역에만 적용된다면 범위를 더 좁히세요. behavior를 enforced해야 한다면 hooks를 사용하세요.
+
+## 일반적인 실수
+
+- `CLAUDE.md`를 system prompt 또는 hard permission layer로 취급함
+- 너무 길게 작성하여 context cost를 늘리고 따르기 어렵게 만듦
+- 오래된 deployment notes, temporary TODOs 및 outdated decisions를 계속 추가함
+- file에 API Keys, tokens, cookies 또는 private config를 넣음
+- `CLAUDE.md`, `AGENTS.md`, Cursor Rules에 서로 충돌하는 instructions를 유지함
+
+## BetterToken 정보
+
+project가 BetterToken을 사용한다면 `CLAUDE.md`로 Claude Code에는 Anthropic-compatible `{{anthropic-base-url}}`을 사용하고 Codex 및 external tools에는 OpenAI-compatible `{{openai-base-url}}`을 사용한다고 안내할 수 있습니다.
+
+실제 API Keys를 `CLAUDE.md`에 넣지 마세요. local environment variables, local config files 또는 protected secret system에 저장하세요.
+
+## 관련 문서
+
+- [Claude Code란 무엇이며 어떻게 작동하나요?](/ko/faq/claude-code/what-is-claude-code)
+- [Claude Code에서 API Key와 Base URL 구성](/ko/faq/claude-code/api-key-base-url)
+- [Claude Code가 많은 tokens를 사용하는 이유와 cost 줄이기](/ko/faq/token-cost/claude-code-token-usage)
+- [Claude Code 설정 가이드](/ko/ai-tools/claude-code)
+
+## 참고 자료
+
+- [Claude가 project를 기억하는 방식](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Claude Code hooks 참고 자료](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Code costs](https://docs.anthropic.com/en/docs/claude-code/costs)

@@ -1,0 +1,95 @@
+---
+title: "Codex カスタムプロバイダー：model_provider、Base URL、wire_api"
+sidebarTitle: "provider / base_url / wire_api"
+description: "model_provider、Base URL、wire_api、API Key、モデル ID を使って Codex のカスタムプロバイダーを設定し、プロバイダー、401、404 エラーを解決します。"
+---
+
+## 短い答え
+
+`model_provider` は、Codex CLI が使用するプロバイダーを指定します。この値は `[model_providers.<id>]` で定義したプロバイダー ID と一致する必要があります。
+
+`base_url` はモデルリクエストの送信先となる API エンドポイントです。OpenAI 互換プロバイダーでは、通常 `/v1` 形式のエンドポイントを指定します。
+
+`wire_api` は、そのプロバイダーとの通信で Codex が使うプロトコル形式を指定します。Codex 設定リファレンスでは、`responses` はサポートされるプロバイダープロトコルの値です。
+
+## この情報が役立つ場面
+
+- カスタムの OpenAI 互換プロバイダーを設定するとき
+- Codex でプロバイダーが見つからない、またはモデルリクエストに失敗するとき
+- `model_provider` と `model` の違いが分からないとき
+- BetterToken、OpenAI、または他のプロバイダーを 1 つの `config.toml` に設定するとき
+- Base URL、API Key、モデル ID を区別する必要があるとき
+
+## 項目の関係
+
+| 項目 | 目的 |
+| --- | --- |
+| `model_provider` | 使用するプロバイダー ID を選択 |
+| `[model_providers.<id>]` | 1 つのプロバイダーの詳細設定を定義 |
+| `name` | プロバイダーの表示名 |
+| `base_url` | ルート API エンドポイント |
+| `wire_api` | プロバイダーのプロトコル。一般に `responses` |
+| `model` | デフォルトのメインモデル ID |
+| `review_model` | `/review` などのコードレビュー処理で使用するモデル |
+
+## 推奨パターン
+
+プロバイダー ID を一貫させます。
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+```
+
+これは、Codex が `custom` という名前のプロバイダーを使用し、モデルリクエストを `{{openai-base-url}}` に送信し、Responses API 形式で通信することを意味します。
+
+API Key を `config.toml` に直接記述しないでください。Codex を起動するターミナルで設定します。
+
+```bash
+export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+Windows PowerShell の場合：
+
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## 設定を確認する
+
+1. `model_provider = "custom"` が `[model_providers.custom]` と完全に一致することを確認します。
+2. Base URL が `{{openai-base-url}}` であり、`/v1` を含むことを確認します。
+3. <a href={"{{model-plaza-url}}"}>モデル広場</a>の **GPT プロバイダー**から現在のモデル ID をコピーします。
+4. Codex を完全に終了し、環境変数を設定した新しいターミナルから再起動します。
+5. 小さなコード解説タスクを送信し、Codex が完全な応答を返すことを確認します。
+
+## トラブルシューティング
+
+| 症状 | 原因 | 解決方法 |
+| --- | --- | --- |
+| プロバイダーが見つからない | プロバイダー ID と設定テーブルが一致しない | 両方に `custom` を使用する |
+| 起動時に API Key が見つからない | `env_key` で指定した変数を利用できない | `MODEL_PROVIDER_API_KEY` を設定してから新しいターミナルを開く |
+| `401` または `403` | API Key が無効、または OpenAI 認証が混在している | Key を再度コピーし、`requires_openai_auth = false` を設定する |
+| `404` | Base URL に `/v1` がない、または Anthropic エンドポイントを指している | `{{openai-base-url}}` を使用する |
+| モデルが見つからない | 表示名、廃止済みモデル、または GPT 以外のモデルを指定している | モデル広場から現在のモデル ID をコピーする |
+| Responses プロトコルエラー | `wire_api` がない、または正しくない | `wire_api = "responses"` を設定する |
+
+## 関連ドキュメント
+
+- [Codex CLI の config.toml を設定する方法](/ja/faq/codex/config-toml)
+- [Codex の BetterToken 設定ガイド](/ja/ai-tools/codex)
+- [Codex CLI のサンドボックスと承認モードとは？](/ja/faq/codex/sandbox-approval)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 参照
+
+- [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)
+- [Codex サンプル設定](https://developers.openai.com/codex/config-sample)
+- [Codex 詳細設定](https://developers.openai.com/codex/config-advanced)

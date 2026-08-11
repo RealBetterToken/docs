@@ -1,0 +1,68 @@
+---
+title: "Claude Code Claude.ai account उपयोग करता है या API Key?"
+sidebarTitle: "Account या API Key"
+description: "Claude Code में Claude.ai login, Claude Console API, cloud provider और third-party API gateway का अंतर समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+Claude Code एक से अधिक तरीकों से authenticate हो सकता है। व्यक्तिगत user अक्सर Claude.ai account से sign in करते हैं। API user या team Claude Console, cloud provider या समर्थित third-party provider path उपयोग कर सकते हैं।
+
+Claude.ai account और API Key एक ही चीज नहीं हैं। Claude.ai login आधिकारिक product experience के लिए है। API Key मॉडल API अनुरोधों में उपयोग होती है और सामान्यतः Base URL तथा provider configuration के साथ जोड़ी जाती है।
+
+third-party API gateway इस्तेमाल करने पर महत्वपूर्ण फ़ील्ड API Key और Base URL हैं। यह भी पुष्टि करें कि tool Anthropic-compatible या OpenAI-compatible protocol अपेक्षित करता है।
+
+## यह कब महत्वपूर्ण है
+
+- Claude Code setup के दौरान login prompt दिखता है
+- आपको संदेह है कि Claude Pro या Max API Key देता है या नहीं
+- Claude Code को custom API gateway से route करना चाहते हैं
+- आधिकारिक login और third-party provider में चुनना है
+- team को एक सुसंगत authentication pattern चाहिए
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Claude.ai account | Claude अनुभवों के लिए आधिकारिक product login |
+| Claude Console API | developer-side API access और उपयोग प्रबंधन |
+| API Key | मॉडल API अनुरोधों के लिए उपयोग किया credential |
+| Base URL | endpoint जहां अनुरोध भेजे जाते हैं |
+| Provider | Claude Code द्वारा उपयोग authentication और model-request source |
+| Third-party API gateway | tool तथा मॉडल provider के बीच compatibility, routing, billing या observability layer |
+
+## अनुशंसित निर्णय प्रवाह
+
+1. केवल आधिकारिक Claude Code experience चाहिए और Claude.ai plan उपयोग करते हैं, तो आधिकारिक login से शुरू करें।
+2. API billing या team-managed API access चाहिए तो Claude Console या team provider देखें।
+3. custom API gateway चाहिए तो पुष्टि करें कि Claude Code provider path समर्थित करता है, फिर API Key और Base URL कॉन्फ़िगर करें।
+4. आधिकारिक app feature के साथ third-party inference provider चाहिए तो तय करें कि आधिकारिक login state सुरक्षित रखना जरूरी है या नहीं।
+
+इस दस्तावेज में Anthropic-compatible Claude Code Base URL `{{anthropic-base-url}}` है।
+
+## सामान्य गलतियां
+
+- Claude.ai subscription को API Key मानना।
+- ChatGPT Plus या अन्य subscription credential को Claude Code में पेस्ट करना।
+- केवल API Key कॉपी करना और Base URL बदलना भूल जाना।
+- Claude Code के Anthropic-compatible configuration में OpenAI-compatible Base URL रखना।
+- `auth.json`, refresh token या session credential को API Key जैसा साझा करना।
+
+## BetterToken के बारे में
+
+API Key + Base URL path चुनने पर BetterToken संगत endpoint और API Key, balance व usage history का dashboard दे सकता है।
+
+BetterToken Claude.ai login को बदलता नहीं और Claude.ai subscription को API Key में नहीं बदलता। यह केवल मॉडल API layer संभालता है।
+
+## संबंधित दस्तावेज
+
+- [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code)
+- [Claude Code में API Key और Base URL कैसे कॉन्फ़िगर करें](/hi/faq/claude-code/api-key-base-url)
+- [third-party API इस्तेमाल करते समय Codex login state कैसे रखें?](/hi/faq/codex/official-login-third-party-api)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## संदर्भ
+
+- [Claude Code authentication](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [अपने Pro या Max plan के साथ Claude Code उपयोग करना](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
+- [Claude Code LLM gateway कॉन्फ़िगरेशन](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)

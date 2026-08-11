@@ -1,0 +1,165 @@
+---
+title: "Grok CLI 설정: 설치, API Key, Base URL 및 사용자 지정 모델"
+sidebarTitle: "Grok CLI"
+description: "Grok CLI를 설치하고 BetterToken Base URL 및 API Key를 설정한 다음 호환되는 provider model을 선택하고 일반적인 오류를 해결하세요."
+icon: "g"
+---
+
+Grok CLI를 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 후 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 사전 요구 사항
+
+- 최신 버전의 도구가 설치되어 있음
+- BetterToken API Key: <a href={"{{register-url}}"}>등록하고 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+## 설치
+
+### Grok CLI 설치
+
+Windows, macOS 또는 Linux에서 다음을 실행하세요.
+
+```bash
+npm install -g @vibe-kit/grok-cli
+```
+
+설치 후 `grok`을 찾을 수 없으면 터미널을 닫았다가 다시 열고 `grok --help`를 실행하세요. global `npm` package directory가 `PATH`에 있는지 확인하세요.
+
+## 수동 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+### 필요한 항목
+
+- Node.js 및 `npm`
+- BetterToken API Key: <a href={"{{register-url}}"}>여기에서 등록</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 **지원되는 provider의 model ID**
+
+### Base URL 및 API Key 구성
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    <Steps>
+      <Step title="충돌하는 variables 제거">
+        ```bash
+        unset OPENAI_API_KEY
+        unset OPENAI_BASE_URL
+        ```
+      </Step>
+
+      <Step title="BetterToken variables 설정">
+        ```bash
+        export GROK_BASE_URL="{{openai-base-url}}"
+        export GROK_API_KEY="YOUR_API_KEY"
+        ```
+      </Step>
+
+      <Step title="model로 Grok CLI 시작">
+        ```bash
+        grok --model YOUR_MODEL_ID
+        ```
+
+        `YOUR_MODEL_ID`를 모델 광장의 현재 **지원되는 provider의 model ID**로 바꾸세요.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    <Steps>
+      <Step title="현재 PowerShell 창에 variables 설정">
+        ```powershell
+        $env:GROK_BASE_URL = "{{openai-base-url}}"
+        $env:GROK_API_KEY = "YOUR_API_KEY"
+        ```
+      </Step>
+
+      <Step title="model로 Grok CLI 시작">
+        ```powershell
+        grok --model YOUR_MODEL_ID
+        ```
+
+        이 variables는 현재 PowerShell 창에만 적용됩니다. 새 창을 열 때 team에서 승인한 secret-storage approach를 통해 다시 설정하세요.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## 연결 확인
+
+짧은 테스트 prompt를 보내세요. 도구가 authentication 또는 Model ID 오류 없이 response를 반환하면 연결이 작동합니다. configuration을 변경한 후에는 도구를 완전히 다시 시작하세요.
+
+Grok CLI가 시작되면 짧은 prompt를 보내세요. authentication 또는 model ID 오류 없이 reply하면 연결이 준비된 것입니다. environment variables를 변경할 때마다 현재 Grok CLI session을 끝내고 새로 시작하세요.
+
+## 모델 전환
+
+model selector를 열거나 configuration의 `Model` field를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 다음 현재 session을 다시 시작하세요.
+
+## 일반적인 오류
+
+| 증상 | 확인할 사항 |
+| --- | --- |
+| `grok: command not found` | 다시 설치하고 새 터미널을 연 후 `grok --help`를 확인하세요. |
+| `401`, `Unauthorized` 또는 `Invalid API key` | `GROK_API_KEY`를 확인하고 불필요한 whitespace가 복사되지 않았는지 확인한 후 variable이 설정된 동일한 터미널에서 Grok CLI를 시작하세요. |
+| `model not found` 또는 사용 불가능한 model | 모델 광장의 **지원되는 provider**에서 현재 model ID를 복사하세요. Claude provider의 ID를 사용하지 마세요. |
+| Requests가 이전 service를 계속 사용함 | `GROK_BASE_URL`을 확인하고 `/chat/completions`를 추가하지 않은 후 터미널과 Grok CLI를 다시 시작하세요. |
+| Connection error | Base URL이 `{{openai-base-url}}`이고 network가 HTTPS를 통해 `bettertoken.ai`에 연결할 수 있는지 확인하세요. |
+
+### 설정 FAQ
+
+**Grok CLI에서 어떤 Base URL을 사용해야 하나요?**
+
+`{{openai-base-url}}`를 사용하세요. BetterToken의 OpenAI-compatible Base URL입니다.
+
+**어떤 API Key와 model을 선택해야 하나요?**
+
+BetterToken API Key와 같은 group의 model을 사용하세요.
+
+**system proxy를 변경하거나 VPN을 활성화해야 하나요?**
+
+아니요. 터미널에서 Base URL과 API Key를 구성하여 BetterToken에 연결하세요.
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 관련 가이드
+
+- [사용자 지정 provider로 Codex CLI 구성](/ko/ai-tools/codex)
+- [Cursor에서 사용자 지정 API, Base URL 및 API Key 구성](/ko/ai-tools/cursor)
+- [Cline에서 OpenAI-compatible API 구성](/ko/ai-tools/cline)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+
+## 기술 세부 정보
+
+<Accordion title="Protocol, endpoint 및 내부 provider 필드">
+  이 설정은 `{{openai-base-url}}`을 사용합니다. 도구가 OpenAI-compatible endpoint path를 추가합니다. 특정 field에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+</Accordion>

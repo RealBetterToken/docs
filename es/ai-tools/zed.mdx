@@ -1,0 +1,138 @@
+---
+title: "Configurar un modelo personalizado en Zed: API Key y Base URL"
+sidebarTitle: "Zed"
+description: "Añade BetterToken como proveedor compatible con OpenAI en Zed, configura la Base URL, la API Key y el modelo, y guarda la Key en el llavero del sistema."
+icon: "z"
+---
+
+Añade un proveedor compatible con OpenAI en **Agent Settings** de Zed e introduce la BetterToken API Key, la Base URL y el ID del modelo. Zed guarda las Keys introducidas en esta pantalla en el llavero del sistema, no en `settings.json`.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| Provider | `BetterToken` |
+| API Key | `YOUR_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## Requisitos previos
+
+- Instala la versión actual de [Zed](https://zed.dev/docs)
+- <a href={"{{register-url}}"}>Crea una BetterToken API Key</a>
+- Copia `YOUR_MODEL_ID` desde la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+## Instalación
+
+Instala o actualiza Zed a la versión actual desde el [sitio web de Zed](https://zed.dev). Abre Zed y sigue estos pasos para acceder a los ajustes del agente.
+
+## Configuración manual
+
+<Steps>
+  <Step title="Añade un proveedor compatible con OpenAI">
+    Haz clic en **Add Provider**, elige **OpenAI Compatible** e introduce `BetterToken` como Provider Name.
+  </Step>
+
+  <Step title="Introduce los ajustes de conexión">
+
+    | Campo | Valor |
+    | --- | --- |
+    | API URL | `{{openai-base-url}}` |
+    | API Key | `YOUR_API_KEY` |
+    | Model ID | `YOUR_MODEL_ID` |
+
+    Introduce únicamente la Base URL. Zed construye el endpoint de Chat Completions.
+  </Step>
+
+  <Step title="Guarda la API Key">
+    Guarda el proveedor en los ajustes de Zed. Zed almacena la API Key en el llavero local del sistema y no la escribe en `settings.json`.
+  </Step>
+
+  <Step title="Selecciona el modelo">
+    Abre el selector de modelos del Agent Panel y elige `YOUR_MODEL_ID` en `BetterToken`.
+  </Step>
+</Steps>
+
+<Warning>
+  No incluyas `YOUR_API_KEY` en `settings.json`, en un archivo del proyecto ni en un repositorio Git.
+</Warning>
+
+### Opcional: declara el proveedor y el modelo en `settings.json`
+
+Si necesitas gestionar las declaraciones de modelos mediante un archivo, ejecuta `zed: open settings file`. Conserva en el archivo únicamente el proveedor, `api_url` y los metadatos del modelo:
+
+```json
+{
+  "language_models": {
+    "openai_compatible": {
+      "BetterToken": {
+        "api_url": "{{openai-base-url}}",
+        "available_models": [
+          {
+            "name": "YOUR_MODEL_ID",
+            "display_name": "YOUR_MODEL_ID",
+            "max_tokens": 128000
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Zed requiere `max_tokens` para declarar la ventana de contexto del modelo. Ajústalo al modelo seleccionado. Introduce la API Key en **Agent Settings** para que el llavero del sistema la almacene.
+
+## Verifica la conexión
+
+1. Selecciona `BetterToken / YOUR_MODEL_ID` en el Agent Panel.
+2. Envía un mensaje de prueba breve.
+3. Una respuesta normal sin errores de autenticación ni de modelo confirma la configuración.
+
+Cierra Zed por completo y vuelve a abrirlo después de cambiar los ajustes del proveedor o del modelo.
+
+## Cambia de modelo
+
+Elige otro modelo de BetterToken en el selector del Agent Panel. Para añadir un ID de modelo, copia el valor actual desde la <a href={"{{model-plaza-url}}"}>model plaza</a> y actualiza los ajustes del proveedor o `available_models`.
+
+## Errores habituales
+
+| Error | Solución |
+| --- | --- |
+| `401` o `Unauthorized` | Vuelve a introducir la BetterToken API Key en Agent Settings y elimina los espacios que la rodean. |
+| `404` | Usa `{{openai-base-url}}` como API URL; no añadas `/chat/completions`. |
+| `model not found` | Vuelve a copiar `YOUR_MODEL_ID` desde la model plaza. |
+| Los ajustes no se aplican | Guarda el proveedor, cierra Zed por completo y vuelve a abrirlo. |
+| Zed usa una Key antigua | Elimina cualquier variable de entorno del proveedor que sustituya el llavero y reinicia Zed. |
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Detalles técnicos
+
+<Accordion title="Llavero, archivo de ajustes y endpoint">
+  Zed llama a BetterToken mediante un proveedor compatible con OpenAI. La pantalla de ajustes guarda la Key en el llavero del sistema; `settings.json` solo contiene el proveedor, `api_url` y la declaración del modelo. Usa `{{openai-base-url}}` como Base URL y deja que Zed añada la ruta de Chat Completions.
+</Accordion>
+
+### Preguntas relacionadas
+
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP frente a API Key y Base URL](/es/faq/concepts/mcp-vs-api-key-base-url)
+- [¿Qué son model_provider, base_url y wire_api?](/es/faq/codex/model-provider-base-url-wire-api)
+- [Configurar una API compatible con OpenAI en Cline](/es/faq/cline/openai-compatible-api)

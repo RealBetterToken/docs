@@ -1,0 +1,101 @@
+---
+title: "Bonnes pratiques"
+description: "Conseils pour tirer le meilleur parti de BetterToken."
+---
+
+## Protéger votre API Key
+
+**Utilisez des variables d’environnement, sans jamais coder la Key en dur.** Écrire votre API Key directement dans le code source ou les fichiers de configuration risque de l’exposer accidentellement dans le contrôle de version. Approche recommandée :
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export BETTERTOKEN_API_KEY="your-api-key-here"
+```
+
+Pour Claude Code, gérez les secrets avec le champ `env` de `settings.json` plutôt que de les exposer dans votre configuration de shell :
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**Faites pivoter votre API Key périodiquement.** Si vous suspectez une exposition, supprimez immédiatement la Key du Dashboard et générez-en une nouvelle.
+
+---
+
+## Définir un délai d’attente suffisant
+
+Les réponses de modèles d’IA peuvent prendre du temps, surtout pour les tâches de raisonnement complexes. Réglez le délai d’attente suffisamment haut pour éviter les déconnexions prématurées :
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50 minutes. Cette valeur convient au raisonnement approfondi ou aux longues tâches agentiques.
+
+---
+
+## Effacer les variables d’environnement en conflit
+
+Si vous avez auparavant utilisé les API officielles Anthropic ou OpenAI, ou un autre service de relais, des variables d’environnement obsolètes peuvent remplacer votre configuration BetterToken et envoyer silencieusement les Request au mauvais endpoint.
+
+Avant de configurer BetterToken, vérifiez et effacez ces éléments :
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code : vérifiez d’abord le fournisseur
+
+Avec le **fournisseur Claude**, **ne définissez pas** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` ni d’autres variables spécifiques au modèle. Avec le **fournisseur GPT**, ajoutez les mappages de modèles via `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` et `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+
+Ne mélangez pas les deux configurations, sinon les Request peuvent être routées vers le mauvais modèle.
+
+**Désactivez le trafic non essentiel.** Définir `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` réduit les Request en arrière-plan de Claude Code et réserve votre quota API aux tâches de code réelles.
+
+**N’ajoutez pas `/v1` à Claude Code.** `ANTHROPIC_BASE_URL` doit être `{{anthropic-base-url}}`.
+
+---
+
+## Utiliser une API Key dans plusieurs outils
+
+La même API Key fonctionne dans Claude Code, Codex et les outils externes. Le quota est partagé, ce qui simplifie la gestion centralisée.
+
+Mais l’endpoint doit correspondre au protocole :
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / external tools: `{{openai-base-url}}`
+
+Si vous devez suivre l’utilisation séparément par projet ou équipe, créez plusieurs API Key dans le Dashboard et attribuez-en une à chaque outil ou projet.
+
+Pour les outils externes, copiez le model ID du **fournisseur GPT** dans le <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+---
+
+## Checklist de dépannage
+
+1. **Confirmez que l’API Key est correcte** — vérifiez le Dashboard, collez soigneusement sans espaces superflus
+2. **Confirmez l’endpoint du protocole** — Claude Code utilise `{{anthropic-base-url}}` ; Codex / outils externes utilisent `{{openai-base-url}}`
+3. **Vérifiez les variables d’environnement en conflit** — exécutez `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL` et les commandes associées
+4. **Vérifiez les exigences officielles de configuration de l’outil** — pour les outils externes, vérifiez d’abord la `Base URL`, l’API Key, le model ID et la version de l’outil ; ajoutez des en-têtes supplémentaires uniquement lorsque la documentation officielle de l’outil ou votre passerelle en amont les exige explicitement
+5. **Vérifiez votre solde** — les Request sont refusées lorsque le solde est épuisé
+6. **Contactez le support** — si les étapes ci-dessus ne résolvent pas le problème

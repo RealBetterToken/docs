@@ -1,0 +1,65 @@
+---
+title: "Codex CLI, Codex App et Codex Web : différences"
+sidebarTitle: "CLI, App et Web"
+description: "Comparez Codex CLI, Codex App et Codex Web / Cloud selon l’emplacement d’exécution, le modèle de configuration, les autorisations locales et la configuration du fournisseur."
+---
+
+## Réponse courte
+
+Codex CLI est l’agent de programmation en terminal local. Il est centré sur les projets locaux, l’exécution de commandes, la modification de fichiers et la configuration `config.toml`.
+
+Codex App est l’application de bureau. Elle convient mieux aux flux graphiques, à la gestion des sessions, aux plugins, à Remote Control et aux fonctionnalités d’applications complémentaires.
+
+Codex Web / Cloud est davantage un flux d’agent distant ou basé sur le navigateur. Son environnement d’exécution n’est pas celui du CLI local et il ne partage pas nécessairement le même accès aux fichiers locaux, le même sandbox, la même politique d’approbation ou le même fichier de configuration.
+
+## Quand les distinguer
+
+- Vous décidez d’installer le CLI ou d’utiliser App / Web
+- Vous souhaitez conserver l’état de connexion officiel de Codex App tout en routant les appels de modèles via une API tierce
+- Vous avez modifié le fichier local `config.toml`, mais le comportement Web n’a pas changé
+- Vous devez savoir où ont lieu l’accès aux fichiers, l’exécution des commandes et les approbations
+- Vous rédigez des règles d’équipe pour l’utilisation de Codex
+
+## Différences clés
+
+| Aspect | Codex CLI | Codex App | Codex Web / Cloud |
+| --- | --- | --- | --- |
+| Point d’entrée principal | Terminal local | Application de bureau | Navigateur ou environnement distant |
+| Éléments de configuration | `~/.codex/config.toml`, `AGENTS.md`, sandbox, approbation | État de connexion, fonctions de bureau, changement de fournisseur | Tâches Cloud, environnements distants, autorisation du dépôt |
+| Accès aux fichiers | Espace de travail local | Dépend de l’espace de travail et des fonctionnalités de l’application | Dépend de l’environnement distant et de l’autorisation |
+| Cas idéal | Développement local, commandes rapides, scripts, modifications de code | Sessions de bureau, plugins, Remote Control | Tâches distantes et flux de développement cloud |
+
+## Comment choisir
+
+Utilisez Codex CLI lorsque votre flux principal consiste à modifier du code localement et à exécuter des commandes dans un terminal.
+
+Utilisez Codex App lorsque vous avez principalement besoin d’un flux de bureau, de plugins ou de Remote Control. Si vous souhaitez conserver l’état de connexion officiel tout en utilisant une API tierce, séparez la couche d’authentification de la couche de requêtes de modèle.
+
+Utilisez Codex Web / Cloud lorsque votre travail se prête à un environnement distant ou à un flux de tâches dans le navigateur. Ne supposez pas que le fichier local `config.toml` contrôle le comportement de l’environnement Cloud.
+
+## Erreurs fréquentes
+
+- Supposer que les modifications du fichier `config.toml` local du CLI affectent automatiquement Codex Web / Cloud.
+- Traiter la connexion officielle de Codex App et une API Key tierce comme une même couche.
+- Supposer que les trois interfaces ont des autorisations identiques sur le système de fichiers.
+- Oublier que les paramètres de sandbox et d’approbation s’appliquent à un environnement d’exécution précis.
+- Traiter les plugins, Remote Control et les paramètres du fournisseur de modèles comme une seule couche de configuration.
+
+## À propos de BetterToken
+
+BetterToken appartient à la couche de requêtes de modèles : elle détermine quel fournisseur API reçoit les appels de modèles. Dans Codex CLI, la configuration habituelle d’un fournisseur personnalisé se trouve généralement dans `config.toml`. Dans les scénarios Codex App qui préservent l’état de connexion officiel, l’authentification et le routage d’inférence doivent être gérés séparément.
+
+BetterToken ne modifie pas la frontière d’exécution entre CLI, App et Web / Cloud.
+
+## Documentation associée
+
+- [Guide de configuration BetterToken pour Codex](/fr/ai-tools/codex)
+- [Comment conserver l’état de connexion officiel de Codex avec une API tierce](/fr/faq/codex/official-login-third-party-api)
+- [Comment configurer config.toml de Codex CLI](/fr/faq/codex/config-toml)
+- [Quels sont les modes sandbox et approbation de Codex CLI ?](/fr/faq/codex/sandbox-approval)
+
+## Références
+
+- [Documentation Codex CLI](https://developers.openai.com/codex/cli)
+- [Documentation Codex App](https://developers.openai.com/codex/app)
+- [Documentation Codex Cloud](https://developers.openai.com/codex/cloud)

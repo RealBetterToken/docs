@@ -1,0 +1,78 @@
+---
+title: "Warum verwenden Responses API und Messages API unterschiedliche Eingabe-Tokens?"
+sidebarTitle: "Responses- und Messages-Tokens"
+description: "Erfahre, warum derselbe API Key und dasselbe Modell über Responses API und Messages API unterschiedliche Eingabe-Tokens melden können und wie du Requests fair vergleichst."
+---
+
+## Kurzantwort
+
+Auch bei gleichem API Key, Modell und Nutzernachricht können Responses API und Messages API unterschiedliche Eingabe-Token-Zahlen melden. Die Nutzung hängt vom vollständigen Kontext ab, den das Modell erhält, nicht nur von dem gesendeten Satz.
+
+Bei einigen GPT-Modellen, die über eine Codex-kompatible Responses-Route bereitgestellt werden, kann der Upstream die offiziellen Codex-Basisanweisungen liefern, wenn `instructions` fehlt. Diese Anweisungen gelangen in den Modellkontext und erscheinen im Feld `instructions` der Antwort. Die Messages API verwendet einen anderen Protokollpfad und nutzt nicht automatisch dieselben Codex-Basisanweisungen; dieselbe kurze Frage kann dort daher nur wenige Eingabe-Tokens melden.
+
+BetterToken fügt diesen Prompt nicht zu gewöhnlichen OpenAI-kompatiblen Requests hinzu, und sein Vorhandensein bedeutet nicht, dass du die Codex App verwendest. Er stammt aus der Implementierung der Responses-Route des ausgewählten Upstreams.
+
+## Was als Eingabe-Tokens zählen kann
+
+| Inhalt | Kann als Eingabe-Tokens zählen |
+| --- | --- |
+| Nutzernachricht | Ja |
+| `instructions`, System- oder Entwicklerprompts | Ja |
+| Unterhaltungsverlauf und Zusammenfassungen | Ja |
+| Dateiinhalte, Codekontext und Anhänge | Ja |
+| Tool-Definitionen und Tool-Ergebnisse | Ja |
+| Wiederholter Kontext aus dem Cache | Wird als Cache-Read-Tokens gemeldet |
+
+In der Responses API gelangt `instructions` als Nachricht auf System- oder Entwicklerebene in den Modellkontext. Wenn ein Request-Datensatz oder eine Antwort einen langen Wert für `instructions` zeigt, ist er eine wesentliche Quelle zusätzlicher Eingabe-Tokens.
+
+## So liest du Nutzungsaufzeichnungen
+
+- `input_tokens`: die gesamte Eingabe, die für diesen Request in den Modellkontext gelangte. Sie kann gewöhnliche Eingabe und Cache-Reads enthalten.
+- `cache_read_input_tokens`: der aus dem Cache abgerufene Teil dieser Eingabe. Er bleibt Teil des Kontexts dieses Requests und zeigt, dass der Server zwischengespeicherte Kontextverarbeitung wiederverwendet hat. Die Abrechnungsregel folgt dem Preis des Modells für zwischengespeicherte Eingabe.
+- `output_tokens`: vom Modell für diesen Request generierter Inhalt.
+
+Ein Responses-Datensatz kann beispielsweise `input_tokens` von `4393` zeigen, einschließlich `cache_read_input_tokens` von `3840`. Alle `4393` Tokens nahmen am Kontext teil, aber `3840` waren Cache-Reads und werden nicht alle als gewöhnliche Eingabe abgerechnet. Prüfe gewöhnliche Eingabe, Cache-Reads und Ausgabe getrennt anhand der aktuellen Abrechnungsregeln in der <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Warum kann ein direkter API-Aufruf `instructions` enthalten?
+
+`instructions` ist ein offizielles Feld der Responses API, um Anleitung auf System- oder Entwicklerebene für das Modell hinzuzufügen. Das Responses-Protokoll erlaubt dieses Feld, schreibt aber keinen Codex-Prompt vor, nur weil du `/v1/responses` aufrufst.
+
+Wenn ein Modell über eine Codex-kompatible Responses-Route bereitgestellt wird, kann die Upstream-Implementierung die offiziellen Codex-`base_instructions` laden, sie als Standard-`instructions` an das endgültige Modell senden und sie in der Antwort wiedergeben. Dein ursprünglicher HTTP-Body kann daher nur `model` und `input` enthalten, während die Antwort dennoch einen langen Wert enthält, der mit `You are Codex...` beginnt.
+
+Unterschiedliche Upstream-Domains können genau denselben Text zurückgeben. Diese Provider können dieselbe Codex-kompatible Gateway-Implementierung, dieselben offiziellen Modellmetadaten oder dasselbe endgültige Codex-Responses-Backend verwenden. Unterschiedliche Domainnamen garantieren keine unterschiedlichen Modellrouten oder Basisanweisungen.
+
+Das gewöhnliche OpenAI-kompatible Relay von BetterToken generiert diese Codex-Basisanweisungen nicht. BetterToken bewahrt von dir übermittelte `instructions` und gibt die Upstream-Antwort zurück. Chat Completions und Messages verwenden unterschiedliche Protokolleinstiegspunkte und erhalten daher nicht zwingend dieselbe Standardeinstellung.
+
+Verwende diese Schritte, um die Quelle zu ermitteln:
+
+1. Protokolliere den redigierten rohen HTTP-Body an der Stelle, an der der Request erstellt wird. Prüfe auf Nachrichten `instructions`, `system` oder `developer` innerhalb von `input`, Unterhaltungsverlauf, Tools oder Dateien.
+2. Sende mit demselben API Key und derselben Model ID einen minimalen Request, der nur `model` und eine `input` enthält. Sende keine `instructions`, Historie oder Tools.
+3. Vergleiche `instructions` und Nutzung in den beiden Antworten.
+4. Wenn der ausgehende Body keine `instructions` enthält, die Antwort aber weiterhin einen langen Wert enthält, wurde er im Upstream-Responses-Pfad hinzugefügt. Sende zur weiteren Verifikation Request-Zeit, Request-ID, Modell und redigierten Body an den BetterToken-Support.
+
+## So vergleichst du die beiden Protokolle fair
+
+Verwende bei der Untersuchung diese Checkliste:
+
+1. Verwende dieselbe Model ID.
+2. Sende genau dieselbe Nutzernachricht.
+3. Verwende in beiden Requests denselben System-, Entwickler- oder `instructions`-Inhalt. Lasse diesen zusätzlichen Inhalt für einen minimalen Test in beiden weg.
+4. Füge keinen unterschiedlichen Unterhaltungsverlauf, Dateien, Anhänge, Tools oder MCP-Kontext ein.
+5. Vergleiche Eingabe, Cache und Ausgabe getrennt, statt nur die Gesamtkosten zu vergleichen.
+
+Sende minimale Requests mit demselben Key, derselben Model ID und Nutzernachricht an beide Endpunkte. Das erleichtert die Unterscheidung von Protokollverhalten und vom Client bereitgestelltem Kontext.
+
+## So wählst du eine API
+
+- Verwende `/v1/responses`, wenn du Responses-API-Reasoning, Tools oder Codex-kompatibles Verhalten benötigst, und prüfe gewöhnliche Eingabe und Cache-Reads getrennt.
+- Wenn du nur einfachen Chat benötigst und das Modell auch Chat Completions oder Messages unterstützt, vergleiche Ausgabequalität, Kompatibilität und Kosten vor der Endpunktwahl.
+- Schätze Kosten nicht nur aus `input_tokens` insgesamt. Zwischengespeicherte Eingabe folgt normalerweise einer separaten Abrechnungsregel.
+
+Das Entfernen des lokalen Felds `instructions` kann standardmäßige Codex-Anweisungen, die vom Upstream hinzugefügt werden, nicht entfernen. Wenn du ein Protokoll ohne diesen Standard benötigst, bestätige zuerst, dass das Zielmodell Chat Completions oder Messages unterstützt.
+
+## Verwandte Dokumentation
+
+- [OpenAI-kompatible und Anthropic-kompatible API: Unterschiede](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Codex CLI mit BetterToken konfigurieren](/de/ai-tools/codex)
+
+- [OpenAI Responses API reference](https://platform.openai.com/docs/api-reference/responses)

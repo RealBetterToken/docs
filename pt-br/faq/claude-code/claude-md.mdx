@@ -1,0 +1,71 @@
+---
+title: "O que é CLAUDE.md no Claude Code e como escrevê-lo?"
+sidebarTitle: "CLAUDE.md"
+description: "Entenda a função do CLAUDE.md no Claude Code, o que incluir, o que evitar e como ele se diferencia de hooks e MCP."
+---
+
+## Resposta rápida
+
+`CLAUDE.md` é um arquivo de instruções do projeto que o Claude Code pode carregar como contexto. Ele é adequado para registrar a estrutura do projeto, comandos, convenções de código, requisitos de teste, limites de segurança e regras de colaboração.
+
+Ele não é um mecanismo de imposição. O Claude Code o lê como orientação. Se uma regra precisar ser executada em um momento específico, use hooks ou a configuração de ferramentas em vez de depender apenas do `CLAUDE.md`.
+
+Um `CLAUDE.md` útil é curto, específico e atualizado. Use-o para informações do projeto que você precisaria repetir em todas as sessões.
+
+## Quando isso é importante
+
+- O Claude Code pergunta repetidamente sobre a mesma estrutura ou os mesmos comandos do projeto
+- Sua equipe quer compartilhar regras de testes, estilo ou segurança
+- Você quer reduzir o contexto repetido e o uso de tokens
+- O Claude Code não segue convenções específicas do repositório
+- Você quer acelerar a integração de outros agentes ou colegas de equipe
+
+## Conceitos principais
+
+| Conceito | Significado |
+| --- | --- |
+| `CLAUDE.md` do projeto | Instruções compartilhadas do projeto, geralmente versionadas com o repositório |
+| Regras pessoais | Preferências específicas do usuário que nem sempre devem ser versionadas |
+| Regras locais | Observações específicas do computador ou preferências temporárias |
+| Hooks | Comandos acionados durante o uso de ferramentas; mais adequados para impor comportamentos |
+| MCP | Ferramentas e fontes de dados externas; não é um arquivo de regras do projeto |
+
+## Conteúdo recomendado
+
+Escreva o `CLAUDE.md` como um manual compacto do projeto:
+
+- O que é o projeto e onde ficam os diretórios importantes
+- Comandos comuns de build, teste e formatação
+- Limites de arquitetura que devem ser respeitados antes de editar
+- Verificações mais rápidas a executar antes de concluir
+- Segredos, logs ou configurações privadas que não devem ser expostos
+- Convenções de documentação, testes, nomenclatura e tratamento de erros
+
+Evite tutoriais longos, planos temporários e observações de tarefas pontuais. Se uma regra se aplicar apenas a uma área, limite seu escopo. Se um comportamento precisar ser imposto, use hooks.
+
+## Erros comuns
+
+- Tratar o `CLAUDE.md` como um prompt de sistema ou uma camada rígida de permissões.
+- Deixá-lo longo demais, aumentando o custo do contexto e dificultando o cumprimento das regras.
+- Acumular indefinidamente notas antigas de implantação, TODOs temporários e decisões desatualizadas.
+- Colocar API Keys, tokens, cookies ou configurações privadas no arquivo.
+- Manter `CLAUDE.md`, `AGENTS.md` e Cursor Rules com instruções conflitantes.
+
+## Sobre a BetterToken
+
+Se um projeto usa a BetterToken, o `CLAUDE.md` pode lembrar que o Claude Code usa o endpoint `{{anthropic-base-url}}`, compatível com Anthropic, enquanto o Codex e ferramentas externas usam `{{openai-base-url}}`, compatível com OpenAI.
+
+Não coloque API Keys reais no `CLAUDE.md`. Armazene-as em variáveis de ambiente locais, arquivos de configuração locais ou um sistema protegido de segredos.
+
+## Documentos relacionados
+
+- [O que é o Claude Code e como ele funciona?](/pt-br/faq/claude-code/what-is-claude-code)
+- [Como configurar API Key e Base URL no Claude Code](/pt-br/faq/claude-code/api-key-base-url)
+- [Por que o Claude Code usa tantos tokens e como reduzir o custo](/pt-br/faq/token-cost/claude-code-token-usage)
+- [Guia de configuração do Claude Code](/pt-br/ai-tools/claude-code)
+
+## Referências
+
+- [Como o Claude memoriza seu projeto](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Referência de hooks do Claude Code](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Custos do Claude Code](https://docs.anthropic.com/en/docs/claude-code/costs)

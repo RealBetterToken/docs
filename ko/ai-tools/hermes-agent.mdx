@@ -1,0 +1,211 @@
+---
+title: "Hermes Agent 설정: 설치, API Key, Base URL 및 사용자 지정 모델"
+sidebarTitle: "Hermes Agent"
+description: "Hermes Agent를 설치하고 BetterToken Base URL 및 API Key를 설정한 다음 호환되는 provider model을 선택하고 일반적인 오류를 해결하세요."
+icon: "user-astronaut"
+---
+
+Hermes Agent를 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 후 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 사전 요구 사항
+
+- 최신 버전의 도구가 설치되어 있음
+- BetterToken API Key: <a href={"{{register-url}}"}>등록하고 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+### 추가 요구 사항
+
+- 선택한 Model ID가 **지원되는 provider**에서 옴
+- macOS, Linux, or Windows WSL2
+
+## 설치
+
+### Hermes Agent 설치
+
+<Tabs>
+  <Tab title="macOS / Linux / WSL2">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows">
+    Windows에서는 먼저 WSL2를 권장합니다. native PowerShell support는 현재 Hermes Agent version에 따라 다릅니다. native Windows를 사용한다면 설치된 version의 installer prompts를 따르세요.
+  </Tab>
+</Tabs>
+
+### 기능 빠른 참고
+
+| 기능 | 용도 |
+| --- | --- |
+| Terminal UI | 터미널에서 agent와 직접 chat |
+| Skills | 반복 tasks를 위한 reusable workflows 저장 |
+| MCP | local 또는 remote tool capabilities 연결 |
+| Scheduled tasks | timed jobs 및 recurring workflows 실행 |
+| Subagents | complex work를 focused agents로 분할 |
+| Message gateway | agent를 더 많은 message entry points에 연결 |
+
+## 수동 설정
+
+interactive Hermes Agent model setup을 기본 경로로 사용하세요. command 및 environment-variable options는 대안으로 계속 사용할 수 있습니다.
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+### 설정
+
+<Tabs>
+  <Tab title="Interactive setup">
+    <Steps>
+      <Step title="model selector 실행">
+        ```bash
+        hermes model
+        ```
+      </Step>
+
+      <Step title="OpenAI 또는 OpenAI Compatible provider 선택">
+        provider list에서 **OpenAI** 또는 **OpenAI Compatible**를 선택하세요.
+      </Step>
+
+      <Step title="BetterToken config 입력">
+        다음을 입력하세요.
+
+        - **Base URL**: `{{openai-base-url}}`
+        - **API Key**: BetterToken API Key
+        - **Model**: <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 복사한 **지원되는 provider의 model ID**
+      </Step>
+
+      <Step title="Hermes Agent 다시 시작">
+        config를 업데이트한 후 현재 Hermes Agent session을 종료하고 다시 시작하세요.
+      </Step>
+
+      <Step title="Hermes Agent 시작">
+        ```bash
+        hermes
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="CLI config">
+    copy-paste commands를 선호하면 Hermes Agent config를 직접 작성하세요.
+
+    ```bash
+    hermes config set llm.provider openai
+    hermes config set llm.base_url "{{openai-base-url}}"
+    hermes config set llm.api_key "YOUR_API_KEY"
+    hermes config set llm.model "YOUR_MODEL_ID"
+    ```
+
+    `YOUR_API_KEY`를 BetterToken API Key로 바꾸고 `YOUR_MODEL_ID`를 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 지원되는 provider model ID로 바꾸세요.
+
+    그런 다음 Hermes Agent를 시작하세요.
+
+    ```bash
+    hermes
+    ```
+  </Tab>
+
+  <Tab title="Environment variables">
+    API Key를 Hermes Agent config에 저장하지 않으려면 현재 shell에서 export하세요.
+
+    ```bash
+    export OPENAI_API_BASE="{{openai-base-url}}"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+    export HERMES_MODEL="YOUR_MODEL_ID"
+    hermes
+    ```
+
+    이 variables는 현재 shell session에만 적용됩니다. 새 터미널에서 다시 export하거나 자신의 shell profile에 추가하세요.
+  </Tab>
+</Tabs>
+
+### OpenClaw에서 migration
+
+이미 OpenClaw를 사용한다면 먼저 현재 Hermes Agent version이 migration command를 제공하는지 확인하세요. 무엇이든 변경하기 전에 dry run을 실행하세요.
+
+```bash
+hermes claw migrate --dry-run
+```
+
+output을 확인한 후 migration을 실행하세요.
+
+```bash
+hermes claw migrate
+```
+
+migration 후에도 Hermes Agent **Base URL**, API Key 및 model ID를 검토하세요. 이는 `{{openai-base-url}}`, BetterToken API Key 및 지원되는 provider의 model ID와 일치해야 합니다.
+
+## 연결 확인
+
+짧은 테스트 prompt를 보내세요. 도구가 authentication 또는 Model ID 오류 없이 response를 반환하면 연결이 작동합니다. configuration을 변경한 후에는 도구를 완전히 다시 시작하세요.
+
+## 모델 전환
+
+model selector를 열거나 configuration의 `Model` field를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 다음 현재 session을 다시 시작하세요.
+
+## 일반적인 오류
+
+| 오류 | 확인할 사항 |
+| --- | --- |
+| `401` 또는 `Unauthorized` | BetterToken API Key를 확인하고 앞뒤 spaces를 제거하세요. |
+| `404` | Base URL을 확인하고 specific endpoint path를 추가하지 마세요. |
+| `model not found` | 모델 광장에서 현재 Model ID를 복사하세요. |
+| Changes가 적용되지 않음 | configuration을 저장하고 도구를 완전히 다시 시작하세요. |
+
+
+### 문제 해결
+
+- requests가 실패하거나 response를 반환하지 않으면 **Base URL**이 정확히 `{{openai-base-url}}`인지 확인하세요. 이 field에 `/chat/completions`를 추가하지 마세요.
+- Hermes가 model이 존재하지 않는다고 보고하면 **Model**이 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 지원되는 provider model ID인지 확인하세요.
+- authentication이 실패하면 복사된 spaces를 확인하고 선택한 Model ID가 **지원되는 provider**에서 왔는지 확인하세요.
+- 변경 후에도 Hermes가 이전 model을 사용하면 현재 Hermes Agent session을 종료하고 `hermes`를 다시 실행하세요.
+- BetterToken에는 보통 extra `User-Agent` 또는 custom headers가 필요하지 않습니다. custom gateway, tenant routing, observability 또는 caching layer가 명시적으로 요구할 때만 headers를 추가하세요.
+
+<Note>
+  실제 API Keys를 repository에 commit하지 마세요. team-shared setup에는 environment variables 또는 local config를 우선 사용하세요.
+</Note>
+
+### 관련 FAQ
+
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url 및 wire_api란 무엇인가요?](/ko/faq/codex/model-provider-base-url-wire-api)
+- [Cline에서 OpenAI-compatible API 구성](/ko/faq/cline/openai-compatible-api)
+- [OpenClaw BetterToken 설정 가이드](/ko/ai-tools/openclaw)
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 기술 세부 정보
+
+<Accordion title="Protocol, endpoint 및 내부 provider 필드">
+  이 설정은 `{{openai-base-url}}`을 사용합니다. 도구가 OpenAI-compatible endpoint path를 추가합니다. 특정 field에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+</Accordion>

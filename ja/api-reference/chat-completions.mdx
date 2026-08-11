@@ -1,0 +1,147 @@
+---
+title: "OpenAI Chat Completions API を使用する"
+description: "完全なリクエスト URL、Bearer API Key、curl、Python、JavaScript の例を使って、BetterToken の OpenAI 互換 Chat Completions API を利用します。"
+openapi: "api-reference/openapi.json POST /v1/chat/completions"
+---
+
+`POST {{chat-completions-url}}` で OpenAI 互換の Chat Completions を呼び出します。ほとんどの外部ツールでは Base URL に `{{openai-base-url}}` を指定し、`/chat/completions` はツール側で追加されます。
+
+## 主要設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Full request URL | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 前提条件
+
+- <a href={"{{register-url}}"}>BetterToken API Key を作成</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>またはキーの **Setup** ダイアログから Model ID をコピー
+- `curl` を使えるターミナル、または Python 3 / Node.js を用意
+
+## インストール
+
+<Tabs>
+  <Tab title="curl">
+    `curl` に SDK は不要です。ターミナルで `curl --version` が動作することを確認してください。
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
+
+## 手動設定
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Hello"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Hello" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## 接続の確認
+
+右側の Playground で次の操作を行います。
+
+1. **Authorization** に `YOUR_API_KEY` を入力します。
+2. `model` を `YOUR_MODEL_ID` に置き換えます。
+3. `messages` を編集してリクエストを送信します。
+
+Playground では完全な URL `{{chat-completions-url}}` がすでに使用されています。
+
+`200` レスポンスにモデル出力が `choices[0].message.content` として含まれていれば、接続は確認できています。
+
+## モデルの切り替え
+
+`YOUR_MODEL_ID` を、モデル広場または **Setup** ダイアログに表示される完全な Model ID に置き換えます。表示名をもとに Model ID を短縮しないでください。
+
+## よくあるエラー
+
+| エラー | 対処方法 |
+| --- | --- |
+| `401` | `Authorization: Bearer YOUR_API_KEY` を確認してから、BetterToken API Key をもう一度コピーします。 |
+| `404` | 直接の HTTP 呼び出しには `{{chat-completions-url}}` を使用します。SDK の `base_url` には `{{openai-base-url}}` を使用します。 |
+| モデルが見つからない | モデル広場または **Setup** ダイアログに表示される完全な Model ID を使用します。 |
+| 無効なリクエスト | `messages` が配列であり、各項目に `role` と `content` があることを確認します。 |
+
+## 高度な設定
+
+{/* tool-provider-support:start */}
+### 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技術情報
+
+<Accordion title="Base URL と完全なリクエスト URL">
+  GitHub Copilot や TRAE など、完全なリクエスト URL を必要とするツールでは `{{chat-completions-url}}` を使用します。Cursor、Cline、OpenCode、n8n、Dify など、パスを自ら追加するツールでは `{{openai-base-url}}` のみを使用します。
+</Accordion>

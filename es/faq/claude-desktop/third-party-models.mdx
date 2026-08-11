@@ -1,0 +1,127 @@
+---
+title: "Modelos de terceros en Claude Desktop: API personalizada y configuración de Codex"
+sidebarTitle: "Modelos externos en Claude Desktop"
+description: "Usa modelos GPT y Codex de terceros en Claude Desktop con una BetterToken API Key personalizada, mapeo de modelos en CC Switch, configuración de Gateway y soluciones para errores 401."
+---
+
+Claude Desktop puede usar modelos GPT y Codex de terceros mediante CC Switch Gateway. Con CC Switch `v3.16.5` o una versión posterior, añade una BetterToken API Key, selecciona el formato OpenAI Responses API, asigna los modelos, activa el proxy y reinicia Claude Desktop.
+
+<Info>
+  Usa las versiones más recientes de Claude Desktop y CC Switch. Esta configuración requiere una BetterToken API Key.
+</Info>
+
+## Pasos de configuración
+
+<Steps>
+  <Step title="Actualiza Claude Desktop y CC Switch">
+    Actualiza Claude Desktop a la versión más reciente y CC Switch a `v3.16.5` o una versión posterior.
+
+    - [Descargar Claude Desktop](https://claude.ai/download)
+    - [Descargar CC Switch](https://github.com/farion1231/cc-switch/releases)
+  </Step>
+
+  <Step title="Cambia a Claude Desktop y añade un proveedor">
+    Abre CC Switch. Selecciona el icono **Claude Desktop** en la barra de herramientas superior y haz clic en **+**, en la esquina superior derecha, para añadir un proveedor.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
+        alt="Selecciona Claude Desktop en CC Switch y haz clic en el botón más de la esquina superior derecha para añadir un proveedor."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Completa los campos básicos">
+    Introduce los siguientes valores:
+
+    - **Provider Name**: `BetterToken-codex`
+    - **API Key**: tu BetterToken API Key
+    - **API Endpoint**: `{{anthropic-base-url}}`
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
+        alt="Editor de proveedores de CC Switch con los campos BetterToken-codex, API Key y API Endpoint."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Configura el mapeo de modelos">
+    Establece **API Format** en **OpenAI Responses API (Requires routing)** y haz clic en **Fetch Models**.
+
+    Usa las asignaciones siguientes y mantén **Declare 1M** activado:
+
+    | Función del modelo | Modelo solicitado |
+    | --- | --- |
+    | Sonnet | `gpt-5.6-terra` |
+    | Opus | `gpt-5.6-sol` |
+    | Fable | `gpt-5.6-sol` |
+    | Haiku | `gpt-5.6-luna` |
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
+        alt="CC Switch con OpenAI Responses API seleccionado y asignaciones configuradas para Sonnet, Opus, Fable y Haiku."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+
+    Usa los ID de modelo disponibles actualmente en el proveedor GPT de la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Step>
+
+  <Step title="Guarda, cambia de proveedor y activa el proxy">
+    Después de guardar el proveedor, vuelve a la lista de proveedores de Claude Desktop:
+
+    1. Selecciona el nuevo proveedor **BetterToken-codex** hasta que muestre **In use**.
+    2. Activa el interruptor del proxy en la esquina superior izquierda.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
+        alt="BetterToken-codex está activo en CC Switch y el interruptor del proxy de la esquina superior izquierda está activado."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Reinicia Claude Desktop y elige un modelo">
+    Cierra Claude Desktop por completo y vuelve a abrirlo. **Gateway**, en la esquina inferior izquierda, confirma que la configuración está activa.
+
+    Elige el modelo que necesites en el menú de modelos del cuadro de mensajes y empieza a trabajar.
+
+    <Frame>
+      <img
+        src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
+        alt="Claude Desktop después de reiniciarse, con Gateway en la esquina inferior izquierda y el menú de selección de modelos."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## Solución de problemas
+
+### Gateway no aparece en Claude Desktop
+
+Comprueba que **BetterToken-codex** muestre **In use** en CC Switch y que el interruptor del proxy esté activado. Cierra Claude Desktop por completo y vuelve a abrirlo.
+
+### La lista de modelos está vacía
+
+Abre el editor del proveedor, haz clic en **Fetch Models** y confirma que se haya guardado el mapeo de modelos. Usa un ID de modelo del proveedor GPT en la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia Claude Desktop.
+
+### `401` o `Unauthorized`
+
+Confirma que hayas introducido una BetterToken API Key. Después de sustituir la Key, guarda el proveedor, vuelve a activar el proxy y reinicia Claude Desktop.
+
+### Las solicitudes no se envían mediante BetterToken
+
+Confirma que esté activo **BetterToken-codex**, no Claude Desktop Official, y que el interruptor del proxy de la esquina superior izquierda siga activado.
+
+## Guías relacionadas
+
+- [Configurar BetterToken en CC Switch](/es/ai-tools/cc-switch)
+- [Configurar un proveedor personalizado en Codex CLI](/es/ai-tools/codex)
+- [Configurar una API compatible con OpenAI en Cline](/es/ai-tools/cline)
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)

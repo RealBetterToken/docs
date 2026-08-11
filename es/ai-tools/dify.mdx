@@ -1,0 +1,186 @@
+---
+title: "Configurar BetterToken en Dify: API Key, Base URL y modelos personalizados"
+sidebarTitle: "Dify"
+description: "Conecta Dify con BetterToken mediante una Base URL, una API Key y un modelo de un proveedor compatible; después, verifica la conexión y corrige los errores habituales."
+icon: "layer-group"
+---
+
+Para conectar Dify con BetterToken, prepara una API Key, introduce la Base URL indicada a continuación y elige un ID de modelo vigente en la model plaza.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Requisitos previos
+
+- La versión actual de la herramienta está instalada
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate y obtén una</a>
+- Un ID de modelo de la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionales
+
+- Dify Cloud o una instancia autohospedada de Dify con plugins activados
+- Permiso para instalar plugins de modelos y gestionar los modelos del workspace
+
+<Note>
+  Esta guía configura únicamente **LLM Chat**. No añadas un modelo de chat GPT como Text Embedding, Rerank, Speech-to-Text ni Text-to-Speech.
+</Note>
+
+## Instalación
+
+### Instala el plugin de modelos compatible con OpenAI
+
+<Steps>
+  <Step title="Abre Model Providers">
+    En el workspace de Dify, ve a **Integrations > Model Providers**.
+  </Step>
+
+  <Step title="Instala el plugin oficial">
+    Haz clic en **Install model providers**, busca **OpenAI-API-compatible** e instálalo.
+
+    Dify gestiona los proveedores de modelos como plugins del workspace. Después de instalarlo, las aplicaciones con los permisos necesarios pueden seleccionar modelos de este proveedor.
+  </Step>
+
+  <Step title="Añade un modelo personalizado">
+    En la tarjeta **OpenAI-API-compatible**, haz clic en **Add Model**. Si la tarjeta muestra primero **Setup** o **Configure**, ábrela y elige la opción para añadir un modelo.
+  </Step>
+</Steps>
+
+## Configuración manual
+
+Completa esta configuración en la interfaz de proveedores de modelos de Dify. No necesitas editar un archivo de configuración.
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Introduce la configuración del modelo
+
+Usa estos valores para el primer modelo:
+
+| Campo de Dify | Valor recomendado |
+|---|---|
+| Model Type | `LLM` |
+| Model Name | Un ID de modelo de un proveedor compatible de la model plaza |
+| Model display name | Puedes usar el mismo valor que en Model Name |
+| API Key | Tu BetterToken API Key |
+| API Base URL | `{{openai-base-url}}` |
+| model name for API endpoint | El mismo ID de modelo que en Model Name |
+| Completion mode | `Chat` |
+| Model context size | Debe coincidir con el modelo seleccionado; si tienes dudas, conserva el valor predeterminado del plugin |
+| Upper bound for max tokens | No superes el límite del modelo; conserva el valor predeterminado para la primera prueba |
+| Compatibility mode | `OpenAI compatible` / estricto |
+| Token parameter name | `Auto` |
+| Function Call Type | `Not Support` para la primera prueba |
+
+<Warning>
+  Introduce únicamente `{{openai-base-url}}` como API Base URL. No añadas `/chat/completions`; el plugin de Dify llama al endpoint necesario.
+</Warning>
+
+Usa valores conservadores para las demás capacidades opcionales:
+
+- **Thinking Mode Support**: actívalo solo después de confirmar que el modelo lo admite
+- **Stream function calling**: selecciona `Not Support` para la primera prueba
+- **Vision Support**: actívalo solo cuando el modelo y el endpoint acepten imágenes de entrada
+- **Structured Output**: mantenlo desactivado hasta que funcione el chat básico
+
+Haz clic en **Save**. Dify valida la API Key, la Base URL y el ID del modelo.
+
+### Usa el modelo en una aplicación
+
+<Steps>
+  <Step title="Crea o abre una aplicación de Dify">
+    Abre un Chatbot, Agent, Chatflow o Workflow.
+  </Step>
+
+  <Step title="Selecciona el modelo">
+    En el selector de modelos de la aplicación o en un nodo **LLM**, elige el modelo que añadiste en **OpenAI-API-compatible**.
+  </Step>
+
+  <Step title="Prueba primero el chat básico">
+    Ejecuta la primera solicitud con una entrada de texto breve, sin herramientas ni imágenes:
+
+    ```text
+    Reply with exactly: Connection successful
+    ```
+  </Step>
+
+  <Step title="Activa después las capacidades de Agent">
+    Cuando funcione el chat básico, edita la configuración del modelo si necesitas llamadas a herramientas. Establece **Function Call Type** en el modo que admita el modelo. Las llamadas a herramientas compatibles con OpenAI suelen usar `Tool Call`, pero debes verificar que el modelo y el endpoint seleccionados lo admitan.
+  </Step>
+</Steps>
+
+## Verifica la conexión
+
+Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+
+## Cambia de modelo
+
+Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
+
+Dify guarda una configuración personalizada para cada ID de modelo. Para añadir otro modelo de un proveedor compatible, vuelve a hacer clic en **Add Model** bajo el mismo proveedor. Usa el ID nuevo tanto en **Model Name** como en **model name for API endpoint**. Puedes reutilizar la Base URL y la API Key.
+
+## Errores habituales
+
+### Guardar devuelve 401
+
+- Comprueba que la API Key esté completa
+- Confirma que el ID del modelo proceda del **proveedor compatible**
+- Comprueba el estado de la Key y el saldo en el Dashboard de BetterToken
+
+### Guardar devuelve 404
+
+- La API Base URL debe ser `{{openai-base-url}}`
+- No añadas `/chat/completions`
+- Asegúrate de que **model name for API endpoint** coincida exactamente con el ID de la model plaza
+
+### Dify indica que no encuentra el modelo
+
+**Model Name** puede afectar a cómo Dify muestra y selecciona el modelo. **model name for API endpoint** controla el modelo real de la solicitud. Usa el mismo ID de modelo de un proveedor compatible en ambos campos.
+
+### El chat funciona, pero fallan las herramientas del Agent
+
+Vuelve a establecer **Function Call Type** en `Not Support` y verifica un nodo LLM básico. Cámbialo a `Tool Call` solo cuando el modelo seleccionado admita llamadas a herramientas y vuelve a probar los argumentos.
+
+### Knowledge no puede usar este modelo como Embedding Model
+
+Es el comportamiento esperado. Un LLM de chat no puede sustituir un modelo de embedding. Esta guía no confirma endpoints de embedding ni rerank de BetterToken para Dify; configura por separado un proveedor de embedding compatible para Knowledge.
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Guías relacionadas
+
+- [Model Providers de Dify](https://docs.dify.ai/en/cloud/use-dify/workspace/model-providers)
+- [Plugin oficial OpenAI-API-compatible de Dify](https://github.com/langgenius/dify-official-plugins/tree/main/models/openai_api_compatible)
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Cómo elegir un modelo](/es/faq/model-calling/model-selection-guide)
+
+## Detalles técnicos
+
+<Accordion title="Protocolo, endpoint y campos internos del proveedor">
+  Esta configuración usa `{{openai-base-url}}`. La herramienta añade la ruta del endpoint compatible con OpenAI. No añadas `/chat/completions` ni `/responses` salvo que un campo concreto lo exija explícitamente.
+</Accordion>

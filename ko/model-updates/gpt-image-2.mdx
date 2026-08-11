@@ -1,0 +1,73 @@
+---
+title: "GPT Image 2 출시"
+description: "BetterToken은 high-quality image generation, posters, marketing assets 및 visual drafts를 위해 GPT Image 2를 April 29, 2026에 업데이트했습니다."
+tag: "NEW"
+---
+
+Release date: April 29, 2026
+
+BetterToken은 `gpt-image-2` image generation model entry를 추가했습니다. <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 currently available model ID를 확인한 다음 OpenAI-compatible image generation API를 통해 call하세요.
+
+OpenAI는 ChatGPT Images 2.0을 April 21, 2026에 introduced했으며 developer docs에서 `gpt-image-2`를 latest GPT Image model로 lists합니다. OpenAI는 GPT Image 2를 text와 image input, image output, flexible sizes, high-fidelity image inputs를 갖춘 fast, high-quality image generation 및 editing용 model로 describes합니다.
+
+## 주요 특징
+
+- **higher image quality**: OpenAI는 GPT Image 2를 polished visual assets에 적합한 highest-performance image generation model로 marks합니다.
+- **more flexible sizes**: `gpt-image-2`는 common square, landscape, portrait, 2K, 4K use cases를 포함한 more valid image dimensions를 supports합니다. 2K above sizes는 currently experimental입니다.
+- **higher-fidelity image input**: image editing과 reference-image workflows에서 `gpt-image-2`는 image inputs를 high fidelity로 processes하므로 product photos, portraits, brand assets에 유용합니다.
+- **stronger text와 complex information**: OpenAI's system card에 따르면 ChatGPT Images 2.0은 world knowledge, instruction following, dense text, complex detail generation을 improves합니다.
+- **streaming partial images**: Image API는 `stream`과 `partial_images`를 통해 partial images를 return할 수 있어 product experiences를 더 responsive하게 만듭니다.
+
+## 적합한 use cases
+
+- product launch posters, campaign assets 및 social images
+- docs, blogs 및 long-form articles용 illustrations
+- apps, websites 및 SaaS interfaces용 visual concept drafts
+- product images, advertising images 및 brand direction exploration
+- Chinese 또는 multilingual text가 포함된 visual content
+
+## API setup
+
+OpenAI-compatible protocol에는 다음을 사용하세요.
+
+| Setting | Value |
+|---------|-------|
+| `Base URL` | `{{openai-base-url}}` |
+| Authentication | `Authorization: Bearer YOUR_API_KEY` |
+| Model ID | `gpt-image-2` |
+| Endpoint | `POST /v1/images/generations` |
+
+```bash
+curl {{images-generations-url}} \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "Create a modern Chinese launch poster for an AI coding tool, with a clear headline, product UI, and clean background",
+    "size": "1024x1024",
+    "quality": "high"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
+```
+
+full parameter list는 [text-to-image documentation](/ko/api-reference/images-generations)를 참조하세요.
+
+## Setup guidance
+
+own application, script 또는 external tool을 사용한다면 OpenAI-compatible image generation endpoint를 supports하는지 confirm하세요. Image generation은 `{{openai-base-url}}`를 사용합니다. Claude Code / Anthropic protocol endpoint는 사용하지 마세요.
+
+<a href={"{{model-plaza-url}}"}>모델 광장</a>에서 current model ID를 copy하세요. ChatGPT UI mode names를 API parameters로 사용하지 마세요.
+
+## Notes
+
+- Image generation은 평균 약 `100`에서 `200` seconds가 걸립니다. client, gateway 또는 external-tool request timeouts를 `300` seconds above로 set하고 application에 waiting state를 표시하세요.
+- `gpt-image-2`는 currently transparent backgrounds를 support하지 않습니다. 먼저 non-transparent image를 generate한 다음 필요하면 another image tool로 background를 remove하세요.
+- Image results는 default로 `b64_json`로 returned됩니다. image를 saving하기 전에 base64 value를 decode하세요.
+- large, high-quality images는 latency와 cost를 increase할 수 있습니다. previews에는 `quality: "low"`를 사용하세요.
+- text, layout, brand elements가 있는 images는 publishing 전에 review하세요.
+
+## Official sources
+
+- [ChatGPT Images 2.0 소개](https://openai.com/index/introducing-chatgpt-images-2-0/)
+- [GPT Image 2 model page](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [OpenAI image generation guide](https://platform.openai.com/docs/guides/images/image-generation)
+- [ChatGPT Images 2.0 System Card](https://deploymentsafety.openai.com/chatgpt-images-2-0/)

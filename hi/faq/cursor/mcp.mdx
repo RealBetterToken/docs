@@ -1,0 +1,53 @@
+---
+title: "Cursor में MCP कैसे कॉन्फ़िगर करें"
+sidebarTitle: "Cursor MCP"
+description: "Cursor MCP, project और global configuration, mcp.json, tool approval और MCP का model API setup से अंतर समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+Cursor MCP, editor के अंदर AI workflow को external tools और data sources से जोड़ता है। यह model API configuration नहीं है और OpenAI-compatible Base URL को नहीं बदलता।
+
+Cursor में MCP setup में आमतौर पर `mcp.json`, project या global settings, environment variables और tool approval शामिल होते हैं।
+
+## यह कब महत्वपूर्ण है
+
+- आप चाहते हैं कि Cursor external tools उपयोग करे
+- आपको project-specific MCP server configuration चाहिए
+- आप project MCP और global MCP में अंतर करना चाहते हैं
+- आप tool approval समझना चाहते हैं
+- आप सोचते हैं कि MCP API Key / Base URL को बदल सकता है
+
+## MCP बनाम model API
+
+| विषय | Cursor MCP | OpenAI-compatible API |
+| --- | --- | --- |
+| भूमिका | tools, data sources, context जोड़ता है | model provider जोड़ता है |
+| मुख्य config | `mcp.json`, server, env, approval | API Key, Base URL, Model ID |
+| मुख्य risk | tool permissions और data access | authentication, billing, model availability |
+
+## अनुशंसित तरीका
+
+1. पुष्टि करें कि आप tool capability जोड़ रहे हैं, model provider नहीं।
+2. Cursor docs के अनुसार global या project MCP config चुनें।
+3. MCP server को केवल आवश्यक environment variables दें।
+4. files लिखने या external services access करने वाले tools के लिए tool approval रखें।
+5. model API setup और MCP setup को अलग-अलग debug करें।
+
+## BetterToken के बारे में
+
+BetterToken model API layer है। Cursor MCP tool layer है। आप दोनों उपयोग कर सकते हैं, लेकिन वे एक-दूसरे को नहीं बदलते।
+
+यदि आपका लक्ष्य model routing बदलना है, तो `{{openai-base-url}}` और **GPT provider** model कॉन्फ़िगर करें। यदि लक्ष्य Cursor को external tools call करने देना है, तो MCP कॉन्फ़िगर करें।
+
+## संबंधित दस्तावेज
+
+- [MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [Cursor में custom OpenAI API कैसे कॉन्फ़िगर करें](/hi/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md और .cursorignore](/hi/faq/cursor/rules-agents-cursorignore)
+- [Cline में OpenAI-compatible API कैसे कॉन्फ़िगर करें](/hi/faq/cline/openai-compatible-api)
+
+## संदर्भ
+
+- [Cursor MCP दस्तावेज](https://cursor.com/docs/mcp)
+- [Cursor MCP markdown दस्तावेज](https://cursor.com/docs/mcp.md)

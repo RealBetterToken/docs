@@ -1,0 +1,188 @@
+---
+title: "Aider 설정: 설치, API Key, Base URL 및 사용자 지정 모델"
+sidebarTitle: "Aider"
+description: "Aider를 설치하고 BetterToken Base URL 및 API Key를 설정한 다음, 호환되는 제공자 모델을 선택하고 일반적인 오류를 해결하세요."
+icon: "wrench"
+---
+
+Aider를 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 후 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 사전 요구 사항
+
+- 최신 버전의 도구가 설치되어 있음
+- BetterToken API Key: <a href={"{{register-url}}"}>등록하고 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+### 추가 요구 사항
+
+- Python 설치
+
+## 설치
+
+### Aider 설치
+
+터미널에서 다음 명령을 실행하세요.
+
+```bash
+python -m pip install aider-install
+aider-install
+```
+
+설치 후 Aider를 사용할 수 있는지 확인하세요.
+
+```bash
+aider --help
+```
+
+## 수동 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+### 현재 터미널에서 BetterToken 설정
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    export OPENAI_API_BASE="{{openai-base-url}}"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+
+    cd /path/to/your/project
+    aider --model openai/YOUR_MODEL_ID
+    ```
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    ```powershell
+    setx OPENAI_API_BASE "{{openai-base-url}}"
+    setx OPENAI_API_KEY "YOUR_API_KEY"
+    ```
+
+    `setx` 실행 후 PowerShell을 닫았다가 다시 여세요. 그런 다음 프로젝트 디렉터리로 이동하여 실행하세요.
+
+    ```powershell
+    aider --model openai/YOUR_MODEL_ID
+    ```
+  </Tab>
+</Tabs>
+
+`YOUR_API_KEY`를 BetterToken API Key로 바꾸세요. `YOUR_MODEL_ID`는 예시일 뿐입니다. 모델 광장의 현재 **지원되는 제공자의 model ID**로 바꾸고 `openai/` 접두사는 유지하세요.
+
+### .env로 설정 저장
+
+터미널을 열 때마다 변수를 설정하지 않으려면 프로젝트의 Git 루트에 `.env` 파일을 만드세요.
+
+```dotenv
+OPENAI_API_BASE={{openai-base-url}}
+OPENAI_API_KEY=YOUR_API_KEY
+AIDER_MODEL=openai/YOUR_MODEL_ID
+```
+
+API Key가 커밋되지 않도록 `.env`를 `.gitignore`에 추가하세요. 그런 다음 프로젝트 디렉터리에서 실행하세요.
+
+```bash
+aider
+```
+
+한 프로젝트에 다른 파일을 사용하려면 명시적으로 지정하세요.
+
+```bash
+aider --env-file ./aider-bettertoken.env
+```
+
+### 선택 사항: .aider.conf.yml 사용
+
+민감하지 않은 설정만 유지하려면 홈 또는 프로젝트 디렉터리에 `.aider.conf.yml`을 만드세요.
+
+```yaml
+model: openai/YOUR_MODEL_ID
+openai-api-base: "{{openai-base-url}}"
+```
+
+공유 YAML 파일 대신 `OPENAI_API_KEY` 환경 변수에 API Key를 보관하세요.
+
+### 모델 변경
+
+실행 명령의 모델을 현재 **지원되는 제공자의 model ID**로 바꾸세요.
+
+```bash
+aider --model openai/YOUR_MODEL_ID
+```
+
+`openai/` 접두사를 제거하지 마세요. Model ID는 구성된 endpoint와 호환되어야 합니다.
+
+## 연결 확인
+
+짧은 테스트 prompt를 보내세요. 도구가 인증 또는 Model ID 오류 없이 response를 반환하면 연결이 작동합니다. 구성을 변경한 후에는 도구를 완전히 다시 시작하세요.
+
+## 모델 전환
+
+모델 선택기를 열거나 구성에서 `Model` 필드를 바꾸세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 후 현재 세션을 다시 시작하세요.
+
+## 자주 발생하는 오류
+
+| 증상 | 해결 방법 |
+| --- | --- |
+| `401`, `Unauthorized` 또는 `Invalid API key` | `OPENAI_API_KEY`를 확인하고 BetterToken API Key인지 확인한 후 불필요한 공백을 제거하세요. |
+| `model not found` 또는 모델을 사용할 수 없음 | 모델 광장에서 현재 **지원되는 제공자의 model ID**를 복사하여 Aider에 `openai/model-id`로 전달하세요. |
+| 잘못된 request URL 또는 `404` | `OPENAI_API_BASE`가 `{{openai-base-url}}`인지 확인하세요. `/chat/completions`를 추가하지 마세요. |
+| Windows가 새 변수를 읽지 못함 | `setx`는 새로 연 터미널에만 적용됩니다. 현재 PowerShell 창을 닫고 새로 여세요. |
+| Aider가 알 수 없는 모델을 보고함 | 먼저 model ID와 API provider를 확인하세요. Aider가 새 모델 경고를 표시할 수 있지만 여전히 모델 광장의 현재 ID를 사용해야 합니다. |
+
+### 설정 FAQ
+
+**Aider는 어떤 Base URL을 사용해야 하나요?**
+
+`{{openai-base-url}}`를 사용하세요. BetterToken의 OpenAI-compatible Base URL입니다.
+
+**모델 이름에 `openai/` 접두사가 필요한 이유는 무엇인가요?**
+
+Aider는 이 접두사로 OpenAI-compatible 모델을 식별합니다. 생략하면 Aider가 잘못된 provider를 선택할 수 있습니다.
+
+**`.aider.conf.yml`에 API Key를 넣을 수 있나요?**
+
+권장하지 않습니다. 프로젝트 파일에서 API Key가 노출될 위험을 줄이려면 환경 변수 또는 Git이 무시하는 `.env` 파일을 사용하세요.
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 관련 가이드
+
+- [Continue CLI 사용자 지정 모델 설정](/ko/ai-tools/continue-cli)
+- [Codex CLI 사용자 지정 provider 설정](/ko/ai-tools/codex)
+- [Cursor 사용자 지정 API, Base URL 및 API Key 설정](/ko/ai-tools/cursor)
+- [Cline에서 OpenAI-compatible API 구성](/ko/ai-tools/cline)
+
+## 기술 세부 정보
+
+<Accordion title="Protocol, endpoint 및 내부 provider 필드">
+  이 설정은 `{{openai-base-url}}`를 사용합니다. 도구가 OpenAI-compatible endpoint path를 추가합니다. 특정 필드에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+</Accordion>

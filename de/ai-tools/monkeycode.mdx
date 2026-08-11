@@ -1,0 +1,133 @@
+---
+title: "MonkeyCode einrichten: Installation, API Key, Base URL und eigene Modelle"
+sidebarTitle: "MonkeyCode"
+description: "Installiere MonkeyCode, konfiguriere die BetterToken Base URL und API Key, wähle ein kompatibles Provider-Modell und behebe häufige Fehler."
+icon: "monkey"
+---
+
+Um MonkeyCode mit BetterToken zu verbinden, bereite einen API Key vor, trage die unten angezeigte Base URL ein und wähle eine aktuelle Model ID aus der model plaza.
+
+## Wichtige Einstellungen
+
+| Feld | Wert |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Eine aktuelle Model ID aus der <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Voraussetzungen
+
+- Die aktuelle Version des Tools ist installiert
+- Ein BetterToken API Key: <a href={"{{register-url}}"}>Registriere dich und erhalte einen</a>
+- Eine Model ID aus der <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Zusätzliche Anforderungen
+
+- MonkeyCode-Konto ([bei MonkeyCode registrieren](https://monkeycode.ai))
+
+## Installation
+
+Installiere oder öffne MonkeyCode und fahre dann mit der manuellen Einrichtung unten fort.
+
+## Manuelle Einrichtung
+
+Führe diese Einrichtung in der MonkeyCode-Einstellungsoberfläche durch. Du musst keine Konfigurationsdatei bearbeiten.
+
+| Feld | Wert |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | Eine aktuelle Model ID aus der <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Einrichtung
+
+<Steps>
+  <Step title="Bei MonkeyCode anmelden">
+    Besuche [MonkeyCode](https://monkeycode.ai) und melde dich an.
+  </Step>
+
+  <Step title="Systemeinstellungen öffnen">
+    Öffne die Aufgabenseite und klicke dann unten rechts auf **Settings**.
+  </Step>
+
+  <Step title="KI-Modell verbinden">
+    Klicke im Abschnitt **AI Model** auf **Bind**.
+  </Step>
+
+  <Step title="BetterToken-Konfiguration ausfüllen">
+
+| Feld | Wert |
+    |-------|-------|
+    | Model API URL | `{{openai-base-url}}` |
+| API Key | dein BetterToken API Key |
+| API format | `OpenAI` oder `OpenAI Compatible` (folge der aktuellen UI-Bezeichnung) |
+| Model name | eine **Model ID eines unterstützten Providers** aus der <a href={"{{model-plaza-url}}"}>model plaza</a> |
+  </Step>
+
+  <Step title="Zusätzliche Header nur bei ausdrücklicher Anforderung der offiziellen Dokumentation konfigurieren">
+    Wir haben keine offizielle MonkeyCode-Einrichtungsanforderung gefunden, die `User-Agent` für BetterToken obligatorisch macht. Beginne mit der auf dieser Seite gezeigten `Base URL`, API Key und Model ID.
+
+    Wenn du zusätzlich ein eigenes Gateway, Tenant-Routing, Observability oder eine Caching-Schicht verwendest, füge Header nur gemäß der offiziellen Dokumentation dieses Upstream-Dienstes hinzu.
+  </Step>
+
+  <Step title="Speichern und verwenden">
+    Klicke auf **Save**, kehre dann zur Hauptseite zurück und wähle das gerade konfigurierte Modell aus.
+  </Step>
+
+  <Step title="MonkeyCode neu starten">
+    Aktualisiere nach dem Speichern der Konfiguration die Seite oder öffne MonkeyCode erneut, bevor du das neue Modell verwendest.
+  </Step>
+</Steps>
+
+<Note>
+  Wenn du zusätzliche Header benötigst, folge der aktuellen MonkeyCode-Dokumentation oder den Anforderungen deines Upstream-Gateways, statt anzunehmen, dass `User-Agent` für BetterToken obligatorisch ist.
+</Note>
+
+## Verbindung überprüfen
+
+Sende eine kurze Testanweisung. Wenn das Tool ohne Authentifizierungs- oder Model-ID-Fehler antwortet, funktioniert die Verbindung. Starte das Tool nach einer Konfigurationsänderung vollständig neu.
+
+## Modelle wechseln
+
+Öffne die Modellauswahl oder ändere das Feld `Model` in der Konfiguration. Verwende die genaue Model ID aus der <a href={"{{model-plaza-url}}"}>model plaza</a> und starte dann die aktuelle Sitzung neu.
+
+## Häufige Fehler
+
+| Fehler | Prüfen |
+| --- | --- |
+| `401` oder `Unauthorized` | Prüfe den BetterToken API Key und entferne führende oder nachgestellte Leerzeichen. |
+| `404` | Prüfe die Base URL und hänge keinen spezifischen Endpunktpfad an. |
+| `model not found` | Kopiere eine aktuelle Model ID aus der model plaza. |
+| Änderungen werden nicht angewendet | Speichere die Konfiguration und starte das Tool vollständig neu. |
+
+
+- [OpenAI-kompatible API und Anthropic-kompatible API: Unterschiede](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP, API Key und Base URL: Unterschiede](/de/faq/concepts/mcp-vs-api-key-base-url)
+- [Was sind model_provider, base_url und wire_api?](/de/faq/codex/model-provider-base-url-wire-api)
+- [OpenAI-kompatible API in Cline konfigurieren](/de/faq/cline/openai-compatible-api)
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## Unterstützte Provider
+
+| Provider | Status |
+| --- | --- |
+| Claude | Nicht unterstützt |
+| GPT | Manuelle Konfiguration |
+| Kimi | Manuelle Konfiguration |
+| GLM | Manuelle Konfiguration |
+
+<Note>Die Statusangaben gelten für die auf dieser Seite beschriebene BetterToken-Konfiguration.</Note>
+
+<Accordion title="Bedeutung der Einrichtungsmethoden">
+  - **Manuelle Konfiguration**: Gib API Key, Base URL und Model ein.
+  - **Nicht unterstützt**: Derzeit gibt es keine verifizierte Methode für die direkte Verbindung.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Technische Details
+
+<Accordion title="Protokoll, Endpunkt und interne Provider-Felder">
+  Diese Einrichtung verwendet `{{openai-base-url}}`. Das Tool hängt den OpenAI-kompatiblen Endpunktpfad an. Füge `/chat/completions` oder `/responses` nicht hinzu, sofern ein bestimmtes Feld dies nicht ausdrücklich verlangt.
+</Accordion>

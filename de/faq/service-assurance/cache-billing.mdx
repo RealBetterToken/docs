@@ -1,0 +1,74 @@
+---
+title: "Unterstützt BetterToken die Abrechnung mit Cache?"
+sidebarTitle: "Cache-Abrechnung"
+description: "Verstehe Prompt-Caching, Felder für Cache-Treffer, Protokollunterschiede und die Prüfung von Anfragen auf zwischengespeicherte Token."
+---
+
+## Kurzantwort
+
+Ob eine Anfrage einen Cache-Rabatt erhält, hängt vom Upstream-Modell, API-Protokoll und Anfrageformat ab. BetterToken erfasst und zeigt die Nutzung anhand der vom Upstream-Modell zurückgegebenen Nutzungsdaten an.
+
+Wenn das Upstream-Modell Prompt-Caching unterstützt und Cache-Felder in der Antwort zurückgibt, kannst du zwischengespeicherte Token in den Nutzungsdaten der Antwort oder in den Aufrufprotokollen prüfen. Das Cache-Verhalten unterscheidet sich je nach Modell. Gehe nicht davon aus, dass jedes Modell automatisch einen Cache-Rabatt erhält.
+
+## Was Cache-Abrechnung bedeutet
+
+Prompt-Caching ermöglicht einem Upstream-Modell, ein stabiles, wiederholtes Präfix über mehrere Anfragen hinweg wiederzuverwenden. Wenn der Cache greift, kann ein Teil des Eingabekontexts zu einem niedrigeren Tarif für zwischengespeicherte Token abgerechnet werden.
+
+Dies ist nützlich für:
+
+- Lange Systemprompts
+- Feste Projektanweisungen
+- Umfangreichen, stabilen Dokumentationskontext
+- Wiederholte Repository-Anweisungen in mehrstufigen Coding-Aufgaben
+- Stapelaufgaben mit denselben Regeln und demselben Ausgabeformat
+
+Caching bedeutet nicht, dass du alles in den Prompt aufnehmen solltest. Dynamische Inhalte, Zeitstempel, zufällige IDs und benutzerspezifische Eingaben sollten normalerweise später in der Anfrage stehen.
+
+## Protokollunterschiede
+
+| Szenario | Üblicher Mechanismus |
+| --- | --- |
+| OpenAI-kompatibel | Einige Modelle speichern stabile Präfixe automatisch im Cache; die Nutzungsdaten der Antwort können zwischengespeicherte Token enthalten |
+| Anthropic-kompatibel / Claude | Einige Modelle benötigen ausdrückliche `cache_control`-Marker, damit der Cache genutzt wird |
+
+Dasselbe Claude-Modell kann sich bei Aufrufen über unterschiedliche Protokolle anders verhalten. Wenn du Claude Code oder die Anthropic-kompatible API häufig verwendest, prüfe zuerst das Anthropic-native Cache-Verfahren.
+
+## Prüfen, ob der Cache verwendet wurde
+
+Prüfe das Feld `usage` in der Antwort oder im Aufrufdatensatz des Dashboard. Die Feldnamen unterscheiden sich je nach API-Format:
+
+| API-Format | Übliche Cache-Felder |
+| --- | --- |
+| OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
+| OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
+| Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
+
+Wenn der Wert größer als 0 ist, hat ein Teil der Anfrage normalerweise den Cache verwendet. Fehlt das Feld, unterstützt das Modell die Funktion möglicherweise nicht, das Protokoll gibt sie nicht zurück, die Anfrage hat den Cache nicht getroffen oder das Tool blendet die Rohdaten zur Nutzung aus.
+
+## Cache-Trefferrate verbessern
+
+1. Platziere stabile Inhalte nahe am Anfang des Prompt.
+2. Platziere benutzerspezifische und häufig wechselnde Eingaben später.
+3. Füge keine Zeitstempel, zufälligen IDs oder wechselnden Anweisungen in das stabile Präfix ein.
+4. Verwende nach Möglichkeit dasselbe Modell und Protokoll für denselben Aufgabentyp.
+5. Füge in Claude-nativen Formaten gemäß der Modelldokumentation `cache_control` zu den Inhaltsblöcken hinzu, die zwischengespeichert werden sollen.
+6. Führe für Stapelaufgaben zuerst eine kleine Stichprobe aus und prüfe die Nutzungsfelder, bevor du die Gesamtkosten schätzt.
+
+## Häufige Fehler
+
+- Davon ausgehen, dass jedes Modell automatisch Cache-Rabatte unterstützt.
+- Davon ausgehen, dass die gesamte Anfrage nach einem Cache-Treffer kostenlos ist.
+- Modelle häufig wechseln und dadurch die Wiederverwendung des Cache verhindern.
+- Claude über ein OpenAI-kompatibles Format aufrufen und Claude-native Cache-Felder erwarten.
+- Nur die Gesamtzahl der Token prüfen und zwischengespeicherte Token sowie Felder für Cache-Lesen oder Cache-Erstellung ignorieren.
+
+## Über BetterToken
+
+Abrechnung und Nutzungsanzeige von BetterToken basieren auf der tatsächlichen Anfrage, den Upstream-Nutzungsdaten und dem aktuellen Modellpreis. Prüfe gemeinsam die Modelldokumentation, die Nutzungsfelder der Antwort und die Aufrufdatensätze im Dashboard, um die Cache-Nutzung zu bestätigen.
+
+## Verwandte Dokumentation
+
+- [Warum verwendet Claude Code so viele Token?](/de/faq/token-cost/claude-code-token-usage)
+- [Was ist max_tokens und was passiert, wenn ich es nicht festlege?](/de/faq/model-calling/max-tokens)
+- [Wie trage ich die Base URL richtig ein?](/de/faq/model-calling/base-url-config)
+- [Was ist der Unterschied zwischen OpenAI- und Anthropic-kompatiblen APIs?](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)

@@ -1,0 +1,211 @@
+---
+title: "Configurar Hermes Agent: instalación, API Key, Base URL y modelos personalizados"
+sidebarTitle: "Hermes Agent"
+description: "Instala Hermes Agent, configura la Base URL y la API Key de BetterToken, elige un modelo de un proveedor compatible y corrige los errores habituales."
+icon: "user-astronaut"
+---
+
+Para conectar Hermes Agent con BetterToken, prepara una API Key, introduce la Base URL indicada a continuación y elige un ID de modelo vigente en la model plaza.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Requisitos previos
+
+- La versión actual de la herramienta está instalada
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate y obtén una</a>
+- Un ID de modelo de la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionales
+
+- El ID de modelo seleccionado procede del **proveedor compatible**
+- macOS, Linux, or Windows WSL2
+
+## Instalación
+
+### Instala Hermes Agent
+
+<Tabs>
+  <Tab title="macOS / Linux / WSL2">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    ```
+  </Tab>
+
+  <Tab title="Windows">
+    En Windows, usa preferentemente WSL2. La compatibilidad nativa con PowerShell depende de la versión actual de Hermes Agent. Si usas Windows de forma nativa, sigue las instrucciones del instalador de tu versión.
+  </Tab>
+</Tabs>
+
+### Referencia rápida de funciones
+
+| Función | Uso |
+| --- | --- |
+| Terminal UI | Conversar directamente con el agente desde la terminal |
+| Skills | Guardar workflows reutilizables para tareas repetidas |
+| MCP | Conectar capacidades de herramientas locales o remotas |
+| Tareas programadas | Ejecutar trabajos temporizados y workflows recurrentes |
+| Subagentes | Dividir trabajos complejos entre agentes especializados |
+| Gateway de mensajes | Conectar el agente con más puntos de entrada de mensajes |
+
+## Configuración manual
+
+Usa como método principal la configuración interactiva de modelos de Hermes Agent. Los comandos y las variables de entorno siguen disponibles como alternativas.
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Pasos de configuración
+
+<Tabs>
+  <Tab title="Configuración interactiva">
+    <Steps>
+      <Step title="Ejecuta el selector de modelos">
+        ```bash
+        hermes model
+        ```
+      </Step>
+
+      <Step title="Elige el proveedor OpenAI u OpenAI Compatible">
+        Selecciona **OpenAI** u **OpenAI Compatible** en la lista de proveedores.
+      </Step>
+
+      <Step title="Completa la configuración de BetterToken">
+        Introduce:
+
+        - **Base URL**: `{{openai-base-url}}`
+        - **API Key**: tu BetterToken API Key
+        - **Model**: un **ID de modelo de un proveedor compatible** copiado desde la <a href={"{{model-plaza-url}}"}>model plaza</a>
+      </Step>
+
+      <Step title="Reinicia Hermes Agent">
+        Después de actualizar la configuración, cierra la sesión actual de Hermes Agent e inicia otra.
+      </Step>
+
+      <Step title="Inicia Hermes Agent">
+        ```bash
+        hermes
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Configuración por CLI">
+    Si prefieres copiar y pegar comandos, escribe directamente la configuración de Hermes Agent.
+
+    ```bash
+    hermes config set llm.provider openai
+    hermes config set llm.base_url "{{openai-base-url}}"
+    hermes config set llm.api_key "YOUR_API_KEY"
+    hermes config set llm.model "YOUR_MODEL_ID"
+    ```
+
+    Sustituye `YOUR_API_KEY` por tu BetterToken API Key y `YOUR_MODEL_ID` por un ID de modelo de un proveedor compatible de la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Después, inicia Hermes Agent:
+
+    ```bash
+    hermes
+    ```
+  </Tab>
+
+  <Tab title="Variables de entorno">
+    Si no quieres guardar la API Key en la configuración de Hermes Agent, expórtala en el shell actual.
+
+    ```bash
+    export OPENAI_API_BASE="{{openai-base-url}}"
+    export OPENAI_API_KEY="YOUR_API_KEY"
+    export HERMES_MODEL="YOUR_MODEL_ID"
+    hermes
+    ```
+
+    Estas variables solo se aplican a la sesión actual del shell. Vuelve a exportarlas en una terminal nueva o añádelas a tu perfil del shell.
+  </Tab>
+</Tabs>
+
+### Migra desde OpenClaw
+
+Si ya usas OpenClaw, comprueba primero si tu versión actual de Hermes Agent incluye el comando de migración. Ejecuta un dry run antes de cambiar nada.
+
+```bash
+hermes claw migrate --dry-run
+```
+
+Después de confirmar la salida, ejecuta la migración:
+
+```bash
+hermes claw migrate
+```
+
+Después de migrar, revisa la **Base URL**, la API Key y el ID del modelo de Hermes Agent. Deben coincidir con `{{openai-base-url}}`, tu BetterToken API Key y un ID de modelo de un proveedor compatible.
+
+## Verifica la conexión
+
+Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+
+## Cambia de modelo
+
+Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
+
+## Errores habituales
+
+| Error | Qué comprobar |
+| --- | --- |
+| `401` o `Unauthorized` | Comprueba la BetterToken API Key y elimina los espacios iniciales o finales. |
+| `404` | Comprueba la Base URL y no añadas una ruta específica de endpoint. |
+| `model not found` | Copia un ID de modelo vigente desde la model plaza. |
+| Los cambios no se aplican | Guarda la configuración y reinicia la herramienta por completo. |
+
+
+### Solución de problemas
+
+- Si las solicitudes fallan o no responden, confirma que **Base URL** sea exactamente `{{openai-base-url}}`. No añadas `/chat/completions` en este campo.
+- Si Hermes indica que el modelo no existe, confirma que **Model** sea un ID de modelo de un proveedor compatible de la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Si falla la autenticación, busca espacios copiados y confirma que el ID seleccionado proceda del **proveedor compatible**.
+- Si Hermes sigue usando el modelo antiguo después de un cambio, cierra la sesión actual de Hermes Agent y vuelve a ejecutar `hermes`.
+- BetterToken normalmente no requiere un `User-Agent` adicional ni cabeceras personalizadas. Añade cabeceras solo cuando tu gateway personalizado, el enrutamiento por tenant, la observabilidad o la capa de caché las exijan explícitamente.
+
+<Note>
+  No incluyas API Keys reales en los commits del repositorio. Para configuraciones compartidas por un equipo, usa preferentemente variables de entorno o configuración local.
+</Note>
+
+### Preguntas relacionadas
+
+- [MCP frente a API Key y Base URL](/es/faq/concepts/mcp-vs-api-key-base-url)
+- [¿Qué son model_provider, base_url y wire_api?](/es/faq/codex/model-provider-base-url-wire-api)
+- [Cómo configurar una API compatible con OpenAI en Cline](/es/faq/cline/openai-compatible-api)
+- [Guía para configurar BetterToken en OpenClaw](/es/ai-tools/openclaw)
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Detalles técnicos
+
+<Accordion title="Protocolo, endpoint y campos internos del proveedor">
+  Esta configuración usa `{{openai-base-url}}`. La herramienta añade la ruta del endpoint compatible con OpenAI. No añadas `/chat/completions` ni `/responses` salvo que un campo concreto lo exija explícitamente.
+</Accordion>

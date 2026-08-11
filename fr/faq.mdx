@@ -1,0 +1,151 @@
+---
+title: "Questions fréquentes"
+description: "Questions fréquentes sur les comptes BetterToken, la facturation, l’utilisation et la configuration."
+---
+
+## Questions sur les outils de développement assisté par IA
+
+Ces pages expliquent Claude Code, Codex, Cursor, Cline et d’autres outils de développement assisté par IA. Elles présentent d’abord chaque outil, puis montrent comment l’API Key, la Base URL, le choix du protocole et le suivi de l’utilisation se rattachent à BetterToken.
+
+- [Qu’est-ce que Claude Code et comment fonctionne-t-il ?](/fr/faq/claude-code/what-is-claude-code)
+- [Claude Code ou Claude Desktop](/fr/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code ou Cursor pour le développement local](/fr/faq/claude-code/claude-code-vs-cursor)
+- [Claude Code utilise-t-il un compte Claude.ai ou une API Key ?](/fr/faq/claude-code/claude-account-or-api-key)
+- [Configurer l’API Key et la Base URL dans Claude Code](/fr/faq/claude-code/api-key-base-url)
+- [Qu’est-ce que CLAUDE.md dans Claude Code ?](/fr/faq/claude-code/claude-md)
+- [Passer de Sonnet à Opus dans Claude Code](/fr/faq/claude-code/switch-sonnet-opus)
+- [Comprendre les permissions et hooks de Claude Code](/fr/faq/claude-code/permissions-and-hooks)
+- [Pourquoi Claude Code utilise autant de Token et comment réduire le coût](/fr/faq/token-cost/claude-code-token-usage)
+- [Configurer MCP dans Claude Desktop](/fr/faq/claude-desktop/mcp)
+- [Claude Desktop peut-il utiliser des modèles tiers ?](/fr/faq/claude-desktop/third-party-models)
+- [Claude Desktop Cowork ou Code Gateway](/fr/faq/claude-desktop/cowork-code-gateway)
+- [Qu’est-ce que Codex CLI ?](/fr/faq/codex/what-is-codex-cli)
+- [Codex CLI, Codex App ou Codex Web](/fr/faq/codex/codex-cli-vs-app-vs-web)
+- [Configurer config.toml dans Codex CLI](/fr/faq/codex/config-toml)
+- [Que signifient model_provider, base_url et wire_api dans Codex CLI ?](/fr/faq/codex/model-provider-base-url-wire-api)
+- [Que signifient review_model et reasoning_effort dans Codex CLI ?](/fr/faq/codex/review-model-reasoning-effort)
+- [Qu’est-ce que AGENTS.md dans Codex CLI ?](/fr/faq/codex/agents-md)
+- [Que sont les modes sandbox et approval de Codex CLI ?](/fr/faq/codex/sandbox-approval)
+- [Pourquoi Codex ne peut-il pas utiliser GPT-5.5 en mode API ?](/fr/faq/codex/gpt-5.5-api-mode)
+- [Conserver la connexion officielle de Codex avec une API tierce](/fr/faq/codex/official-login-third-party-api)
+- [Configurer une OpenAI API Key et une Base URL personnalisées dans Cursor](/fr/faq/cursor/custom-openai-api)
+- [Comprendre Cursor Rules, AGENTS.md et .cursorignore](/fr/faq/cursor/rules-agents-cursorignore)
+- [Configurer MCP dans Cursor](/fr/faq/cursor/mcp)
+- [Configurer une API compatible avec OpenAI dans Cline](/fr/faq/cline/openai-compatible-api)
+- [API compatible avec OpenAI ou API compatible avec Anthropic](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code ou Codex CLI](/fr/faq/concepts/claude-code-vs-codex-cli)
+- [MCP ou API Key et Base URL](/fr/faq/concepts/mcp-vs-api-key-base-url)
+
+## Compte et facturation
+
+<AccordionGroup>
+  <Accordion title="Comment BetterToken facture-t-il l’utilisation ?">
+    BetterToken facture selon l’utilisation réelle des Token et suit les tarifs Anthropic / OpenAI sans ajouter de majoration. Chaque nouveau compte reçoit $1 de crédit d’essai.
+
+    Consultez la <a href={"{{pricing-url}}"}>page des tarifs</a> pour plus de détails.
+  </Accordion>
+
+  <Accordion title="Puis-je obtenir un remboursement après l’inscription ?">
+    Les recharges payantes sont remboursables. Le crédit d’essai ne l’est pas. Contactez le support pour demander un remboursement.
+  </Accordion>
+
+  <Accordion title="Puis-je utiliser la même API Key dans plusieurs outils ?">
+    Oui. La même API Key peut être utilisée simultanément dans Claude Code, Codex, Cursor et d’autres outils. L’utilisation est partagée.
+  </Accordion>
+
+  <Accordion title="Où puis-je consulter mon utilisation ?">
+    Connectez-vous au Dashboard pour consulter l’utilisation actuelle et les relevés de facturation.
+  </Accordion>
+</AccordionGroup>
+
+## Installation et configuration
+
+<AccordionGroup>
+  <Accordion title="Quelle est la base_url de BetterToken ?">
+    BetterToken utilise deux endpoints différents selon le protocole :
+
+    | Scénario | Base URL |
+    |----------|----------|
+    | Claude Code / `ANTHROPIC_BASE_URL` | `{{anthropic-base-url}}` |
+    | Codex / `OPENAI_BASE_URL` / outils externes | `{{openai-base-url}}` |
+
+    Ne réutilisez pas la même adresse dans tous les outils.
+  </Accordion>
+
+  <Accordion title="Dois-je indiquer un modèle avec Claude Code ?">
+    Cela dépend de votre fournisseur.
+
+    Avec le **Claude provider**, définissez uniquement `ANTHROPIC_BASE_URL` et `ANTHROPIC_AUTH_TOKEN`. Les variables de modèle ne sont **pas** nécessaires.
+
+    Avec le **GPT provider**, ajoutez les associations de modèles Claude Code via `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` et `ANTHROPIC_DEFAULT_OPUS_MODEL`. Copiez le Model ID du **GPT provider** actuel dans le <a href={"{{model-plaza-url}}"}>model plaza</a>.
+  </Accordion>
+
+  <Accordion title="Dois-je indiquer un modèle avec Codex ?">
+    Oui. Saisissez un Model ID copié depuis le **GPT provider** dans le <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Consultez le [guide de configuration de Codex](/fr/ai-tools/codex) pour plus de détails.
+  </Accordion>
+
+  <Accordion title="Dois-je indiquer un modèle avec d’autres outils comme Cursor ?">
+    Oui. Les outils externes comme Cursor, Cline, Zed et OpenClaw utilisent le **GPT provider**. Copiez le Model ID actuel depuis le <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+    Ne continuez pas à utiliser des noms de modèles Claude codés en dur dans ces outils.
+
+    Consultez le [guide de configuration de Cursor](/fr/ai-tools/cursor) pour plus de détails.
+  </Accordion>
+
+  <Accordion title="OpenClaw et les autres outils externes ont-ils besoin de headers supplémentaires ?">
+    Généralement, non.
+
+    D’après les documentations officielles vérifiées, les outils externes courants comme Cursor, Cline et Zed utilisent principalement la `Base URL`, l’API Key et le Model ID. OpenCode et OpenClaw acceptent des `headers` facultatifs, mais leur documentation les présente comme des headers personnalisés ou des besoins d’authentification spécifiques, et non comme une étape BetterToken obligatoire.
+
+    Ajoutez des headers uniquement si la documentation officielle de l’outil, votre propre gateway upstream, le routage des tenants, l’observabilité ou la couche de Cache les exige explicitement.
+  </Accordion>
+
+  <Accordion title="Que faire si l’authentification échoue après la configuration ?">
+    Vérifiez les points suivants :
+
+    1. Vérifiez que l’API Key est correcte et ne contient aucun espace superflu
+    2. Confirmez que Claude Code utilise `{{anthropic-base-url}}`, tandis que Codex / les outils externes utilisent `{{openai-base-url}}`
+    3. Vérifiez si d’anciennes variables `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `OPENAI_API_KEY` ou `OPENAI_BASE_URL` remplacent la nouvelle configuration
+    4. Pour les outils externes, vérifiez les exigences officielles supplémentaires, comme les limites de version, les listes de modèles autorisés ou les headers explicitement requis par votre gateway upstream
+
+    Si le problème persiste, contactez le support.
+  </Accordion>
+</AccordionGroup>
+
+## Fiabilité et Rate Limits
+
+<AccordionGroup>
+  <Accordion title="Comment BetterToken maintient-il la fiabilité ?">
+    BetterToken se connecte à plusieurs fournisseurs et utilise les mécanismes suivants :
+
+    - **Plusieurs fournisseurs** : la panne d’un fournisseur n’interrompt pas toutes vos requêtes
+    - **Routage dynamique** : BetterToken sélectionne en temps réel le chemin le plus rapide et le plus stable
+    - **Priorité aux outils principaux** : le travail de fiabilité se concentre sur Claude Code et l’écosystème Codex
+  </Accordion>
+
+  <Accordion title="Que faire en cas de Rate Limits ou de timeouts ?">
+    BetterToken gère automatiquement les Rate Limits et les timeouts de chaque fournisseur. Si le problème persiste :
+
+    1. Vérifiez que votre solde est suffisant
+    2. Augmentez le timeout de votre outil (`API_TIMEOUT_MS=3000000` est recommandé)
+    3. Contactez le support pour vérifier l’état actuel du quota
+  </Accordion>
+
+  <Accordion title="BetterToken convient-il à la production ?">
+    BetterToken est principalement conçu pour les développeurs individuels qui utilisent des outils comme Claude Code et Codex. Pour des workloads API de production à grande échelle, évaluez-le selon vos propres exigences.
+  </Accordion>
+</AccordionGroup>
+
+## Confidentialité et sécurité
+
+<AccordionGroup>
+  <Accordion title="BetterToken stocke-t-il le contenu de mes requêtes ?">
+    BetterToken agit comme un relais et ne conserve pas le contenu des conversations. Consultez la <a href={"{{privacy-url}}"}>Politique de confidentialité</a> pour plus de détails.
+  </Accordion>
+
+  <Accordion title="Que faire si mon API Key est divulguée ?">
+    Connectez-vous immédiatement au Dashboard, supprimez l’ancienne Key et générez-en une nouvelle. Mettez ensuite à jour chaque outil qui utilise cette Key.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,58 @@
+---
+title: "Codex CLI の review_model と reasoning_effort とは？"
+sidebarTitle: "review_model / reasoning"
+description: "review_model、model_reasoning_effort、/review、/model と、これらの設定が Codex CLI のコストと品質に与える影響を説明します。"
+---
+
+## 短い答え
+
+`review_model` は、Codex がコードレビューのワークフローで使用するモデルです。`model_reasoning_effort` は、Responses API をサポートするモデルの推論強度を制御します。
+
+どちらの項目も品質、速度、使用コストに影響します。高い推論設定は複雑なタスクに適していますが、消費量が増える場合があります。
+
+## 項目の関係
+
+| 項目 | 役割 |
+| --- | --- |
+| `model` | 通常の作業で使用するデフォルトモデル |
+| `review_model` | `/review` などのレビュー処理で使用するモデル |
+| `model_reasoning_effort` | メインモデルの推論強度 |
+| `/model` | セッション内でモデルまたは推論を変更する入口 |
+| `/review` | 現在の変更を Codex にレビュー依頼する入口 |
+
+## 推奨設定
+
+```toml
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+```
+
+小さく短時間で済む編集では、推論強度を下げられます。複数ファイルにまたがるリファクタリング、難しいデバッグ、長いコンテキストを使うタスクには、より高い推論強度が適しています。
+
+## よくある間違い
+
+- `review_model` がすべてのタスクでメインモデルを置き換えると考えること。
+- 推論強度を temperature 設定として扱うこと。
+- 現在のプロバイダーがサポートしていないモデル ID を使用すること。
+- すべてのタスクで最高の推論強度を使用すること。
+- 実際の使用量と結果の品質を確認せず、モデル名だけを見ること。
+
+## BetterToken について
+
+モデルと推論設定の違いは使用量に影響します。BetterToken の使用履歴では、実際のタスクにおける入力、出力、コストを比較できます。
+
+現在のプロバイダーが認識できるよう、モデル ID は **GPT プロバイダー**からコピーしてください。
+
+## 関連ドキュメント
+
+- [Codex CLI の config.toml を設定する方法](/ja/faq/codex/config-toml)
+- [model_provider、base_url、wire_api とは？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Codex の BetterToken 設定ガイド](/ja/ai-tools/codex)
+- [Codex CLI のサンドボックスと承認モードとは？](/ja/faq/codex/sandbox-approval)
+
+## 参照
+
+- [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)
+- [Codex サンプル設定](https://developers.openai.com/codex/config-sample)
+- [Codex CLI スラッシュコマンド](https://developers.openai.com/codex/cli/slash-commands)

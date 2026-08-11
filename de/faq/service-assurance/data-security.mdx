@@ -1,0 +1,73 @@
+---
+title: "Wie schützt BetterToken die Datensicherheit?"
+sidebarTitle: "Datensicherheit"
+description: "Verstehe die Grenze der Datensicherheit, HTTPS-Übertragung, Logs, Nutzungsaufzeichnungen und Sicherheitspraktiken auf Nutzerseite für BetterToken-API-Aufrufe."
+---
+
+## Kurzantwort
+
+BetterToken ist ein API-Gateway. Seine Hauptaufgabe besteht darin, deinen Request an das ausgewählte Upstream-Modell weiterzuleiten und die für den Dienstbetrieb erforderlichen Abrechnungs-, Nutzungs- und Fehlerbehebungsinformationen aufzuzeichnen.
+
+Halte dich bei der API-Nutzung an Datenminimierung. Lege keine unnötigen personenbezogenen Daten, Secrets, Zahlungsinformationen oder geschäftssensiblen Inhalte in Prompts, Dateien oder Tool-Ausgaben ab. Speichere API Keys in Umgebungsvariablen, Secret Managern oder CI-Secrets. Checke sie nicht in öffentliche Repositories ein.
+
+## Grenze der Datensicherheit
+
+| Typ | Beschreibung |
+| --- | --- |
+| API Key | Authentifiziert deine Requests und sollte von dir geschützt werden |
+| Request-Inhalt | Prompts, Kontext, Dateiausschnitte oder Tool-Ergebnisse, die an das Modell gesendet werden |
+| Antwortinhalt | Text, Code oder strukturierte Ausgabe, die vom Modell zurückgegeben wird |
+| Nutzungsinformationen | Modell, Tokens, Kosten, Statuscode, Request-Zeit und weitere Abrechnungs- oder Fehlerbehebungsmetadaten |
+| Upstream-Modell | Der Modelldienst oder Provider, der den Inferenz-Request verarbeitet |
+
+BetterToken hilft dir, API Keys, Guthaben und Nutzungsaufzeichnungen an einem Ort zu verwalten. Es ersetzt nicht deine eigene Datenmaskierung, Zugriffskontrolle oder den Sicherheitsprozess des Projekts.
+
+## Transportsicherheit
+
+Alle API-Aufrufe sollten HTTPS verwenden. Nutze beim Konfigurieren einer Base URL `https://` als die in der Dokumentation angegebene Adresse.
+
+Sende API Keys oder Request-Inhalte nicht über unverschlüsseltes HTTP. Wenn ein Client, Proxy oder lokales Tool dich auffordert, die TLS-Überprüfung zu deaktivieren, bestätige den Grund vor der Nutzung dieser Einrichtung. Mache sie nicht zum Standard.
+
+## Logs und Nutzungsaufzeichnungen
+
+Um Abrechnung, Guthabenabzug, Fehlerbehebung und Risikokontrolle zu unterstützen, muss ein API-Gateway normalerweise Request-Metadaten wie diese aufzeichnen:
+
+- Request-Zeit
+- Verwendeter API Key oder Provider
+- Angefordertes Modell
+- Token-Nutzung
+- Ob der Request erfolgreich war
+- Fehlerstatus
+
+Diese Informationen werden hauptsächlich für Abrechnung, Nutzungsanalyse und Fehlerdiagnose verwendet. Gib beim Melden eines Problems Request-Zeit, Modell, Fehlercode und Request-ID an. Sende nicht den vollständigen API Key oder sensible Prompt-Inhalte.
+
+## Empfehlungen auf Nutzerseite
+
+1. Checke API Keys nicht in Code-Repositories ein.
+2. Lege keinen vollständigen API Key in Screenshots, Logs oder Support-Tickets offen.
+3. Verwende getrennte API Keys für Produktions- und Testumgebungen.
+4. Prüfe Nutzungsaufzeichnungen im Dashboard regelmäßig.
+5. Deaktiviere alte Keys, wenn ein Mitglied ausscheidet, ein Projekt endet oder ein Leak vermutet wird.
+6. Vermeide das Senden von Ausweisdokumenten, Bankkarten, Passwörtern, privaten Keys oder anderen hochsensiblen Daten in Prompts.
+7. Wenn du sensible Geschäftsdaten verarbeiten musst, maskiere und minimiere sie vor dem Senden an das Modell.
+
+## Was tun, wenn die Nutzung ungewöhnlich aussieht
+
+Wenn ein API Key ungewöhnliche Aufrufe zeigt:
+
+1. Deaktiviere oder lösche den verdächtigen API Key in der Konsole.
+2. Prüfe aktuelle Aufrufaufzeichnungen auf Modell, Zeit und Request-Quelle.
+3. Prüfe Code-Repositories, CI-Logs, lokale Konfiguration und Drittanbieter-Tool-Einstellungen auf Key-Leaks.
+4. Erstelle einen neuen API Key und verteile ihn nur an die benötigten Umgebungen.
+5. Wenn du die Ursache nicht findest, kontaktiere den Support mit Zeitbereich, Modell und ungewöhnlichem Betrag.
+
+## Über BetterToken
+
+BetterToken verarbeitet Modell-Request-Zugriff, Weiterleitung, Abrechnung und Nutzungsanzeige. Sicherheit wird geteilt: Die Plattform übernimmt dienstseitige Zugriffskontrolle und Abrechnungsablauf, während du API Keys schützt, Berechtigungen zuweist, Prompt-Daten minimierst und Tools sicher konfigurierst.
+
+## Verwandte Dokumentation
+
+- [Wie konfiguriere ich API Key und Base URL in Claude Code?](/de/faq/claude-code/api-key-base-url)
+- [Was ist der Unterschied zwischen MCP und API Key / Base URL?](/de/faq/concepts/mcp-vs-api-key-base-url)
+- [Wie behebe ich API Key-, Base URL- und Model-ID-Probleme?](/de/faq/model-calling/base-url-config)
+- [Was sind Claude-Code-Berechtigungen und Hooks?](/de/faq/claude-code/permissions-and-hooks)

@@ -1,0 +1,71 @@
+---
+title: "Qu’est-ce que CLAUDE.md dans Claude Code et comment le rédiger ?"
+sidebarTitle: "CLAUDE.md"
+description: "Comprenez le rôle de CLAUDE.md dans Claude Code, ce qu’il faut y inclure ou éviter, et sa différence avec les hooks et MCP."
+---
+
+## Réponse rapide
+
+`CLAUDE.md` est un fichier d’instructions de projet que Claude Code peut charger comme contexte. C’est un bon emplacement pour la structure du projet, les commandes, conventions de code, attentes de test, limites de sécurité et règles de collaboration.
+
+Ce n’est pas un mécanisme d’application. Claude Code le lit comme guide. Si une règle doit s’exécuter à un moment précis, utilisez des hooks ou la configuration de l’outil au lieu de vous reposer uniquement sur `CLAUDE.md`.
+
+Un `CLAUDE.md` utile est court, précis et maintenu. Utilisez-le pour les faits de projet que vous répéteriez autrement dans chaque session.
+
+## Cas où cela est important
+
+- Claude Code pose à répétition des questions sur la même structure de projet ou les mêmes commandes
+- Votre équipe souhaite des règles communes de test, style ou sécurité
+- Vous voulez réduire le contexte répété et l’utilisation de token
+- Claude Code ne respecte pas les conventions propres au dépôt
+- Vous souhaitez faciliter l’intégration d’autres agents ou coéquipiers
+
+## Concepts clés
+
+| Concept | Signification |
+| --- | --- |
+| `CLAUDE.md` de projet | Instructions de projet partagées, généralement validées avec le dépôt |
+| Règles personnelles | Préférences propres à l’utilisateur qui ne doivent pas toujours être validées |
+| Règles locales | Notes propres à la machine ou préférences temporaires |
+| Hooks | Commandes déclenchées autour de l’utilisation d’outils ; mieux adaptées au comportement appliqué |
+| MCP | Outils externes et sources de données ; pas un fichier de règles de projet |
+
+## Contenu recommandé
+
+Rédigez `CLAUDE.md` comme un guide de projet compact :
+
+- Ce qu’est le projet et où se trouvent les répertoires importants
+- Les commandes courantes de build, test et formatage
+- Les limites d’architecture à respecter avant modification
+- Les vérifications les plus rapides à exécuter avant de terminer
+- Les secrets, journaux ou configurations privées à ne pas exposer
+- Les conventions de documentation, test, nommage et gestion des erreurs
+
+Évitez les longs tutoriels, plans temporaires et notes de tâche ponctuelles. Si une règle ne s’applique qu’à un domaine, limitez davantage sa portée. Si un comportement doit être appliqué, utilisez des hooks.
+
+## Erreurs courantes
+
+- Traiter `CLAUDE.md` comme un prompt système ou une couche d’autorisations stricte.
+- Le rendre trop long, ce qui augmente le coût de contexte et le rend plus difficile à suivre.
+- Ajouter indéfiniment d’anciennes notes de déploiement, TODO temporaires et décisions obsolètes.
+- Placer des API Key, tokens, cookies ou configurations privées dans le fichier.
+- Maintenir `CLAUDE.md`, `AGENTS.md` et Cursor Rules avec des instructions contradictoires.
+
+## À propos de BetterToken
+
+Si un projet utilise BetterToken, `CLAUDE.md` peut rappeler à Claude Code que Claude Code utilise `{{anthropic-base-url}}` Anthropic compatible, tandis que Codex et les outils externes utilisent `{{openai-base-url}}` OpenAI compatible.
+
+Ne placez pas d’API Key réelles dans `CLAUDE.md`. Stockez-les dans des variables d’environnement locales, des fichiers de configuration locaux ou un système de secrets protégé.
+
+## Documents associés
+
+- [Qu’est-ce que Claude Code et comment fonctionne-t-il ?](/fr/faq/claude-code/what-is-claude-code)
+- [Configurer API Key et Base URL dans Claude Code](/fr/faq/claude-code/api-key-base-url)
+- [Pourquoi Claude Code utilise autant de tokens et comment réduire le coût](/fr/faq/token-cost/claude-code-token-usage)
+- [Guide de configuration Claude Code](/fr/ai-tools/claude-code)
+
+## Références
+
+- [Comment Claude mémorise votre projet](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Référence des hooks Claude Code](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Coûts Claude Code](https://docs.anthropic.com/en/docs/claude-code/costs)

@@ -1,0 +1,127 @@
+---
+title: "TRAE सेटअप: इंस्टॉलेशन, API key, Base URL और कस्टम मॉडल"
+sidebarTitle: "TRAE"
+description: "TRAE इंस्टॉल करें, BetterToken Base URL और API key कॉन्फ़िगर करें, संगत provider मॉडल चुनें और सामान्य त्रुटियां ठीक करें।"
+icon: "bolt"
+---
+
+TRAE को BetterToken से कनेक्ट करने के लिए API key तैयार करें, नीचे दिया Base URL भरें और model plaza से वर्तमान Model ID चुनें।
+
+## मुख्य सेटिंग्स
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API key |
+| पूर्ण request URL | `{{chat-completions-url}}` |
+| मॉडल | <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान Model ID |
+
+## आवश्यकताएं
+
+- टूल का वर्तमान संस्करण इंस्टॉल है
+- BetterToken API key: <a href={"{{register-url}}"}>रजिस्टर करें और प्राप्त करें</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> से Model ID
+
+### अतिरिक्त आवश्यकताएं
+
+## इंस्टॉल करें
+
+TRAE इंस्टॉल या खोलें, फिर नीचे का मैन्युअल सेटअप जारी रखें।
+
+## मैन्युअल सेटअप
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API key |
+| पूर्ण request URL | `{{chat-completions-url}}` |
+| मॉडल | <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान Model ID |
+
+### सेटअप
+
+<Steps>
+  <Step title="settings खोलें">
+    **IDE** mode में settings center खोलने के लिए ऊपर-दाएं कोने में **Settings** आइकन क्लिक करें।
+
+    आप **SOLO** mode खोलकर chat panel के ऊपर-दाएं कोने में **Settings** आइकन भी क्लिक कर सकते हैं।
+  </Step>
+
+  <Step title="मॉडल panel खोलें">
+    बाएं navigation में **Model** चुनकर **Model** panel खोलें।
+  </Step>
+
+  <Step title="मॉडल जोड़ें">
+    **+ Add model** क्लिक करें।
+
+    ![TRAE मॉडल panel, जिसमें settings entry, मॉडल navigation item और add model बटन highlighted हैं।](/images/trae/add-model.png)
+  </Step>
+
+  <Step title="मॉडल configuration भरें">
+    **Add model** window आने पर फ़ील्ड इस प्रकार भरें:
+
+    | फ़ील्ड | मान |
+    |-------|-------|
+    | Provider | `OpenAI` |
+    | Model | `Custom model` |
+    | Model ID | <a href={"{{model-plaza-url}}"}>model plaza</a> से कॉपी की **किसी समर्थित provider की मॉडल ID** |
+    | API key | BetterToken console से कॉपी की आपकी API Key |
+    | Custom request URL | `{{chat-completions-url}}` |
+
+    ![TRAE add model window, जिसमें OpenAI, custom मॉडल तथा model ID, API key और custom request URL के फ़ील्ड चुने गए हैं।](/images/trae/model-config.png)
+  </Step>
+
+  <Step title="सहेजें और उपयोग शुरू करें">
+    configuration सहेजने के लिए **Confirm** क्लिक करें, फिर समर्थित provider का नया मॉडल चुनें।
+  </Step>
+</Steps>
+
+<Note>
+  BetterToken TRAE को केवल **supported provider के मॉडल** से समर्थन देता है। तय Claude मॉडल नाम उपयोग न करें और custom request URL को `{{openai-base-url}}` पर सेट न करें।
+</Note>
+
+## कनेक्शन सत्यापित करें
+
+छोटे test prompt भेजें। यदि टूल बिना authentication या Model ID त्रुटि के उत्तर देता है, तो कनेक्शन काम कर रहा है। configuration बदलने के बाद टूल को पूरी तरह रीस्टार्ट करें。
+
+## मॉडल बदलें
+
+मॉडल selector खोलें या configuration में `Model` फ़ील्ड बदलें। <a href={"{{model-plaza-url}}"}>model plaza</a> से सटीक Model ID उपयोग करें, फिर मौजूदा session रीस्टार्ट करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | क्या जांचें |
+| --- | --- |
+| `401` या `Unauthorized` | BetterToken API key जांचें और शुरुआत/अंत के space हटाएं। |
+| `404` | Base URL जांचें और कोई विशिष्ट endpoint path न जोड़ें। |
+| `model not found` | model plaza से वर्तमान Model ID कॉपी करें। |
+| बदलाव लागू नहीं होते | configuration सहेजें और टूल पूरी तरह रीस्टार्ट करें। |
+
+
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Cline में OpenAI-compatible API कैसे कॉन्फ़िगर करें](/hi/faq/cline/openai-compatible-api)
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+## तकनीकी विवरण
+
+<Accordion title="Protocol, endpoint और आंतरिक provider फ़ील्ड">
+  TRAE को केवल Base URL नहीं, पूरा custom request URL `{{chat-completions-url}}` चाहिए।
+</Accordion>

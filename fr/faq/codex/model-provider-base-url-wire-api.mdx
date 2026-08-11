@@ -1,0 +1,95 @@
+---
+title: "Fournisseur personnalisé Codex : model_provider, Base URL et wire_api"
+sidebarTitle: "provider / base_url / wire_api"
+description: "Configurez un fournisseur Codex personnalisé avec model_provider, Base URL, wire_api, API Key et Model ID, puis résolvez les erreurs de fournisseur, 401 et 404."
+---
+
+## Réponse courte
+
+`model_provider` indique à Codex CLI quel fournisseur utiliser. Sa valeur doit correspondre à un ID de fournisseur défini sous `[model_providers.<id>]`.
+
+`base_url` est le point de terminaison API vers lequel les requêtes de modèles sont envoyées. Pour un fournisseur compatible OpenAI, il pointe généralement vers un point de terminaison de type `/v1`.
+
+`wire_api` indique à Codex quel format de protocole utiliser pour communiquer avec ce fournisseur. Dans la référence de configuration Codex, `responses` est une valeur de protocole de fournisseur prise en charge.
+
+## Quand cela importe
+
+- Vous configurez un fournisseur personnalisé compatible OpenAI
+- Codex indique que le fournisseur est introuvable ou que les requêtes de modèles échouent
+- Vous ne savez pas en quoi `model_provider` diffère de `model`
+- Vous placez BetterToken, OpenAI ou un autre fournisseur dans un même fichier `config.toml`
+- Vous devez distinguer Base URL, API Key et Model ID
+
+## Relations entre les champs
+
+| Champ | Rôle |
+| --- | --- |
+| `model_provider` | Sélectionne l’ID du fournisseur actif |
+| `[model_providers.<id>]` | Définit la configuration détaillée d’un fournisseur |
+| `name` | Nom d’affichage du fournisseur |
+| `base_url` | Point de terminaison API racine |
+| `wire_api` | Protocole du fournisseur, généralement `responses` |
+| `model` | Model ID principal par défaut |
+| `review_model` | Modèle utilisé par les flux de revue de code tels que `/review` |
+
+## Modèle recommandé
+
+Conservez un ID de fournisseur cohérent :
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+```
+
+Cela signifie que Codex utilise le fournisseur nommé `custom`, envoie les requêtes de modèles à `{{openai-base-url}}` et communique selon le format Responses API.
+
+Ne placez pas l’API Key directement dans `config.toml`. Définissez-la dans le terminal qui lance Codex :
+
+```bash
+export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+Sous Windows PowerShell :
+
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## Vérifier la configuration
+
+1. Vérifiez que `model_provider = "custom"` correspond exactement à `[model_providers.custom]`.
+2. Vérifiez que la Base URL est `{{openai-base-url}}`, y compris `/v1`.
+3. Copiez un Model ID actuel depuis le **fournisseur GPT** dans la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. Quittez complètement Codex et relancez-le depuis un nouveau terminal où la variable d’environnement est définie.
+5. Envoyez une petite tâche d’explication de code et vérifiez que Codex renvoie une réponse complète.
+
+## Dépannage
+
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| Fournisseur introuvable | L’ID du fournisseur et la table de configuration ne correspondent pas | Utilisez `custom` aux deux endroits |
+| API Key absente au démarrage | La variable nommée par `env_key` est indisponible | Définissez `MODEL_PROVIDER_API_KEY`, puis ouvrez un nouveau terminal |
+| `401` ou `403` | API Key invalide ou authentification OpenAI mélangée | Copiez de nouveau la Key et définissez `requires_openai_auth = false` |
+| `404` | La Base URL ne contient pas `/v1` ou pointe vers un point de terminaison Anthropic | Utilisez `{{openai-base-url}}` |
+| Modèle introuvable | La valeur est un nom d’affichage, un modèle retiré ou un modèle non GPT | Copiez un Model ID actuel depuis la model plaza |
+| Erreur de protocole Responses | `wire_api` est absent ou incorrect | Définissez `wire_api = "responses"` |
+
+## Documentation associée
+
+- [Comment configurer config.toml de Codex CLI](/fr/faq/codex/config-toml)
+- [Guide de configuration BetterToken pour Codex](/fr/ai-tools/codex)
+- [Quels sont les modes sandbox et approbation de Codex CLI ?](/fr/faq/codex/sandbox-approval)
+- [API compatible OpenAI et API compatible Anthropic : différences](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## Références
+
+- [Référence de configuration Codex](https://developers.openai.com/codex/config-reference)
+- [Exemple de configuration Codex](https://developers.openai.com/codex/config-sample)
+- [Configuration avancée de Codex](https://developers.openai.com/codex/config-advanced)

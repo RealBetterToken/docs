@@ -1,0 +1,68 @@
+---
+title: "O que são os modos de sandbox e aprovação do Codex CLI?"
+sidebarTitle: "sandbox / approval"
+description: "Entenda o sandbox, os modos de aprovação, a revisão automática e os limites de comandos locais no Codex CLI, além das diferenças em relação ao provedor de API."
+---
+
+## Resposta curta
+
+O sandbox controla quais arquivos o Codex CLI pode acessar, se os comandos podem usar a rede e onde a execução local é permitida. O modo de aprovação controla quais ações exigem confirmação.
+
+Esses são mecanismos locais de segurança, não configurações do provedor de modelos. Mesmo ao rotear solicitações por um gateway de terceiros, o Codex CLI continua controlando o acesso a arquivos e a execução de comandos por meio do sandbox e das aprovações.
+
+Boas configurações de sandbox e aprovação equilibram velocidade e segurança: tarefas rotineiras avançam com menos interrupções, enquanto operações de maior risco continuam exigindo confirmação.
+
+## Quando isso é importante
+
+- O Codex pede confirmação antes de cada comando
+- Você quer executar testes automaticamente sem permitir comandos arriscados
+- Você precisa que o Codex edite arquivos fora do workspace atual
+- Você trabalha em um computador compartilhado, repositório corporativo ou projeto confidencial
+- Você precisa explicar por que a escolha do provedor de API não define as permissões locais
+
+## Conceitos principais
+
+| Conceito | Significado |
+| --- | --- |
+| Sandbox | Limite de acesso ao sistema de arquivos, à rede e aos comandos |
+| Aprovação | Define se determinadas ações precisam da confirmação do usuário |
+| Revisão automática | Mecanismo adicional de revisão para ações arriscadas qualificadas |
+| Workspace | Diretório atual do projeto e limite dos caminhos permitidos |
+| Acesso à rede | Define se o Codex pode executar comandos que acessam serviços externos |
+
+## Prática recomendada
+
+1. Comece com configurações conservadoras em projetos comuns.
+2. Permita gravações apenas no workspace atual.
+3. Deixe testes comuns, formatação e comandos somente de leitura serem executados sem interrupções.
+4. Mantenha a confirmação para excluir arquivos, redefinir o estado do Git, gravar fora do workspace e acessar a rede.
+5. Documente os comandos permitidos e as verificações anteriores ao commit no `AGENTS.md`.
+
+Não conceda permissões amplas apenas para evitar algumas confirmações. A eficiência real vem de tarefas claras, regras de projeto estáveis e pequenas etapas de verificação.
+
+## Erros comuns
+
+- Achar que trocar o provedor de API altera as permissões locais do sandbox.
+- Desativar aprovações enquanto o Codex trabalha em um repositório não confiável.
+- Permitir comandos de rede sem definir quais serviços são aceitáveis.
+- Tratar a redefinição do Git, a exclusão de arquivos e a instalação de dependências como comandos de baixo risco.
+- Concluir sem conferir o diff e os resultados dos testes.
+
+## Sobre a BetterToken
+
+A BetterToken gerencia apenas a camada de solicitações à API de modelos, como API Key, Base URL, roteamento e registros de uso. Ela não altera o sandbox nem o modo de aprovação do Codex CLI.
+
+Se o problema for acesso a arquivos, confirmação de comandos ou permissão de rede, verifique a configuração local do Codex CLI, não o gateway de API.
+
+## Documentos relacionados
+
+- [Guia de configuração do Codex com BetterToken](/pt-br/ai-tools/codex)
+- [Como configurar o config.toml do Codex CLI](/pt-br/faq/codex/config-toml)
+- [O que são model_provider, base_url e wire_api?](/pt-br/faq/codex/model-provider-base-url-wire-api)
+- [O que é o Codex CLI?](/pt-br/faq/codex/what-is-codex-cli)
+
+## Referências
+
+- [Aprovações e segurança do Codex](https://developers.openai.com/codex/agent-approvals-security)
+- [Sandbox do Codex](https://developers.openai.com/codex/concepts/sandboxing)
+- [Revisão automática do sandbox do Codex](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

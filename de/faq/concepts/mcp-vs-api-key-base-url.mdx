@@ -1,0 +1,57 @@
+---
+title: "MCP und API Key/Base URL im Vergleich"
+sidebarTitle: "MCP und API"
+description: "Verstehe den Unterschied zwischen MCP, API Key, Base URL, Modellprotokollen und Tool-Protokollen."
+---
+
+## Kurzantwort
+
+MCP ist ein Protokoll zum Verbinden von KI-Tools mit externen Tools, Datenquellen und Kontext. API Key und Base URL sind Einstellungen für Authentifizierung und Routing von Modell-Requests.
+
+MCP beantwortet: Welche Tools und Daten kann der Agent verwenden? API Key / Base URL beantwortet: Wohin gehen Modell-Requests und wie werden sie authentifiziert?
+
+Die Konfiguration von MCP konfiguriert nicht die Modell-API. Die Konfiguration einer Modell-API gibt dem Tool nicht automatisch Zugriff auf externe Systeme.
+
+## Vergleich
+
+| Element | MCP | API Key / Base URL |
+| --- | --- | --- |
+| Hauptaufgabe | Integration von Tools, Datenquellen und Kontext | Modell-Requests, Authentifizierung, Routing |
+| Gängige Ziele | Lokale Dienste, Datenbanken, Dateien, Browser, Geschäftssysteme | OpenAI-kompatible oder Anthropic-kompatible Endpunkte |
+| Hauptrisiko | Tool-Berechtigungen, Datenzugriff, Nebenwirkungen | Secret-Leakage, Protokollkonflikt, Modellkosten |
+| Bestimmt das Modell | Nein | In der Regel ja |
+
+## Wenn sie verwechselt werden
+
+- Sie denken, MCP ändere das Modell.
+- Sie denken, dass das Ändern der Base URL lokale Tools verbindet.
+- Sie behandeln einen MCP-Server als Modell-Provider.
+- Sie legen einen Modell-API-Key in die MCP-Konfiguration.
+- Sie wissen nicht, ob ein Tool eine OpenAI-kompatible oder Anthropic-kompatible API erwartet.
+
+## Entscheidung treffen
+
+Wenn ein Agent auf eine Datenbank, einen Browser, ein Dateisystem, ein internes System oder ein zusätzliches Tool zugreifen soll, betrachte MCP.
+
+Wenn du Modell, Gateway, Abrechnungskonto oder Provider wechseln möchtest, betrachte API Key, Base URL und Protokoll.
+
+Wenn ein Workflow sowohl einen Modellwechsel als auch externe Tools benötigt, konfiguriere beide Ebenen und prüfe Berechtigungen getrennt.
+
+## Über BetterToken
+
+BetterToken ist die Modell-API-Schicht und kein MCP-Server. Es verarbeitet API Key, Base URL, Modellrouting und Nutzungsaufzeichnungen.
+
+Du kannst BetterToken und MCP zusammen verwenden: BetterToken verarbeitet Modell-Requests, während MCP Tool- und Kontexterweiterungen verarbeitet.
+
+## Verwandte Dokumentation
+
+- [OpenAI-kompatible API und Anthropic-kompatible API: Unterschiede](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP in Claude Desktop konfigurieren](/de/faq/claude-desktop/mcp)
+- [MCP in Cursor konfigurieren](/de/faq/cursor/mcp)
+- [Claude-Code-Berechtigungen und Hooks](/de/faq/claude-code/permissions-and-hooks)
+
+## Referenzen
+
+- [Claude-Code-MCP-Dokumentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Einführung in das Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [Anthropic-MCP-Überblick](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)

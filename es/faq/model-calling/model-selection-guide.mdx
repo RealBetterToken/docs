@@ -1,0 +1,80 @@
+---
+title: "¿Cómo elijo el modelo de IA adecuado?"
+sidebarTitle: "Elegir un modelo"
+description: "Aprende a elegir un modelo de IA según el protocolo, proveedor, tipo de tarea, calidad, velocidad, longitud de contexto y coste."
+---
+
+## Respuesta breve
+
+No elijas solo por el nombre del modelo. Confirma primero qué protocolo y proveedor necesita la herramienta. Después, compara el tipo de tarea, la calidad, la velocidad, la longitud de contexto y el coste.
+
+Si usas BetterToken, Claude Code normalmente debe usar el **proveedor Claude**. Codex CLI, Cursor, Cline, OpenCode, OpenClaw y otras herramientas externas normalmente deben usar el **proveedor GPT**. Copia el Model ID desde el <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Cuándo necesitas esta información
+
+- No sabes si usar el **proveedor Claude** o el **proveedor GPT**
+- Alternas entre Claude Code, Codex CLI, Cursor, Cline u otras herramientas similares
+- Un modelo funciona, pero es demasiado caro, lento o tiene poco contexto
+- Quieres un modelo más económico para tareas por lotes
+- Quieres conectar el mismo API gateway a varias herramientas de programación con IA
+
+## Empieza por la herramienta y después elige el modelo
+
+El primer paso no es comparar clasificaciones de modelos, sino comprobar qué protocolo espera el cliente.
+
+| Caso de uso | Proveedor recomendado | Base URL habitual |
+| --- | --- | --- |
+| Claude Code | Proveedor Claude | `{{anthropic-base-url}}` |
+| Claude Desktop Gateway | Proveedor Claude o el grupo que requiera el gateway local | Sigue la configuración del gateway |
+| Codex CLI | Proveedor GPT | `{{openai-base-url}}` |
+| Cursor | Proveedor GPT | `{{openai-base-url}}` |
+| Cline | Proveedor GPT | `{{openai-base-url}}` |
+| OpenCode / OpenClaw | Proveedor GPT | `{{openai-base-url}}` |
+
+Si el protocolo o el proveedor no son correctos, el modelo puede existir, pero la solicitud podría fallar con `model not found`, errores de autenticación o un formato de solicitud no válido.
+
+## Elegir según el tipo de tarea
+
+| Tipo de tarea | Prioriza |
+| --- | --- |
+| Programación compleja, arquitectura y tareas largas | Calidad de razonamiento, ventana de contexto y estabilidad de las llamadas a herramientas |
+| Preguntas diarias y generación ligera | Velocidad y coste |
+| Traducción, clasificación y resúmenes por lotes | Precio unitario, rendimiento y estabilidad |
+| Revisión de código y documentación técnica | Comprensión del código, contexto largo y salida estable |
+| Tareas exploratorias | Empieza con un modelo de coste medio y cambia a uno más avanzado en los pasos críticos |
+
+No envíes todas las tareas al modelo más caro de forma predeterminada. Muchas tareas por lotes no necesitan un razonamiento profundo ni mucha creatividad. Los modelos más rápidos y económicos suelen ser más adecuados.
+
+## Flujo recomendado
+
+1. Confirma si la herramienta admite una API compatible con OpenAI o con Anthropic.
+2. Elige el **proveedor Claude** o el **proveedor GPT** según la herramienta.
+3. Copia el Model ID vigente desde el <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. Prueba la calidad, velocidad y coste con una tarea pequeña.
+5. Revisa el uso en el panel antes de usar ese modelo a largo plazo.
+6. Mantén un modelo alternativo más avanzado para tareas complejas en lugar de configurar uno solo.
+
+## Errores comunes
+
+- Fijarse solo en el nombre visible sin confirmar el Model ID.
+- Usar un modelo del **proveedor Claude** en una herramienta GPT o compatible con OpenAI.
+- Usar un modelo del **proveedor GPT** en una configuración de Claude Code compatible con Anthropic.
+- Suponer que el modelo más reciente siempre es el mejor para todas las tareas.
+- Comparar solo la calidad de salida e ignorar la longitud de contexto, velocidad y coste.
+- Mover tráfico de producción a un modelo nuevo sin hacer primero una prueba pequeña.
+
+## Acerca de BetterToken
+
+BetterToken te permite gestionar API Keys, saldo y registros de uso en un solo lugar. Puedes administrar las llamadas a modelos desde el mismo panel, pero cada herramienta necesita el protocolo y el proveedor que admite.
+
+Regla rápida:
+
+- Claude Code usa el **proveedor Claude** y `{{anthropic-base-url}}`
+- Codex CLI, Cursor, Cline, OpenCode y OpenClaw usan el **proveedor GPT** y `{{openai-base-url}}`
+
+## Documentación relacionada
+
+- [¿Cuál es la diferencia entre una API compatible con OpenAI y una compatible con Anthropic?](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [¿Cómo debo configurar el Base URL?](/es/faq/model-calling/base-url-config)
+- [¿Por qué un modelo no conoce su propia versión?](/es/faq/model-calling/model-version-identity)
+- [¿Por qué Claude Code usa tantos tokens?](/es/faq/token-cost/claude-code-token-usage)

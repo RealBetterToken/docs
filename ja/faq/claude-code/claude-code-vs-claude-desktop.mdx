@@ -1,0 +1,66 @@
+---
+title: "Claude Code と Claude Desktop の違い"
+sidebarTitle: "Code と Desktop の違い"
+description: "コーディングワークフロー、ローカルファイルアクセス、MCP、Gateway 設定、API プロバイダー設定の観点から Claude Code と Claude Desktop を比較します。"
+---
+
+## 短い答え
+
+Claude Code はコードベースの作業向けコーディングエージェントです。プロジェクトの読み取り、ファイル編集、コマンド実行、結果の検証を中心に設計されています。
+
+Claude Desktop は Claude 用のデスクトップアプリです。会話、デスクトップ拡張機能、ローカル MCP サーバー、Cowork や Code 機能などの一部デスクトップワークフローのグラフィカルな入口です。
+
+一部の機能を共有する場合がありますが、同じ製品画面ではありません。設定、権限モデル、MCP の動作、Gateway 設定は異なる場合があります。
+
+## この情報が役立つ場面
+
+- Claude Code CLI と Claude Desktop から選ぶとき
+- Claude にリポジトリを変更させたいとき
+- Claude Desktop の Gateway または MCP を設定するとき
+- ターミナル、IDE、デスクトップアプリ、Web で Claude Code を使用するとき
+- デスクトップと CLI の動作差をデバッグするとき
+
+## 主な概念
+
+| 項目 | Claude Code | Claude Desktop |
+| --- | --- | --- |
+| 主な役割 | コーディングエージェント | デスクトップアプリ |
+| 一般的な入口 | ターミナル、IDE、デスクトップ、Web | macOS または Windows のデスクトップアプリ |
+| コードベース作業 | ファイル読み取り、編集、コマンド実行向けに設計 | Desktop 機能、拡張機能、Cowork、Code モードに依存 |
+| 設定の中心 | プロジェクトディレクトリ、権限、`CLAUDE.md`、API プロバイダー | ログイン、デスクトップ拡張機能、MCP、Gateway |
+| 適した用途 | コード変更、テスト、レビュー、自動化 | 会話、デスクトップコネクター、視覚的ワークフロー |
+
+## 推奨する選び方
+
+エージェントにコードベース内で直接作業させたい場合は、Claude Code を使用します。プロジェクトディレクトリ、ファイル変更、コマンド、検証を中心としたワークフローです。
+
+グラフィカルな Claude アプリ、デスクトップ拡張機能、ローカル MCP サーバー、Desktop 固有のワークフローが必要な場合は、Claude Desktop を使用します。Desktop 内で Code または Cowork を使用する場合も、組み込みの Claude Code 動作か、別の Claude Code CLI 設定かを確認してください。
+
+サードパーティ API では、現在使用している画面がサポートするプロトコルに従ってください。このドキュメントでは、Claude Code は `{{anthropic-base-url}}` を使用します。Anthropic 互換 Gateway 項目に OpenAI 互換の `{{openai-base-url}}` を直接入力しないでください。
+
+## よくある間違い
+
+- Claude Desktop が Claude Code CLI を自動でインストールまたは置き換えると考えること。
+- Desktop の MCP 設定を Claude Code にコピーする、またはその逆を行うこと。
+- Claude.ai サブスクリプションを API Key として扱うこと。
+- Anthropic 互換トラフィックを想定した Claude Desktop Gateway 項目に OpenAI 互換 Base URL を使用すること。
+- Desktop 機能が Claude Code の権限、フック、コマンドポリシーを置き換えると考えること。
+
+## BetterToken について
+
+BetterToken はモデル API レイヤーの一部です。ツールがカスタム API Key と Base URL をサポートする箇所で、互換エンドポイントを提供できます。
+
+BetterToken は Claude Code と Claude Desktop を 1 つの設定に統合するものではありません。使用する画面のプロトコル、Gateway、MCP、権限モデルに引き続き従う必要があります。
+
+## 関連ドキュメント
+
+- [Claude Code とは？どのように動作しますか？](/ja/faq/claude-code/what-is-claude-code)
+- [Claude Code は Claude.ai アカウントと API Key のどちらを使用しますか？](/ja/faq/claude-code/claude-account-or-api-key)
+- [Claude Desktop はサードパーティモデルを使用できますか？](/ja/faq/claude-desktop/third-party-models)
+- [Claude Desktop API 設定ガイド](/ja/faq/claude-desktop-bettertoken-api)
+
+## 参照
+
+- [Claude Code の概要](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Desktop のインストール](https://support.anthropic.com/en/articles/10065433-installing-claude-for-desktop)
+- [Claude Code の認証](https://docs.anthropic.com/en/docs/claude-code/iam)

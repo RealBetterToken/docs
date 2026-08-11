@@ -1,0 +1,126 @@
+---
+title: "Codex가 API mode에서 GPT-5.5를 사용할 수 없는 이유"
+sidebarTitle: "Codex API mode에서 GPT-5.5 사용"
+description: "local model catalog로 Codex custom API mode에서 GPT-5.5를 임시로 enable하세요."
+---
+
+2026년 4월 24일 기준 일부 Codex versions에서는 custom API provider를 사용할 때 `gpt-5.5`를 직접 선택하지 못할 수 있습니다. 이는 Codex의 local model catalog limitation입니다. BetterToken `{{openai-base-url}}` endpoint를 사용할 수 없다는 뜻은 아닙니다.
+
+local `custom-models.json` file을 추가하여 Codex가 `gpt-5.5`를 인식하게 한 다음 `~/.codex/config.toml`에서 이를 reference할 수 있습니다. 이후 Codex version이 `gpt-5.5`를 native로 지원한다면 built-in Codex setup을 우선하세요.
+
+<Note>
+  이 페이지에서 제공하는 전체 `custom-models.json`을 사용하세요. file을 수동 편집한다면 existing model entries와 fields를 유지하고 필요한 model configuration만 변경하세요.
+</Note>
+
+## 설정 단계
+
+<Steps>
+  <Step title="custom model config file 준비">
+    custom model config path는 `~/.codex/custom-models.json`입니다.
+
+    <Tabs>
+      <Tab title="JSON file 다운로드">
+        전체 model catalog를 다운로드하세요.
+
+        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">custom-models.json 다운로드</a>
+
+        downloaded file을 Codex config directory에 두고 `custom-models.json`으로 이름을 지정하세요.
+
+        | System | Target path |
+        |--------|-------------|
+        | macOS / Linux | `~/.codex/custom-models.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+
+        downloaded file은 전체 model catalog입니다. 다음 단계에서 Codex config로 이를 reference합니다.
+      </Tab>
+
+      <Tab title="JSON 수동 편집">
+        이미 `~/.codex/custom-models.json`이 있다면 existing file을 편집하세요. `gpt-5.5` entry 하나만 유지하지 마세요.
+
+        수동 편집 시 `models` array에 `gpt-5.5` entry가 포함되는지 확인하고 다른 model configs를 유지하세요. JSON에 익숙하지 않다면 download option을 사용하세요.
+
+        `gpt-5.5` entry에는 다음과 유사한 key fields가 포함되어야 합니다.
+
+        ```json
+        {
+          "slug": "gpt-5.5",
+          "display_name": "gpt-5.5",
+          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+          "base_instructions": "...",
+          "model_messages": {
+            "instructions_template": "...",
+            "instructions_variables": {
+              "personality_default": "",
+              "personality_friendly": "...",
+              "personality_pragmatic": "..."
+            }
+          },
+          "supports_reasoning_summaries": true,
+          "support_verbosity": true,
+          "context_window": 272000
+        }
+        ```
+
+        <Note>
+          위 code block은 단일 model entry의 key structure만 보여 줍니다. downloaded file 또는 existing complete model catalog를 source of truth로 사용하세요.
+        </Note>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Codex config에서 JSON file reference">
+    Codex config file `~/.codex/config.toml`을 연 다음 다음 config를 add 또는 merge하세요.
+
+    macOS / Linux 예시:
+
+    ```toml
+    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    Windows 예시:
+
+    ```toml
+    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
+    ```
+
+    `model_catalog_json`은 local absolute path여야 합니다. Windows의 TOML double-quoted strings에서는 `\`를 `\\`로 작성하세요.
+  </Step>
+
+  <Step title="Codex 다시 시작">
+    config file을 변경한 후 current Codex process를 중지하고 새 terminal session에서 시작하세요.
+
+    ```bash
+    codex
+    ```
+  </Step>
+</Steps>
+
+## 문제 해결
+
+`gpt-5.5`가 여전히 작동하지 않는다면 다음 items를 순서대로 확인하세요.
+
+1. `model_catalog_json`이 local absolute path를 사용함
+2. `custom-models.json`이 complete model catalog를 유지함
+3. `base_url`이 `{{openai-base-url}}`임
+4. `wire_api`가 `responses`임
+5. `model_provider`가 `[model_providers.{{codex-provider-id}}]`의 provider id와 일치함
+
+Codex version이 이미 `gpt-5.5`를 native로 지원한다면 `model_catalog_json`을 제거하고 일반 [Codex 설정 가이드](/ko/ai-tools/codex)로 돌아가세요.

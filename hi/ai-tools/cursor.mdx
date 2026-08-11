@@ -1,0 +1,203 @@
+---
+title: "Cursor सेटअप: installation, API Key, Base URL और custom मॉडल"
+sidebarTitle: "Cursor"
+description: "Cursor इंस्टॉल करें, BetterToken Base URL और API Key सेट करें, compatible प्रदाता मॉडल चुनें और सामान्य त्रुटियां हल करें।"
+icon: "arrow-pointer"
+---
+
+Cursor को BetterToken से कनेक्ट करने के लिए API Key तैयार करें, नीचे दिया Base URL दर्ज करें और मॉडल प्लाज़ा से मौजूदा Model ID चुनें।
+
+## मुख्य सेटिंग
+
+| Field | मान |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> का मौजूदा Model ID |
+
+## आवश्यकताएं
+
+- टूल का मौजूदा version इंस्टॉल हो
+- BetterToken API Key: <a href={"{{register-url}}"}>रजिस्टर करके प्राप्त करें</a>
+- <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> का Model ID
+
+### अतिरिक्त आवश्यकता
+
+- Cursor इंस्टॉल हो ([Cursor डाउनलोड करें](https://www.cursor.com))
+
+## इंस्टॉल करें
+
+[Cursor वेबसाइट](https://www.cursor.com) से मौजूदा version डाउनलोड और इंस्टॉल करें। Custom मॉडल का समर्थन करने वाले Cursor अकाउंट से sign in करें, फिर नीचे के चरण पूरे करें।
+
+<Warning>
+  Cursor केवल paid advanced tier या उससे ऊपर के उपयोगकर्ताओं को custom मॉडल सेट करने देता है। अकाउंट या client version में custom मॉडल, API Key या Base URL विकल्प न दिखें तो पहले Cursor plan और client version जांचें।
+</Warning>
+
+<Warning>
+  **ज्ञात समस्या:** **Override OpenAI Base URL** एक global setting है। चालू होने पर यह Cursor में सेट सभी API Key को प्रभावित करती है, जिनमें Cursor के built-in मॉडल के Anthropic और GPT Key शामिल हैं। Cursor official community ने पुष्टि की है कि Base URL सेट करने से सभी API Key और मॉडल प्रभावित होते हैं ([community thread](https://forum.cursor.com/t/cursor-models-fail-when-using-byok-openai-key-with-overridden-base-url-glm-4-7/147218))।
+
+  **Override OpenAI Base URL** चालू करने के बाद Cursor के built-in Claude / GPT मॉडल काम न करें तो BetterToken उपयोग न करते समय इसे बंद करें। Cursor अभी हर मॉडल के लिए अलग Base URL का समर्थन नहीं करता; यह सुविधा अभी feature request है ([feature request](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219))।
+</Warning>
+
+## मैन्युअल सेटअप
+
+Cursor settings UI में यह सेटअप पूरा करें। Configuration file संपादित करने की जरूरत नहीं है।
+
+| Cursor Field | मान |
+| --- | --- |
+| **Override OpenAI Base URL** | चालू करें |
+| **Base URL** | `{{openai-base-url}}` |
+| **OpenAI API Key** | BetterToken API Key दर्ज करें |
+| Custom मॉडल | समर्थित प्रदाता का पूरा Model ID |
+
+### सेटअप चरण
+
+<Steps>
+  <Step title="मॉडल settings पेज खोलें">
+    Cursor में नीचे बाईं ओर **Settings** क्लिक करें, फिर **Models** खोलें। **API Keys** तक नीचे scroll करें।
+
+    <Frame>
+      <img
+        src="/images/cursor/settings-api-key.png"
+        alt="Cursor settings पेज, जिसमें Settings, Models, API Keys, OpenAI API Key और Override OpenAI Base URL Field दिखाई दे रहे हैं।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Base URL और API Key दर्ज करें">
+    **API Keys** में इस क्रम से Field सेट करें:
+
+    1. **Override OpenAI Base URL** चालू करें।
+    2. Base URL Field में `{{openai-base-url}}` दर्ज करें।
+    3. BetterToken API Key को **OpenAI API Key** में paste करें।
+    4. URL और Key भरने के बाद **OpenAI API Key** toggle चालू करें।
+
+    Toggle चालू करने से पहले Key दर्ज करें। इससे Cursor authentication confirmation dialog दिखाता है।
+  </Step>
+
+  <Step title="OpenAI API Key चालू करें">
+    Confirmation dialog में **Enable OpenAI API Key** पर क्लिक करें।
+
+    <Frame>
+      <img
+        src="/images/cursor/enable-openai-api-key.png"
+        alt="Cursor confirmation dialog, जो अपना OpenAI API Key चालू करने के लिए कहता है।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="मॉडल सूची refresh करें और मॉडल चालू करें">
+    **Models** में लौटकर मॉडल चुनने से पहले दाईं ओर refresh बटन क्लिक करें। मॉडल सूची का refresh पूरा होने तक प्रतीक्षा करें।
+
+    केवल सेट किए गए Endpoint द्वारा समर्थित प्रदाता के मॉडल चुनें। BetterToken API Key उपयोग करते समय मॉडल प्लाज़ा के **समर्थित प्रदाता** से Model ID चुनें, फिर उस मॉडल का toggle चालू करें।
+
+    <Frame>
+      <img
+        src="/images/cursor/models-refresh-select.png"
+        alt="Cursor Models सेक्शन, जिसमें refresh बटन और मॉडल toggle दिखाई दे रहे हैं।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Chat पर लौटें और Auto बंद करें">
+    सेटअप के बाद Cursor chat screen पर लौटें और input box के नीचे मॉडल picker खोलें। **Auto** चालू हो तो पहले **Auto** बंद करें।
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-disable-auto.png"
+        alt="Cursor chat मॉडल picker, जिसमें बंद किया जाने वाला Auto toggle दिखाई दे रहा है।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="मॉडल चुनें और chat शुरू करें">
+    चालू किए गए समर्थित प्रदाता का मॉडल चुनें, फिर chat शुरू करें।
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-select-model.png"
+        alt="Cursor chat input, जिसमें मॉडल picker से चालू मॉडल चुना गया है।"
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## कनेक्शन सत्यापित करें
+
+छोटा test Prompt भेजें। Authentication या Model ID त्रुटि के बिना Response मिले तो कनेक्शन काम करता है। Configuration बदलने के बाद टूल को पूरी तरह restart करें।
+
+## मॉडल बदलें
+
+मॉडल selector खोलें या configuration में `Model` Field बदलें। <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> का exact Model ID उपयोग करें, फिर मौजूदा session restart करें।
+
+## सामान्य त्रुटियां
+
+### Custom API और API Key त्रुटियां
+
+मॉडल या Key बदलने से पहले अपनी सेटिंग की [Cursor custom OpenAI API सेटिंग](/hi/faq/cursor/custom-openai-api) से तुलना करें।
+
+### Cursor में Custom API, API Key या Base URL Field नहीं दिखते
+
+Cursor plan और client version जांचें। Custom मॉडल केवल समर्थित paid tier में उपलब्ध हैं। Cursor अपडेट करने के बाद **Settings** → **Models** फिर खोलें।
+
+### API Key चालू या सत्यापित नहीं होता
+
+Base URL `{{openai-base-url}}` और API Key दर्ज करने के बाद **OpenAI API Key** toggle चालू करें। Base URL में `/chat/completions` न जोड़ें और Claude प्रदाता Key उपयोग न करें।
+
+### Refresh के बाद मॉडल नहीं दिखता
+
+पुष्टि करें कि चुना गया Model ID **समर्थित प्रदाता** का है, refresh पूरा होने की प्रतीक्षा करें और केवल उसी प्रदाता का मॉडल चालू करें। मॉडल प्लाज़ा में हमेशा मौजूदा ID दिखते हैं।
+
+### Cursor built-in मॉडल काम करना बंद कर दें
+
+**Override OpenAI Base URL** global है। BetterToken उपयोग न करते समय यह toggle बंद करें ताकि Cursor फिर अपना Base URL उपयोग कर सके।
+
+### Chat अलग मॉडल चुनता है
+
+मॉडल picker खोलकर **Auto** बंद करें। फिर चालू किया गया मॉडल manually चुनें।
+
+### संबंधित FAQ
+
+- [Cursor custom OpenAI API सेटिंग](/hi/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md और .cursorignore](/hi/faq/cursor/rules-agents-cursorignore)
+- [Cursor में MCP कैसे सेट करें](/hi/faq/cursor/mcp)
+- [Local development में Claude Code और Cursor की तुलना](/hi/faq/claude-code/claude-code-vs-cursor)
+- [Codex CLI में custom प्रदाता सेट करें](/hi/ai-tools/codex)
+- [Cline में OpenAI-compatible API सेट करें](/hi/ai-tools/cline)
+- [OpenAI-compatible API और Anthropic-compatible API की तुलना](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+## तकनीकी विवरण
+
+<Accordion title="Protocol, Endpoint और internal प्रदाता Field">
+  यह सेटअप `{{openai-base-url}}` उपयोग करता है। टूल OpenAI-compatible Endpoint path जोड़ता है। कोई specific Field स्पष्ट रूप से न मांगे तो `/chat/completions` या `/responses` न जोड़ें।
+
+### नोट
+
+- Codex / OpenAI-compatible flow में Claude प्रदाता Model ID उपयोग न करें
+- Hardcoded Claude मॉडल नाम उपयोग न करें; <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से समर्थित प्रदाता का मौजूदा Model ID उपयोग करें
+</Accordion>

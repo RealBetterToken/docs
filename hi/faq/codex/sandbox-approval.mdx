@@ -1,0 +1,68 @@
+---
+title: "Codex CLI sandbox और approval modes क्या हैं?"
+sidebarTitle: "sandbox / approval"
+description: "Codex CLI sandboxing, approval modes, automatic review और local command boundaries समझें, तथा जानें कि वे API provider settings से कैसे अलग हैं।"
+---
+
+## संक्षिप्त उत्तर
+
+Sandbox नियंत्रित करता है कि Codex CLI किन files को access कर सकता है, commands network उपयोग कर सकते हैं या नहीं और local execution कहां allowed है। Approval mode नियंत्रित करता है कि किन actions के लिए confirmation चाहिए।
+
+ये local safety mechanisms हैं, model provider settings नहीं। model requests को third-party API gateway से route करने पर भी Codex CLI, sandbox और approval settings से file access और command execution नियंत्रित करता है।
+
+अच्छी sandbox और approval settings speed व safety में संतुलन रखती हैं: routine work कम interruptions के साथ हो सकता है, जबकि अधिक जोखिम वाले operations के लिए confirmation रहता है।
+
+## यह कब महत्वपूर्ण है
+
+- Codex हर command से पहले confirmation मांगता है
+- आप risky commands की अनुमति दिए बिना tests को automatically चलाना चाहते हैं
+- आपको Codex से current workspace के बाहर की files edit करानी हैं
+- आप shared machine, company repository या sensitive project पर काम करते हैं
+- आपको समझाना है कि API provider choice, local permissions के समान क्यों नहीं है
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Sandbox | filesystem, network और command access boundary |
+| Approval | कुछ actions को user confirmation चाहिए या नहीं |
+| Auto review | eligible risky actions के लिए अतिरिक्त review mechanism |
+| Workspace | current project directory और allowed path boundary |
+| Network access | Codex external services तक पहुंचने वाले commands चला सकता है या नहीं |
+
+## अनुशंसित तरीका
+
+1. सामान्य projects में conservative settings से शुरू करें।
+2. केवल current workspace में writes की अनुमति दें।
+3. common tests, formatting और read-only commands को सुचारु रूप से चलने दें।
+4. files delete करने, Git state reset करने, workspace के बाहर लिखने और network access के लिए confirmation रखें।
+5. allowed commands और pre-commit checks को `AGENTS.md` में लिखें।
+
+केवल कुछ prompts से बचने के लिए broad permissions उपयोग न करें। वास्तविक efficiency स्पष्ट tasks, स्थिर project rules और छोटे verification steps से आती है।
+
+## सामान्य गलतियां
+
+- सोचना कि API provider switch local sandbox permissions बदलता है।
+- Codex को untrusted repository पर चलाने देते समय approvals बंद करना।
+- कौन-सी services स्वीकार्य हैं यह तय किए बिना network commands allow करना।
+- Git reset, file deletion और dependency installation को low-risk commands मानना।
+- diff और test results जांचे बिना समाप्त करना।
+
+## BetterToken के बारे में
+
+BetterToken केवल model API request layer, जैसे API Key, Base URL, model routing और usage records, संभालता है। यह Codex CLI sandbox या approval mode नहीं बदलता।
+
+यदि आपकी समस्या file access, command confirmation या network permission है, तो API gateway के बजाय local Codex CLI configuration जांचें।
+
+## संबंधित दस्तावेज
+
+- [Codex BetterToken सेटअप गाइड](/hi/ai-tools/codex)
+- [Codex CLI config.toml कैसे कॉन्फ़िगर करें](/hi/faq/codex/config-toml)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI क्या है?](/hi/faq/codex/what-is-codex-cli)
+
+## संदर्भ
+
+- [Codex approvals और security](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex sandboxing](https://developers.openai.com/codex/concepts/sandboxing)
+- [Codex sandboxing auto review](https://developers.openai.com/codex/concepts/sandboxing/auto-review)

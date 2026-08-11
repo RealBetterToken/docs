@@ -1,0 +1,190 @@
+---
+title: "Configurer Claude Code : modèles Claude, API Key et Base URL"
+sidebarTitle: "Claude Code"
+description: "Installez Claude Code, configurez une BetterToken API Key et une Base URL par la ligne de commande ou le fichier de paramètres, puis associez les modèles Kimi ou GLM."
+icon: "terminal"
+---
+
+Les modèles Claude se connectent directement à l’aide de variables de terminal ou d’un fichier de paramètres. Kimi et GLM utilisent la même Base URL avec des associations de modèles explicites. GPT nécessite une [configuration avancée](#advanced-setup).
+
+## Paramètres principaux
+
+| Champ | Valeur |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{anthropic-base-url}}` |
+| Modèle | Géré par Claude Code |
+
+## Prérequis
+
+- Installez la dernière version de [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+- Installez Node.js
+- <a href={"{{register-url}}"}>Créez et copiez une BetterToken API Key</a>
+
+## Installation
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+## Configuration par la ligne de commande
+
+Le script de configuration automatique BetterToken écrit la configuration du fournisseur Claude Code. Il nécessite Node.js et demande l’API Key si elle n’est pas transmise en argument.
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-claudecode-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-claudecode-provider-ps1-url}}" -OutFile "$env:TEMP\install-claudecode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-claudecode-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+Une fois le script terminé, vérifiez `~/.claude/settings.json` (ou `%USERPROFILE%\.claude\settings.json` sous Windows), puis redémarrez complètement Claude Code. Utilisez la configuration manuelle ci-dessous pour contrôler chaque champ.
+
+## Configuration manuelle
+
+### Configurer le fournisseur Claude
+
+Claude Code CLI lit le fichier suivant :
+
+| Système | Fichier |
+| --- | --- |
+| macOS / Linux | `~/.claude/settings.json` |
+| Windows | `%USERPROFILE%\.claude\settings.json` |
+
+Ajoutez :
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+Le fournisseur Claude nécessite uniquement ces quatre variables. N’ajoutez ni `ANTHROPIC_MODEL` ni `ANTHROPIC_DEFAULT_*_MODEL`.
+
+### Configurer un fournisseur Kimi ou GLM
+
+Kimi et GLM nécessitent des associations de modèles dans le même fichier `settings.json`. Remplacez chaque `YOUR_MODEL_ID` par un Model ID provenant de la boîte de dialogue Setup ou du model plaza :
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
+  }
+}
+```
+
+Les trois associations peuvent utiliser un seul Model ID ou différents modèles du même fournisseur. Ne placez pas de Model ID GPT ici ; utilisez la configuration avancée à la fin de cette page.
+
+### Configurer l’extension Claude Code pour VS Code
+
+L’extension utilise le fichier VS Code `settings.json`. Ajoutez une configuration `claudeCode.environmentVariables` distincte :
+
+```json
+{
+  "claudeCode.environmentVariables": [
+    {
+      "name": "ANTHROPIC_BASE_URL",
+      "value": "{{anthropic-base-url}}"
+    },
+    {
+      "name": "ANTHROPIC_AUTH_TOKEN",
+      "value": "YOUR_API_KEY"
+    },
+    {
+      "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+      "value": "1"
+    },
+    {
+      "name": "API_TIMEOUT_MS",
+      "value": "3000000"
+    }
+  ]
+}
+```
+
+Exécutez **Developer: Reload Window** ou redémarrez complètement VS Code.
+
+## Vérifier la connexion
+
+Lancez Claude Code dans votre projet :
+
+```bash
+claude
+```
+
+Envoyez un court message. Une réponse normale sans erreur `401`, de connexion ou de modèle confirme la configuration. Redémarrez complètement Claude Code après avoir modifié le fichier.
+
+## Changer de modèle
+
+- Fournisseur Claude : laissez Claude Code gérer la sélection du modèle. N’ajoutez ni `ANTHROPIC_MODEL` ni `ANTHROPIC_DEFAULT_*_MODEL`.
+- Fournisseur Kimi ou GLM : modifiez `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` et `ANTHROPIC_DEFAULT_OPUS_MODEL`, puis redémarrez complètement Claude Code.
+- Fournisseur GPT : suivez la [configuration avancée](#advanced-setup) ci-dessous pour changer de modèle.
+
+## Erreurs fréquentes
+
+| Erreur | Solution |
+| --- | --- |
+| `401` ou échec de l’authentification | Vérifiez `ANTHROPIC_AUTH_TOKEN` et supprimez les espaces autour de l’API Key. |
+| `ConnectionRefused` | Utilisez exactement `{{anthropic-base-url}}` ; n’ajoutez pas `/v1`. |
+| Modèle introuvable | Ne définissez pas manuellement de modèle pour Claude. Pour Kimi ou GLM, vérifiez que les trois valeurs `ANTHROPIC_DEFAULT_*_MODEL` utilisent des Model ID actuels. |
+| Configuration non appliquée | Vérifiez le chemin du fichier, supprimez les variables d’environnement conflictuelles et redémarrez complètement Claude Code. |
+
+## Configuration avancée
+
+{/* tool-provider-support:start */}
+### Fournisseurs compatibles
+
+| Fournisseur | État |
+| --- | --- |
+| Claude | Ligne de commande et configuration manuelle |
+| GPT | Configuration avancée |
+| Kimi | Configuration manuelle |
+| GLM | Configuration manuelle |
+
+<Note>Les états concernent la méthode de configuration de BetterToken décrite sur cette page.</Note>
+
+<Accordion title="Signification des méthodes de configuration">
+  - **Configuration avancée** : installez CC Switch et utilisez un proxy local, une conversion de protocole ou un mappage de modèles.
+  - **Configuration manuelle** : saisissez l’API Key, la Base URL et le Model.
+  - **Configuration en ligne de commande et manuelle** : utilisez une commande générée ou suivez toutes les étapes manuelles.
+</Accordion>
+{/* tool-provider-support:end */}
+
+Pour utiliser GPT dans Claude Code, configurez-le avec [CC Switch et BetterToken](/fr/ai-tools/cc-switch#claude-code). Dans l’onglet Claude Code, saisissez l’API Key, la Base URL et le Model Mapping, puis activez le proxy.
+
+### Questions associées
+
+- [Qu’est-ce que Claude Code et comment fonctionne-t-il ?](/fr/faq/claude-code/what-is-claude-code)
+- [Claude Code utilise-t-il un compte Claude.ai ou une API Key ?](/fr/faq/claude-code/claude-account-or-api-key)
+- [Configurer l’API Key et la Base URL dans Claude Code](/fr/faq/claude-code/api-key-base-url)
+- [API compatible avec OpenAI ou API compatible avec Anthropic](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Qu’est-ce que CLAUDE.md dans Claude Code ?](/fr/faq/claude-code/claude-md)
+- [Pourquoi Claude Code utilise autant de Token et comment réduire le coût](/fr/faq/token-cost/claude-code-token-usage)
+- [Claude Code ou Cursor pour le développement local](/fr/faq/claude-code/claude-code-vs-cursor)
+- [Claude Code ou Codex CLI](/fr/faq/concepts/claude-code-vs-codex-cli)
+- [Passer de Sonnet à Opus dans Claude Code](/fr/faq/claude-code/switch-sonnet-opus)
+- [Permissions et hooks de Claude Code](/fr/faq/claude-code/permissions-and-hooks)
+- [MCP ou API Key et Base URL](/fr/faq/concepts/mcp-vs-api-key-base-url)
+
+## Détails techniques
+
+<Accordion title="Protocole et endpoint">
+  Claude Code utilise Anthropic Messages. Définissez `ANTHROPIC_BASE_URL` sur `{{anthropic-base-url}}` ; le client ajoute `/v1/messages`, vous ne devez donc pas ajouter `/v1` à la Base URL.
+</Accordion>

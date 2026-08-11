@@ -1,0 +1,74 @@
+---
+title: "O BetterToken oferece cobrança com cache?"
+sidebarTitle: "Cobrança com cache"
+description: "Entenda o cache de prompt, os campos de acerto de cache, as diferenças entre protocolos e como verificar se uma requisição usou tokens em cache."
+---
+
+## Resposta curta
+
+O desconto de cache em uma requisição depende do modelo upstream, do protocolo da API e do formato da requisição. O BetterToken registra e exibe o uso com base nas informações retornadas pelo modelo upstream.
+
+Se o modelo upstream oferece cache de prompt e retorna campos de cache na resposta, você pode verificar os tokens em cache nos dados de uso da resposta ou nos registros de chamadas. O comportamento do cache varia entre os modelos. Não suponha que todos os modelos recebam automaticamente um desconto de cache.
+
+## O que significa cobrança com cache
+
+O cache de prompt permite que um modelo upstream reutilize um prefixo estável e repetido entre requisições. Quando funciona, parte do contexto de entrada pode ser cobrada a uma tarifa menor de tokens em cache.
+
+Ele é útil para:
+
+- Prompts de sistema longos
+- Instruções fixas do projeto
+- Contexto de documentação extenso e estável
+- Instruções repetidas do repositório em tarefas de programação com vários turnos
+- Tarefas em lote que compartilham as mesmas regras e o mesmo formato de saída
+
+Usar cache não significa colocar tudo no prompt. Conteúdo dinâmico, carimbos de data e hora, IDs aleatórios e entradas específicas do usuário normalmente devem aparecer mais adiante na requisição.
+
+## Diferenças entre protocolos
+
+| Cenário | Mecanismo comum |
+| --- | --- |
+| Compatível com OpenAI | Alguns modelos armazenam prefixos estáveis automaticamente, e os dados de uso da resposta podem incluir tokens em cache |
+| Compatível com Anthropic / Claude | Alguns modelos exigem marcadores `cache_control` explícitos para oferecer os benefícios do cache |
+
+O mesmo modelo Claude pode se comportar de forma diferente quando chamado por protocolos diferentes. Se você usa muito o Claude Code ou uma API compatível com Anthropic, primeiro entenda o cache pelo mecanismo nativo da Anthropic.
+
+## Como verificar se o cache funcionou
+
+Verifique o campo `usage` na resposta ou no registro da chamada no painel. Os nomes dos campos variam conforme o formato da API:
+
+| Formato da API | Campos de cache comuns |
+| --- | --- |
+| OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
+| OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
+| Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
+
+Quando o valor é maior que 0, parte da requisição normalmente usou o cache. Se o campo estiver ausente, o modelo pode não oferecer suporte, o protocolo pode não retorná-lo, a requisição pode não ter encontrado o cache ou a ferramenta pode ocultar os dados brutos de uso.
+
+## Como melhorar a taxa de acerto do cache
+
+1. Coloque o conteúdo estável perto do início do prompt.
+2. Coloque as entradas específicas do usuário e que mudam com frequência mais adiante.
+3. Não inclua carimbos de data e hora, IDs aleatórios nem instruções variáveis dentro do prefixo estável.
+4. Use o mesmo modelo e protocolo para o mesmo tipo de tarefa sempre que possível.
+5. Em formatos nativos do Claude, adicione `cache_control` aos blocos de conteúdo que devem usar cache, seguindo a documentação do modelo.
+6. Em tarefas em lote, execute primeiro uma pequena amostra e examine os campos de uso antes de estimar o custo total.
+
+## Erros comuns
+
+- Supor que todos os modelos oferecem descontos de cache automaticamente.
+- Supor que toda a requisição fica gratuita depois de um acerto de cache.
+- Trocar de modelo com frequência e impedir a reutilização do cache.
+- Chamar o Claude por um formato compatível com OpenAI e esperar campos de cache nativos do Claude.
+- Observar apenas o total de tokens e ignorar os tokens em cache e os campos de leitura ou criação do cache.
+
+## Sobre o BetterToken
+
+A cobrança e a exibição de uso do BetterToken se baseiam na requisição real, nas informações de uso upstream e no preço atual do modelo. Para confirmar se o cache foi aplicado, consulte em conjunto a documentação do modelo, os campos de uso da resposta e os registros de chamadas do painel.
+
+## Documentação relacionada
+
+- [Por que o Claude Code usa tantos tokens?](/pt-br/faq/token-cost/claude-code-token-usage)
+- [O que é max_tokens e o que acontece se eu não o definir?](/pt-br/faq/model-calling/max-tokens)
+- [Como devo configurar a Base URL?](/pt-br/faq/model-calling/base-url-config)
+- [Qual é a diferença entre uma API compatível com OpenAI e uma compatível com Anthropic?](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)

@@ -1,0 +1,108 @@
+---
+title: "Wie trage ich die Base URL richtig ein?"
+sidebarTitle: "Base URL konfigurieren"
+description: "Erfahre, wie Base URL, /v1-Pfade, API Key und Modell-ID in Claude Code, Codex CLI, Cursor, Cline und anderen Tools zusammenpassen."
+---
+
+## Kurzantwort
+
+Die Base URL muss zum Protokoll passen, das dein Tool erwartet. Claude Code verwendet normalerweise die Anthropic-kompatible Stammadresse. Codex CLI, Cursor, Cline, OpenCode, OpenClaw und andere externe Tools verwenden normalerweise die OpenAI-kompatible Adresse `/v1`.
+
+Bei BetterToken:
+
+| Anwendungsfall | Base URL |
+| --- | --- |
+| Claude Code / Anthropic-kompatibel | `{{anthropic-base-url}}` |
+| Codex CLI / OpenAI-kompatibel | `{{openai-base-url}}` |
+| Cursor, Cline, OpenCode, OpenClaw | `{{openai-base-url}}` |
+
+Errate den Pfad nicht. API Key, Base URL und Modell-ID müssen vom selben Anbieter oder Gateway stammen.
+
+## Warum es unterschiedliche Base URLs gibt
+
+SDKs hängen Pfade auf unterschiedliche Weise an.
+
+| Protokoll- oder Tooltyp | Übliches Verhalten |
+| --- | --- |
+| OpenAI-kompatibles SDK | Ruft Ressourcen wie chat completions oder responses normalerweise unter `/v1` auf |
+| Anthropic-kompatibles SDK | Hängt Pfade für Nachrichtenendpunkte normalerweise selbst an. Füge `/v1` daher nicht erneut hinzu |
+| Integrierter Toolanbieter | Kann Pfade automatisch anhängen oder eine vollständige Base URL verlangen |
+
+Der gleiche Modellname bedeutet nicht, dass dieselbe Base URL überall funktioniert. Toolprotokoll, Base URL, API Key, Anbieter und Modell-ID müssen zusammenpassen.
+
+## Schnellübersicht
+
+| Tool | Empfohlene Konfiguration |
+| --- | --- |
+| Claude Code | `{{anthropic-base-url}}` mit einem BetterToken API Key |
+| Claude Desktop Gateway | Folge der Gateway-Seite einschließlich des Authentifizierungsschemas |
+| Codex CLI | `{{openai-base-url}}` mit einem BetterToken API Key |
+| Cursor | `{{openai-base-url}}` mit einem BetterToken API Key |
+| Cline | `{{openai-base-url}}` mit einem OpenAI Compatible-Anbieter |
+| OpenCode / OpenClaw | `{{openai-base-url}}` mit einem BetterToken API Key |
+
+## Häufige Fehler
+
+| Fehler oder Symptom | Mögliche Ursache |
+| --- | --- |
+| `404 Not Found` | Der Pfad der Base URL entspricht nicht dem vom SDK erwarteten Pfad |
+| `model not found` | Die Modell-ID gehört nicht zum aktuellen Anbieter |
+| `invalid_api_key` | API Key und Base URL stammen von unterschiedlichen Diensten |
+| Authentifizierung funktioniert, aber das Modell ist nicht verfügbar | Anbieter und Modell-ID passen nicht zusammen |
+| Anfragen schlagen weiterhin fehl | Eine Anthropic-kompatible Adresse wurde in einem OpenAI-kompatiblen Tool verwendet oder umgekehrt |
+
+## Empfohlene Reihenfolge zur Fehlerbehebung
+
+1. Prüfe, ob das Tool eine OpenAI- oder Anthropic-kompatible API erwartet.
+2. Prüfe, ob die Base URL zu diesem Protokoll passt.
+3. Prüfe, ob der API Key vom selben Dienst stammt.
+4. Prüfe, ob die Modell-ID aus dem <a href={"{{model-plaza-url}}"}>model plaza</a> stammt und zum aktuellen Anbieter gehört.
+5. Sende eine minimale Testanfrage, beispielsweise `hello`.
+
+## Codebeispiele
+
+OpenAI-kompatible Tools verwenden normalerweise die Adresse `/v1`:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}"
+)
+
+response = client.chat.completions.create(
+    model="your-model-id",
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+Claude- oder Anthropic-kompatible Konfigurationen verwenden normalerweise die Stammadresse:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key="YOUR_API_KEY",
+    base_url="{{anthropic-base-url}}"
+)
+
+message = client.messages.create(
+    model="your-claude-model-id",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "hello"}]
+)
+```
+
+## Über BetterToken
+
+BetterToken bietet Anthropic- und OpenAI-kompatiblen Zugriff. Du kannst API Keys, Guthaben und Nutzungsdaten im selben Dashboard verwalten. Jeder Client benötigt jedoch die Adresse des unterstützten Protokolls.
+
+Einfache Regel: Claude Code verwendet `{{anthropic-base-url}}`; Codex CLI, Cursor, Cline, OpenCode und OpenClaw verwenden `{{openai-base-url}}`.
+
+## Verwandte Dokumentation
+
+- [Was ist der Unterschied zwischen OpenAI- und Anthropic-kompatiblen APIs?](/de/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Wie wähle ich das richtige KI-Modell?](/de/faq/model-calling/model-selection-guide)
+- [Was bedeuten model_provider, base_url und wire_api in Codex CLI?](/de/faq/codex/model-provider-base-url-wire-api)
+- [Wie konfiguriere ich eine OpenAI-kompatible API in Cline?](/de/faq/cline/openai-compatible-api)

@@ -1,0 +1,69 @@
+---
+title: "¿Qué es Codex CLI?"
+sidebarTitle: "Qué es Codex CLI"
+description: "Comprende qué es Codex CLI, cómo funciona, cuándo utilizarlo y en qué se diferencia de Codex App y Codex Web."
+---
+
+## Respuesta breve
+
+Codex CLI es el agente de programación local de OpenAI para la línea de comandos. Se ejecuta en la terminal, lee el workspace seleccionado, edita archivos, ejecuta comandos y respeta la configuración del sandbox y de aprobación mientras realiza tareas de desarrollo.
+
+Resulta útil cuando quieres que un agente ayude con cambios de código, revisión, corrección de pruebas, scripts y tareas de ingeniería de varios pasos dentro de un repositorio local.
+
+Codex CLI se diferencia de una conversación normal de ChatGPT. No se limita a sugerir código. Trabaja con el directorio actual, las instrucciones del proyecto, los resultados de las herramientas y los permisos de ejecución locales.
+
+## Cuándo es importante
+
+- Instalas `@openai/codex` por primera vez
+- Comparas Codex CLI, Codex App y Codex Web
+- Quieres que un agente edite archivos de un proyecto local
+- Necesitas configurar un proveedor de API, una Base URL o un modelo personalizados
+- Quieres comprender el sandbox, las aprobaciones y `AGENTS.md`
+
+## Conceptos básicos
+
+| Concepto | Significado |
+| --- | --- |
+| Codex CLI | Agente de programación Codex que se ejecuta en la terminal local |
+| Workspace | Directorio que Codex puede leer, buscar y modificar |
+| `config.toml` | Archivo de configuración local de Codex para modelos, proveedores, sandbox, aprobaciones y otros comportamientos |
+| `AGENTS.md` | Archivo de instrucciones del proyecto que comunica a Codex las reglas del repositorio y las preferencias de colaboración |
+| Sandbox | Límite de seguridad local para el acceso al sistema de archivos, la red y los comandos |
+| Aprobación | Política que determina qué acciones necesitan confirmación |
+
+## Flujo recomendado
+
+1. Inicia Codex CLI dentro del directorio del proyecto que quieres modificar.
+2. Pídele que inspeccione los archivos o instrucciones relevantes antes de realizar cambios amplios.
+3. Para tareas complejas, solicita un plan antes de permitir que modifique archivos.
+4. Elige la configuración del sandbox y de aprobación según el riesgo de la tarea.
+5. Guarda las reglas permanentes del proyecto en `AGENTS.md` y los requisitos puntuales en la conversación actual.
+
+Si utilizas un proveedor de API de terceros, revisa `model_provider`, `base_url`, `wire_api` y los campos del modelo en `config.toml`. Codex y otras herramientas compatibles con OpenAI suelen utilizar un endpoint compatible con OpenAI, que en esta documentación es `{{openai-base-url}}`.
+
+## Errores habituales
+
+- Tratar Codex CLI como un asistente que solo responde por chat.
+- Suponer que Codex CLI, Codex App y Codex Web se ejecutan en el mismo entorno.
+- Cambiar solo `model` sin configurar el proveedor y la Base URL correspondientes.
+- Reducir las restricciones del sandbox y las aprobaciones sin pruebas, revisión ni límites para los comandos.
+- Mezclar Base URL compatibles con OpenAI y con Anthropic.
+
+## Cómo interviene BetterToken
+
+Al utilizar un proveedor personalizado compatible con OpenAI, BetterToken puede actuar como capa de API del modelo para Codex CLI. Gestiona la API Key, la Base URL, el enrutamiento de modelos, el saldo y los registros de uso.
+
+BetterToken no sustituye el sandbox local de Codex CLI, las aprobaciones, `AGENTS.md` ni la política de ejecución de comandos.
+
+## Documentación relacionada
+
+- [Guía para configurar Codex con BetterToken](/es/ai-tools/codex)
+- [Codex CLI frente a Codex App y Codex Web](/es/faq/codex/codex-cli-vs-app-vs-web)
+- [Cómo configurar config.toml en Codex CLI](/es/faq/codex/config-toml)
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## Referencias
+
+- [Documentación de Codex CLI](https://developers.openai.com/codex/cli)
+- [Repositorio de OpenAI Codex en GitHub](https://github.com/openai/codex)
+- [Referencia de configuración de Codex](https://developers.openai.com/codex/config-reference)

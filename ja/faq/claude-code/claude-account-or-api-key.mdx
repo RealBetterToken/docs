@@ -1,0 +1,68 @@
+---
+title: "Claude Code は Claude.ai アカウントと API Key のどちらを使用しますか？"
+sidebarTitle: "アカウントまたは API Key"
+description: "Claude Code における Claude.ai ログイン、Claude Console API、クラウドプロバイダー、サードパーティ API ゲートウェイの違いを説明します。"
+---
+
+## 短い答え
+
+Claude Code は複数の方法で認証できます。個人ユーザーは Claude.ai アカウントでサインインすることが一般的です。API ユーザーまたはチームは、Claude Console、クラウドプロバイダー、またはサポートされているサードパーティプロバイダー経路を使用できます。
+
+Claude.ai アカウントと API Key は別のものです。Claude.ai ログインは公式製品を利用するためのものです。API Key はモデル API リクエストに使用し、通常は Base URL とプロバイダー設定を組み合わせます。
+
+サードパーティ API ゲートウェイを使用する場合、重要な項目は API Key と Base URL です。また、ツールが Anthropic 互換プロトコルと OpenAI 互換プロトコルのどちらを想定するかを確認する必要があります。
+
+## この情報が役立つ場面
+
+- Claude Code の設定中にログイン画面が表示されるとき
+- Claude Pro または Max で API Key が得られるか分からないとき
+- Claude Code をカスタム API ゲートウェイ経由にしたいとき
+- 公式ログインとサードパーティプロバイダーのどちらを選ぶか決める必要があるとき
+- チームで一貫した認証パターンが必要なとき
+
+## 主な概念
+
+| 概念 | 意味 |
+| --- | --- |
+| Claude.ai アカウント | Claude の公式製品を利用するためのログイン |
+| Claude Console API | 開発者向けの API アクセスと使用量管理 |
+| API Key | モデル API リクエストに使用する認証情報 |
+| Base URL | リクエストの送信先エンドポイント |
+| プロバイダー | Claude Code が使用する認証およびモデルリクエストの送信元 |
+| サードパーティ API ゲートウェイ | ツールとモデルプロバイダーの間にある、互換性、ルーティング、課金、可観測性のレイヤー |
+
+## 推奨する判断手順
+
+1. Claude.ai プランで公式 Claude Code の利用だけを望む場合は、公式ログインから始めます。
+2. API 課金またはチーム管理の API アクセスが必要な場合は、Claude Console またはチームのプロバイダーを確認します。
+3. カスタム API ゲートウェイが必要な場合は、Claude Code がそのプロバイダー経路をサポートすることを確認してから、API Key と Base URL を設定します。
+4. 公式アプリ機能に加えてサードパーティ推論プロバイダーが必要な場合は、公式ログイン状態を維持する必要があるか判断します。
+
+このドキュメントでの Anthropic 互換 Claude Code Base URL は `{{anthropic-base-url}}` です。
+
+## よくある間違い
+
+- Claude.ai サブスクリプションを API Key として扱うこと。
+- ChatGPT Plus または他のサブスクリプションの認証情報を Claude Code に貼り付けること。
+- API Key だけをコピーし、Base URL の変更を忘れること。
+- Claude Code の Anthropic 互換設定に OpenAI 互換 Base URL を入力すること。
+- `auth.json`、リフレッシュトークン、セッション認証情報を API Key のように共有すること。
+
+## BetterToken について
+
+API Key + Base URL の経路を選択する場合、BetterToken は互換エンドポイントと、API Key、残高、使用履歴のためのダッシュボードを提供できます。
+
+BetterToken は Claude.ai ログインを置き換えたり、Claude.ai サブスクリプションを API Key に変えたりするものではありません。扱うのはモデル API レイヤーだけです。
+
+## 関連ドキュメント
+
+- [Claude Code 設定ガイド](/ja/ai-tools/claude-code)
+- [Claude Code で API Key と Base URL を設定する方法](/ja/faq/claude-code/api-key-base-url)
+- [サードパーティ API 使用時に Codex ログイン状態を維持するには？](/ja/faq/codex/official-login-third-party-api)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 参照
+
+- [Claude Code の認証](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Pro または Max プランで Claude Code を使用する](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
+- [Claude Code LLM Gateway 設定](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)

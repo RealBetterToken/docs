@@ -1,0 +1,147 @@
+---
+title: "OpenAI Chat Completions API 사용"
+description: "전체 request URL, Bearer API Key, curl, Python 및 JavaScript examples와 함께 BetterToken의 OpenAI-compatible Chat Completions API를 사용하세요."
+openapi: "api-reference/openapi.json POST /v1/chat/completions"
+---
+
+`POST {{chat-completions-url}}`로 OpenAI-compatible Chat Completions를 호출하세요. 대부분의 external tools는 Base URL `{{openai-base-url}}`을 사용하고 `/chat/completions`를 자체적으로 추가합니다.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Full request URL | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 사전 요구 사항
+
+- <a href={"{{register-url}}"}>BetterToken API Key 만들기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a> 또는 key **Setup** dialog에서 Model ID 복사
+- `curl` 또는 Python 3 / Node.js가 있는 terminal 준비
+
+## 설치
+
+<Tabs>
+  <Tab title="curl">
+    `curl`에는 SDK가 필요하지 않습니다. terminal에서 `curl --version`이 작동하는지 확인하세요.
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
+
+## 수동 설정
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Hello"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Hello" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## 연결 확인
+
+오른쪽 Playground에서 다음을 수행하세요.
+
+1. **Authorization** 아래에 `YOUR_API_KEY`를 입력하세요.
+2. `model`을 `YOUR_MODEL_ID`로 바꾸세요.
+3. `messages`를 수정하고 request를 보내세요.
+
+Playground는 이미 전체 URL `{{chat-completions-url}}`을 사용합니다.
+
+`200` response에 `choices[0].message.content`의 model output이 포함되면 연결이 확인됩니다.
+
+## 모델 전환
+
+`YOUR_MODEL_ID`를 모델 광장 또는 **Setup** dialog의 전체 Model ID로 바꾸세요. display name을 기준으로 Model ID를 줄이지 마세요.
+
+## 자주 발생하는 오류
+
+| 오류 | 해결 방법 |
+| --- | --- |
+| `401` | `Authorization: Bearer YOUR_API_KEY`를 확인한 다음 BetterToken API Key를 다시 복사하세요. |
+| `404` | direct HTTP calls는 `{{chat-completions-url}}`을 사용하며 SDK `base_url`은 `{{openai-base-url}}`을 사용합니다. |
+| Model not found | 모델 광장 또는 **Setup** dialog의 전체 Model ID를 사용하세요. |
+| Invalid request | `messages`가 array이고 모든 item에 `role`과 `content`가 있는지 확인하세요. |
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 기술 세부 정보
+
+<Accordion title="Base URL 및 전체 request URL">
+  GitHub Copilot 및 TRAE처럼 전체 request URL이 필요한 tools는 `{{chat-completions-url}}`을 사용합니다. Cursor, Cline, OpenCode, n8n 및 Dify처럼 path를 자체적으로 추가하는 tools는 `{{openai-base-url}}`만 사용합니다.
+</Accordion>

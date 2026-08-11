@@ -1,0 +1,176 @@
+---
+title: "n8n BetterToken 설정: API Key, Base URL 및 사용자 지정 모델"
+sidebarTitle: "n8n"
+description: "Base URL, API Key 및 호환되는 provider model로 n8n을 BetterToken에 연결한 다음 연결을 확인하고 일반적인 오류를 해결하세요."
+icon: "diagram-project"
+---
+
+n8n을 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 후 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 사전 요구 사항
+
+- 최신 버전의 도구가 설치되어 있음
+- BetterToken API Key: <a href={"{{register-url}}"}>등록하고 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+### 추가 요구 사항
+
+- n8n Cloud 또는 self-hosted instance
+
+| 설정 | 값 |
+|---|---|
+| Credential type | `OpenAI` |
+| Base URL | `{{openai-base-url}}` |
+| API Key | BetterToken API Key |
+| Organization ID | 비워 둠 |
+| Custom Header | 끔 |
+
+<Note>
+  Base URL 끝의 `/v1`를 유지하세요. `/chat/completions` 또는 `/responses`를 추가하지 마세요. n8n이 node에 필요한 route를 추가합니다.
+</Note>
+
+## 설치
+
+n8n을 설치하거나 연 다음 아래의 수동 설정을 계속하세요.
+
+## 수동 설정
+
+n8n node configuration UI에서 이 설정을 완료하세요. n8n configuration file을 직접 수정할 필요가 없습니다.
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+### 설정
+
+<Steps>
+  <Step title="AI Agent와 OpenAI Chat Model 추가">
+    workflow를 열고 **AI Agent** node를 추가하세요. 해당 **Chat Model** connector에서 **OpenAI Chat Model** sub-node를 추가하세요.
+
+    이 가이드에서는 n8n AI Agents, chains 및 기타 AI workflows에 model connection을 제공하는 **OpenAI Chat Model**을 사용합니다.
+  </Step>
+
+  <Step title="OpenAI credential 만들기">
+    **OpenAI Chat Model**에서 **Credential to connect with**를 열고 **Create new credential**을 선택한 다음 **OpenAI**를 선택하세요.
+
+    n8n version에서 **OpenAI Account (ChatGPT)**와 **API Key**를 모두 제공한다면 **API Key**를 선택하세요. OpenAI Account authentication은 official account용이며 BetterToken custom Base URL용이 아닙니다.
+  </Step>
+
+  <Step title="BetterToken credential 입력">
+    다음 값을 사용하세요.
+
+    | n8n 필드 | 값 |
+    |---|---|
+    | API Key | BetterToken API Key |
+    | Organization ID (optional) | 비워 둠 |
+    | Base URL | `{{openai-base-url}}` |
+    | Add Custom Header | 끔 |
+
+    **Save**를 클릭하세요. n8n은 설정한 Base URL 아래의 `/models`로 이 credential을 테스트하므로 전체 test URL은 `{{openai-base-url}}/models`입니다.
+  </Step>
+
+  <Step title="모델 선택">
+    **OpenAI Chat Model**로 돌아가 **Model**을 열고 <a href={"{{model-plaza-url}}"}>모델 광장</a>에 표시된 지원되는 provider의 model ID를 선택하세요.
+
+    credential을 저장한 후 list가 업데이트되지 않으면 node 또는 credential을 다시 열고 model list를 다시 로드하세요.
+  </Step>
+
+  <Step title="Chat Completions 또는 Responses 선택">
+    첫 번째 test에서는 **Use Responses API**를 끈 채 기본 Chat Completions mode로 일반 conversation을 완료하세요.
+
+    workflow에 필요할 때만 **Use Responses API**를 켜세요. n8n은 Responses가 활성화된 **OpenAI Chat Model + AI Agent**에서 Web Search, File Search, Code Interpreter 등의 built-in tools를 문서화합니다. 이러한 OpenAI-hosted tools가 BetterToken에서 자동으로 확인된 capabilities인 것은 아니므로 선택한 model과 endpoint로 테스트하세요.
+  </Step>
+
+  <Step title="테스트 실행">
+    AI Agent에 간단한 input을 제공하세요.
+
+    ```text
+    Reply with exactly: Connection successful
+    ```
+
+    **Execute step**을 클릭하거나 workflow를 실행하세요. node가 model response를 반환하면 설정이 완료됩니다.
+  </Step>
+</Steps>
+
+## 연결 확인
+
+짧은 테스트 prompt를 보내세요. 도구가 authentication 또는 Model ID 오류 없이 response를 반환하면 연결이 작동합니다. configuration을 변경한 후에는 도구를 완전히 다시 시작하세요.
+
+## 모델 전환
+
+model selector를 열거나 configuration의 `Model` field를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 다음 현재 session을 다시 시작하세요.
+
+## 일반적인 오류
+
+### Credential test가 401을 반환함
+
+- API Key가 완전하며 extra spaces가 없는지 확인하세요.
+- key가 **지원되는 provider**의 Model ID를 사용하는지 확인하세요.
+- BetterToken Dashboard에서 key status와 balance를 확인하세요.
+
+### Credential test가 404를 반환함
+
+- Base URL은 `{{openai-base-url}}`이어야 합니다.
+- `{{openai-base-url}}/models`를 Base URL로 사용하지 마세요.
+- `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+
+### Model list가 비어 있음
+
+- credential을 다시 저장한 다음 **Model**을 다시 여세요.
+- API Key가 `{{openai-base-url}}/models`에 access할 수 있는지 확인하세요.
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 현재 model ID를 복사하세요. retired 또는 misspelled ID를 사용하지 마세요.
+
+### 일반 chat은 작동하지만 Agent tool calls가 실패함
+
+**Use Responses API**와 모든 built-in tools를 끈 다음 일반 Chat Completions를 확인하세요. 문제가 model capability, tool arguments 또는 workflow configuration인지 파악하도록 Agent tools를 하나씩 활성화하세요.
+
+### request가 timeout됨
+
+**OpenAI Chat Model > Options** 아래의 **Timeout**을 늘리고 **Max Retries** 값은 제한하세요. `400`, `401` 또는 configuration errors를 반복해서 retry하지 마세요.
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 관련 가이드
+
+- [n8n OpenAI credentials](https://docs.n8n.io/integrations/builtin/credentials/openai/)
+- [n8n OpenAI Chat Model](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatopenai/)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [모델 선택 방법](/ko/faq/model-calling/model-selection-guide)
+
+## 기술 세부 정보
+
+<Accordion title="Protocol, endpoint 및 내부 provider 필드">
+  이 설정은 `{{openai-base-url}}`을 사용합니다. 도구가 OpenAI-compatible endpoint path를 추가합니다. 특정 field에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+
+### 범위
+
+이 가이드는 OpenAI-compatible protocol을 통한 LLM Chat만 확인합니다. GPT chat model을 embedding, rerank, speech 또는 image model로 설정하지 마세요.
+</Accordion>

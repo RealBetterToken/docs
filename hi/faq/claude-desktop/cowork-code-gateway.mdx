@@ -1,0 +1,75 @@
+---
+title: "Gateway के साथ Claude Desktop Cowork या Code mode विफल हो तो क्या करें?"
+sidebarTitle: "Claude Desktop Cowork / Code त्रुटियां"
+description: "BetterToken को Gateway के रूप में जोड़ने के बाद Claude Desktop Cowork विफलता और Code mode त्रुटियां ठीक करें।"
+---
+
+Claude Desktop में BetterToken Gateway कॉन्फ़िगर करने के बाद ये लक्षण सामान्यतः API Key के अमान्य होने का अर्थ नहीं हैं:
+
+- Cowork mode काम नहीं करता
+- Code mode में `Claude Code process exited with code 1` दिखता है
+- वही API Key terminal से Claude Code CLI में काम करती है
+
+ये समस्या सामान्यतः दो अलग कारणों से आती हैं: desktop Gateway auth scheme provider से मेल नहीं खाता, या Claude Desktop में bundled Claude Code संस्करण update होना पूरा नहीं हुआ।
+
+Gateway अभी कॉन्फ़िगर नहीं किया है तो [Claude Desktop में BetterToken API उपयोग करें](/hi/faq/claude-desktop-bettertoken-api) से शुरू करें।
+
+## पहले Cowork mode ठीक करें
+
+**मुख्य कारण**: **Gateway auth scheme** provider से मेल नहीं खाता।
+
+Claude Desktop Gateway settings में provider के अनुसार auth scheme चुनें:
+
+- BetterToken API Key मान्य हो तो **Gateway auth scheme** को `x-api-key` पर सेट करें
+- BetterToken API Key मान्य हो तो **Gateway auth scheme** को `bearer` पर सेट करें
+
+सही scheme चुनने पर Claude Desktop उस group के उपलब्ध मॉडल अपने-आप लेता है। auth scheme गलत हो तो Cowork mode Gateway authentication में विफल हो सकता है।
+
+<Steps>
+  <Step title="third-party inference settings खोलें">
+    macOS menu bar में **Developer** → **Configure Third-Party Inference...** चुनें।
+  </Step>
+
+  <Step title="auth scheme बदलें">
+    provider के अनुसार **Gateway auth scheme** चुनें: **Claude provider** के लिए `x-api-key` और **GPT provider** के लिए `bearer` उपयोग करें।
+  </Step>
+
+  <Step title="config सहेजें">
+    local Gateway config सहेजने के लिए **Apply locally** क्लिक करें।
+  </Step>
+</Steps>
+
+इस बदलाव के बाद Cowork mode सामान्यतः फिर काम करता है।
+
+## फिर Code mode exit त्रुटियां ठीक करें
+
+Cowork काम करे लेकिन Code mode का `</>` tab अब भी `Claude Code process exited with code 1` दिखाए, तो जांचें कि Claude Desktop अब भी पुराना bundled Claude Code संस्करण उपयोग कर रहा है या नहीं।
+
+**मुख्य कारण**: Claude Desktop background में नया Claude Code संस्करण डाउनलोड कर रहा हो सकता है। डाउनलोड पूरा होने से पहले Code mode पुराने installed Claude Code संस्करण पर fallback कर सकता है। वह पुराना संस्करण Code mode में third-party Gateway उपयोग के साथ संगत न हो, इसलिए process तुरंत exit होता है।
+
+**इसे कैसे ठीक करें**:
+
+<Steps>
+  <Step title="नया Claude Code संस्करण डाउनलोड होने की प्रतीक्षा करें">
+    Claude Desktop को कुछ समय खुला रखें ताकि background Claude Code update पूरा हो सके।
+  </Step>
+
+  <Step title="Claude Desktop पूरी तरह बंद करें">
+    ऐप को पूरी तरह बंद करने के लिए **Cmd+Q** उपयोग करें। केवल window बंद न करें।
+  </Step>
+
+  <Step title="फिर खोलें और नया Code session शुरू करें">
+    Claude Desktop फिर खोलें, Code mode में जाएं और नया session शुरू करें।
+  </Step>
+</Steps>
+
+<Note>
+  log में Claude Desktop पुराना Claude Code संस्करण, जैसे `2.1.111`, fallback के रूप में दिखाए और नया संस्करण, जैसे `2.1.119`, अभी तैयार न हो, तो नया संस्करण डाउनलोड होने की प्रतीक्षा करके ऐप रीस्टार्ट करें।
+</Note>
+
+## त्वरित संदर्भ
+
+| लक्षण | सामान्य मुख्य कारण | समाधान |
+|---------|-------------------|-----|
+| Cowork mode काम नहीं करता | **Gateway auth scheme** provider से मेल नहीं खाता | **Claude provider** के लिए `x-api-key` या **GPT provider** के लिए `bearer` उपयोग करें, फिर **Apply locally** क्लिक करें |
+| Code mode में `Claude Code process exited with code 1` दिखता है | Claude Desktop पुराने Claude Code संस्करण पर fallback करता है | नया संस्करण डाउनलोड होने की प्रतीक्षा करें, **Cmd+Q** से पूरी तरह बंद करें, फिर खोलें |

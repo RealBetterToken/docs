@@ -1,0 +1,136 @@
+---
+title: "Codex config.toml：カスタムプロバイダー、Base URL、API Key"
+sidebarTitle: "config.toml"
+description: "カスタムプロバイダー用の Codex config.toml を設定します。model_provider、Base URL、API Key の env_key、wire_api responses を設定し、401、404、モデルエラーを解決します。"
+---
+
+## 要点
+
+Codex CLI でカスタムプロバイダーを使用するには、ユーザーレベルの `~/.codex/config.toml` を編集します。`model_provider = "custom"` を設定し、`[model_providers.custom]` を定義して、Base URL には `{{openai-base-url}}`、`wire_api = "responses"` を使用します。BetterToken API Key は `env_key` から読み込み、モデル ID は **GPT プロバイダー**からコピーします。
+
+## 正しい設定ファイルを探す
+
+| 環境 | ユーザーレベル設定 |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+| Windows + WSL | WSL 内の `~/.codex/config.toml` |
+
+VS Code の Codex 拡張機能で歯車アイコンをクリックし、**Codex Settings → Open config.toml** を選択します。CLI と IDE 拡張機能は同じ設定レイヤーを共有します。
+
+<Warning>
+  プロバイダーと認証の設定はユーザーレベルの `~/.codex/config.toml` に記述します。プロジェクトの `.codex/config.toml` にはプロジェクト固有の上書き設定を置けますが、Codex はそこでの `model_provider` と `model_providers` を無視します。プロジェクトの指示は `AGENTS.md` に記述してください。
+</Warning>
+
+## 最小構成
+
+<Steps>
+  <Step title="API Key の環境変数を設定する">
+    macOS、Linux、または WSL の場合：
+
+    ```bash
+    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+    ```
+
+    Windows PowerShell の場合：
+
+    ```powershell
+    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
+    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
+    ```
+
+    `YOUR_API_KEY` をお使いの BetterToken API Key に置き換えます。継続的に使用する場合は、プロジェクトリポジトリではなく、保護されたオペレーティングシステムの環境変数に保存してください。
+  </Step>
+  <Step title="config.toml を編集する">
+    ```toml
+    model_provider = "custom"
+    model = "gpt-5.5"
+
+    [model_providers.custom]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    env_key = "MODEL_PROVIDER_API_KEY"
+    wire_api = "responses"
+    requires_openai_auth = false
+    ```
+
+    `model` は例です。<a href={"{{model-plaza-url}}"}>モデル広場</a>の **GPT プロバイダー**から、現在利用できるモデル ID をコピーしてください。
+  </Step>
+  <Step title="再起動してテストする">
+    Codex を完全に終了し、新しいターミナルを開いて次を実行します。
+
+    ```bash
+    codex
+    ```
+
+    簡単なプロンプトを送信します。正常な応答が返れば、プロバイダー、認証、モデル ID は有効です。
+  </Step>
+</Steps>
+
+## 推奨する完全な設定
+
+レビュー用モデルと、より長いストリームタイムアウトが必要な場合は、この設定を使用します。
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+windows_wsl_setup_acknowledged = true
+
+[model_providers.custom]
+name = "{{codex-provider-name}}"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
+
+既存のトップレベル項目と `[model_providers.custom]` の内容を統合します。同じ TOML テーブルを 2 回宣言しないでください。
+
+## 各項目の関係
+
+| 項目 | 目的 | BetterToken の値 |
+| --- | --- | --- |
+| `model_provider` | プロバイダー ID を選択 | `"custom"` |
+| `[model_providers.custom]` | そのプロバイダーを定義 | `model_provider` と一致させる |
+| `base_url` | モデルリクエストのエンドポイント | `{{openai-base-url}}` |
+| `env_key` | API Key を含む環境変数の名前 | `MODEL_PROVIDER_API_KEY` |
+| `wire_api` | プロバイダーのプロトコル | `"responses"` |
+| `requires_openai_auth` | 公式 OpenAI 認証を使用するか | 通常のサードパーティ API 設定では `false` |
+| `model` | デフォルトのモデル ID | 現在利用可能な GPT プロバイダーの ID |
+
+<Note>
+  公式 Codex App のログイン、プラグイン、Remote Control を維持しながらサードパーティ API を使用する場合は、この通常の認証例ではなく、専用の[公式ログインと統合セッションの設定](/ja/faq/codex/official-login-third-party-api)を使用してください。
+</Note>
+
+## よくあるエラー
+
+| 症状 | 原因 | 解決方法 |
+| --- | --- | --- |
+| プロバイダーが見つからない | `model_provider` がテーブル名と一致しない | 両方に `custom` を使用する |
+| 起動時に API Key が見つからない | 環境変数がない、またはターミナルで再読み込みされていない | `MODEL_PROVIDER_API_KEY` を設定し、新しいターミナルを開く |
+| `401` または `403` | Key が誤っている、または認証方式が混在している | Key をもう一度コピーし、`env_key` の名前を一致させ、`requires_openai_auth = false` を維持する |
+| `404` | Base URL に `/v1` がない、またはプロトコルが誤っている | `{{openai-base-url}}` を使用する |
+| モデルが見つからない | モデル ID が利用不可、または GPT プロバイダーのものではない | モデル広場から現在の ID をコピーする |
+| 変更が反映されない | 設定レイヤー、パス、または WSL 環境が誤っている | Codex を実行する環境のユーザー設定を編集し、Codex を再起動する |
+| TOML 解析エラー | テーブル、引用符、またはネストが重複・誤っている | 重複した `[model_providers.custom]` テーブルを削除し、文字列の引用符を確認する |
+
+## 関連ドキュメント
+
+- [完全な Codex 設定ガイド](/ja/ai-tools/codex)
+- [VS Code Codex 拡張機能でカスタム Base URL を設定する](/ja/ai-tools/codex-vscode)
+- [model_provider、base_url、wire_api の解説](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Codex CLI のサンドボックスと承認モード](/ja/faq/codex/sandbox-approval)
+- [AGENTS.md とは？](/ja/faq/codex/agents-md)
+
+## 参照
+
+- [Codex 基本設定](https://developers.openai.com/codex/config-basic)
+- [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)

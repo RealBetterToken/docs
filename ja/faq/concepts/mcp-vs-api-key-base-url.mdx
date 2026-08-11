@@ -1,0 +1,57 @@
+---
+title: "MCP と API Key / Base URL の違い"
+sidebarTitle: "MCP と API"
+description: "MCP、API Key、Base URL、モデルプロトコル、ツールプロトコルの違いを説明します。"
+---
+
+## 短い回答
+
+MCP は、AI ツールを外部ツール、データソース、コンテキストに接続するためのプロトコルです。API Key と Base URL は、モデルリクエストの認証とルーティングの設定です。
+
+MCP が答えるのは「エージェントはどのツールとデータを使えるか」です。API Key / Base URL が答えるのは「モデルリクエストはどこへ送られ、どのように認証されるか」です。
+
+MCP を設定してもモデル API は設定されません。モデル API を設定しても、ツールに外部システムへのアクセス権が自動的に付与されるわけではありません。
+
+## 比較
+
+| 項目 | MCP | API Key / Base URL |
+| --- | --- | --- |
+| 主な役割 | ツール、データソース、コンテキストの統合 | モデルリクエスト、認証、ルーティング |
+| 一般的な対象 | ローカルサービス、データベース、ファイル、ブラウザー、業務システム | OpenAI 互換または Anthropic 互換の Endpoint |
+| 主なリスク | ツール権限、データアクセス、副作用 | シークレットの漏えい、プロトコル不一致、モデル費用 |
+| モデルを決めるか | いいえ | 通常ははい |
+
+## 混同されやすい点
+
+- MCP がモデルを変更すると考えること。
+- Base URL を変更するとローカルツールが接続されると考えること。
+- MCP サーバーをモデルプロバイダーとして扱うこと。
+- モデルの API Key を MCP 設定に入れること。
+- ツールが OpenAI 互換 API と Anthropic 互換 API のどちらを期待するか分からないこと。
+
+## 判断方法
+
+エージェントにデータベース、ブラウザー、ファイルシステム、内部システム、または追加ツールへのアクセスをさせたい場合は、MCP を確認してください。
+
+モデル、ゲートウェイ、課金アカウント、またはプロバイダーを切り替えたい場合は、API Key、Base URL、プロトコルを確認してください。
+
+ワークフローでモデルの切り替えと外部ツールの両方が必要な場合は、両方のレイヤーを設定し、権限を個別に確認してください。
+
+## BetterToken について
+
+BetterToken は MCP サーバーではなく、モデル API レイヤーです。API Key、Base URL、モデルルーティング、利用記録を扱います。
+
+BetterToken と MCP は組み合わせて利用できます。BetterToken がモデルリクエストを扱い、MCP がツールとコンテキストの拡張を扱います。
+
+## 関連ドキュメント
+
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Desktop で MCP を設定する方法](/ja/faq/claude-desktop/mcp)
+- [Cursor で MCP を設定する方法](/ja/faq/cursor/mcp)
+- [Claude Code の権限とフック](/ja/faq/claude-code/permissions-and-hooks)
+
+## 参考資料
+
+- [Claude Code の MCP ドキュメント](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Model Context Protocol の紹介](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [Anthropic の MCP 概要](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)

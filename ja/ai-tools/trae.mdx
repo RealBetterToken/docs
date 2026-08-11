@@ -1,0 +1,127 @@
+---
+title: "TRAE のセットアップ：インストール、API Key、Base URL、カスタムモデル"
+sidebarTitle: "TRAE"
+description: "TRAE をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+icon: "bolt"
+---
+
+TRAE を BetterToken に接続するには、API Key を用意し、以下の Base URL を入力して、モデル広場から現在の Model ID を選択します。
+
+## 主要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| 完全なリクエスト URL | `{{chat-completions-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+## 前提条件
+
+- 現在のバージョンのツールがインストールされている
+- BetterToken API Key：<a href={"{{register-url}}"}>登録して取得</a>
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>の Model ID
+
+### 追加要件
+
+## インストール
+
+TRAE をインストールまたは開いてから、以下の手動設定を続けます。
+
+## 手動設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| 完全なリクエスト URL | `{{chat-completions-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>モデル広場</a>にある現在の Model ID |
+
+### 設定手順
+
+<Steps>
+  <Step title="設定を開く">
+    **IDE** モードで、右上の **Settings** アイコンをクリックして設定センターを開きます。
+
+    **SOLO** モードを開き、チャットパネルの右上にある **Settings** アイコンをクリックすることもできます。
+  </Step>
+
+  <Step title="モデルパネルを開く">
+    左側のナビゲーションで **Model** を選択し、**Model** パネルを開きます。
+  </Step>
+
+  <Step title="モデルを追加する">
+    **+ Add model** をクリックします。
+
+    ![設定項目、モデルのナビゲーション項目、モデル追加ボタンが強調表示された TRAE のモデルパネル。](/images/trae/add-model.png)
+  </Step>
+
+  <Step title="モデル設定を入力する">
+    **Add model** ウィンドウが表示されたら、次のフィールドを入力します。
+
+    | 項目 | 値 |
+    |-------|-------|
+    | プロバイダー | `OpenAI` |
+    | Model | `Custom model` |
+    | Model ID | <a href={"{{model-plaza-url}}"}>モデル広場</a>からコピーした、**対応プロバイダーのモデル ID** |
+    | API Key | BetterToken コンソールからコピーした API Key |
+    | カスタムリクエスト URL | `{{chat-completions-url}}` |
+
+    ![OpenAI とカスタムモデルが選択され、Model ID、API Key、カスタムリクエスト URL のフィールドが表示された TRAE のモデル追加ウィンドウ。](/images/trae/model-config.png)
+  </Step>
+
+  <Step title="保存して使い始める">
+    **Confirm** をクリックして設定を保存し、対応プロバイダーの新しいモデルを選択します。
+  </Step>
+</Steps>
+
+<Note>
+  BetterToken は、TRAE では**対応プロバイダーのモデル**のみをサポートします。固定の Claude モデル名を使用せず、カスタムリクエスト URL に `{{openai-base-url}}` を設定しないでください。
+</Note>
+
+## 接続を確認する
+
+短いテストプロンプトを送信します。認証または Model ID のエラーなしでツールがレスポンスを返せば、接続は機能しています。設定を変更した後はツールを完全に再起動してください。
+
+## モデルを切り替える
+
+モデルセレクターを開くか、設定の `Model` フィールドを変更します。<a href={"{{model-plaza-url}}"}>モデル広場</a>にある正確な Model ID を使用してから、現在のセッションを再起動してください。
+
+## よくあるエラー
+
+| エラー | 確認事項 |
+| --- | --- |
+| `401` または `Unauthorized` | BetterToken API Key を確認し、先頭または末尾の空白を削除します。 |
+| `404` | Base URL を確認し、特定の Endpoint パスを追加しないでください。 |
+| `model not found` | モデル広場から現在の Model ID をコピーします。 |
+| 変更が反映されない | 設定を保存して、ツールを完全に再起動します。 |
+
+
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP と API Key / Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider、base_url、wire_api とは何ですか？](/ja/faq/codex/model-provider-base-url-wire-api)
+- [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
+
+## 詳細設定
+
+{/* tool-provider-support:start */}
+## 対応プロバイダー
+
+| プロバイダー | 対応状況 |
+| --- | --- |
+| Claude | 未対応 |
+| GPT | 手動設定 |
+| Kimi | 手動設定 |
+| GLM | 手動設定 |
+
+<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
+
+<Accordion title="設定方法の説明">
+  - **手動設定**：API Key、Base URL、Model を入力します。
+  - **未対応**：検証済みの直接接続方法はまだありません。
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 技術詳細
+
+<Accordion title="プロトコル、Endpoint、内部プロバイダーフィールド">
+  TRAE には Base URL だけでなく、完全なカスタムリクエスト URL `{{chat-completions-url}}` が必要です。
+</Accordion>

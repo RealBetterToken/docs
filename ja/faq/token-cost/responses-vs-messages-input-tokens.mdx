@@ -1,0 +1,78 @@
+---
+title: "Responses API と Messages API で入力 Token 数が異なる理由"
+sidebarTitle: "Responses と Messages の Token"
+description: "同じ API Key とモデルでも Responses API と Messages API で入力 Token 数が異なる理由と、リクエストを公平に比較する方法を説明します。"
+---
+
+## 簡単な回答
+
+同じ API Key、モデル、ユーザーメッセージであっても、Responses API と Messages API では異なる入力 Token 数が報告される場合があります。使用量は、送信した文だけでなく、モデルが受け取る完全なコンテキストに依存します。
+
+Codex 互換の Responses ルートを通じて提供される一部の GPT モデルでは、`instructions` を省略すると、上流が公式 Codex 基本指示を提供する場合があります。これらの指示はモデルのコンテキストに入り、レスポンスの `instructions` フィールドに表示されます。Messages API は異なるプロトコルパスを使用し、同じ Codex 基本指示を自動的に使用しないため、同じ短い質問でも入力 Token が数個だけと報告される場合があります。
+
+BetterToken は通常の OpenAI 互換リクエストにこのプロンプトを追加しません。また、このプロンプトが存在しても Codex App を使用していることを意味しません。これは、選択した上流による Responses ルートの実装に由来します。
+
+## 入力 Token として数えられるもの
+
+| 内容 | 入力 Token として数えられるか |
+| --- | --- |
+| ユーザーメッセージ | はい |
+| `instructions`、system、developer プロンプト | はい |
+| 会話履歴と要約 | はい |
+| ファイル内容、コードコンテキスト、添付ファイル | はい |
+| ツール定義とツール結果 | はい |
+| キャッシュから提供される繰り返しコンテキスト | キャッシュ読み取り Token として報告されます |
+
+Responses API では、`instructions` は system または developer レベルのメッセージとしてモデルコンテキストに入ります。リクエスト記録またはレスポンスに長い `instructions` の値が表示されている場合、それは追加の入力 Token の重要な要因です。
+
+## 利用記録の読み方
+
+- `input_tokens`: このリクエストでモデルコンテキストに入った入力の合計です。通常の入力とキャッシュ読み取りが含まれる場合があります。
+- `cache_read_input_tokens`: キャッシュから取得された入力の部分です。このリクエストのコンテキストの一部として残り、サーバーがキャッシュ済みコンテキストの処理を再利用したことを示します。課金ルールはモデルのキャッシュ入力価格に従います。
+- `output_tokens`: このリクエストでモデルが生成した内容です。
+
+たとえば、Responses の記録には `input_tokens` が `4393`、そのうち `cache_read_input_tokens` が `3840` と表示される場合があります。`4393` Token はすべてコンテキストに参加していますが、`3840` はキャッシュ読み取りであり、すべてが通常の入力として課金されるわけではありません。<a href={"{{model-plaza-url}}"}>モデル広場</a>に表示される現在の課金ルールを使用して、通常の入力、キャッシュ読み取り、出力を別々に確認してください。
+
+## 直接の API 呼び出しに `instructions` が含まれる理由
+
+`instructions` は、モデルに system または developer レベルのガイダンスを追加するために使用する公式の Responses API フィールドです。Responses プロトコルではこのフィールドを許可していますが、`/v1/responses` を呼び出しただけで Codex プロンプトを規定するものではありません。
+
+モデルが Codex 互換の Responses ルートを通じて提供される場合、上流の実装は公式 Codex `base_instructions` を読み込み、デフォルトの `instructions` として最終モデルへ送信し、レスポンスに反映できます。そのため、元の HTTP 本文には `model` と `input` だけが含まれていても、レスポンスには `You are Codex...` で始まる長い値が含まれる場合があります。
+
+異なる上流ドメインが、まったく同じテキストを返すことがあります。これらのプロバイダーは、同じ Codex 互換ゲートウェイ実装、同じ公式モデルメタデータ、または同じ最終 Codex Responses バックエンドを使用している可能性があります。ドメイン名が異なっていても、異なるモデルルートや基本指示が保証されるわけではありません。
+
+BetterToken の通常の OpenAI 互換リレーは、これらの Codex 基本指示を生成しません。BetterToken は送信した `instructions` を保持し、上流からのレスポンスを返します。Chat Completions と Messages は異なるプロトコル入口を使うため、同じデフォルトを受け取るとは限りません。
+
+原因を特定するには、次の手順に従ってください。
+
+1. リクエストを作成した場所で、マスキング済みの生の HTTP 本文をログに記録します。`instructions`、`system`、`developer` のメッセージが `input` 内、会話履歴、ツール、またはファイルに含まれていないか確認します。
+2. 同じ API Key と Model ID で、`model` と 1 つの `input` だけを含む最小リクエストを送信します。`instructions`、履歴、ツールは送信しません。
+3. 2 つのレスポンスに含まれる `instructions` と使用量を比較します。
+4. 送信本文に `instructions` がなくてもレスポンスに長い値が含まれる場合、それは上流の Responses パスで追加されています。さらに確認する場合は、リクエスト時刻、リクエスト ID、モデル、マスキング済み本文を BetterToken サポートに送信してください。
+
+## 2 つのプロトコルを公平に比較する方法
+
+調査するときは、次のチェックリストを使用してください。
+
+1. 同じ Model ID を使用します。
+2. まったく同じユーザーメッセージを送信します。
+3. 両方のリクエストで同じ system、developer、または `instructions` 内容を使用します。最小テストでは、両方からこの追加内容を省略します。
+4. 異なる会話履歴、ファイル、添付ファイル、ツール、MCP コンテキストを含めません。
+5. 合計費用だけを比較せず、入力、キャッシュ、出力を別々に比較します。
+
+同じキー、Model ID、ユーザーメッセージで、両方の Endpoint に最小リクエストを送信してください。これにより、プロトコルの動作とクライアントが提供したコンテキストを区別しやすくなります。
+
+## API の選び方
+
+- Responses API の推論、ツール、または Codex 互換の動作が必要な場合は `/v1/responses` を使用し、通常の入力とキャッシュ読み取りを別々に確認します。
+- 単純なチャットだけが必要で、モデルが Chat Completions または Messages もサポートしている場合は、Endpoint を選ぶ前に出力品質、互換性、費用を比較します。
+- 合計の `input_tokens` だけから費用を見積もらないでください。キャッシュ入力には通常、別の課金ルールが適用されます。
+
+ローカルの `instructions` フィールドを削除しても、上流が追加したデフォルトの Codex 指示は削除できません。そのデフォルトがないプロトコルが必要な場合は、まず対象モデルが Chat Completions または Messages をサポートしていることを確認してください。
+
+## 関連ドキュメント
+
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [BetterToken で Codex CLI を設定する](/ja/ai-tools/codex)
+
+- [OpenAI Responses API リファレンス](https://platform.openai.com/docs/api-reference/responses)

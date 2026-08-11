@@ -1,0 +1,65 @@
+---
+title: "Codex CLI versus Codex App versus Codex Web"
+sidebarTitle: "CLI versus App versus Web"
+description: "Compare Codex CLI, Codex App e Codex Web / Cloud por ambiente de execução, tipo de configuração, permissões locais e configuração do provedor."
+---
+
+## Resposta curta
+
+O Codex CLI é o agente de programação local no terminal. Ele se concentra em projetos locais, execução de comandos, edição de arquivos e configuração pelo `config.toml`.
+
+O Codex App é o aplicativo para desktop. Ele é mais adequado para fluxos gráficos, gerenciamento de sessões, plugins, Remote Control e recursos de aplicativo complementar.
+
+O Codex Web / Cloud funciona como um agente remoto ou baseado no navegador. Ele não usa o mesmo ambiente da CLI local e pode não compartilhar o mesmo acesso a arquivos locais, sandbox, política de aprovação ou arquivo de configuração.
+
+## Quando é preciso diferenciá-los
+
+- Você está decidindo entre instalar a CLI ou usar o App / Web
+- Você quer manter o login oficial no Codex App e rotear as chamadas de modelo por uma API de terceiros
+- Você alterou o `config.toml` local, mas o comportamento na Web não mudou
+- Você precisa saber onde ocorrem o acesso a arquivos, a execução de comandos e as aprovações
+- Você está escrevendo regras de equipe para o uso do Codex
+
+## Principais diferenças
+
+| Aspecto | Codex CLI | Codex App | Codex Web / Cloud |
+| --- | --- | --- | --- |
+| Ponto de entrada principal | Terminal local | Aplicativo para desktop | Navegador ou ambiente remoto |
+| Foco da configuração | `~/.codex/config.toml`, `AGENTS.md`, sandbox, aprovação | Estado do login, recursos do desktop, troca de provedor | Tarefas na nuvem, ambientes remotos, autorização do repositório |
+| Acesso a arquivos | Workspace local | Depende do workspace atual e dos recursos do aplicativo | Depende do ambiente remoto e da autorização |
+| Melhor uso | Desenvolvimento local, comandos rápidos, scripts, edição de código | Sessões no desktop, plugins, Remote Control | Tarefas remotas e fluxos de desenvolvimento na nuvem |
+
+## Como escolher
+
+Use o Codex CLI quando seu fluxo principal for editar código localmente e executar comandos no terminal.
+
+Use o Codex App quando você precisar de um fluxo no desktop, plugins ou Remote Control. Para manter o login oficial enquanto usa uma API de terceiros, separe a camada de autenticação da camada de solicitações de modelo.
+
+Use o Codex Web / Cloud quando o trabalho pertencer a um ambiente remoto ou a um fluxo no navegador. Não presuma que o `config.toml` local controla o ambiente na nuvem.
+
+## Erros comuns
+
+- Achar que as mudanças no `config.toml` da CLI local afetam automaticamente o Codex Web / Cloud.
+- Tratar o login oficial do Codex App e uma API Key de terceiros como a mesma camada.
+- Achar que as três opções têm permissões idênticas no sistema de arquivos.
+- Esquecer que as configurações de sandbox e aprovação pertencem a um ambiente específico.
+- Tratar plugins, Remote Control e configurações do provedor de modelos como uma única camada.
+
+## Sobre a BetterToken
+
+A BetterToken pertence à camada de solicitações de modelo: ela define qual provedor de API recebe as chamadas. No Codex CLI, a configuração comum de um provedor personalizado geralmente fica no `config.toml`. No Codex App, quando o login oficial é preservado, a autenticação e o roteamento de inferência precisam ser tratados separadamente.
+
+A BetterToken não altera os limites de execução entre CLI, App e Web / Cloud.
+
+## Documentos relacionados
+
+- [Guia de configuração do Codex com BetterToken](/pt-br/ai-tools/codex)
+- [Como manter o login oficial do Codex com uma API de terceiros](/pt-br/faq/codex/official-login-third-party-api)
+- [Como configurar o config.toml do Codex CLI](/pt-br/faq/codex/config-toml)
+- [O que são os modos de sandbox e aprovação do Codex CLI?](/pt-br/faq/codex/sandbox-approval)
+
+## Referências
+
+- [Documentação do Codex CLI](https://developers.openai.com/codex/cli)
+- [Documentação do Codex App](https://developers.openai.com/codex/app)
+- [Documentação do Codex Cloud](https://developers.openai.com/codex/cloud)

@@ -1,0 +1,190 @@
+---
+title: "Configurar o OpenClaw: API Key, Base URL e modelos personalizados"
+sidebarTitle: "OpenClaw"
+description: "Configure models.providers do OpenClaw, uma BetterToken API Key, a Base URL e modelos OpenAI Responses ou Chat Completions, e valide o Gateway."
+icon: "paw"
+---
+
+O OpenClaw se conecta ao BetterToken pelo arquivo `~/.openclaw/openclaw.json`. Os modelos do provedor GPT usam `openai-responses`; os demais provedores compatíveis usam `openai-completions`.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | `YOUR_MODEL_ID` |
+
+## Pré-requisitos
+
+- Instale a versão mais recente do OpenClaw
+- <a href={"{{register-url}}"}>Crie uma BetterToken API Key</a>
+- Copie um Model ID do <a href={"{{model-plaza-url}}"}>model plaza</a> ou da janela **Setup** da chave
+
+## Instalar
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL https://openclaw.ai/install.sh | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr -useb https://openclaw.ai/install.ps1 | iex
+    ```
+  </Tab>
+</Tabs>
+
+## Configuração pela linha de comando
+
+O script de configuração automática do BetterToken grava a configuração do OpenClaw. Ele requer Node.js. Se você não informar uma API Key ou um Model ID como argumento, o script solicitará esses dados.
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-openclaw-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-openclaw-provider-ps1-url}}" -OutFile "$env:TEMP\install-openclaw-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-openclaw-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+Confirme se `agents.defaults.model.primary` usa o `YOUR_MODEL_ID` exibido em Setup. Depois, execute os comandos abaixo para validar a configuração e reiniciar o Gateway.
+
+## Configuração manual
+
+### Configurar o OpenClaw
+
+Edite `~/.openclaw/openclaw.json`. Use somente o exemplo correspondente ao provedor do seu Model ID.
+
+<Tabs>
+  <Tab title="GPT: openai-responses">
+    ```json
+    {
+      "models": {
+        "mode": "merge",
+        "providers": {
+          "bettertoken": {
+            "baseUrl": "{{openai-base-url}}",
+            "apiKey": "YOUR_API_KEY",
+            "api": "openai-responses",
+            "models": [
+              {
+                "id": "YOUR_MODEL_ID",
+                "name": "YOUR_MODEL_ID"
+              }
+            ]
+          }
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "bettertoken/YOUR_MODEL_ID"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Non-GPT: openai-completions">
+    ```json
+    {
+      "models": {
+        "mode": "merge",
+        "providers": {
+          "bettertoken": {
+            "baseUrl": "{{openai-base-url}}",
+            "apiKey": "YOUR_API_KEY",
+            "api": "openai-completions",
+            "models": [
+              {
+                "id": "YOUR_MODEL_ID",
+                "name": "YOUR_MODEL_ID"
+              }
+            ]
+          }
+        }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "bettertoken/YOUR_MODEL_ID"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Não deduza `api` pelo nome do modelo. GPT usa `openai-responses`. Use `openai-completions` com um provedor que não seja GPT somente quando o model plaza ou a janela Setup confirmar a compatibilidade.
+
+## Verificar a conexão
+
+Execute:
+
+```bash
+openclaw config validate
+openclaw gateway restart
+openclaw models list
+openclaw models status
+```
+
+A configuração está ativa quando a validação passa, o Gateway reinicia e `bettertoken/YOUR_MODEL_ID` aparece na lista e no status dos modelos. Se uma sessão existente ainda usar um modelo antigo, inicie uma nova sessão e verifique novamente.
+
+## Trocar de modelo
+
+Adicione o novo modelo a `models.providers.bettertoken.models` e altere `agents.defaults.model.primary` para `bettertoken/YOUR_MODEL_ID`. Salve, valide a configuração e reinicie o Gateway.
+
+## Erros comuns
+
+| Erro | Solução |
+| --- | --- |
+| Falha em `config validate` | Verifique as vírgulas, aspas e chaves do JSON. |
+| `401` | Copie `apiKey` novamente e remova os espaços. |
+| `404` ou erro de protocolo | GPT deve usar `openai-responses`; provedores que não sejam GPT devem usar `openai-completions`. Não acrescente um endpoint à Base URL. |
+| Modelo ausente | Confirme se ele aparece na lista de modelos do provedor e em `agents.defaults.model.primary`. |
+| A sessão existente usa o modelo antigo | Execute `openclaw gateway restart` e crie uma nova sessão. |
+
+## Configuração avançada
+
+{/* tool-provider-support:start */}
+### Provedores compatíveis
+
+| Provedor | Status |
+| --- | --- |
+| Claude | Sem suporte |
+| GPT | Linha de comando e configuração manual |
+| Kimi | Configuração manual |
+| GLM | Configuração manual |
+
+<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
+
+<Accordion title="O que significa cada método de configuração">
+  - **Configuração pela linha de comando e manual**: use um comando gerado ou siga todas as etapas manuais.
+  - **Configuração manual**: informe a API Key, a Base URL e o Model.
+  - **Sem suporte**: ainda não há um método verificado de conexão direta.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### Perguntas frequentes relacionadas
+
+- [API compatível com OpenAI ou API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP ou API Key e Base URL](/pt-br/faq/concepts/mcp-vs-api-key-base-url)
+- [O que são model_provider, base_url e wire_api?](/pt-br/faq/codex/model-provider-base-url-wire-api)
+- [Como configurar uma API compatível com OpenAI no Cline](/pt-br/faq/cline/openai-compatible-api)
+
+### Opcional: gerenciar o provedor com o CC Switch
+
+Para gerenciar provedores de várias ferramentas em um só lugar, consulte [Configurar o OpenClaw no CC Switch](/pt-br/ai-tools/cc-switch#openclaw).
+
+## Detalhes técnicos
+
+<Accordion title="Responses e Chat Completions">
+  `openai-responses` faz o OpenClaw chamar `/v1/responses` para os modelos do provedor GPT. `openai-completions` chama `/v1/chat/completions` para provedores compatíveis que não sejam GPT. Ambos usam `{{openai-base-url}}` como `baseUrl`.
+</Accordion>

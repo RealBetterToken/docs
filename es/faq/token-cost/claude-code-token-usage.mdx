@@ -1,0 +1,74 @@
+---
+title: "Por qué Claude Code usa tantos tokens y cómo reducir el coste"
+sidebarTitle: "Coste de tokens de Claude Code"
+description: "Descubre de dónde proviene el consumo de tokens de Claude Code y cómo afectan al coste el contexto, CLAUDE.md, MCP, la elección del modelo y el diseño del flujo de trabajo."
+---
+
+## Respuesta rápida
+
+El consumo de tokens de Claude Code no se limita a la respuesta final que ves. Puede incluir los archivos que lee, instrucciones del proyecto, historial de conversación, resultados y descripciones de herramientas MCP, la salida generada y resúmenes compactados.
+
+Un consumo elevado suele deberse a la combinación de tareas demasiado amplias, mucho contexto, archivos de reglas largos, numerosos servidores MCP, trabajo repetido y modelos de alto consumo.
+
+La solución práctica consiste en acotar cada tarea y cargar únicamente el contexto que necesita.
+
+## Cuándo es relevante
+
+- Claude Code lee muchos archivos antes de cada respuesta
+- Un cambio pequeño se convierte en una larga sesión de exploración
+- `CLAUDE.md` o los archivos de reglas siguen creciendo
+- Hay muchos servidores MCP activados, pero apenas se usan
+- Claude Code repite el mismo trabajo varias veces
+- Tu equipo necesita un gasto de API predecible
+
+## Conceptos principales
+
+| Concepto | Significado |
+| --- | --- |
+| Tokens de entrada | Prompts del usuario, contexto, archivos, resultados de herramientas e instrucciones |
+| Tokens de salida | Texto, código y respuestas generados por el modelo |
+| Ventana de contexto | Cantidad de información que puede contener una sesión |
+| Caché de prompts | Reducción del coste para determinados contextos repetidos |
+| Compactación | Resumen del historial anterior cuando aumenta el contexto |
+| Sobrecarga de MCP | Las definiciones y los resultados de herramientas pueden añadir contexto |
+
+## Flujo de trabajo recomendado
+
+Controla el coste desde los límites de la tarea:
+
+1. Asigna a Claude Code un solo objetivo claro cada vez.
+2. Pídele que lea primero únicamente los archivos relevantes.
+3. Usa `/clear` al cambiar a una tarea no relacionada.
+4. Mantén `CLAUDE.md` breve y específico.
+5. Desactiva los servidores MCP que no necesites para el trabajo actual.
+6. Usa modelos ligeros para cambios sencillos y modelos más potentes para razonamientos complejos.
+7. Ejecuta la comprobación relevante más pequeña después de cada cambio para reducir el trabajo repetido.
+
+Si usas un gateway de API, revisa con regularidad el consumo en el panel. Separa el consumo de entrada, salida, caché y contexto cuando el panel muestre ese detalle.
+
+## Errores habituales
+
+- Fijarse solo en la longitud de la respuesta final e ignorar los archivos y la salida de las herramientas.
+- Convertir `CLAUDE.md` en un manual largo que se carga en todas las sesiones.
+- Activar muchos servidores MCP sin comprobar si la tarea los necesita.
+- Empezar con prompts como «refactoriza todo el repositorio».
+- Esperar que un gateway de API reduzca automáticamente el uso de contexto de Claude Code.
+
+## Acerca de BetterToken
+
+BetterToken puede centralizar la API Key, el saldo y el historial de uso. Te ayuda a ver el coste de las solicitudes al modelo en la capa de API.
+
+No decide qué archivos lee Claude Code, cuánto ocupa `CLAUDE.md`, qué servidores MCP están activados ni qué amplitud tiene la tarea. La reducción de costes comienza por gestionar el flujo de trabajo y el contexto.
+
+## Documentación relacionada
+
+- [¿Qué es CLAUDE.md en Claude Code?](/es/faq/claude-code/claude-md)
+- [¿Qué es Claude Code y cómo funciona?](/es/faq/claude-code/what-is-claude-code)
+- [Cómo configurar la API Key y la Base URL en Claude Code](/es/faq/claude-code/api-key-base-url)
+- [Guía de configuración de Claude Code](/es/ai-tools/claude-code)
+
+## Referencias
+
+- [Costes de Claude Code](https://docs.anthropic.com/en/docs/claude-code/costs)
+- [Supervisar el uso de Claude Code](https://docs.anthropic.com/en/docs/claude-code/monitoring-usage)
+- [Debate sobre buenas prácticas de consumo de tokens para principiantes de Claude Code](https://www.reddit.com/r/ClaudeCode/comments/1rlimtx/claude_code_beginner_best_practice_token_usage/)

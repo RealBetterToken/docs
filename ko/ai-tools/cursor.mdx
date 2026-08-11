@@ -1,0 +1,203 @@
+---
+title: "Cursor 설정: 설치, API Key, Base URL, 사용자 지정 모델"
+sidebarTitle: "Cursor"
+description: "Cursor를 설치하고 BetterToken Base URL과 API Key를 설정한 뒤 호환 제공자 모델을 선택하고 일반적인 오류를 해결하세요."
+icon: "arrow-pointer"
+---
+
+Cursor를 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 뒤 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 준비 사항
+
+- 최신 버전의 도구 설치
+- BetterToken API Key: <a href={"{{register-url}}"}>가입 후 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+### 추가 요구 사항
+
+- Cursor 설치 ([Cursor 다운로드](https://www.cursor.com))
+
+## 설치하기
+
+[Cursor 웹사이트](https://www.cursor.com)에서 최신 버전을 다운로드해 설치하세요. 사용자 지정 모델을 지원하는 Cursor 계정으로 로그인한 뒤 아래 단계를 진행하세요.
+
+<Warning>
+  Cursor에서는 유료 고급 등급 이상의 사용자만 사용자 지정 모델을 설정할 수 있습니다. 계정이나 클라이언트에 사용자 지정 모델, API Key, Base URL 옵션이 표시되지 않으면 먼저 Cursor 요금제와 클라이언트 버전을 확인하세요.
+</Warning>
+
+<Warning>
+  **알려진 문제:** **Override OpenAI Base URL**은 전역 설정입니다. 활성화하면 Cursor 내장 모델에서 사용하는 Anthropic 및 GPT Key를 포함해 Cursor에 설정된 모든 API Key에 영향을 줍니다. Cursor 공식 커뮤니티에서도 Base URL 설정이 모든 API Key와 모델에 영향을 준다고 확인했습니다. ([커뮤니티 글](https://forum.cursor.com/t/cursor-models-fail-when-using-byok-openai-key-with-overridden-base-url-glm-4-7/147218))
+
+  **Override OpenAI Base URL**을 활성화한 뒤 Cursor 내장 Claude / GPT 모델이 작동하지 않으면 BetterToken을 사용하지 않을 때 이 옵션을 끄세요. Cursor는 현재 모델별로 다른 Base URL을 지원하지 않으며 이 기능은 아직 요청 상태입니다. ([기능 요청](https://forum.cursor.com/t/custom-base-urls-for-each-custom-model/147219))
+</Warning>
+
+## 수동 설정
+
+Cursor 설정 UI에서 다음 설정을 완료하세요. 설정 파일을 수정할 필요는 없습니다.
+
+| Cursor 필드 | 값 |
+| --- | --- |
+| **Override OpenAI Base URL** | 켜기 |
+| **Base URL** | `{{openai-base-url}}` |
+| **OpenAI API Key** | BetterToken API Key 입력 |
+| 사용자 지정 모델 | 지원 제공자의 전체 Model ID |
+
+### 설정 절차
+
+<Steps>
+  <Step title="모델 설정 페이지 열기">
+    Cursor 왼쪽 아래에서 **Settings**를 클릭한 뒤 **Models**로 이동하세요. **API Keys**까지 아래로 스크롤하세요.
+
+    <Frame>
+      <img
+        src="/images/cursor/settings-api-key.png"
+        alt="Settings, Models, API Keys, OpenAI API Key, Override OpenAI Base URL 필드가 표시된 Cursor 설정 페이지."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Base URL과 API Key 입력">
+    **API Keys**에서 다음 순서로 필드를 설정하세요.
+
+    1. **Override OpenAI Base URL**을 활성화합니다.
+    2. Base URL 필드에 `{{openai-base-url}}`을 입력합니다.
+    3. BetterToken API Key를 **OpenAI API Key**에 붙여 넣습니다.
+    4. URL과 Key를 입력한 뒤 **OpenAI API Key** 토글을 활성화합니다.
+
+    토글을 켜기 전에 Key를 입력하세요. 그러면 Cursor에 인증 확인 대화 상자가 표시됩니다.
+  </Step>
+
+  <Step title="OpenAI API Key 활성화">
+    확인 대화 상자에서 **Enable OpenAI API Key**를 클릭하세요.
+
+    <Frame>
+      <img
+        src="/images/cursor/enable-openai-api-key.png"
+        alt="사용자 OpenAI API Key 활성화를 요청하는 Cursor 확인 대화 상자."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="모델 목록 새로 고침 및 모델 활성화">
+    **Models**로 돌아가 모델을 선택하기 전에 오른쪽의 새로 고침 버튼을 클릭하세요. 모델 목록의 새로 고침이 끝날 때까지 기다리세요.
+
+    설정한 엔드포인트가 지원하는 제공자의 모델만 선택하세요. BetterToken API Key를 사용할 때는 모델 광장의 **지원 제공자**에서 Model ID를 선택한 뒤 해당 모델의 토글을 켜세요.
+
+    <Frame>
+      <img
+        src="/images/cursor/models-refresh-select.png"
+        alt="새로 고침 버튼과 모델 토글이 표시된 Cursor Models 섹션."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="채팅으로 돌아가 Auto 끄기">
+    설정 후 Cursor 채팅 화면으로 돌아가 입력창 아래의 모델 선택기를 여세요. **Auto**가 활성화되어 있으면 먼저 **Auto**를 끄세요.
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-disable-auto.png"
+        alt="꺼야 하는 Auto 토글이 표시된 Cursor 채팅 모델 선택기."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="모델 선택 후 채팅 시작">
+    활성화한 지원 제공자의 모델을 선택한 뒤 채팅을 시작하세요.
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-select-model.png"
+        alt="모델 선택기에서 활성화된 모델을 선택한 Cursor 채팅 입력창."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
+
+## 연결 확인
+
+짧은 테스트 프롬프트를 보내세요. 인증 또는 Model ID 오류 없이 응답이 오면 연결이 완료된 것입니다. 설정을 변경한 뒤에는 도구를 완전히 다시 시작하세요.
+
+## 모델 전환
+
+모델 선택기를 열거나 설정의 `Model` 필드를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 뒤 현재 세션을 다시 시작하세요.
+
+## 흔한 오류
+
+### 사용자 지정 API 및 API Key 오류
+
+모델이나 Key를 변경하기 전에 [Cursor 사용자 지정 OpenAI API 설정](/ko/faq/cursor/custom-openai-api)과 현재 설정을 비교하세요.
+
+### Cursor에 Custom API, API Key 또는 Base URL 필드가 표시되지 않음
+
+Cursor 요금제와 클라이언트 버전을 확인하세요. 사용자 지정 모델은 지원되는 유료 등급에서만 사용할 수 있습니다. Cursor를 업데이트한 뒤 **Settings** → **Models**를 다시 여세요.
+
+### API Key를 활성화하거나 확인할 수 없음
+
+Base URL `{{openai-base-url}}`과 API Key를 입력한 뒤 **OpenAI API Key** 토글을 켜세요. Base URL에 `/chat/completions`를 추가하지 말고 Claude 제공자 Key를 사용하지 마세요.
+
+### 새로 고침 후 모델이 표시되지 않음
+
+선택한 Model ID가 **지원 제공자**의 것인지 확인하고 새로 고침이 끝날 때까지 기다린 뒤 해당 제공자의 모델만 활성화하세요. 모델 광장에는 항상 현재 ID가 표시됩니다.
+
+### Cursor 내장 모델이 작동하지 않음
+
+**Override OpenAI Base URL**은 전역 설정입니다. BetterToken을 사용하지 않을 때 이 토글을 끄면 Cursor가 자체 Base URL을 다시 사용할 수 있습니다.
+
+### 채팅에서 다른 모델이 선택됨
+
+모델 선택기를 열고 **Auto**를 끈 뒤 활성화한 모델을 직접 선택하세요.
+
+### 관련 FAQ
+
+- [Cursor 사용자 지정 OpenAI API 설정](/ko/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md, .cursorignore 이해하기](/ko/faq/cursor/rules-agents-cursorignore)
+- [Cursor에서 MCP 설정하기](/ko/faq/cursor/mcp)
+- [로컬 개발에서 Claude Code와 Cursor 비교](/ko/faq/claude-code/claude-code-vs-cursor)
+- [Codex CLI에서 사용자 지정 제공자 설정하기](/ko/ai-tools/codex)
+- [Cline에서 OpenAI 호환 API 설정하기](/ko/ai-tools/cline)
+- [OpenAI 호환 API와 Anthropic 호환 API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 기술 세부 정보
+
+<Accordion title="프로토콜, 엔드포인트, 내부 제공자 필드">
+  이 설정은 `{{openai-base-url}}`을 사용합니다. 도구가 OpenAI 호환 엔드포인트 경로를 추가합니다. 특정 필드에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+
+### 참고
+
+- Codex / OpenAI 호환 흐름에서 Claude 제공자의 Model ID를 사용하지 마세요.
+- 하드코딩된 Claude 모델 이름을 계속 사용하지 말고 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 지원 제공자의 현재 Model ID를 사용하세요.
+</Accordion>

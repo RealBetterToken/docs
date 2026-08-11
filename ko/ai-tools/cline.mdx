@@ -1,0 +1,133 @@
+---
+title: "Cline 설정: 설치, API Key, Base URL, 사용자 지정 모델"
+sidebarTitle: "Cline"
+description: "Cline을 설치하고 BetterToken Base URL과 API Key를 설정한 뒤 호환 제공자 모델을 선택하고 일반적인 오류를 해결하세요."
+icon: "c"
+---
+
+Cline을 BetterToken에 연결하려면 API Key를 준비하고 아래 Base URL을 입력한 뒤 모델 광장에서 현재 Model ID를 선택하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+## 준비 사항
+
+- 최신 버전의 도구 설치
+- BetterToken API Key: <a href={"{{register-url}}"}>가입 후 발급받기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID
+
+### 추가 요구 사항
+
+- VS Code 설치
+
+## 설치하기
+
+### Cline 설치
+
+VS Code를 열고 확장 프로그램 Marketplace에서 **Cline**을 검색해 설치하세요.
+
+## 수동 설정
+
+Cline 설정 UI에서 다음 설정을 완료하세요. 설정 파일을 수정할 필요는 없습니다.
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | <a href={"{{model-plaza-url}}"}>모델 광장</a>의 현재 Model ID |
+
+### 설정 절차
+
+<Steps>
+  <Step title="충돌하는 환경 변수 제거">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Cline 설정 UI 열기">
+    Cline 사이드바에서 **Use your own API key**를 클릭하세요.
+  </Step>
+
+  <Step title="API 제공자 설정">
+    다음 항목을 입력하세요.
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → BetterToken API Key
+    - **Model** → <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 복사한 **지원 제공자의 Model ID**
+  </Step>
+
+  <Step title="공식 문서에서 명시적으로 요구할 때만 추가 헤더 설정">
+    Cline의 공식 OpenAI 호환 설정 문서는 `Base URL`, API Key, Model ID를 중심으로 설명합니다. BetterToken 연결에는 일반적으로 추가 `User-Agent`가 필요하지 않습니다.
+
+    사용자 지정 게이트웨이, 테넌트 라우팅, 관측성 또는 Cache 계층을 함께 사용하는 경우 해당 업스트림 서비스의 공식 문서에 따라서만 헤더를 추가하세요.
+  </Step>
+
+  <Step title="설정 저장">
+    **Done**을 클릭하세요.
+  </Step>
+
+  <Step title="Cline 다시 시작">
+    설정을 저장한 뒤 VS Code를 다시 시작하거나 Cline 확장 프로그램을 다시 로드해 새 설정을 적용하세요.
+  </Step>
+</Steps>
+
+## 연결 확인
+
+짧은 테스트 프롬프트를 보내세요. 인증 또는 Model ID 오류 없이 응답이 오면 연결이 완료된 것입니다. 설정을 변경한 뒤에는 도구를 완전히 다시 시작하세요.
+
+## 모델 전환
+
+모델 선택기를 열거나 설정의 `Model` 필드를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 뒤 현재 세션을 다시 시작하세요.
+
+## 흔한 오류
+
+| 오류 | 확인할 항목 |
+| --- | --- |
+| `401` 또는 `Unauthorized` | BetterToken API Key를 확인하고 앞뒤 공백을 제거하세요. |
+| `404` | Base URL을 확인하고 특정 엔드포인트 경로를 추가하지 마세요. |
+| `model not found` | 모델 광장에서 현재 Model ID를 복사하세요. |
+| 변경 사항이 적용되지 않음 | 설정을 저장하고 도구를 완전히 다시 시작하세요. |
+
+
+- [Cline에서 OpenAI 호환 API 설정하기](/ko/faq/cline/openai-compatible-api)
+- [OpenAI 호환 API와 Anthropic 호환 API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [Cursor에서 사용자 지정 OpenAI API 설정하기](/ko/faq/cursor/custom-openai-api)
+
+<Note>
+  먼저 `Base URL`, API Key, Model ID, 도구 버전을 확인하세요. `User-Agent`가 BetterToken의 필수 설정이라고 가정하지 마세요.
+</Note>
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 기술 세부 정보
+
+<Accordion title="프로토콜, 엔드포인트, 내부 제공자 필드">
+  이 설정은 `{{openai-base-url}}`을 사용합니다. 도구가 OpenAI 호환 엔드포인트 경로를 추가합니다. 특정 필드에서 명시적으로 요구하지 않는 한 `/chat/completions` 또는 `/responses`를 추가하지 마세요.
+</Accordion>

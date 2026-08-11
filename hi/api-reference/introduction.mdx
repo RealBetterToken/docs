@@ -1,0 +1,62 @@
+---
+title: "API संदर्भ"
+description: "BetterToken OpenAI-compatible Chat Completions API के Request URL, authentication और testing entry point देखें।"
+---
+
+BetterToken का public API Reference अभी केवल **OpenAI-compatible Chat Completions API** को शामिल करता है। अन्य protocol का समर्थन सभी channel में समान नहीं है, इसलिए Responses API और Anthropic Messages API को public interface के रूप में प्रकाशित नहीं किया गया है।
+
+## समर्थित प्रदाता
+
+| प्रदाता | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+## कनेक्शन विवरण
+
+| Field | मान |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| Full request URL | `{{chat-completions-url}}` |
+| Method | `POST` |
+| Authorization | `Bearer YOUR_API_KEY` |
+| Model | `YOUR_MODEL_ID` |
+
+<a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> या Console के API Key **Setup** dialog से मौजूदा Model ID कॉपी करें।
+
+<Warning>
+  टूल **Base URL** मांगे तो `{{openai-base-url}}` दर्ज करें। टूल स्पष्ट रूप से पूरा Request URL मांगे तभी `{{chat-completions-url}}` उपयोग करें।
+</Warning>
+
+## त्वरित टेस्ट
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+सफल Response में `choices[0].message.content` होता है।
+
+## Interactive testing और SDK उदाहरण
+
+[OpenAI Chat Completions API](/hi/api-reference/chat-completions) पेज पर आप ये काम कर सकते हैं:
+
+- Playground से Request भेजें
+- Request parameter और Response schema देखें
+- curl, Python और JavaScript उदाहरण कॉपी करें
+
+<Note>
+  वास्तविक API Key को दस्तावेज़, screenshot या public code में स्टोर न करें। `YOUR_API_KEY` और `YOUR_MODEL_ID` को अपने मान से बदलें।
+</Note>

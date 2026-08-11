@@ -1,0 +1,53 @@
+---
+title: "Como configurar o MCP no Cursor"
+sidebarTitle: "Cursor MCP"
+description: "Entenda o MCP do Cursor, as configurações global e de projeto, o mcp.json, a aprovação de ferramentas e a diferença entre MCP e a configuração da API de modelos."
+---
+
+## Resposta curta
+
+O MCP do Cursor conecta ferramentas e fontes de dados externas ao fluxo de IA dentro do editor. Ele não configura a API de modelos nem substitui uma Base URL compatível com OpenAI.
+
+No Cursor, a configuração do MCP geralmente envolve o `mcp.json`, ajustes globais ou de projeto, variáveis de ambiente e a aprovação de ferramentas.
+
+## Quando isso é importante
+
+- Você quer que o Cursor use ferramentas externas
+- Você precisa configurar um servidor MCP específico para o projeto
+- Você quer diferenciar o MCP do projeto do MCP global
+- Você quer entender a aprovação de ferramentas
+- Você acredita que o MCP pode substituir API Key / Base URL
+
+## MCP versus API de modelos
+
+| Item | MCP do Cursor | API compatível com OpenAI |
+| --- | --- | --- |
+| Função | Conectar ferramentas, fontes de dados e contexto | Conectar o provedor de modelos |
+| Configuração principal | `mcp.json`, servidor, ambiente, aprovação | API Key, Base URL, ID de modelo |
+| Risco principal | Permissões de ferramentas e acesso a dados | Autenticação, cobrança, disponibilidade do modelo |
+
+## Prática recomendada
+
+1. Confirme que você está adicionando recursos de ferramentas, não um provedor de modelos.
+2. Escolha a configuração MCP global ou de projeto conforme a documentação do Cursor.
+3. Forneça ao servidor MCP apenas as variáveis de ambiente necessárias.
+4. Mantenha a aprovação para ferramentas que gravam arquivos ou acessam serviços externos.
+5. Diagnostique separadamente a API de modelos e o MCP.
+
+## Sobre a BetterToken
+
+A BetterToken é a camada de API de modelos. O MCP do Cursor é a camada de ferramentas. Você pode usar ambos, mas um não substitui o outro.
+
+Se o objetivo for alterar o roteamento dos modelos, configure `{{openai-base-url}}` e um modelo do **provedor GPT**. Se o objetivo for permitir que o Cursor acione ferramentas externas, configure o MCP.
+
+## Documentos relacionados
+
+- [MCP versus API Key e Base URL](/pt-br/faq/concepts/mcp-vs-api-key-base-url)
+- [Como configurar uma API OpenAI personalizada no Cursor](/pt-br/faq/cursor/custom-openai-api)
+- [Cursor Rules, AGENTS.md e .cursorignore](/pt-br/faq/cursor/rules-agents-cursorignore)
+- [Como configurar uma API compatível com OpenAI no Cline](/pt-br/faq/cline/openai-compatible-api)
+
+## Referências
+
+- [Documentação do MCP no Cursor](https://cursor.com/docs/mcp)
+- [Documentação em Markdown do MCP no Cursor](https://cursor.com/docs/mcp.md)

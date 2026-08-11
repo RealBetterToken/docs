@@ -1,0 +1,133 @@
+---
+title: "Roo Code सेटअप: इंस्टॉलेशन, API key, Base URL और कस्टम मॉडल"
+sidebarTitle: "Roo Code"
+description: "Roo Code इंस्टॉल करें, BetterToken Base URL और API key कॉन्फ़िगर करें, संगत provider मॉडल चुनें और सामान्य त्रुटियां ठीक करें।"
+icon: "r"
+---
+
+Roo Code को BetterToken से कनेक्ट करने के लिए API key तैयार करें, नीचे दिया Base URL भरें और model plaza से वर्तमान Model ID चुनें।
+
+## मुख्य सेटिंग्स
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| मॉडल | <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान Model ID |
+
+## आवश्यकताएं
+
+- टूल का वर्तमान संस्करण इंस्टॉल है
+- BetterToken API key: <a href={"{{register-url}}"}>रजिस्टर करें और प्राप्त करें</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> से Model ID
+
+### अतिरिक्त आवश्यकताएं
+
+- VS Code इंस्टॉल है
+
+## इंस्टॉल करें
+
+### Roo Code इंस्टॉल करें
+
+VS Code खोलें, extensions marketplace में **Roo Code** खोजें और इंस्टॉल करें।
+
+## मैन्युअल सेटअप
+
+यह सेटअप Roo Code settings UI में पूरा करें। configuration फ़ाइल संपादित करने की जरूरत नहीं है。
+
+| फ़ील्ड | मान |
+| --- | --- |
+| API Key | BetterToken API key |
+| Base URL | `{{openai-base-url}}` |
+| मॉडल | <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान Model ID |
+
+### सेटअप
+
+<Steps>
+  <Step title="टकराव वाले environment variable हटाएं">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Roo Code settings खोलें">
+    Roo Code **Settings** panel खोलें।
+  </Step>
+
+  <Step title="API provider कॉन्फ़िगर करें">
+    भरें:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → आपकी BetterToken API Key
+    - **Model** → <a href={"{{model-plaza-url}}"}>model plaza</a> से कॉपी की **किसी समर्थित provider की मॉडल ID**
+  </Step>
+
+  <Step title="अतिरिक्त header केवल तभी कॉन्फ़िगर करें जब आधिकारिक दस्तावेज स्पष्ट रूप से कहें">
+    उपलब्ध आधिकारिक Roo Code सामग्री OpenAI-compatible या custom API सेटअप पर केंद्रित है, लेकिन वह अतिरिक्त `User-Agent` को BetterToken का अनिवार्य चरण नहीं मानती।
+
+    custom gateway, tenant routing, observability या caching layer भी इस्तेमाल कर रहे हों तो header केवल उस upstream सेवा के आधिकारिक दस्तावेज के अनुसार जोड़ें।
+  </Step>
+
+  <Step title="सहेजें और उपयोग शुरू करें">
+    **Save** और **Done** क्लिक करें, फिर कॉन्फ़िगर किया मॉडल चुनें।
+  </Step>
+
+  <Step title="Roo Code रीस्टार्ट करें">
+    config सहेजने के बाद कॉन्फ़िगर किया मॉडल चुनने से पहले VS Code रीस्टार्ट करें या Roo Code extension reload करें।
+  </Step>
+</Steps>
+
+<Note>
+  Roo Code का OpenAI Compatible provider अब भी OpenAI-style tool calling पर निर्भर है। अतिरिक्त header चाहिए हों तो `User-Agent` को BetterToken के लिए अनिवार्य मानने के बजाय वर्तमान Roo Code दस्तावेज या upstream gateway आवश्यकता का पालन करें।
+</Note>
+
+## कनेक्शन सत्यापित करें
+
+छोटा test prompt भेजें। यदि टूल बिना authentication या Model ID त्रुटि के उत्तर देता है, तो कनेक्शन काम कर रहा है। configuration बदलने के बाद टूल को पूरी तरह रीस्टार्ट करें।
+
+## मॉडल बदलें
+
+मॉडल selector खोलें या configuration में `Model` फ़ील्ड बदलें। <a href={"{{model-plaza-url}}"}>model plaza</a> से सटीक Model ID उपयोग करें, फिर मौजूदा session रीस्टार्ट करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | क्या जांचें |
+| --- | --- |
+| `401` या `Unauthorized` | BetterToken API key जांचें और शुरुआत/अंत के space हटाएं। |
+| `404` | Base URL जांचें और कोई विशिष्ट endpoint path न जोड़ें। |
+| `model not found` | model plaza से वर्तमान Model ID कॉपी करें। |
+| बदलाव लागू नहीं होते | configuration सहेजें और टूल पूरी तरह रीस्टार्ट करें। |
+
+
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Cline में OpenAI-compatible API कैसे कॉन्फ़िगर करें](/hi/faq/cline/openai-compatible-api)
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+## तकनीकी विवरण
+
+<Accordion title="Protocol, endpoint और आंतरिक provider फ़ील्ड">
+  यह सेटअप `{{openai-base-url}}` उपयोग करता है। टूल OpenAI-compatible endpoint path जोड़ता है। जब तक कोई विशेष फ़ील्ड स्पष्ट रूप से न मांगे, `/chat/completions` या `/responses` न जोड़ें।
+</Accordion>

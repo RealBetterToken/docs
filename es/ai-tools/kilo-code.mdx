@@ -1,0 +1,127 @@
+---
+title: "Configurar Kilo Code: instalación, API Key, Base URL y modelos personalizados"
+sidebarTitle: "Kilo Code"
+description: "Instala Kilo Code, configura la Base URL y la API Key de BetterToken, elige un modelo de un proveedor compatible y corrige los errores habituales."
+icon: "puzzle-piece"
+---
+
+Para conectar Kilo Code con BetterToken, prepara una API Key, introduce la Base URL indicada a continuación y elige un ID de modelo vigente en la model plaza.
+
+## Ajustes principales
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+## Requisitos previos
+
+- La versión actual de la herramienta está instalada
+- Una BetterToken API Key: <a href={"{{register-url}}"}>regístrate y obtén una</a>
+- Un ID de modelo de la <a href={"{{model-plaza-url}}"}>model plaza</a>
+
+### Requisitos adicionales
+
+- VS Code instalado
+
+## Instalación
+
+Instala o abre Kilo Code y continúa con la configuración manual siguiente.
+
+## Configuración manual
+
+Completa esta configuración en la interfaz de ajustes de Kilo Code. No necesitas editar un archivo de configuración.
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Modelo | Un ID de modelo vigente de la <a href={"{{model-plaza-url}}"}>model plaza</a> |
+
+### Pasos de configuración
+
+<Steps>
+  <Step title="Elimina las variables de entorno en conflicto">
+    ```bash
+    unset OPENAI_API_KEY
+    unset OPENAI_BASE_URL
+    ```
+  </Step>
+
+  <Step title="Abre los ajustes de Kilo Code">
+    Abre la interfaz de ajustes de Kilo Code.
+  </Step>
+
+  <Step title="Configura el proveedor de API">
+    Completa estos campos:
+
+    - **API Provider** → `OpenAI Compatible`
+    - **Base URL** → `{{openai-base-url}}`
+    - **API Key** → tu BetterToken API Key
+    - **Model** → un **ID de modelo de un proveedor compatible** copiado desde la <a href={"{{model-plaza-url}}"}>model plaza</a>
+  </Step>
+
+  <Step title="Configura cabeceras adicionales solo si la documentación oficial las exige">
+    El material oficial de Kilo Code que revisamos menciona cabeceras personalizadas opcionales para proveedores compatibles con OpenAI, pero no considera `User-Agent` un paso obligatorio para configurar BetterToken.
+
+    Si también usas un gateway personalizado, enrutamiento por tenant, observabilidad o una capa de caché, añade cabeceras únicamente según la documentación oficial de ese servicio original.
+  </Step>
+
+  <Step title="Reinicia Kilo Code">
+    Después de cambiar la configuración, reinicia VS Code o recarga la extensión Kilo Code para aplicar los nuevos ajustes.
+  </Step>
+</Steps>
+
+<Note>
+  Si necesitas cabeceras adicionales, sigue la documentación actual de Kilo Code o los requisitos de tu gateway original; no supongas que `User-Agent` sea obligatorio para BetterToken.
+</Note>
+
+## Verifica la conexión
+
+Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+
+## Cambia de modelo
+
+Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
+
+## Errores habituales
+
+| Error | Qué comprobar |
+| --- | --- |
+| `401` o `Unauthorized` | Comprueba la BetterToken API Key y elimina los espacios iniciales o finales. |
+| `404` | Comprueba la Base URL y no añadas una ruta específica de endpoint. |
+| `model not found` | Copia un ID de modelo vigente desde la model plaza. |
+| Los cambios no se aplican | Guarda la configuración y reinicia la herramienta por completo. |
+
+
+- [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP frente a API Key y Base URL](/es/faq/concepts/mcp-vs-api-key-base-url)
+- [¿Qué son model_provider, base_url y wire_api?](/es/faq/codex/model-provider-base-url-wire-api)
+- [Cómo configurar una API compatible con OpenAI en Cline](/es/faq/cline/openai-compatible-api)
+
+## Configuración avanzada
+
+{/* tool-provider-support:start */}
+### Proveedores compatibles
+
+| Proveedor | Estado |
+| --- | --- |
+| Claude | No compatible |
+| GPT | Configuración manual |
+| Kimi | Configuración manual |
+| GLM | Configuración manual |
+
+<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
+
+<Accordion title="Qué significa cada método de configuración">
+  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
+  - **No compatible**: todavía no hay un método de conexión directa verificado.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Detalles técnicos
+
+<Accordion title="Protocolo, endpoint y campos internos del proveedor">
+  Esta configuración usa `{{openai-base-url}}`. La herramienta añade la ruta del endpoint compatible con OpenAI. No añadas `/chat/completions` ni `/responses` salvo que un campo concreto lo exija explícitamente.
+</Accordion>

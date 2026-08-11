@@ -1,0 +1,138 @@
+---
+title: "Zed कस्टम मॉडल सेटअप: API Key और Base URL"
+sidebarTitle: "Zed"
+description: "Zed में BetterToken को OpenAI-compatible provider के रूप में जोड़ें, Base URL, API Key और मॉडल कॉन्फ़िगर करें तथा key को system keychain में रखें।"
+icon: "z"
+---
+
+Zed **Agent Settings** में OpenAI-compatible provider जोड़ें, फिर BetterToken API Key, Base URL और Model ID भरें। Zed इस screen से सहेजी key को `settings.json` के बजाय system keychain में रखता है।
+
+## मुख्य सेटिंग्स
+
+| फ़ील्ड | मान |
+| --- | --- |
+| Provider | `BetterToken` |
+| API Key | `YOUR_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## आवश्यकताएं
+
+- [Zed](https://zed.dev/docs) का वर्तमान संस्करण इंस्टॉल करें
+- <a href={"{{register-url}}"}>BetterToken API Key बनाएं</a>
+- <a href={"{{model-plaza-url}}"}>model plaza</a> से `YOUR_MODEL_ID` कॉपी करें
+
+## इंस्टॉल करें
+
+[Zed website](https://zed.dev) से वर्तमान संस्करण इंस्टॉल या अपडेट करें। Zed शुरू करें, फिर Agent settings खोलने के लिए नीचे के चरण अपनाएं।
+
+## मैन्युअल सेटअप
+
+<Steps>
+  <Step title="OpenAI-compatible provider जोड़ें">
+    **Add Provider** क्लिक करें, **OpenAI Compatible** चुनें और Provider Name में `BetterToken` भरें।
+  </Step>
+
+  <Step title="कनेक्शन सेटिंग भरें">
+
+    | फ़ील्ड | मान |
+    | --- | --- |
+    | API URL | `{{openai-base-url}}` |
+    | API Key | `YOUR_API_KEY` |
+    | Model ID | `YOUR_MODEL_ID` |
+
+    केवल Base URL भरें। Zed Chat Completions endpoint बनाता है।
+  </Step>
+
+  <Step title="API Key सहेजें">
+    Zed settings में provider सहेजें। Zed API Key को local system keychain में रखता है और `settings.json` में नहीं लिखता।
+  </Step>
+
+  <Step title="मॉडल चुनें">
+    Agent Panel model picker खोलें और `YOUR_MODEL_ID` को `BetterToken` के अंतर्गत चुनें।
+  </Step>
+</Steps>
+
+<Warning>
+  `YOUR_API_KEY` को `settings.json`, project फ़ाइल या Git repository में न रखें।
+</Warning>
+
+### वैकल्पिक: `settings.json` में provider और मॉडल घोषित करें
+
+फ़ाइल-प्रबंधित मॉडल declaration चाहिए हो तो `zed: open settings file` चलाएं। फ़ाइल में केवल provider, `api_url` और मॉडल metadata रखें:
+
+```json
+{
+  "language_models": {
+    "openai_compatible": {
+      "BetterToken": {
+        "api_url": "{{openai-base-url}}",
+        "available_models": [
+          {
+            "name": "YOUR_MODEL_ID",
+            "display_name": "YOUR_MODEL_ID",
+            "max_tokens": 128000
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Zed को मॉडल context-window declaration के रूप में `max_tokens` चाहिए। इसे चुने मॉडल के अनुसार बदलें। API Key को **Agent Settings** में भरें ताकि system keychain इसे रखे।
+
+## कनेक्शन सत्यापित करें
+
+1. Agent Panel में `BetterToken / YOUR_MODEL_ID` चुनें।
+2. छोटा परीक्षण संदेश भेजें।
+3. authentication या मॉडल त्रुटि के बिना सामान्य उत्तर सेटअप की पुष्टि करता है।
+
+provider या मॉडल सेटिंग बदलने के बाद Zed को पूरी तरह बंद करके फिर शुरू करें।
+
+## मॉडल बदलें
+
+Agent Panel model picker में दूसरा BetterToken मॉडल चुनें। Model ID जोड़ने के लिए <a href={"{{model-plaza-url}}"}>model plaza</a> से वर्तमान मान कॉपी करें, फिर provider settings या `available_models` अपडेट करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | समाधान |
+| --- | --- |
+| `401` या `Unauthorized` | Agent Settings में BetterToken API Key फिर भरें और आसपास के space हटाएं। |
+| `404` | API URL के रूप में `{{openai-base-url}}` उपयोग करें; `/chat/completions` न जोड़ें। |
+| `model not found` | model plaza से `YOUR_MODEL_ID` फिर कॉपी करें। |
+| Settings लागू नहीं होतीं | provider सहेजें, Zed पूरी तरह बंद करके फिर खोलें। |
+| Zed पुरानी key उपयोग करता है | keychain को override करने वाला provider environment variable हटाएं, फिर Zed रीस्टार्ट करें। |
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+## तकनीकी विवरण
+
+<Accordion title="Keychain, settings फ़ाइल और endpoint">
+  Zed OpenAI-compatible provider से BetterToken को कॉल करता है। settings screen key को system keychain में रखती है; `settings.json` में केवल provider, `api_url` और मॉडल declaration होता है। Base URL के रूप में `{{openai-base-url}}` उपयोग करें और Zed को Chat Completions path जोड़ने दें।
+</Accordion>
+
+### संबंधित FAQ
+
+- [OpenAI-compatible बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Cline में OpenAI-compatible API कॉन्फ़िगर करें](/hi/faq/cline/openai-compatible-api)

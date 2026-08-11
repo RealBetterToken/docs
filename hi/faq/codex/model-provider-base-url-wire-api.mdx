@@ -1,0 +1,95 @@
+---
+title: "Codex custom provider: model_provider, Base URL और wire_api"
+sidebarTitle: "provider / base_url / wire_api"
+description: "model_provider, Base URL, wire_api, API Key और Model ID से Codex custom provider कॉन्फ़िगर करें, तथा provider, 401 और 404 errors ठीक करें।"
+---
+
+## संक्षिप्त उत्तर
+
+`model_provider`, Codex CLI को बताता है कि कौन-सा provider उपयोग करना है। इसका value `[model_providers.<id>]` के अंतर्गत परिभाषित provider id से मेल खाना चाहिए।
+
+`base_url` वह API endpoint है जहां model requests भेजे जाते हैं। OpenAI-compatible provider के लिए यह आमतौर पर `/v1` style endpoint की ओर संकेत करता है।
+
+`wire_api`, Codex को उस provider से बात करते समय उपयोग करने के लिए protocol shape बताता है। Codex configuration reference में `responses`, supported provider protocol value है।
+
+## यह कब महत्वपूर्ण है
+
+- आप custom OpenAI-compatible provider कॉन्फ़िगर कर रहे हैं
+- Codex कहता है कि provider नहीं मिला या model requests विफल होते हैं
+- आपको नहीं पता कि `model_provider`, `model` से कैसे अलग है
+- आप BetterToken, OpenAI या अन्य provider को एक `config.toml` में रख रहे हैं
+- आपको Base URL, API Key और Model ID अलग रखने हैं
+
+## Field संबंध
+
+| Field | उद्देश्य |
+| --- | --- |
+| `model_provider` | सक्रिय provider id चुनता है |
+| `[model_providers.<id>]` | एक provider का विस्तृत configuration परिभाषित करता है |
+| `name` | provider का display name |
+| `base_url` | root API endpoint |
+| `wire_api` | provider protocol, आमतौर पर `responses` |
+| `model` | default main model ID |
+| `review_model` | `/review` जैसे code review flows के लिए उपयोग model |
+
+## अनुशंसित pattern
+
+provider id को consistent रखें:
+
+```toml
+model_provider = "custom"
+model = "gpt-5.5"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+env_key = "MODEL_PROVIDER_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+```
+
+इसका अर्थ है कि Codex `custom` नाम के provider का उपयोग करता है, model requests को `{{openai-base-url}}` पर भेजता है और Responses API shape से संवाद करता है।
+
+API Key को सीधे `config.toml` में न रखें। इसे Codex launch करने वाले terminal में सेट करें:
+
+```bash
+export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+Windows PowerShell में:
+
+```powershell
+$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+```
+
+## setup सत्यापित करें
+
+1. पुष्टि करें कि `model_provider = "custom"`, `[model_providers.custom]` से बिल्कुल मेल खाता है।
+2. पुष्टि करें कि Base URL `{{openai-base-url}}` है, जिसमें `/v1` शामिल है।
+3. <a href={"{{model-plaza-url}}"}>model plaza</a> में **GPT provider** से current Model ID copy करें।
+4. Codex को पूरी तरह बंद करें और उस नए terminal से फिर launch करें जिसमें environment variable सेट है।
+5. छोटा code-explanation task भेजें और पुष्टि करें कि Codex पूरा response लौटाता है।
+
+## समस्या निवारण
+
+| लक्षण | कारण | समाधान |
+| --- | --- | --- |
+| provider नहीं मिला | provider id और configuration table मेल नहीं खाते | दोनों जगह `custom` उपयोग करें |
+| startup पर API Key नहीं मिला | `env_key` द्वारा नामित variable उपलब्ध नहीं है | `MODEL_PROVIDER_API_KEY` सेट करें, फिर नया terminal खोलें |
+| `401` या `403` | अमान्य API Key या mixed OpenAI authentication | Key फिर copy करें और `requires_openai_auth = false` सेट करें |
+| `404` | Base URL में `/v1` नहीं है या Anthropic endpoint की ओर है | `{{openai-base-url}}` उपयोग करें |
+| model नहीं मिला | value display name, retired model या non-GPT model है | model plaza से current Model ID copy करें |
+| Responses protocol error | `wire_api` अनुपस्थित या गलत है | `wire_api = "responses"` सेट करें |
+
+## संबंधित दस्तावेज
+
+- [Codex CLI config.toml कैसे कॉन्फ़िगर करें](/hi/faq/codex/config-toml)
+- [Codex BetterToken सेटअप गाइड](/hi/ai-tools/codex)
+- [Codex CLI sandbox और approval modes क्या हैं?](/hi/faq/codex/sandbox-approval)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## संदर्भ
+
+- [Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)
+- [Codex sample config](https://developers.openai.com/codex/config-sample)
+- [Codex advanced configuration](https://developers.openai.com/codex/config-advanced)

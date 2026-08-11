@@ -1,0 +1,78 @@
+---
+title: "ロシアの利用者が API を使うために VPN は必要ですか？"
+sidebarTitle: "ロシアからの直接アクセス"
+description: "ロシアの利用者が地域サイトと API へ直接アクセスする方法、VPN が不要な場合、ネットワーク問題のトラブルシューティングを説明します。"
+---
+
+## 短い回答
+
+ロシア地域サイトは、ロシアから直接アクセスできるように構築されています。通常の利用では、VPN を使わずに Web サイトと API Endpoint へ直接アクセスできます。
+
+ロシアから Claude Code、Codex CLI、Cursor、Cline、OpenCode、OpenClaw、またはその他の外部ツールを使用する場合、重要なのは正しい Base URL、API Key、Model ID を入力することです。通常、追加の VPN レイヤーは必要ありません。
+
+## 推奨アドレス
+
+| 利用場面 | 推奨アドレス |
+| --- | --- |
+| Web サイトとコンソール | `{{anthropic-base-url}}` |
+| ドキュメント | `{{site-url}}` |
+| Claude Code / Anthropic 互換 | `{{anthropic-base-url}}` |
+| Codex CLI、Cursor、Cline、その他の OpenAI 互換ツール | `{{openai-base-url}}` |
+
+ロシア地域サイトでは BetterToken ドメインを使用します。Base URL、登録ページ、コンソール、モデル広場には BetterToken のリンクを使用してください。
+
+## VPN が不要な場合
+
+- BetterToken の Web サイトとコンソールへのアクセス
+- API Key の作成または管理
+- Claude Code での Anthropic 互換 Endpoint の設定
+- Codex CLI、Cursor、Cline、OpenCode、または OpenClaw での OpenAI 互換 Endpoint の設定
+- ドキュメント、モデル広場、利用記録の表示
+
+VPN は不安定な経路を通じてトラフィックを送信することがあります。その結果、レイテンシーの増加、TLS 検証の問題、リスク管理の作動につながる場合があります。会社のネットワークに特別な制限がない限り、VPN をデフォルト設定として使用しないでください。
+
+## サービスにアクセスできない場合に最初に確認すること
+
+1. ドメインを確認します。メインサイトとドキュメントサイトを混同しないでください。
+2. HTTPS を使用します。アドレスは `https://`.
+
+   この形式で始まる必要があります。
+3. デバイスのシステム時刻を確認します。時刻が正しくないと TLS 証明書の検証に失敗する場合があります。
+4. オフィスの Wi-Fi からモバイルホットスポットに切り替えるなど、別のネットワークで試します。
+5. ローカルのファイアウォール、プロキシツール、またはウイルス対策製品がリクエストをブロックしていないか確認します。
+6. ツール設定で、Base URL に余分なパスが含まれていないことを確認します。たとえば、Claude Code の Anthropic 互換設定では `/v1` を指定しないでください。
+
+## 簡単なテストコマンド
+
+まず、サイトに到達できるかをテストできます。
+
+```bash
+curl -I {{anthropic-base-url}}
+curl -I {{site-url}}
+```
+
+OpenAI 互換 Endpoint をテストするには、次を使用します。
+
+```bash
+curl -I {{openai-base-url}}
+```
+
+`curl -I` は接続とレスポンスヘッダーのみを確認します。API Key が機能するかどうかは検証しません。API Key をテストするには、実際のモデルリクエストを送信するか、ツール内のテスト機能を使用してください。
+
+## よくある間違い
+
+- 「VPN は不要」という説明を、すべてのネットワーク環境で常に機能するという意味だと考えること。
+- Claude Code の Base URL に `{{openai-base-url}}` を設定すること。
+- Codex CLI、Cursor、または Cline の Base URL に、`/v1` のないルートアドレスを設定すること。
+- VPN、プロキシ、ローカルゲートウェイを繰り返し切り替え、実際のリクエスト経路を不明確にすること。
+- API Base URL ではなくドキュメントサイトだけをテストすること。
+
+## BetterToken について
+
+ロシア地域サービスでは BetterToken ドメインを使用します。ロシアの利用者は、支払い、アクセス、ネットワーク経路に関する不確実性を減らすために、地域向けの登録リンク、コンソール、API Base URL を使用してください。
+
+## 関連ドキュメント
+
+- [Base URL の入力方法](/ja/faq/model-calling/base-url-config)
+- [適切な AI モデルを選ぶ方法](/ja/faq/model-calling/model-selection-guide)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)

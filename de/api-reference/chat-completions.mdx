@@ -1,0 +1,147 @@
+---
+title: "OpenAI Chat Completions API verwenden"
+description: "Verwende BetterTokens OpenAI-kompatible Chat-Completions-API mit vollständiger Request-URL, Bearer API Key sowie Beispielen für curl, Python und JavaScript."
+openapi: "api-reference/openapi.json POST /v1/chat/completions"
+---
+
+Rufe OpenAI-kompatible Chat Completions mit `POST {{chat-completions-url}}` auf. Die meisten external tools verwenden die Base URL `{{openai-base-url}}` und hängen `/chat/completions` selbst an.
+
+## Wichtige Einstellungen
+
+| Feld | Wert |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Full request URL | `{{chat-completions-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## Voraussetzungen
+
+- <a href={"{{register-url}}"}>Erstelle einen BetterToken API Key</a>
+- Kopiere eine Model ID aus der <a href={"{{model-plaza-url}}"}>model plaza</a> oder dem Dialog **Setup** des Keys
+- Bereite ein Terminal mit `curl` oder Python 3 / Node.js vor
+
+## Installation
+
+<Tabs>
+  <Tab title="curl">
+    `curl` benötigt kein SDK. Stelle sicher, dass `curl --version` im Terminal funktioniert.
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    python -m pip install openai
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```bash
+    npm install openai
+    ```
+  </Tab>
+</Tabs>
+
+## Manuelle Konfiguration
+
+### curl
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "YOUR_MODEL_ID",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello"
+      }
+    ]
+  }'
+```
+
+### Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {"role": "user", "content": "Hello"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+### JavaScript SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "{{openai-base-url}}",
+});
+
+const response = await client.chat.completions.create({
+  model: "YOUR_MODEL_ID",
+  messages: [{ role: "user", content: "Hello" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+## Verbindung prüfen
+
+Im Playground auf der rechten Seite:
+
+1. Trage `YOUR_API_KEY` unter **Authorization** ein.
+2. Ersetze `model` durch `YOUR_MODEL_ID`.
+3. Bearbeite `messages` und sende den Request.
+
+Der Playground verwendet bereits die vollständige URL `{{chat-completions-url}}`.
+
+Eine `200`-Antwort mit Modellausgabe in `choices[0].message.content` bestätigt die Verbindung.
+
+## Modell wechseln
+
+Ersetze `YOUR_MODEL_ID` durch die vollständige Model ID aus der model plaza oder dem Dialog **Setup**. Kürze die Model ID nicht anhand ihres Anzeigenamens.
+
+## Häufige Fehler
+
+| Fehler | Lösung |
+| --- | --- |
+| `401` | Bestätige `Authorization: Bearer YOUR_API_KEY` und kopiere dann den BetterToken API Key erneut. |
+| `404` | Direkte HTTP-Aufrufe verwenden `{{chat-completions-url}}`; SDK-`base_url` verwendet `{{openai-base-url}}`. |
+| Modell nicht gefunden | Verwende die vollständige Model ID aus der model plaza oder dem Dialog **Setup**. |
+| Ungültiger Request | Stelle sicher, dass `messages` ein Array ist und jedes Element `role` und `content` enthält. |
+
+## Erweiterte Konfiguration
+
+{/* tool-provider-support:start */}
+### Unterstützte Provider
+
+| Provider | Status |
+| --- | --- |
+| Claude | Nicht unterstützt |
+| GPT | Manuelle Konfiguration |
+| Kimi | Manuelle Konfiguration |
+| GLM | Manuelle Konfiguration |
+
+<Note>Die Statusangaben gelten für die auf dieser Seite beschriebene BetterToken-Konfiguration.</Note>
+
+<Accordion title="Bedeutung der Einrichtungsmethoden">
+  - **Manuelle Konfiguration**: Gib API Key, Base URL und Model ein.
+  - **Nicht unterstützt**: Derzeit gibt es keine verifizierte Methode für die direkte Verbindung.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## Technische Details
+
+<Accordion title="Base URL und vollständige Request-URL">
+  Tools, die eine vollständige Request-URL erfordern, etwa GitHub Copilot und TRAE, verwenden `{{chat-completions-url}}`. Tools, die den Pfad selbst anhängen, etwa Cursor, Cline, OpenCode, n8n und Dify, verwenden nur `{{openai-base-url}}`.
+</Accordion>

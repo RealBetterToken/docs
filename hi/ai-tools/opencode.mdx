@@ -1,0 +1,150 @@
+---
+title: "OpenCode custom मॉडल: API Key, Base URL और JSON सेटअप"
+sidebarTitle: "OpenCode"
+description: "/connect, opencode.json, API Key, Base URL और Model ID से OpenCode को BetterToken OpenAI-compatible Chat Completions से कनेक्ट करें।"
+icon: "brackets-curly"
+---
+
+OpenCode `@ai-sdk/openai-compatible` से BetterToken को कनेक्ट करता है। OpenCode प्रदाता का नाम **BetterToken** या **OpenAI Compatible** रखें। GPT, Kimi और GLM BetterToken के भीतर मॉडल प्रदाता हैं, OpenCode प्रदाता के नाम नहीं।
+
+## मुख्य सेटिंग
+
+| Field | मान |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## आवश्यकताएं
+
+- नवीनतम OpenCode इंस्टॉल करें
+- <a href={"{{register-url}}"}>BetterToken API Key बनाएं</a>
+- <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> या Key **Setup** dialog से Model ID कॉपी करें
+
+## इंस्टॉल करें
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -fsSL https://opencode.ai/install | bash
+    ```
+  </Tab>
+  <Tab title="npm">
+    ```bash
+    npm install -g opencode-ai
+    ```
+  </Tab>
+</Tabs>
+
+## Command-line सेटअप
+
+BetterToken automatic setup script OpenCode में BetterToken प्रदाता बनाता या अपडेट करता है। इसके लिए Node.js आवश्यक है। API Key या Model ID argument में न देने पर script उन्हें दर्ज करने को कहता है।
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    curl -fsSL "{{install-opencode-provider-sh-url}}" | bash
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    iwr "{{install-opencode-provider-ps1-url}}" -OutFile "$env:TEMP\install-opencode-provider.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\install-opencode-provider.ps1"
+    ```
+  </Tab>
+</Tabs>
+
+Script पूरा होने के बाद `bettertoken/YOUR_MODEL_ID` चुनें। OpenCode पहले से चल रहा हो तो test से पहले restart करें।
+
+## मैन्युअल सेटअप
+
+### विकल्प 1: /connect से credential save करें
+
+OpenCode शुरू करके चलाएं:
+
+```text
+/connect
+```
+
+**Other** चुनें, प्रदाता ID के रूप में `bettertoken` दर्ज करें, फिर `YOUR_API_KEY` दर्ज करें। OpenCode credential को local रूप से स्टोर करता है।
+
+### विकल्प 2: JSON सेट करें
+
+Global file `~/.config/opencode/opencode.json` है। Project अपने root में `opencode.json` उपयोग कर सकता है।
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "{{openai-base-url}}"
+      },
+      "models": {
+        "YOUR_MODEL_ID": {
+          "name": "YOUR_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+`/connect` उपयोग न करें तो `"apiKey": "YOUR_API_KEY"` को `options` के अंतर्गत जोड़ें। वास्तविक Key वाली configuration कभी commit न करें।
+
+## कनेक्शन सत्यापित करें
+
+Project में `opencode` चलाएं, `bettertoken/YOUR_MODEL_ID` चुनें और छोटा message भेजें। सामान्य Response सेटअप की पुष्टि करता है। JSON बदलने के बाद OpenCode restart करें।
+
+## मॉडल बदलें
+
+नया `YOUR_MODEL_ID` को `provider.bettertoken.models` के अंतर्गत जोड़ें, top-level `model` अपडेट करें, save करके restart करें।
+
+## सामान्य त्रुटियां
+
+| त्रुटि | समाधान |
+| --- | --- |
+| `401` | `/connect` फिर चलाएं या `apiKey` जांचें। |
+| `404` | केवल `{{openai-base-url}}` को `baseURL` के रूप में उपयोग करें; `/chat/completions` न जोड़ें। |
+| मॉडल नहीं मिला | Top-level `model` को `models` के अंतर्गत ID से exactly मिलाएं। |
+| Configuration लागू नहीं | जांचें कि project `opencode.json` global file को override तो नहीं करता, फिर OpenCode restart करें। |
+
+## उन्नत सेटअप
+
+{/* tool-provider-support:start */}
+### समर्थित provider
+
+| Provider | स्थिति |
+| --- | --- |
+| Claude | समर्थित नहीं |
+| GPT | कमांड लाइन + मैन्युअल सेटअप |
+| Kimi | मैन्युअल सेटअप |
+| GLM | मैन्युअल सेटअप |
+
+<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
+
+<Accordion title="सेटअप के तरीकों का अर्थ">
+  - **कमांड लाइन + मैन्युअल सेटअप**: तैयार कमांड का उपयोग करें या पूरे मैन्युअल चरणों का पालन करें।
+  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
+  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
+</Accordion>
+{/* tool-provider-support:end */}
+
+### संबंधित FAQ
+
+- [OpenAI-compatible API और Anthropic-compatible API की तुलना](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP और API Key तथा Base URL की तुलना](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
+- [Cline में OpenAI-compatible API कैसे सेट करें](/hi/faq/cline/openai-compatible-api)
+
+### वैकल्पिक: CC Switch से प्रदाता प्रबंधित करें
+
+कई टूल के प्रदाता एक जगह प्रबंधित करने के लिए [CC Switch में OpenCode सेटअप](/hi/ai-tools/cc-switch#opencode) देखें।
+
+## तकनीकी विवरण
+
+<Accordion title="प्रदाता और मॉडल प्रदाता">
+  OpenCode प्रदाता `bettertoken` है, जो `@ai-sdk/openai-compatible` और Chat Completions उपयोग करता है। GPT, Kimi और GLM BetterToken में मॉडल प्रदाता हैं; चुना गया पूरा Model ID `models` में डालें।
+</Accordion>

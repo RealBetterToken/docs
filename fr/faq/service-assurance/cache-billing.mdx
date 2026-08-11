@@ -1,0 +1,74 @@
+---
+title: "BetterToken prend-il en charge la facturation du Cache ?"
+sidebarTitle: "Facturation du Cache"
+description: "Comprenez la mise en cache des prompts, les champs indiquant un accès au Cache, les différences entre protocoles et la méthode pour vérifier si une requête a utilisé des Tokens en cache."
+---
+
+## Réponse courte
+
+La réduction liée au Cache dépend du modèle en amont, du protocole d’API et du format de la requête. BetterToken enregistre et affiche l’utilisation à partir des données renvoyées par le modèle en amont.
+
+Si le modèle en amont prend en charge la mise en cache des prompts et renvoie les champs correspondants, vous pouvez consulter les Tokens en cache dans les données d’utilisation de la réponse ou dans les journaux d’appels. Le comportement du Cache varie selon le modèle. Ne supposez pas que chaque modèle bénéficie automatiquement d’une réduction.
+
+## Principe de la facturation du Cache
+
+La mise en cache des prompts permet à un modèle en amont de réutiliser un préfixe stable et répété entre plusieurs requêtes. Lorsqu’elle fonctionne, une partie du contexte d’entrée peut être facturée au tarif réduit des Tokens en cache.
+
+Elle est utile pour :
+
+- Les longs prompts système
+- Les instructions de projet fixes
+- Un contexte documentaire volumineux et stable
+- Les instructions de dépôt répétées dans les tâches de programmation en plusieurs tours
+- Les tâches par lots qui partagent les mêmes règles et le même format de sortie
+
+La mise en cache ne signifie pas que vous devez tout placer dans le prompt. Le contenu dynamique, les horodatages, les identifiants aléatoires et les données propres à l’utilisateur doivent généralement apparaître plus loin dans la requête.
+
+## Différences entre les protocoles
+
+| Scénario | Mécanisme courant |
+| --- | --- |
+| Compatible avec OpenAI | Certains modèles mettent automatiquement les préfixes stables en cache. Les données d’utilisation de la réponse peuvent inclure les Tokens en cache |
+| Compatible avec Anthropic / Claude | Certains modèles nécessitent des marqueurs `cache_control` explicites pour bénéficier de la mise en cache |
+
+Un même modèle Claude peut se comporter différemment selon le protocole utilisé. Si vous utilisez beaucoup Claude Code ou une API compatible avec Anthropic, commencez par comprendre le mécanisme de mise en cache natif d’Anthropic.
+
+## Vérifier si la mise en cache a fonctionné
+
+Consultez le champ `usage` dans la réponse ou l’enregistrement de l’appel dans le tableau de bord. Les noms des champs varient selon le format de l’API :
+
+| Format d’API | Champs de Cache courants |
+| --- | --- |
+| OpenAI Chat Completions | `usage.prompt_tokens_details.cached_tokens` |
+| OpenAI Responses API | `usage.input_tokens_details.cached_tokens` |
+| Anthropic Messages API | `usage.cache_read_input_tokens` / `usage.cache_creation_input_tokens` |
+
+Une valeur supérieure à 0 indique généralement qu’une partie de la requête a utilisé le Cache. Si le champ est absent, le modèle peut ne pas le prendre en charge, le protocole peut ne pas le renvoyer, la requête peut ne pas avoir trouvé de données en cache ou l’outil peut masquer les données d’utilisation brutes.
+
+## Améliorer le taux d’accès au Cache
+
+1. Placez le contenu stable au début du prompt.
+2. Placez ensuite les données propres à l’utilisateur et celles qui changent fréquemment.
+3. N’insérez pas d’horodatage, d’identifiant aléatoire ou d’instruction variable dans le préfixe stable.
+4. Utilisez si possible le même modèle et le même protocole pour un même type de tâche.
+5. Dans les formats natifs de Claude, ajoutez `cache_control` aux blocs de contenu à mettre en cache en suivant la documentation du modèle.
+6. Pour les tâches par lots, lancez d’abord un petit échantillon et examinez les champs d’utilisation avant d’estimer le coût total.
+
+## Erreurs courantes
+
+- Supposer que chaque modèle prend automatiquement en charge les réductions liées au Cache.
+- Supposer que toute la requête devient gratuite après un accès au Cache.
+- Changer souvent de modèle et empêcher ainsi la réutilisation du Cache.
+- Appeler Claude avec un format compatible avec OpenAI tout en attendant les champs de Cache natifs de Claude.
+- Consulter uniquement le nombre total de Tokens et ignorer les Tokens en cache ainsi que les champs de lecture ou de création du Cache.
+
+## À propos de BetterToken
+
+La facturation et l’affichage de l’utilisation dans BetterToken reposent sur la requête réelle, les données d’utilisation en amont et le prix actuel du modèle. Pour confirmer l’utilisation du Cache, consultez conjointement la documentation du modèle, les champs d’utilisation de la réponse et les enregistrements d’appels du tableau de bord.
+
+## Documentation associée
+
+- [Pourquoi Claude Code utilise-t-il autant de Tokens ?](/fr/faq/token-cost/claude-code-token-usage)
+- [Qu’est-ce que max_tokens ? Que se passe-t-il si je ne le définis pas ?](/fr/faq/model-calling/max-tokens)
+- [Comment renseigner la Base URL ?](/fr/faq/model-calling/base-url-config)
+- [Quelle est la différence entre une API compatible avec OpenAI et une API compatible avec Anthropic ?](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)

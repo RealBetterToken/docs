@@ -1,0 +1,101 @@
+---
+title: "Buenas prácticas"
+description: "Recomendaciones para usar BetterToken de forma segura y eficaz."
+---
+
+## Protege tu API Key
+
+**Usa variables de entorno; nunca fijes la Key en el código.** Escribir la API Key directamente en el código fuente o en archivos de configuración puede exponerla por accidente en el control de versiones. Método recomendado:
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export BETTERTOKEN_API_KEY="your-api-key-here"
+```
+
+En Claude Code, gestiona los secretos mediante el campo `env` de `settings.json` en lugar de exponerlos en la configuración del shell:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**Rota tu API Key periódicamente.** Si sospechas que se ha filtrado, elimina la Key inmediatamente desde el panel y genera otra.
+
+---
+
+## Configura un tiempo de espera amplio
+
+Las respuestas de los modelos de IA pueden tardar, especialmente en tareas de razonamiento complejas. Configura un tiempo de espera suficiente para evitar desconexiones prematuras:
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50 minutos. Este valor es adecuado para razonamientos profundos o tareas prolongadas con agentes.
+
+---
+
+## Elimina las variables de entorno que provoquen conflictos
+
+Si antes usaste las API oficiales de Anthropic u OpenAI, u otro servicio de relay, las variables de entorno antiguas pueden sustituir la configuración de BetterToken y enviar las solicitudes al endpoint equivocado sin avisar.
+
+Antes de configurar BetterToken, comprueba y elimina estas variables:
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code: comprueba primero el proveedor
+
+Con el **proveedor Claude**, **no definas** `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` ni otras variables específicas del modelo. Con el **proveedor GPT**, añade las asignaciones de modelos mediante `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` y `ANTHROPIC_DEFAULT_OPUS_MODEL`.
+
+No mezcles ambas configuraciones; las solicitudes podrían dirigirse al modelo equivocado.
+
+**Desactiva el tráfico no esencial.** Definir `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` reduce las solicitudes en segundo plano de Claude Code y reserva la cuota de la API para las tareas reales de programación.
+
+**No añadas `/v1` en Claude Code.** `ANTHROPIC_BASE_URL` debe ser `{{anthropic-base-url}}`.
+
+---
+
+## Usa una API Key en varias herramientas
+
+La misma API Key funciona en Claude Code, Codex y las herramientas externas. La cuota se comparte, lo que simplifica la gestión centralizada.
+
+Sin embargo, el endpoint debe coincidir con el protocolo:
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / herramientas externas: `{{openai-base-url}}`
+
+Si necesitas registrar el uso por separado para cada proyecto o equipo, crea varias API Keys en el panel y asigna una a cada herramienta o proyecto.
+
+Para las herramientas externas, copia el ID del modelo desde el **proveedor GPT** en la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+---
+
+## Lista de solución de problemas
+
+1. **Confirma que la API Key sea correcta**: compruébala en el panel y pégala con cuidado, sin espacios adicionales
+2. **Confirma el endpoint del protocolo**: Claude Code usa `{{anthropic-base-url}}`; Codex y las herramientas externas usan `{{openai-base-url}}`
+3. **Busca variables de entorno en conflicto**: ejecuta `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL` y los comandos relacionados
+4. **Comprueba los requisitos oficiales de la herramienta**: en herramientas externas, verifica primero `Base URL`, la API Key, el ID del modelo y la versión; añade cabeceras adicionales solo si lo exigen explícitamente la documentación oficial o el gateway original
+5. **Comprueba el saldo**: las solicitudes se rechazan cuando se agota
+6. **Contacta con soporte**: si los pasos anteriores no resuelven el problema

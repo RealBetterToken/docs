@@ -1,0 +1,73 @@
+---
+title: "BetterToken은 data security를 어떻게 보호하나요?"
+sidebarTitle: "Data security"
+description: "BetterToken API calls의 data security boundary, HTTPS transport, logs, usage records 및 user-side security practices를 알아보세요."
+---
+
+## 짧은 답변
+
+BetterToken은 API gateway입니다. 주된 역할은 request를 selected upstream model에 forward하고 service operation에 필요한 billing, usage, troubleshooting information을 record하는 것입니다.
+
+API를 사용할 때는 data minimization을 따르세요. unnecessary personal data, secrets, payment information, business-sensitive content를 prompts, files, tool output에 넣지 마세요. API Keys는 environment variables, secret managers, CI secrets에 저장하세요. public repositories에 commit하지 마세요.
+
+## Data security boundary
+
+| Type | 설명 |
+| --- | --- |
+| API Key | request를 authenticate하며 사용자가 protect해야 함 |
+| Request content | model에 sent되는 prompts, context, file snippets 또는 tool results |
+| Response content | model이 returned하는 text, code 또는 structured output |
+| Usage information | Model, tokens, cost, status code, request time 및 기타 billing 또는 troubleshooting metadata |
+| Upstream model | inference request를 process하는 model service 또는 provider |
+
+BetterToken은 한 곳에서 API Keys, balance, usage records를 manage하도록 돕습니다. 자체 data masking, access control, project security process를 replace하지는 않습니다.
+
+## Transport security
+
+모든 API calls는 HTTPS를 사용해야 합니다. Base URL을 configure할 때 docs에 표시된 `https://` address를 사용하세요.
+
+API Keys 또는 request content를 plaintext HTTP로 보내지 마세요. client, proxy, local tool이 TLS verification을 disable하도록 요청하면 그 setup을 사용하기 전에 reason을 confirm하세요. 이를 default로 설정하지 마세요.
+
+## Logs와 usage records
+
+billing, balance deduction, error troubleshooting, risk control을 지원하려면 API gateway는 보통 다음과 같은 request metadata를 record해야 합니다.
+
+- Request time
+- 사용된 API Key 또는 provider
+- Requested model
+- Token usage
+- request success 여부
+- Error status
+
+이 information은 주로 billing, usage analysis, issue diagnosis에 사용됩니다. problem을 report할 때 request time, model, error code, request id를 제공하세요. full API Key 또는 sensitive prompt content는 보내지 마세요.
+
+## User-side recommendations
+
+1. API Keys를 code repositories에 commit하지 마세요.
+2. screenshots, logs, support tickets에서 full API Key를 expose하지 마세요.
+3. production과 test environments에는 separate API Keys를 사용하세요.
+4. dashboard에서 usage records를 regularly 확인하세요.
+5. member가 leaves하거나 project가 ends되거나 leak이 suspected되면 old keys를 disable하세요.
+6. identity documents, bank cards, passwords, private keys 또는 기타 highly sensitive data를 prompts에 보내지 마세요.
+7. sensitive business data를 process해야 한다면 model에 보내기 전에 mask하고 minimize하세요.
+
+## usage가 abnormal해 보일 때 할 일
+
+API Key에 abnormal calls가 보이면 다음을 수행하세요.
+
+1. console에서 suspicious API Key를 disable 또는 delete합니다.
+2. recent call records에서 model, time, request source를 확인합니다.
+3. code repositories, CI logs, local config, third-party tool settings에서 key leaks를 확인합니다.
+4. new API Key를 create하고 required environments에만 distribute합니다.
+5. cause를 찾을 수 없다면 time range, model, abnormal amount와 함께 support에 contact합니다.
+
+## BetterToken 정보
+
+BetterToken은 model request access, forwarding, billing, usage display를 처리합니다. Security는 shared됩니다. platform은 service-side access control과 billing flow를 처리하고 사용자는 API Keys를 protect하며 permissions를 assign하고 prompt data를 minimize하며 tools를 safely configure합니다.
+
+## 관련 문서
+
+- [Claude Code에서 API Key와 Base URL을 configure하는 방법](/ko/faq/claude-code/api-key-base-url)
+- [MCP와 API Key / Base URL의 차이점](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [API Key, Base URL, Model ID를 troubleshoot하는 방법](/ko/faq/model-calling/base-url-config)
+- [Claude Code permissions와 hooks란 무엇인가요?](/ko/faq/claude-code/permissions-and-hooks)

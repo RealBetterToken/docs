@@ -1,0 +1,61 @@
+---
+title: "Claude Desktop で MCP を設定する方法"
+sidebarTitle: "Claude Desktop MCP"
+description: "Claude Desktop におけるローカル MCP、リモート MCP、接続状態、MCP とモデル API の違いを説明します。"
+---
+
+## 短い答え
+
+Claude Desktop は MCP サーバーを通じてローカルツールとデータソースに接続できます。Claude Desktop の MCP 設定でサーバーを宣言し、接続を再起動または更新して、アプリ内で接続状態を確認します。
+
+MCP はモデル API ではありません。Claude Desktop がツールまたはコンテキストにアクセスできるようにするものです。モデルリクエストは引き続き、Claude Desktop が現在使用しているモデルとアカウント経路に依存します。
+
+## 必要になる場面
+
+- Claude Desktop からローカルファイル、データベース、開発ツールにアクセスしたいとき
+- MCP サーバー設定は表示されるが、どこに記述すべきか分からないとき
+- ローカル MCP とリモート MCP を比較するとき
+- MCP が API Key / Base URL を置き換えられると考えているとき
+- MCP が接続されているか確認する必要があるとき
+
+## ローカル MCP とリモート MCP
+
+| 種類 | 意味 |
+| --- | --- |
+| ローカル MCP | マシン上でサーバーを実行します。多くの場合、ローカルツール、ファイル、開発環境のために使用します |
+| リモート MCP | リモートサービスに接続します。多くの場合、クラウドツールまたはチームサービスのために使用します |
+| デスクトップ拡張機能 | よりデスクトップ向けのインストールおよび配布形式 |
+
+## 推奨設定
+
+1. モデルプロバイダーではなく MCP サーバーを接続していることを確認します。
+2. Claude Desktop のドキュメントに従い、ローカルまたはリモートの MCP 設定を追加します。
+3. Claude Desktop を再起動または更新します。
+4. Claude Desktop で MCP の接続状態を確認します。
+5. MCP サーバーには、必要な権限と環境変数だけを渡します。
+
+## よくある間違い
+
+- MCP サーバーを Base URL として扱うこと。
+- モデル API Key を MCP 設定に記述すること。
+- MCP がモデルコストを変更すると考えること。
+- MCP サーバーが機密性の高いローカルデータにアクセスする可能性を忘れること。
+- ローカルサーバーが起動していないのに Claude Desktop の UI だけを確認すること。
+
+## BetterToken について
+
+BetterToken が扱うのはモデル API アクセスであり、MCP サーバーではありません。Claude Desktop MCP はツールを接続します。BetterToken のような API レイヤーは、モデルリクエスト、残高、使用量を扱います。
+
+ツールアクセスと統合モデルルーティングの両方が必要な場合は、MCP と API アクセスを別々に設定してください。
+
+## 関連ドキュメント
+
+- [MCP と API Key・Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
+- [Claude Code と Claude Desktop の違い](/ja/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code は Claude.ai アカウントと API Key のどちらを使用しますか？](/ja/faq/claude-code/claude-account-or-api-key)
+- [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 参照
+
+- [Claude Desktop でローカル MCP サーバーを始める](https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
+- [リモート MCP を使用したカスタムコネクターの開始](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)

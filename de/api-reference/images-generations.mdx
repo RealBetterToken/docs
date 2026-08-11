@@ -1,0 +1,188 @@
+---
+title: "OpenAI-kompatible Bildgenerierungs-API: GPT Image 2 Anleitung"
+description: "Erstelle Bilder aus Text mit GPT Image 2 und BetterTokens OpenAI-kompatibler API: API Key, Base URL, Parameter, Python, JavaScript und Fehlerbehebung."
+openapi: "api-reference/openapi.json POST /v1/images/generations"
+---
+
+`POST /v1/images/generations`
+
+Der Text-zu-Bild-Endpunkt verwendet einen Request-Body im Format `application/json`. Sende einen Prompt, halte den HTTP-Request geöffnet und lies das generierte Bild aus `data[0].b64_json` in derselben Antwort.
+
+<Note>
+  Verwende `{{openai-base-url}}` als `Base URL`. Übermittle deinen BetterToken API Key über `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+<Tip>
+  Du kannst `Authorization` und den Request-Body im Playground auf der rechten Seite eingeben und den Request dann direkt an `{{images-generations-url}}` senden.
+</Tip>
+
+<Warning>
+  Lege API Keys nicht in Browser-Frontend-Code, Git-Repositories, Tickets, Screenshots oder Logs ab. Speichere API Keys für serverseitige Proxy-Aufrufe nur in Server-Umgebungsvariablen oder einem Secret Manager.
+</Warning>
+
+## Schnellstart mit curl
+
+Verwende `{{openai-base-url}}` als Base URL und sende einen Request an `{{images-generations-url}}`:
+
+```bash
+curl -X POST "{{images-generations-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A product photo of a green ceramic mug on a studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+## Empfohlene Werte
+
+Sende diese Felder in jedem Request explizit:
+
+```json
+{
+  "model": "gpt-image-2",
+  "n": 1,
+  "response_format": "b64_json",
+  "output_format": "png"
+}
+```
+
+| Parameter | Zu sendender Wert | Zweck |
+| --- | --- | --- |
+| `model` | `gpt-image-2` | Wählt das Bildmodell aus. |
+| `prompt` | Eine Textbeschreibung | Erforderliche Bildbeschreibung. Nenne Motiv, Stil, Komposition und wichtige Einschränkungen. |
+| `size` | Zum Beispiel `1024x1024` | Wählt Ausgabegröße und Seitenverhältnis aus. |
+| `n` | `1` | Bildanzahl pro Request. Sende für mehrere Bilder separate Requests. |
+| `response_format` | `b64_json` | Gibt Bildinhalt als Base64 in `data[0].b64_json` zurück. |
+| `output_format` | `png` | Ermöglicht das Speichern des Ergebnisses als PNG. |
+
+Erstelle mehrere Bilder, indem du mehrere unabhängige Requests sendest. Verlasse dich nicht auf einen einzelnen Request mit `n > 1`.
+
+## Empfohlene Größen
+
+| `size` | Verhältnis | Anwendungsfall |
+| --- | --- | --- |
+| `auto` | Auto | Automatische Größenauswahl |
+| `1024x1024` | `1:1` | Quadratische Bilder, Avatare, Cover, Assets |
+| `1536x1024` | `3:2` | Querformat-Poster, Banner, Szenen |
+| `1024x1536` | `2:3` | Mobile Cover und Poster im Hochformat |
+| `1536x1152` | `4:3` | Standardbilder im Querformat, Produktbilder, Inhaltsgrafiken |
+| `1152x1536` | `3:4` | Standardbilder im Hochformat, mobile Cover, vertikale Poster |
+| `2048x2048` | `1:1` | Quadratische Bilder mit hoher Auflösung |
+| `2048x1152` | `16:9` | Querformatbilder mit hoher Auflösung |
+| `3840x2160` | `16:9` | 4K-Querformatbilder |
+| `2160x3840` | `9:16` | 4K-Hochformatbilder |
+
+`size` steht für das erwartete Seitenverhältnis und die Größenstufe. Die tatsächlich zurückgegebenen Pixel können vom Server zugeordnet oder angepasst werden. Verwende die dekodierten Bildabmessungen, statt die Ausgabe zwangsweise auf den angeforderten Wert zuzuschneiden.
+
+## Bild speichern
+
+Eine erfolgreiche Antwort folgt dem OpenAI-kompatiblen Bildantwortformat:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Lies `data[0].b64_json` und speichere es als Base64-Bildinhalt. Die Antwort kann zusätzliche Felder wie `revised_prompt` enthalten; erlaube diese Felder in deinem Client.
+
+Setze immer `output_format: "png"`. Speichere das dekodierte Bild dann als `.png`, ohne Dateikopfzeilen zu prüfen.
+
+```python
+import base64
+import json
+from pathlib import Path
+
+response = json.loads(Path("response.json").read_text(encoding="utf-8"))
+b64_json = response["data"][0]["b64_json"]
+
+if "," in b64_json and "base64" in b64_json.split(",", 1)[0]:
+    b64_json = b64_json.split(",", 1)[1]
+
+image_bytes = base64.b64decode(b64_json)
+Path("output.png").write_bytes(image_bytes)
+```
+
+### JavaScript example (Node.js)
+
+```js
+import { writeFile } from "node:fs/promises";
+
+const response = await fetch("{{images-generations-url}}", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-image-2",
+    prompt: "A green ceramic mug on a studio table",
+    size: "1024x1024",
+    n: 1,
+    response_format: "b64_json",
+    output_format: "png",
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(await response.text());
+}
+
+const { data } = await response.json();
+const b64Json = data[0].b64_json.replace(/^data:.*;base64,/, "");
+await writeFile("output.png", Buffer.from(b64Json, "base64"));
+```
+
+<Warning>
+  Verlasse dich nicht darauf, mit `output_format: "jpeg"` oder `output_format: "webp"` direkt JPEG- oder WebP-Dateien zu erhalten. Der aktuelle Endpunkt kann weiterhin PNG-Bildinhalt zurückgeben. Wenn dein Produkt JPEG oder WebP benötigt, empfange zuerst PNG und konvertiere es in deinem eigenen Code.
+</Warning>
+
+## Antwortablauf
+
+Dieser Endpunkt ist synchron. Halte nach dem Senden von `POST /images/generations` den aktuellen HTTP-Request offen, bis der Server antwortet. Bei erfolgreicher Generierung wird der Bildinhalt in `data[0].b64_json` zurückgegeben.
+
+Der Endpunkt gibt keine `task_id` zurück; es gibt keinen separaten Endpunkt für Statusabfragen oder das Herunterladen von Ergebnissen.
+
+## Timeouts und Wiederholungen
+
+- Setze HTTP-Client-Timeouts auf mehrere Minuten.
+- Wiederhole Transportfehler, `408`, `409`, `425`, `429` und `5xx`.
+- Wiederhole `400`, `401`, fehlende Parameter oder fehlerhafte Requests nicht automatisch.
+- Verwende exponentielles Backoff wie `3s`, `8s` und `15s`.
+- Wenn doppelte Bilder nicht akzeptabel sind, zeichne vor der Wiederholung eine eigene Request-ID auf.
+
+## Fehlerbehandlung
+
+Fehler geben gewöhnlich JSON zurück. Lies beim Anzeigen eines Fehlers zuerst `error.message`, dann `message` und anschließend den HTTP-Status-Text.
+
+| HTTP-Status | Bedeutung | Vorgehen |
+| --- | --- | --- |
+| `400` | Fehlerhaftes JSON, fehlender Parameter oder nicht unterstützte Größe | Prüfe den Request-Body. Nicht automatisch wiederholen. |
+| `401` | API Key fehlt oder ist ungültig | Prüfe den Header `Authorization: Bearer YOUR_API_KEY`. |
+| `402` | Unzureichendes Guthaben oder Kontingent | Lade Guthaben auf oder verwende einen verfügbaren Key. |
+| `429` | Ratenlimit, Parallelitätslimit oder ausgelasteter Upstream | Warte und wiederhole mit exponentiellem Backoff. |
+| `5xx` | Gateway- oder Upstream-Fehler | Wiederhole den Request. Wenn er weiterhin fehlschlägt, zeichne Request-ID und Fehlermeldung auf. |
+
+## Integrations-Checkliste
+
+- Die Base URL lautet `{{openai-base-url}}`.
+- Der Header enthält `Authorization: Bearer YOUR_API_KEY`.
+- Der Request verwendet `application/json` und `POST /images/generations`.
+- `model` ist `gpt-image-2`, `response_format` ist `b64_json`, `output_format` ist `png` und `n` ist `1`.
+- `size` ist einer der empfohlenen Werte, etwa `1024x1024`.
+- Dein HTTP-Client erlaubt mehrere Minuten für die Generierung.
+
+## Verwandte Dokumentation
+
+- [Bild zu Bild](/de/api-reference/images-edits)
+- [GPT Image 2 ist verfügbar](/de/model-updates/gpt-image-2)

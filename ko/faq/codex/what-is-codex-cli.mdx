@@ -1,0 +1,69 @@
+---
+title: "Codex CLI란 무엇인가요?"
+sidebarTitle: "Codex CLI란?"
+description: "Codex CLI의 정의, 작동 방식, 사용 시점 및 Codex App과 Codex Web의 차이를 알아보세요."
+---
+
+## 짧은 답변
+
+Codex CLI는 OpenAI의 local command-line coding agent입니다. terminal에서 실행되며 선택한 workspace를 읽고 files를 편집하며 commands를 실행하고 development tasks 중 sandbox와 approval settings를 따릅니다.
+
+local repository 안에서 code changes, code review, test fixes, scripts 및 multi-step engineering work를 agent가 돕게 하려 할 때 유용합니다.
+
+Codex CLI는 일반 ChatGPT conversation과 다릅니다. code만 제안하지 않습니다. current directory, project instructions, tool results 및 local execution permissions와 함께 작동합니다.
+
+## 이 내용이 필요한 경우
+
+- `@openai/codex`를 처음 설치함
+- Codex CLI, Codex App, Codex Web을 비교 중임
+- agent가 local project의 files를 편집하게 하려 함
+- custom API provider, Base URL 또는 model을 구성해야 함
+- sandbox, approval 및 `AGENTS.md`를 이해하려 함
+
+## 핵심 개념
+
+| 개념 | 의미 |
+| --- | --- |
+| Codex CLI | local terminal에서 실행되는 Codex coding agent |
+| Workspace | Codex가 read, search 및 modify할 수 있는 directory |
+| `config.toml` | models, providers, sandbox, approvals 및 기타 behavior용 local Codex config file |
+| `AGENTS.md` | Codex에 repository rules와 collaboration preferences를 알려 주는 project instruction file |
+| Sandbox | filesystem, network 및 command access의 local security boundary |
+| Approval | confirmation이 필요한 actions를 결정하는 policy |
+
+## 권장 workflow
+
+1. 변경할 project directory 안에서 Codex CLI를 시작하세요.
+2. broad edits 전에 relevant files 또는 instructions를 inspect하게 하세요.
+3. complex work에는 files를 변경하게 하기 전에 plan을 요청하세요.
+4. task의 risk에 따라 sandbox와 approval settings를 선택하세요.
+5. durable project rules는 `AGENTS.md`에 두고 one-time requirements는 current conversation에 두세요.
+
+third-party API provider를 사용한다면 `model_provider`, `base_url`, `wire_api`, `config.toml`의 model fields에 집중하세요. Codex와 다른 OpenAI-compatible tools는 보통 OpenAI-compatible endpoint를 사용하며 이 문서에서는 `{{openai-base-url}}`입니다.
+
+## 일반적인 실수
+
+- Codex CLI를 chat-only assistant로 취급함
+- Codex CLI, Codex App, Codex Web이 같은 environment에서 실행된다고 가정함
+- matching provider와 Base URL을 구성하지 않고 `model`만 변경함
+- tests, review 또는 command boundaries 없이 sandbox와 approval settings를 완화함
+- OpenAI-compatible과 Anthropic-compatible Base URLs를 섞음
+
+## BetterToken 정보
+
+custom OpenAI-compatible provider를 사용하면 BetterToken이 Codex CLI의 model API layer 역할을 할 수 있습니다. API Key, Base URL, model routing, balance 및 usage records를 처리합니다.
+
+BetterToken은 Codex CLI의 local sandbox, approvals, `AGENTS.md` 또는 command execution policy를 대체하지 않습니다.
+
+## 관련 문서
+
+- [Codex BetterToken 설정 가이드](/ko/ai-tools/codex)
+- [Codex CLI, Codex App 및 Codex Web 비교](/ko/faq/codex/codex-cli-vs-app-vs-web)
+- [Codex CLI config.toml 구성](/ko/faq/codex/config-toml)
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## 참고 자료
+
+- [Codex CLI 문서](https://developers.openai.com/codex/cli)
+- [OpenAI Codex GitHub repository](https://github.com/openai/codex)
+- [Codex configuration 참고 자료](https://developers.openai.com/codex/config-reference)

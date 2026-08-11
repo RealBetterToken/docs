@@ -1,0 +1,131 @@
+---
+title: "Documentação do BetterToken"
+description: "Gateway de API para acessar modelos Claude e GPT/Codex por endpoints compatíveis com Anthropic e OpenAI."
+---
+
+## O que é o BetterToken?
+
+O BetterToken é um gateway de API para modelos de IA destinado a usuários, equipes e desenvolvedores. Ele permite acessar modelos Claude e GPT/Codex por uma única API e funciona com ferramentas de desenvolvimento assistido por IA, como Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode e CC Switch. Após o cadastro, você recebe US$ 1 de saldo de teste para validar seu próprio fluxo de desenvolvimento.
+
+A documentação diferencia dois modos de acesso:
+
+- **Claude Code / `ANTHROPIC_BASE_URL`**: use `{{anthropic-base-url}}`
+- **Codex / `OPENAI_BASE_URL` / ferramentas externas**: use `{{openai-base-url}}`
+
+**Principais características:**
+
+- **Vários provedores**: o BetterToken pode se conectar a vários provedores ao mesmo tempo
+- **Roteamento dinâmico**: as solicitações podem mudar de rota quando um serviço upstream está lento ou instável
+- **Compatibilidade com ferramentas de desenvolvimento**: a integração é mantida para Claude Code e para o ecossistema do Codex
+- **Duas rotas bem definidas**: configure o endpoint de acordo com o protocolo, em vez de reutilizar o mesmo `base_url` em todas as ferramentas
+
+## Dois modos de acesso
+
+| Cenário | Base URL | Observações |
+|----------|----------|-------|
+| Claude Code | `{{anthropic-base-url}}` | Protocolo Anthropic, sem o sufixo `/v1` |
+| Codex / ferramentas externas | `{{openai-base-url}}` | Protocolo compatível com OpenAI; ferramentas externas usam o provedor GPT |
+
+## Primeiros passos
+
+<Columns cols={2}>
+  <Card
+    title="Início rápido"
+    icon="rocket"
+    href="/pt-br/quickstart"
+  >
+    Comece escolhendo entre a rota do Claude Code e a rota do Codex ou de ferramentas externas.
+  </Card>
+  <Card
+    title="Perguntas frequentes"
+    icon="circle-question"
+    href="/pt-br/faq"
+  >
+    Consulte as regras de Base URL, provedores de modelos, autenticação e erros 403.
+  </Card>
+</Columns>
+
+## Conecte sua ferramenta de desenvolvimento com IA
+
+<Columns cols={2}>
+  <Card
+    title="Claude Code"
+    icon="terminal"
+    href="/pt-br/ai-tools/claude-code"
+  >
+    Configure `ANTHROPIC_BASE_URL={{anthropic-base-url}}`.
+  </Card>
+  <Card
+    title="Codex"
+    icon="code"
+    href="/pt-br/ai-tools/codex"
+  >
+    Use `{{openai-base-url}}` com OpenAI Responses.
+  </Card>
+  <Card
+    title="Cursor"
+    icon="pen-to-square"
+    href="/pt-br/ai-tools/cursor"
+  >
+    Ferramentas externas usam o provedor GPT com configurações compatíveis com OpenAI.
+  </Card>
+  <Card
+    title="OpenClaw"
+    icon="paw"
+    href="/pt-br/ai-tools/openclaw"
+  >
+    Conecte primeiro o BetterToken e use `/new` e `/status` para verificar a sessão atual.
+  </Card>
+  <Card
+    title="CC Switch"
+    icon="toggle-left"
+    href="/pt-br/ai-tools/cc-switch"
+  >
+    Gerencie o BetterToken para Claude Code, Codex, OpenCode e OpenClaw em uma única interface gráfica.
+  </Card>
+</Columns>
+
+## Qual problema o BetterToken resolve
+
+Cada ferramenta espera um protocolo, um campo de autenticação e uma forma de selecionar modelos. O BetterToken oferece dois endpoints estáveis para esses fluxos: um com o protocolo Anthropic e outro compatível com OpenAI. Você pode conectar Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode e CC Switch substituindo a Base URL e a API Key, sem alterar o restante do fluxo de trabalho.
+
+## Endpoints para desenvolvedores
+
+O BetterToken é um gateway de API multimodelo com dois pontos de entrada padrão:
+
+| Protocolo | Base URL | Usado com |
+| --- | --- | --- |
+| Anthropic | https://bettertoken.ai | Claude Code |
+| Compatível com OpenAI | https://bettertoken.ai/v1 | Codex e outras ferramentas externas |
+
+Após o cadastro, crie uma API Key, escolha o provedor Claude ou GPT e conecte Cursor, Cline, OpenClaw, OpenCode, CC Switch ou outra ferramenta substituindo a Base URL. As solicitações, o uso de tokens e o saldo ficam disponíveis no Dashboard.
+
+## Equipes e controle de custos
+
+As equipes podem usar uma única camada de API para conectar fluxos do Claude e do GPT/Codex. O BetterToken registra o consumo real e roteia as solicitações entre vários provedores para reduzir o impacto de uma falha isolada. No Dashboard, você pode consultar o uso e o saldo de cada API Key e distribuir o orçamento por fluxo de trabalho, como Claude Code ou Codex.
+
+## Perguntas frequentes
+
+**O que é o BetterToken?** O BetterToken é um gateway e proxy de API para acessar modelos de IA por endpoints compatíveis.
+
+**Qual problema ele resolve?** Ele oferece uma camada de integração comum para ferramentas que usam os protocolos Anthropic e OpenAI.
+
+**Quais modelos são compatíveis?** Modelos Claude pelo protocolo Anthropic e modelos GPT/Codex pelo protocolo compatível com OpenAI.
+
+**Quais ferramentas são compatíveis?** Claude Code, Codex, Cursor, Cline, OpenClaw, OpenCode e CC Switch.
+
+**Como começar?** Cadastre uma conta, receba US$ 1 de saldo de teste, crie uma BetterToken API Key, escolha um modelo de um provedor compatível e substitua a Base URL na sua ferramenta.
+
+**Quais são os canais de suporte?** Telegram e support@bettertoken.ai.
+
+## Suporte
+
+Se precisar de atendimento em inglês, entre em contato com o BetterToken pelo Telegram:
+<a href="https://t.me/+j1DJr0c_a1JhZmM0">https://t.me/+j1DJr0c_a1JhZmM0</a>
+
+Você também pode enviar um e-mail para <a href="mailto:support@bettertoken.ai">support@bettertoken.ai</a>.
+
+- Site principal: <a href="https://bettertoken.ai/">https://bettertoken.ai/</a>
+- Console: <a href="https://bettertoken.ai/workspace">https://bettertoken.ai/workspace</a>
+- Página de contato: <a href="https://bettertoken.ai/contacts">https://bettertoken.ai/contacts</a>
+- Documentação localizada: selecione o idioma no menu da documentação

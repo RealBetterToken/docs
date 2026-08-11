@@ -1,0 +1,69 @@
+---
+title: "Claude Code란 무엇이며 어떻게 작동하나요?"
+sidebarTitle: "Claude Code란?"
+description: "Claude Code의 정의, codebase와 작동하는 방식, context, tool permissions, MCP 및 API providers의 관계를 알아보세요."
+---
+
+## 빠른 답변
+
+Claude Code는 software development용 coding agent입니다. 단순한 chat page가 아닙니다. codebase를 읽고 files를 편집하며 commands를 실행하고 terminal, IDE, desktop app 또는 browser에서 development tasks를 도울 수 있습니다.
+
+기본 workflow는 다음과 같습니다. Claude Code가 project context를 읽고 task를 plan하며 tools를 호출하고 files를 편집한 다음 필요할 때 checks를 실행합니다. multi-file changes, test fixes, code review, scripts 및 더 긴 engineering tasks에 맞게 설계되었습니다.
+
+model API는 inference만 처리합니다. local permissions, file access, command execution, hooks 및 MCP tools는 여전히 Claude Code와 project setup이 제어합니다.
+
+## 이 내용이 필요한 경우
+
+- Claude Code를 처음 설치함
+- Claude Code가 local repository를 수정하게 하려 함
+- files를 읽거나 많은 tokens를 사용하는 이유를 이해하려 함
+- custom API Key와 Base URL 연결을 계획함
+- Claude Code, Claude Desktop, Cursor 및 Codex CLI 중 선택하려 함
+
+## 주요 개념
+
+| 개념 | 의미 |
+| --- | --- |
+| Coding agent | code를 inspect하고 tools를 사용하며 files를 편집하고 commands를 실행할 수 있는 development-focused agent |
+| Working directory | Claude Code가 inspect하고 수정할 수 있는 project directory |
+| Tool use | file reads, code search, file edits, shell commands 및 유사한 actions |
+| Context | conversation history, files, project rules, `CLAUDE.md`, tool results |
+| MCP | tools와 data sources를 추가하는 protocol이며 model API가 아님 |
+| `CLAUDE.md` | Claude Code가 context로 load할 수 있는 project instruction file |
+
+## 권장 workflow
+
+1. 실제 project directory에서 Claude Code를 시작하세요.
+2. broad edits 전에 relevant files를 inspect하게 하세요.
+3. complex work에는 implementation 전에 plan을 요청하세요.
+4. 작은 set의 files를 변경하게 한 다음 가장 빠른 relevant check를 실행하세요.
+5. stable project rules는 `CLAUDE.md`에 두고 one-off instructions는 conversation에 유지하세요.
+
+Claude Code를 API gateway로 연결한다면 endpoint가 Anthropic-compatible인지 확인하세요. 이 문서에서 Claude Code는 `{{anthropic-base-url}}`을 사용합니다. Claude Code의 Anthropic protocol configuration에서 OpenAI-compatible `{{openai-base-url}}`을 사용하지 마세요.
+
+## 일반적인 실수
+
+- Claude Code를 일반 chat page처럼 취급하고 local files를 건드릴 수 있다는 점을 잊음
+- files 또는 project instructions를 읽지 않고 전체 repository를 이해하길 기대함
+- MCP를 model API로 취급함. MCP는 tools를 추가하며 API Key, Base URL, Model ID는 inference를 구성함
+- Claude.ai login, Claude Console API, third-party API gateways를 섞음
+- review, tests 또는 command boundaries 없이 broad local execution을 허용함
+
+## BetterToken 정보
+
+Claude Code가 custom API Key와 Base URL을 사용하면 Anthropic-compatible API gateway를 통해 model requests를 보낼 수 있습니다. BetterToken은 그 model API layer에 속하며 API Keys, balance 및 usage history 관리에 도움을 줄 수 있습니다.
+
+BetterToken은 Claude Code permissions, file access controls, hooks, MCP config 또는 project rules를 대체하지 않습니다. 이들은 Claude Code workflow의 일부로 남습니다.
+
+## 관련 문서
+
+- [Claude Code 설정 가이드](/ko/ai-tools/claude-code)
+- [Claude Code에서 Claude.ai account 또는 API Key 사용](/ko/faq/claude-code/claude-account-or-api-key)
+- [Claude Code에서 API Key와 Base URL 구성](/ko/faq/claude-code/api-key-base-url)
+- [Claude Code의 CLAUDE.md란 무엇인가요?](/ko/faq/claude-code/claude-md)
+
+## 참고 자료
+
+- [Claude Code 개요](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code 빠른 시작](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [Claude가 project를 기억하는 방식](https://docs.anthropic.com/en/docs/claude-code/memory)

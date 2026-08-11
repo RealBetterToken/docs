@@ -1,0 +1,46 @@
+---
+title: "Claude Sonnet 5 अब उपलब्ध है"
+description: "BetterToken ने Claude Sonnet 5 को 1 जुलाई 2026 को Claude Code, coding agents, long-context work और stronger Sonnet model वाले workflows के लिए अपडेट किया।"
+tag: "NEW"
+---
+
+release date: 1 जुलाई 2026
+
+BetterToken ने `Claude Sonnet 5` model entry अपडेट किया है। current available model ID और live pricing के लिए <a href={"{{model-plaza-url}}"}>model plaza</a> जांचें, फिर अपने client से मेल खाती Claude Code या external-tool setup guide से कॉन्फ़िगर करें।
+
+`Claude Sonnet 5`, Sonnet family की अगली generation है। Anthropic इसे `Claude Sonnet 4.6` से upgrade के रूप में रखता है, जिसमें सबसे बड़े improvements coding, agentic tasks और professional work में हैं।
+
+## मुख्य विशेषताएं
+
+- **coding और agent work के लिए बेहतर**: Anthropic के अनुसार Sonnet 5 की Sonnet 4.6 से सबसे बड़ी gains coding और agentic tasks में हैं
+- **बड़ा context window**: Sonnet 5 default रूप से `1M tokens` context window और `128K tokens` तक output support करता है
+- **adaptive thinking default रूप से on है**: `thinking` field के बिना requests adaptive thinking के साथ चलती हैं
+- **कम migration effort**: Sonnet 4.6 पहले से उपयोग हो तो अधिकांश requests में model ID को `claude-sonnet-5` करने से move हो सकता है
+- **स्पष्ट safety behavior**: high-risk cybersecurity content के लिए model HTTP error के बजाय `stop_reason: "refusal"` के साथ refusal लौटा सकता है
+
+## Migration notes
+
+Sonnet 4.6 से Sonnet 5 पर move कर रहे हों तो पहले इन settings को review करें:
+
+- **`max_tokens` फिर देखें**: thinking trace और final answer समान output limit share करते हैं, इसलिए limit के निकट tasks को अधिक room चाहिए हो सकता है
+- **manual thinking budgets हटाएं**: `thinking: { "type": "enabled", "budget_tokens": ... }` अब Sonnet 5 पर supported नहीं है; इसके बजाय adaptive thinking उपयोग करें
+- **non-default sampling parameters सेट न करें**: non-default `temperature`, `top_p` या `top_k`, `400` error लौटा सकते हैं
+- **tokens फिर गिनें**: Sonnet 5 नया tokenizer उपयोग करता है, इसलिए समान text Sonnet 4.6 से अधिक tokens उत्पन्न कर सकता है
+
+## setup guidance
+
+Claude Code उपयोग करने पर [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code) से शुरू करें। अलग providers अलग protocols और model configuration patterns उपयोग करते हैं:
+
+- `Claude` group: `{{anthropic-base-url}}` उपयोग करें
+- `GPT` group या external tools: `{{openai-base-url}}` के साथ relevant tool guide देखें
+
+<a href={"{{model-plaza-url}}"}>model plaza</a> में current model name उपयोग करें। वहां न दिखने वाला model name hardcode न करें।
+
+<Tip>
+  long-context coding tasks, automatic fixes, code review या multi-step agent workflows चलाते हों तो पहले `claude-sonnet-5` test करें। workload cost-sensitive हो तो switch करने से पहले model plaza pricing से cost estimate करें।
+</Tip>
+
+## संदर्भ
+
+- [Claude Sonnet 5 में नया क्या है](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5)
+- [Claude Sonnet 5 - Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5.html)

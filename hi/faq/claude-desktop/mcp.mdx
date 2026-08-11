@@ -1,0 +1,61 @@
+---
+title: "Claude Desktop में MCP कैसे कॉन्फ़िगर करें"
+sidebarTitle: "Claude Desktop MCP"
+description: "Claude Desktop में local MCP, remote MCP, कनेक्शन स्थिति और MCP व मॉडल API का अंतर समझें।"
+---
+
+## संक्षिप्त उत्तर
+
+Claude Desktop MCP server से local tool और data source जोड़ सकता है। Claude Desktop के MCP configuration में server घोषित करें, कनेक्शन रीस्टार्ट या refresh करें और ऐप में कनेक्शन स्थिति जांचें।
+
+MCP मॉडल API नहीं है। यह Claude Desktop को tool या context access देता है। मॉडल अनुरोध अब भी Claude Desktop द्वारा उपयोग मॉडल और account path पर निर्भर हैं।
+
+## कब जरूरी है
+
+- Claude Desktop को local फ़ाइल, database या development tool access देना चाहते हैं
+- MCP server config दिखता है पर नहीं जानते कहां रखना है
+- local MCP और remote MCP की तुलना कर रहे हैं
+- सोचते हैं MCP API Key / Base URL को बदल सकता है
+- जांचना है कि MCP जुड़ा है या नहीं
+
+## Local MCP बनाम remote MCP
+
+| प्रकार | अर्थ |
+| --- | --- |
+| Local MCP | आपकी मशीन पर server चलाता है, अक्सर local tool, फ़ाइल या development environment के लिए |
+| Remote MCP | remote service से जुड़ता है, अक्सर cloud tool या team service के लिए |
+| Desktop extension | अधिक desktop-केंद्रित installation और distribution format |
+
+## अनुशंसित सेटअप
+
+1. पुष्टि करें कि MCP server जोड़ रहे हैं, मॉडल provider नहीं।
+2. Claude Desktop दस्तावेज के अनुसार local या remote MCP config जोड़ें।
+3. Claude Desktop रीस्टार्ट या refresh करें।
+4. Claude Desktop में MCP कनेक्शन स्थिति जांचें।
+5. MCP server को केवल जरूरी permission और environment variable दें।
+
+## सामान्य गलतियां
+
+- MCP server को Base URL मानना।
+- मॉडल API Key को MCP configuration में रखना।
+- मान लेना कि MCP मॉडल लागत बदलता है।
+- भूल जाना कि MCP server संवेदनशील local data access कर सकता है।
+- local server न चलने पर केवल Claude Desktop UI जांचना।
+
+## BetterToken के बारे में
+
+BetterToken मॉडल API access संभालता है, MCP server नहीं। Claude Desktop MCP tool जोड़ता है। BetterToken-जैसी API layer मॉडल अनुरोध, balance और usage संभालती है।
+
+tool access और unified model routing दोनों चाहिए तो MCP और API access अलग-अलग कॉन्फ़िगर करें।
+
+## संबंधित दस्तावेज
+
+- [MCP बनाम API Key और Base URL](/hi/faq/concepts/mcp-vs-api-key-base-url)
+- [Claude Code बनाम Claude Desktop](/hi/faq/claude-code/claude-code-vs-claude-desktop)
+- [Claude Code Claude.ai account उपयोग करता है या API Key?](/hi/faq/claude-code/claude-account-or-api-key)
+- [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)
+
+## संदर्भ
+
+- [Claude Desktop पर local MCP server के साथ शुरुआत](https://support.anthropic.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
+- [remote MCP से custom connector के साथ शुरुआत](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)

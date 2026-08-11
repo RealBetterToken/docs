@@ -1,0 +1,90 @@
+---
+title: "max_tokens क्या है? इसे सेट न करने पर क्या होता है?"
+sidebarTitle: "max_tokens"
+description: "max_tokens, max_completion_tokens और max_output_tokens समझें, तथा model calls के लिए output token limit सेट करना जानें।"
+---
+
+## संक्षिप्त उत्तर
+
+`max_tokens` सीमित करता है कि model एक response में कितने tokens generate कर सकता है। अलग APIs और models अलग field names, required settings और default behavior उपयोग करते हैं।
+
+stable output के लिए long answers, code generation और documentation tasks पर explicit output limit सेट करें। Claude / Anthropic-compatible API calls के लिए सामान्यतः `max_tokens` स्पष्ट रूप से भेजना होता है।
+
+## मुख्य अवधारणाएं
+
+| अवधारणा | अर्थ |
+| --- | --- |
+| Input tokens | आपके messages, context, file content, tool results और अन्य input |
+| Output tokens | model द्वारा generate किया गया visible response |
+| Reasoning tokens | कुछ reasoning models द्वारा internally उपयोग hidden reasoning tokens |
+| Context window | input, output और कुछ internal tokens की साझा limit |
+| Output limit | एक response में generate अधिकतम visible output |
+
+output limit बहुत छोटा होने पर response कट सकता है। बहुत बड़ा होने पर model हमेशा उतने tokens generate नहीं करेगा, लेकिन long-output tasks की लागत बढ़ सकती है।
+
+## अलग parameter names
+
+| Parameter | सामान्य उपयोग |
+| --- | --- |
+| `max_tokens` | Claude / Anthropic Messages API और कुछ Chat Completions setups |
+| `max_completion_tokens` | Chat Completions के जरिए कुछ OpenAI reasoning models |
+| `max_output_tokens` | OpenAI Responses API के लिए सामान्य output limit field |
+
+Codex CLI या Responses API आधारित अन्य tool उपयोग करने पर उस tool या provider द्वारा वर्तमान में समर्थित field का पालन करें। हर model के लिए समान parameter name hard-code न करें।
+
+## इसे सेट न करने पर क्या होता है
+
+behavior provider और API के अनुसार अलग है:
+
+| Scenario | संभावित परिणाम |
+| --- | --- |
+| Claude / Anthropic-compatible API | explicit `max_tokens` value आवश्यक हो सकता है |
+| OpenAI-compatible Chat Completions | model का default behavior उपयोग हो सकता है |
+| OpenAI Responses API | `max_output_tokens` या tool का default उपयोग हो सकता है |
+| अन्य models | अपनी default output limits हो सकती हैं |
+
+models बदलने के बाद समान code अलग output lengths उत्पन्न कर सकता है। production में अप्रत्याशित परिणाम घटाने के लिए explicit output limit सेट करें।
+
+## अनुशंसित ranges
+
+| Task | सुझाई गई range |
+| --- | --- |
+| General Q&A | `1024` - `4096` |
+| code explanation / small edits | `4096` - `8192` |
+| long-form writing / complex coding tasks | model limit के अनुसार `8192` या अधिक |
+| batch tasks | अप्रत्याशित रूप से लंबे responses से बचने के लिए छोटी limit उपयोग करें |
+
+actual maximum के लिए <a href={"{{model-plaza-url}}"}>model plaza</a> और upstream model docs जांचें। model output limits version के अनुसार बदल सकती हैं।
+
+## output truncate होने पर क्या करें
+
+response में `finish_reason: "length"` होने पर model आमतौर पर output limit तक पहुंच गया है।
+
+इस क्रम में troubleshoot करें:
+
+1. current API द्वारा समर्थित output limit field बढ़ाएं।
+2. जांचें कि सही parameter name उपयोग किया है।
+3. अनावश्यक output घटाने के लिए prompt अधिक focused बनाएं।
+4. बड़े output window वाला model उपयोग करें।
+5. task को कई steps में बांटें।
+
+## सामान्य गलतियां
+
+- मान लेना कि बड़ी `max_tokens` value हमेशा model को अधिक लिखवाती है।
+- `finish_reason` जांचे बिना truncation के बाद retry करना।
+- reasoning model के साथ पुराना field name उपयोग करना।
+- context और cost अनुमानित करते समय hidden reasoning tokens को अनदेखा करना।
+- model की अपनी maximum output limit को अनदेखा करना।
+
+## BetterToken के बारे में
+
+BetterToken API Key और model request level पर usage record करता है। आप dashboard से models और tasks पर token usage देख सकते हैं।
+
+output limit field अब भी आपके API format और model से तय होता है। इसे कॉन्फ़िगर करते समय model, Base URL, API format और parameter name को साथ जांचें।
+
+## संबंधित दस्तावेज
+
+- [Claude Code इतने tokens क्यों उपयोग करता है?](/hi/faq/token-cost/claude-code-token-usage)
+- [सही AI model कैसे चुनें?](/hi/faq/model-calling/model-selection-guide)
+- [Base URL कैसे भरें?](/hi/faq/model-calling/base-url-config)
+- [Codex CLI में review_model और reasoning_effort क्या हैं?](/hi/faq/codex/review-model-reasoning-effort)

@@ -1,0 +1,101 @@
+---
+title: "권장 사항"
+description: "BetterToken을 최대한 활용하기 위한 팁입니다."
+---
+
+## API Key를 안전하게 보관
+
+**environment variables를 사용하고 hardcode하지 마세요.** API Key를 source code 또는 config files에 직접 작성하면 version control에서 실수로 노출될 위험이 있습니다. 권장 방법은 다음과 같습니다.
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc so it loads automatically each session
+export BETTERTOKEN_API_KEY="your-api-key-here"
+```
+
+Claude Code에서는 `env` field를 `settings.json`에서 사용하여 shell config에 secrets를 노출하지 말고 관리하세요.
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your-api-key-here"
+  }
+}
+```
+
+**API Key를 정기적으로 교체하세요.** 노출이 의심되면 dashboard에서 즉시 key를 삭제하고 새 key를 생성하세요.
+
+---
+
+## 충분한 timeout 설정
+
+AI model responses에는 시간이 걸릴 수 있으며 특히 complex reasoning tasks에서 그렇습니다. premature disconnects를 피할 수 있도록 timeout을 충분히 높게 설정하세요.
+
+```json
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`3000000` ms = 50분입니다. deep reasoning 또는 긴 agentic tasks에 적합합니다.
+
+---
+
+## 충돌하는 environment variables 제거
+
+이전에 공식 Anthropic 또는 OpenAI APIs나 다른 relay service를 사용했다면 stale environment variables가 BetterToken config를 override하여 requests를 잘못된 endpoint로 조용히 보낼 수 있습니다.
+
+BetterToken을 설정하기 전에 다음을 확인하고 제거하세요.
+
+```bash
+# Check if they exist
+echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL
+echo $OPENAI_API_KEY
+echo $OPENAI_BASE_URL
+
+# Clear them
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_BASE_URL
+unset OPENAI_API_KEY
+unset OPENAI_BASE_URL
+```
+
+---
+
+## Claude Code: 먼저 provider 확인
+
+**Claude provider**에서는 `ANTHROPIC_MODEL`, `ANTHROPIC_SMALL_FAST_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` 또는 다른 model-specific variables를 **설정하지 마세요**. **GPT provider**에서는 `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL`을 통해 model mappings를 추가하세요.
+
+두 setups를 섞지 마세요. requests가 잘못된 model로 route될 수 있습니다.
+
+**non-essential traffic을 비활성화하세요.** `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`을 설정하면 Claude Code의 background requests가 줄어들어 실제 coding tasks를 위해 API quota를 확보할 수 있습니다.
+
+**Claude Code에 `/v1`을 추가하지 마세요.** `ANTHROPIC_BASE_URL`은 `{{anthropic-base-url}}`이어야 합니다.
+
+---
+
+## 여러 tools에서 하나의 API Key 사용
+
+같은 API Key는 Claude Code, Codex 및 external tools에서 작동합니다. quota가 공유되므로 중앙 관리가 간단해집니다.
+
+단 endpoint는 protocol과 일치해야 합니다.
+
+- Claude Code / `ANTHROPIC_BASE_URL`: `{{anthropic-base-url}}`
+- Codex / `OPENAI_BASE_URL` / external tools: `{{openai-base-url}}`
+
+project 또는 team별 usage를 별도로 추적해야 한다면 dashboard에서 여러 API Keys를 만들고 각 tool 또는 project에 하나씩 할당하세요.
+
+external tools에서는 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 **GPT provider**에서 model ID를 복사하세요.
+
+---
+
+## 문제 해결 checklist
+
+1. **API Key가 올바른지 확인** — dashboard를 확인하고 extra spaces 없이 주의해서 붙여넣으세요.
+2. **protocol에 맞는 endpoint 확인** — Claude Code는 `{{anthropic-base-url}}`을 사용하며 Codex / external tools는 `{{openai-base-url}}`을 사용합니다.
+3. **충돌하는 env vars 확인** — `echo $ANTHROPIC_AUTH_TOKEN`, `echo $OPENAI_BASE_URL` 및 관련 commands를 실행하세요.
+4. **tool의 공식 setup requirements 확인** — external tools에서는 `Base URL`, API Key, model ID 및 tool version을 먼저 확인하세요. tool의 공식 docs 또는 upstream gateway가 명시적으로 요구할 때만 extra headers를 추가하세요.
+5. **balance 확인** — balance가 소진되면 requests가 거부됩니다.
+6. **support 문의** — 위 단계로 해결되지 않으면 문의하세요.

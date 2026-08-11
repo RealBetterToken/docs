@@ -1,0 +1,90 @@
+---
+title: "max_tokens란 무엇이며 설정하지 않으면 어떻게 되나요?"
+sidebarTitle: "max_tokens"
+description: "max_tokens, max_completion_tokens, max_output_tokens의 의미와 모델 호출 시 출력 token limit를 설정하는 방법을 알아보세요."
+---
+
+## 짧은 답변
+
+`max_tokens`는 model이 한 response에서 생성할 수 있는 tokens 수를 제한합니다. API와 model마다 field name, required settings, default behavior가 다릅니다.
+
+stable output을 위해 long answers, code generation, documentation tasks에는 explicit output limit를 설정하세요. Claude / Anthropic-compatible API calls에서는 보통 `max_tokens`를 명시적으로 보내야 합니다.
+
+## 핵심 개념
+
+| 개념 | 의미 |
+| --- | --- |
+| Input tokens | messages, context, file content, tool results 및 기타 input |
+| Output tokens | model이 생성하는 visible response |
+| Reasoning tokens | 일부 reasoning models가 internally 사용하는 hidden reasoning tokens |
+| Context window | input, output 및 일부 internal tokens가 함께 사용하는 limit |
+| Output limit | 한 response에서 생성되는 maximum visible output |
+
+output limit가 너무 작으면 response가 잘릴 수 있습니다. 매우 크게 설정해도 model이 항상 그만큼의 tokens를 생성하는 것은 아니지만 long-output tasks의 cost가 더 커질 수 있습니다.
+
+## parameter name 차이
+
+| Parameter | 일반적인 use case |
+| --- | --- |
+| `max_tokens` | Claude / Anthropic Messages API 및 일부 Chat Completions setups |
+| `max_completion_tokens` | Chat Completions를 통한 일부 OpenAI reasoning models |
+| `max_output_tokens` | OpenAI Responses API의 일반적인 output limit field |
+
+Codex CLI 또는 Responses API based tool을 사용한다면 해당 tool 또는 provider가 currently 지원하는 field를 따르세요. 모든 model에 같은 parameter name을 hard-code하지 마세요.
+
+## 설정하지 않으면 어떻게 되나요?
+
+behavior는 provider와 API에 따라 다릅니다.
+
+| 상황 | 가능한 결과 |
+| --- | --- |
+| Claude / Anthropic-compatible API | explicit `max_tokens` value가 필요할 수 있음 |
+| OpenAI-compatible Chat Completions | model의 default behavior를 사용할 수 있음 |
+| OpenAI Responses API | `max_output_tokens` 또는 tool의 default를 사용할 수 있음 |
+| Other models | 자체 default output limits가 있을 수 있음 |
+
+같은 code도 models를 switch하면 output lengths가 달라질 수 있습니다. production에서 unexpected results를 줄이려면 explicit output limit를 설정하세요.
+
+## 권장 범위
+
+| Task | 권장 범위 |
+| --- | --- |
+| General Q&A | `1024` - `4096` |
+| Code explanation / small edits | `4096` - `8192` |
+| Long-form writing / complex coding tasks | model limit에 따라 `8192` 이상 |
+| Batch tasks | unexpectedly long responses를 피하려면 smaller limit 사용 |
+
+actual maximum은 <a href={"{{model-plaza-url}}"}>모델 광장</a>과 upstream model docs에서 확인하세요. Model output limits는 version별로 달라질 수 있습니다.
+
+## output이 잘렸을 때 할 일
+
+response에 `finish_reason: "length"`가 있다면 model이 보통 output limit에 도달한 것입니다.
+
+다음 순서로 troubleshoot하세요.
+
+1. current API가 지원하는 output limit field를 늘립니다.
+2. correct parameter name을 사용했는지 확인합니다.
+3. unnecessary output을 줄이도록 prompt를 더 focused하게 만듭니다.
+4. larger output window를 가진 model을 사용합니다.
+5. task를 여러 steps로 나눕니다.
+
+## 일반적인 실수
+
+- 더 큰 `max_tokens` value가 항상 model의 writing length를 늘린다고 가정함
+- `finish_reason`를 확인하지 않고 truncation 후 retry함
+- reasoning model에 old field name을 사용함
+- context와 cost를 estimate할 때 hidden reasoning tokens를 무시함
+- model 자체의 maximum output limit를 무시함
+
+## BetterToken 정보
+
+BetterToken은 API Key 및 model request level의 usage를 records합니다. dashboard에서 models와 tasks 전반의 token usage를 확인할 수 있습니다.
+
+output limit field는 여전히 사용하는 API format과 model에 따라 결정됩니다. 이를 configure할 때 model, Base URL, API format, parameter name을 함께 확인하세요.
+
+## 관련 문서
+
+- [Claude Code는 왜 tokens를 많이 사용하나요?](/ko/faq/token-cost/claude-code-token-usage)
+- [올바른 AI model을 선택하는 방법](/ko/faq/model-calling/model-selection-guide)
+- [Base URL은 어떻게 입력하나요?](/ko/faq/model-calling/base-url-config)
+- [Codex CLI의 review_model과 reasoning_effort란 무엇인가요?](/ko/faq/codex/review-model-reasoning-effort)

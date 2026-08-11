@@ -1,0 +1,45 @@
+---
+title: "Claude Opus 5 が BetterToken で利用可能になりました"
+description: "Claude Opus 5 は BetterToken で claude-opus-5 として利用できます。複雑なコーディング、長時間実行するエージェントワークフロー、最大 1M tokens のコンテキストウィンドウに対応します。"
+tag: "NEW"
+---
+
+リリース日：2026 年 7 月 24 日
+
+BetterToken は `claude-opus-5` をサポートしています。このモデルは、複雑なコーディング、長時間実行するエージェントワークフロー、大規模なコードベースにまたがる複数ステップの作業向けに設計されています。接続するには、BetterToken API Key を作成し、`Claude` プロバイダーを選択して、`{{anthropic-base-url}}` を Base URL として使用し、モデル ID に `claude-opus-5` を選択します。
+
+現在の提供状況と価格は、必ず<a href={"{{model-plaza-url}}"}>モデル広場</a>で確認してください。
+
+## 主な特徴
+
+- **複雑なコーディングワークロード**：Anthropic は、品質と長期にわたる信頼性が重要な、複雑なエージェント型コーディングやプロフェッショナルな作業に Opus 5 を推奨しています。
+- **最大 `1M tokens` のコンテキスト**：このモデルは、大規模なリポジトリ、長い履歴、広範なソース資料を扱えます。
+- **最大 `128K tokens` の出力**：大規模なコード変更、レポート、複数ステップの成果物に対応します。
+- **デフォルトでの適応的な思考**：モデルはタスクに応じて推論の深さを調整します。
+- **拡張された effort 制御**：サポートされる effort レベルは `low`、`medium`、`high`、`xhigh`、`max` です。
+
+## 接続方法
+
+1. <a href={"{{register-url}}"}>登録して BetterToken API Key を作成</a>し、`Claude` プロバイダーを選択します。
+2. Base URL を `{{anthropic-base-url}}` に設定します。
+3. モデルとして `claude-opus-5` を選択します。
+4. [Claude Code セットアップガイド](/ja/ai-tools/claude-code)に従います。複数のプロバイダーを管理するには、[CC Switch ガイド](/ja/ai-tools/cc-switch)を使用します。
+
+特定のワークロード向けにモデルを選ぶ場合は、[モデル選択ガイド](/ja/faq/model-calling/model-selection-guide)で Opus 5 と他の選択肢を比較してください。
+
+## Opus 4.8 から移行する際の確認事項
+
+ほとんどの設定では、`claude-opus-4-8` を `claude-opus-5` に置き換えられます。次の 2 つの動作変更を確認してください。
+
+- **Thinking はデフォルトで有効です**。effort が `xhigh` または `max` に設定されている場合、Thinking を無効にすると `400` エラーが返されます。
+- **`max_tokens` は Thinking と表示される出力を含みます**。長い推論と大きな最終レスポンスが必要なタスクには、十分な余裕を残してください。
+
+<Tip>
+  リポジトリの分析、複数ファイルの変更、長時間実行するエージェントタスクなど、実際のワークフローにあるタスクから始めてください。より多くのワークロードを切り替える前に、品質、レイテンシー、Token 使用量を評価しやすくなります。
+</Tip>
+
+## 公式ソース
+
+- [Claude Platform リリースノート](https://platform.claude.com/docs/en/release-notes/overview)
+- [モデル概要](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [移行ガイド](https://platform.claude.com/docs/en/about-claude/models/migration-guide)

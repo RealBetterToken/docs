@@ -1,0 +1,67 @@
+---
+title: "Claude Code と Codex CLI の比較"
+sidebarTitle: "Claude Code と Codex"
+description: "実行環境、設定ファイル、モデルプロトコル、権限、プロジェクト指示ファイルの観点から Claude Code と Codex CLI を比較します。"
+---
+
+## 短い回答
+
+Claude Code と Codex CLI は、どちらもローカル開発向けのコーディングエージェントですが、異なるエコシステムに属し、設定の境界も異なります。
+
+Claude Code は Anthropic / Claude のエコシステムにより近いツールです。一般的な設定には、`ANTHROPIC_BASE_URL`、`ANTHROPIC_AUTH_TOKEN`、`CLAUDE.md`、権限、フック、MCP が含まれます。
+
+Codex CLI は OpenAI / Codex のエコシステムにより近いツールです。一般的な設定には、`~/.codex/config.toml`、`model_provider`、`wire_api = "responses"`、`AGENTS.md`、サンドボックス、承認が含まれます。
+
+## 重要になる場面
+
+- ターミナルベースの AI コーディングエージェントを選ぶ
+- Base URL、API Key、モデル設定を統一する必要がある
+- 長期間使えるプロジェクト指示を設定したい
+- コマンド実行と承認の境界を重視している
+- 複数のツールで同じモデル API レイヤーを共有したい
+
+## 主な違い
+
+| 観点 | Claude Code | Codex CLI |
+| --- | --- | --- |
+| 主なエコシステム | Anthropic / Claude | OpenAI / Codex |
+| 一般的なモデルプロトコル | Anthropic 互換 | OpenAI 互換 / Responses |
+| 主な設定 | 環境変数、設定、権限、フック | `config.toml`、サンドボックス、承認、ルール |
+| プロジェクト指示ファイル | `CLAUDE.md` | `AGENTS.md` |
+| モデルフィールド | Claude のモデル名、エイリアス、またはプロバイダーマッピング | `model`、`review_model`、プロバイダー ID |
+| ツール拡張 | MCP、フック、権限 | MCP、プラグイン、ルール、サンドボックス |
+
+## 選び方
+
+すでに Claude エコシステムで作業しており、`CLAUDE.md`、Claude モデル、フック、MCP を重視する場合は、まず Claude Code を使用してください。
+
+プロバイダー、モデル、レビュー用モデル、サンドボックス、承認の動作を `config.toml` で管理したい場合は、まず Codex CLI を使用してください。
+
+チームで両方を使う場合は、ツールのフロントエンドとモデル API レイヤーを分けてください。ツールはコードの読み取りと変更、コマンド実行、リスクの承認方法を決めます。API レイヤーは、どのプロバイダーがリクエストを受け取るか、どのモデルを使うか、利用状況をどのように記録するかを決めます。
+
+## よくある間違い
+
+- Claude Code と Codex CLI の違いはモデル名だけだと考えること。
+- `CLAUDE.md` と `AGENTS.md` を同じファイルとして扱うこと。
+- Anthropic 互換の Base URL を Codex CLI に設定すること。
+- OpenAI 互換の `/v1` Endpoint を Claude Code の Anthropic プロトコル設定に入れること。
+- API プロバイダーを切り替えると、ツールのローカル権限も変わると考えること。
+
+## BetterToken について
+
+BetterToken はモデル API レイヤーとして利用できます。Claude Code では通常 `{{anthropic-base-url}}` を使用し、Codex CLI やその他の OpenAI 互換ツールでは通常 `{{openai-base-url}}` を使用します。
+
+BetterToken は `CLAUDE.md`、`AGENTS.md`、権限、フック、サンドボックス、承認の代わりにはなりません。これらは引き続き各ツールに属します。
+
+## 関連ドキュメント
+
+- [Claude Code とは何ですか？](/ja/faq/claude-code/what-is-claude-code)
+- [Codex CLI とは何ですか？](/ja/faq/codex/what-is-codex-cli)
+- [OpenAI 互換 API と Anthropic 互換 API](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Codex CLI のサンドボックスと承認モードとは何ですか？](/ja/faq/codex/sandbox-approval)
+
+## 参考資料
+
+- [Claude Code の概要](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Codex CLI ドキュメント](https://developers.openai.com/codex/cli)
+- [OpenAI Codex の GitHub リポジトリ](https://github.com/openai/codex)

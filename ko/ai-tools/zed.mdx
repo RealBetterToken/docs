@@ -1,0 +1,138 @@
+---
+title: "Zed 사용자 지정 모델 설정: API Key 및 Base URL"
+sidebarTitle: "Zed"
+description: "Zed에서 BetterToken을 OpenAI-compatible provider로 추가하고 Base URL, API Key 및 model을 설정한 다음 key를 system keychain에 보관하세요."
+icon: "z"
+---
+
+Zed **Agent Settings**에서 OpenAI-compatible provider를 추가한 다음 BetterToken API Key, Base URL 및 Model ID를 입력하세요. Zed는 이 screen을 통해 저장한 keys를 `settings.json` 대신 system keychain에 저장합니다.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| Provider | `BetterToken` |
+| API Key | `YOUR_API_KEY` |
+| Base URL | `{{openai-base-url}}` |
+| 모델 | `YOUR_MODEL_ID` |
+
+## 사전 요구 사항
+
+- 최신 버전의 [Zed](https://zed.dev/docs) 설치
+- <a href={"{{register-url}}"}>BetterToken API Key 만들기</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 `YOUR_MODEL_ID` 복사
+
+## 설치
+
+[Zed website](https://zed.dev)에서 최신 version을 설치하거나 업데이트하세요. Zed를 시작한 다음 아래 단계에 따라 Agent settings를 여세요.
+
+## 수동 설정
+
+<Steps>
+  <Step title="OpenAI-compatible provider 추가">
+    **Add Provider**를 클릭하고 **OpenAI Compatible**를 선택한 다음 Provider Name으로 `BetterToken`을 입력하세요.
+  </Step>
+
+  <Step title="연결 settings 입력">
+
+    | 필드 | 값 |
+    | --- | --- |
+    | API URL | `{{openai-base-url}}` |
+    | API Key | `YOUR_API_KEY` |
+    | Model ID | `YOUR_MODEL_ID` |
+
+    Base URL만 입력하세요. Zed가 Chat Completions endpoint를 구성합니다.
+  </Step>
+
+  <Step title="API Key 저장">
+    Zed settings에서 provider를 저장하세요. Zed는 API Key를 local system keychain에 저장하며 `settings.json`에 작성하지 않습니다.
+  </Step>
+
+  <Step title="모델 선택">
+    Agent Panel model picker를 열고 `YOUR_MODEL_ID`를 `BetterToken` 아래에서 선택하세요.
+  </Step>
+</Steps>
+
+<Warning>
+  `YOUR_API_KEY`를 `settings.json`, project file 또는 Git repository에 두지 마세요.
+</Warning>
+
+### 선택 사항: `settings.json`에서 provider 및 model 선언
+
+file-managed model declarations가 필요하면 `zed: open settings file`을 실행하세요. file에는 provider, `api_url` 및 model metadata만 유지하세요.
+
+```json
+{
+  "language_models": {
+    "openai_compatible": {
+      "BetterToken": {
+        "api_url": "{{openai-base-url}}",
+        "available_models": [
+          {
+            "name": "YOUR_MODEL_ID",
+            "display_name": "YOUR_MODEL_ID",
+            "max_tokens": 128000
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Zed는 model context-window declaration으로 `max_tokens`를 요구합니다. 선택한 model에 맞게 조정하세요. system keychain에 저장되도록 **Agent Settings**에서 API Key를 입력하세요.
+
+## 연결 확인
+
+1. Agent Panel에서 `BetterToken / YOUR_MODEL_ID`를 선택하세요.
+2. 짧은 테스트 message를 보내세요.
+3. authentication 또는 model errors 없는 정상 response가 설정을 확인합니다.
+
+provider 또는 model settings를 변경한 후 Zed를 완전히 종료하고 다시 시작하세요.
+
+## 모델 전환
+
+Agent Panel model picker에서 다른 BetterToken model을 선택하세요. Model ID를 추가하려면 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 현재 값을 복사한 다음 provider settings 또는 `available_models`를 업데이트하세요.
+
+## 일반적인 오류
+
+| 오류 | 해결 방법 |
+| --- | --- |
+| `401` 또는 `Unauthorized` | Agent Settings에서 BetterToken API Key를 다시 입력하고 앞뒤 spaces를 제거하세요. |
+| `404` | API URL로 `{{openai-base-url}}`을 사용하고 `/chat/completions`를 추가하지 마세요. |
+| `model not found` | 모델 광장에서 `YOUR_MODEL_ID`를 다시 복사하세요. |
+| Settings가 적용되지 않음 | provider를 저장하고 Zed를 완전히 종료한 다음 다시 여세요. |
+| Zed가 이전 key를 사용함 | keychain을 override하는 provider environment variable을 제거한 다음 Zed를 다시 시작하세요. |
+
+## 고급 설정
+
+{/* tool-provider-support:start */}
+### 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+## 기술 세부 정보
+
+<Accordion title="Keychain, settings file 및 endpoint">
+  Zed는 OpenAI-compatible provider를 통해 BetterToken을 호출합니다. settings screen은 key를 system keychain에 저장하며 `settings.json`에는 provider, `api_url`, model declaration만 포함됩니다. `{{openai-base-url}}`을 Base URL로 사용하고 Zed가 Chat Completions path를 추가하게 두세요.
+</Accordion>
+
+### 관련 FAQ
+
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [MCP와 API Key 및 Base URL 비교](/ko/faq/concepts/mcp-vs-api-key-base-url)
+- [model_provider, base_url 및 wire_api란 무엇인가요?](/ko/faq/codex/model-provider-base-url-wire-api)
+- [Cline에서 OpenAI-compatible API 구성](/ko/faq/cline/openai-compatible-api)

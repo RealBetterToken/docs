@@ -1,0 +1,58 @@
+---
+title: "Que signifient review_model et reasoning_effort dans Codex CLI ?"
+sidebarTitle: "review_model / reasoning"
+description: "Comprenez review_model, model_reasoning_effort, /review, /model et l’effet de ces paramètres sur le coût et la qualité dans Codex CLI."
+---
+
+## Réponse courte
+
+`review_model` est le modèle que Codex utilise pour les flux de revue de code. `model_reasoning_effort` contrôle la puissance de raisonnement des modèles qui prennent en charge la Responses API.
+
+Ces deux champs peuvent influer sur la qualité, la vitesse et le coût d’utilisation. Des paramètres de raisonnement plus élevés conviennent mieux aux tâches complexes, mais ils peuvent consommer davantage.
+
+## Relations entre les champs
+
+| Champ | Rôle |
+| --- | --- |
+| `model` | Modèle par défaut pour le travail courant |
+| `review_model` | Modèle utilisé par les flux de revue tels que `/review` |
+| `model_reasoning_effort` | Puissance de raisonnement du modèle principal |
+| `/model` | Point d’entrée dans la session pour modifier le modèle ou le raisonnement |
+| `/review` | Point d’entrée pour demander à Codex de revoir les modifications actuelles |
+
+## Configuration recommandée
+
+```toml
+model = "gpt-5.5"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+```
+
+Pour de petites modifications rapides, vous pouvez réduire l’effort de raisonnement. Pour les refactorisations sur plusieurs fichiers, le débogage difficile ou les tâches à contexte long, un effort de raisonnement plus élevé est préférable.
+
+## Erreurs fréquentes
+
+- Penser que `review_model` remplace le modèle principal pour toutes les tâches.
+- Traiter l’effort de raisonnement comme un réglage de température.
+- Utiliser un Model ID non pris en charge par le fournisseur actuel.
+- Utiliser l’effort de raisonnement maximal pour chaque tâche.
+- Ne regarder que les noms de modèles sans vérifier l’utilisation réelle ni la qualité du résultat.
+
+## À propos de BetterToken
+
+Différents modèles et paramètres de raisonnement influent sur l’utilisation. Les enregistrements d’utilisation BetterToken vous aident à comparer les entrées, les sorties et le coût de tâches réelles.
+
+Copiez les Model ID depuis le **fournisseur GPT** afin que le fournisseur actuel puisse les reconnaître.
+
+## Documentation associée
+
+- [Comment configurer config.toml de Codex CLI](/fr/faq/codex/config-toml)
+- [Que sont model_provider, base_url et wire_api ?](/fr/faq/codex/model-provider-base-url-wire-api)
+- [Guide de configuration BetterToken pour Codex](/fr/ai-tools/codex)
+- [Quels sont les modes sandbox et approbation de Codex CLI ?](/fr/faq/codex/sandbox-approval)
+
+## Références
+
+- [Référence de configuration Codex](https://developers.openai.com/codex/config-reference)
+- [Exemple de configuration Codex](https://developers.openai.com/codex/config-sample)
+- [Commandes slash de Codex CLI](https://developers.openai.com/codex/cli/slash-commands)

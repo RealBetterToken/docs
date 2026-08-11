@@ -1,0 +1,73 @@
+---
+title: "GPT Image 2 ya está disponible"
+description: "BetterToken actualizó GPT Image 2 el 29 de abril de 2026 para generar imágenes de alta calidad, pósteres, recursos de marketing y borradores visuales."
+tag: "NEW"
+---
+
+Fecha de lanzamiento: 29 de abril de 2026
+
+BetterToken ha añadido la entrada del modelo de generación de imágenes `gpt-image-2`. Consulta en la <a href={"{{model-plaza-url}}"}>model plaza</a> el ID de modelo disponible actualmente y llámalo mediante la API de generación de imágenes compatible con OpenAI.
+
+OpenAI presentó ChatGPT Images 2.0 el 21 de abril de 2026 e identifica `gpt-image-2` como el modelo GPT Image más reciente en su documentación para desarrolladores. OpenAI describe GPT Image 2 como un modelo para generar y editar imágenes con rapidez y alta calidad, con entrada de texto e imagen, salida de imagen, tamaños flexibles e imágenes de entrada de alta fidelidad.
+
+## Aspectos destacados
+
+- **Mayor calidad de imagen**: OpenAI señala GPT Image 2 como su modelo de generación de imágenes con mayor rendimiento, adecuado para recursos visuales acabados
+- **Tamaños más flexibles**: `gpt-image-2` admite más dimensiones válidas, incluidos formatos cuadrados, horizontales, verticales, 2K y 4K; los tamaños superiores a 2K son experimentales actualmente
+- **Imágenes de entrada de mayor fidelidad**: en flujos de edición y con imágenes de referencia, `gpt-image-2` procesa las entradas con alta fidelidad, lo que resulta útil para fotografías de productos, retratos y recursos de marca
+- **Mejor texto e información compleja**: el system card de OpenAI indica que ChatGPT Images 2.0 mejora el conocimiento general, el seguimiento de instrucciones, el texto denso y la generación de detalles complejos
+- **Imágenes parciales en streaming**: la API de imágenes puede devolver imágenes parciales mediante `stream` y `partial_images`, lo que permite ofrecer una experiencia más rápida
+
+## Casos de uso adecuados
+
+- Pósteres de lanzamiento, recursos de campaña e imágenes para redes sociales
+- Ilustraciones para documentación, blogs y artículos largos
+- Borradores de conceptos visuales para aplicaciones, sitios web e interfaces SaaS
+- Imágenes de productos y anuncios, y exploración de direcciones de marca
+- Contenido visual con texto chino o multilingüe
+
+## Configuración de la API
+
+Para el protocolo compatible con OpenAI, usa:
+
+| Ajuste | Valor |
+|---------|-------|
+| `Base URL` | `{{openai-base-url}}` |
+| Autenticación | `Authorization: Bearer YOUR_API_KEY` |
+| ID del modelo | `gpt-image-2` |
+| Endpoint | `POST /v1/images/generations` |
+
+```bash
+curl {{images-generations-url}} \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "Create a modern Chinese launch poster for an AI coding tool, with a clear headline, product UI, and clean background",
+    "size": "1024x1024",
+    "quality": "high"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > gpt-image-2.png
+```
+
+Consulta la lista completa de parámetros en la [documentación de texto a imagen](/es/api-reference/images-generations).
+
+## Guía de configuración
+
+Si usas tu propia aplicación, script o herramienta externa, confirma que admita el endpoint de generación de imágenes compatible con OpenAI. La generación de imágenes usa `{{openai-base-url}}`; no uses el endpoint del protocolo de Claude Code / Anthropic.
+
+Copia el ID de modelo actual desde la <a href={"{{model-plaza-url}}"}>model plaza</a>. No uses nombres de modos de la interfaz de ChatGPT como parámetros de la API.
+
+## Notas
+
+- La generación de imágenes tarda de media entre `100` y `200` segundos. Configura tiempos de espera superiores a `300` segundos para el cliente, el gateway o la herramienta externa y muestra un estado de espera en tu aplicación.
+- `gpt-image-2` no admite actualmente fondos transparentes. Genera primero una imagen sin transparencia y elimina después el fondo con otra herramienta si es necesario.
+- Los resultados se devuelven como `b64_json` de forma predeterminada. Decodifica el valor base64 antes de guardar la imagen.
+- Las imágenes grandes y de alta calidad pueden aumentar la latencia y el coste. Usa `quality: "low"` para las vistas previas.
+- Revisa el texto, el diseño y los elementos de marca de las imágenes antes de publicarlas.
+
+## Fuentes oficiales
+
+- [Presentación de ChatGPT Images 2.0](https://openai.com/index/introducing-chatgpt-images-2-0/)
+- [Página del modelo GPT Image 2](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [Guía de generación de imágenes de OpenAI](https://platform.openai.com/docs/guides/images/image-generation)
+- [System Card de ChatGPT Images 2.0](https://deploymentsafety.openai.com/chatgpt-images-2-0/)

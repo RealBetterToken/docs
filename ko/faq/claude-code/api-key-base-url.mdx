@@ -1,0 +1,78 @@
+---
+title: "Claude Code에서 API Key와 Base URL 설정하기"
+sidebarTitle: "API Key와 Base URL"
+description: "Claude Code를 설정할 때 API Key, Base URL, Anthropic 호환 엔드포인트, Claude/GPT 제공자가 어떻게 연결되는지 알아보세요."
+---
+
+## 빠른 답변
+
+Claude Code에서 타사 API를 설정할 때는 먼저 엔드포인트가 Anthropic 호환인지 확인하세요. 이 문서에서 Claude Code는 `{{anthropic-base-url}}`을 사용합니다. `/v1`을 추가하지 마세요.
+
+API Key는 요청을 인증하고 Base URL은 Claude Code가 모델 요청을 보낼 위치를 지정합니다. 두 값은 같은 제공자와 프로토콜에 속해야 합니다.
+
+**Claude 제공자**를 사용하면 일반적으로 Claude Code에 `ANTHROPIC_BASE_URL`과 `ANTHROPIC_AUTH_TOKEN`이 필요합니다. **GPT 제공자**를 사용하면 설정 가이드에 나온 Claude Code 모델 매핑도 필요합니다.
+
+## 이 설정이 필요한 경우
+
+- Claude Code에서 사용자 지정 API 게이트웨이를 사용하려 할 때
+- API Key는 있지만 어떤 Base URL을 사용할지 모를 때
+- Claude Code에서 인증 또는 엔드포인트 오류가 발생할 때
+- `{{anthropic-base-url}}`과 `{{openai-base-url}}` 중 하나를 선택해야 할 때
+- Claude 제공자와 GPT 제공자의 차이를 이해해야 할 때
+
+## 핵심 개념
+
+| 필드 | 의미 |
+| --- | --- |
+| API Key | 모델 API 요청을 위한 인증 정보 |
+| Base URL | 요청을 보내는 API 주소 |
+| Anthropic 호환 API | Anthropic / Claude 요청 규칙을 따르는 엔드포인트 |
+| OpenAI 호환 API | OpenAI 방식 규칙을 따르는 엔드포인트로, Codex, Cursor, Cline에서 주로 사용 |
+| Model ID | 도구에서 요청하는 모델 이름 또는 매핑 값 |
+
+## 권장 설정
+
+제공자에 맞는 설정 경로를 선택하세요.
+
+Claude 제공자:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+  }
+}
+```
+
+GPT 제공자에는 Claude Code 모델 매핑이 추가로 필요합니다. 이 짧은 예제만 복사하지 말고 전체 [Claude Code 설정 가이드](/ko/ai-tools/claude-code)를 따르세요.
+
+설정을 수정한 뒤 Claude Code를 다시 시작하고 짧은 테스트 메시지를 보내세요. 실패하면 먼저 Base URL이 실수로 `{{openai-base-url}}`로 설정되지 않았는지 확인하세요.
+
+## 흔한 실수
+
+- Claude Code Base URL에 `/v1` 추가하기
+- API Key만 변경하고 요청은 기본 엔드포인트로 계속 보내기
+- GPT 제공자의 모델 ID를 Claude 제공자 모델로 간주하기
+- Claude Code의 Anthropic 호환 필드에 OpenAI 호환 엔드포인트 입력하기
+- 셸 프로필의 기존 환경 변수가 새 설정을 덮어쓰도록 두기
+
+## BetterToken에서의 사용 방식
+
+BetterToken은 두 가지 엔드포인트를 제공합니다. Claude Code에는 Anthropic 호환 `{{anthropic-base-url}}`을 사용하고 Codex와 외부 도구에는 OpenAI 호환 `{{openai-base-url}}`을 사용합니다.
+
+하나의 Dashboard에서 API Key, 잔액, 사용 내역을 관리할 수 있지만 Claude Code에서 Anthropic 호환 요청 형식을 사용해야 한다는 요구 사항은 바뀌지 않습니다.
+
+## 관련 문서
+
+- [Claude Code 설정 가이드](/ko/ai-tools/claude-code)
+- [Claude Code는 Claude.ai 계정과 API Key 중 무엇을 사용하나요?](/ko/faq/claude-code/claude-account-or-api-key)
+- [OpenAI 호환 API와 Anthropic 호환 API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Code가 많은 Token을 사용하는 이유와 비용 줄이기](/ko/faq/token-cost/claude-code-token-usage)
+
+## 참고 자료
+
+- [Claude Code LLM 게이트웨이 설정](https://docs.anthropic.com/en/docs/claude-code/llm-gateway)
+- [Claude Code 인증](https://docs.anthropic.com/en/docs/claude-code/iam)
+- [Claude Code 모델 설정](https://docs.anthropic.com/en/docs/claude-code/model-config)
+- [Claude Code 설정 가이드](/ko/ai-tools/claude-code)

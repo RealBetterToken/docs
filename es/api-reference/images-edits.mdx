@@ -1,0 +1,139 @@
+---
+title: "De imagen a imagen (edición de imágenes)"
+description: "Genera o edita imágenes a partir de imágenes de referencia con GPT Image 2 mediante la API de BetterToken compatible con OpenAI."
+openapi: "api-reference/openapi.json POST /v1/images/edits"
+---
+
+`POST /v1/images/edits`
+
+El endpoint de imagen a imagen usa un cuerpo de solicitud `multipart/form-data`. Sube una o varias imágenes de referencia y envía el prompt y los parámetros como campos de formulario.
+
+<Note>
+  Usa `{{openai-base-url}}` como `Base URL`. Envía tu BetterToken API Key mediante `Authorization: Bearer YOUR_API_KEY`.
+</Note>
+
+<Tip>
+  Puedes completar los campos del formulario y subir imágenes de referencia en el Playground de la derecha. Después, envía la solicitud directamente a `{{images-edits-url}}`.
+</Tip>
+
+<Warning>
+  No uses un cuerpo JSON normal para las solicitudes de imagen a imagen. Envía los campos de texto y archivo mediante `multipart/form-data`.
+</Warning>
+
+## Valores recomendados
+
+Envía estos campos de forma explícita en cada solicitud:
+
+```text
+model=gpt-image-2
+n=1
+response_format=b64_json
+output_format=png
+```
+
+Usa `image` para una sola imagen de referencia. Para varias imágenes de referencia, repite el campo `image[]`.
+
+## Una imagen de referencia
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Use this reference image to create a more polished square product hero image while keeping the main style consistent.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@reference.png'
+```
+
+## Varias imágenes de referencia
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Combine these reference images into one consistent promotional poster.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image[]=@reference-1.png' \
+  -F 'image[]=@reference-2.jpg' \
+  -F 'image[]=@reference-3.png'
+```
+
+## Ejemplo con Python
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {
+    "Authorization": "Bearer sk-***REDACTED***",
+}
+
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Use this reference image to create a more polished square product hero image while keeping the main style consistent.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("reference.png", "rb") as image_file:
+    files = {
+        "image": ("reference.png", image_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+b64_json = result["data"][0]["b64_json"]
+```
+
+## Tamaños recomendados
+
+| `size` | Proporción | Uso |
+| --- | --- | --- |
+| `auto` | Automática | Selección automática del tamaño |
+| `1024x1024` | `1:1` | Imágenes cuadradas, avatares, portadas y recursos |
+| `1536x1024` | `3:2` | Pósteres horizontales, banners y escenas |
+| `1024x1536` | `2:3` | Portadas móviles y pósteres verticales |
+| `1536x1152` | `4:3` | Imágenes horizontales estándar, productos y gráficos de contenido |
+| `1152x1536` | `3:4` | Imágenes verticales estándar, portadas móviles y pósteres verticales |
+| `2048x2048` | `1:1` | Imágenes cuadradas de alta resolución |
+| `2048x1152` | `16:9` | Imágenes horizontales de alta resolución |
+| `3840x2160` | `16:9` | Imágenes horizontales 4K |
+| `2160x3840` | `9:16` | Imágenes verticales 4K |
+
+`size` representa la proporción y el nivel de tamaño esperados. El servidor puede asignar o ajustar los píxeles devueltos. Usa las dimensiones de la imagen decodificada en lugar de recortar la salida por la fuerza al valor solicitado.
+
+## Guarda la imagen
+
+Una respuesta correcta sigue la estructura de imagen compatible con OpenAI:
+
+```json
+{
+  "created": 1710000000,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+    }
+  ]
+}
+```
+
+Lee `data[0].b64_json` y guárdalo como contenido de imagen en base64. Define siempre `output_format: "png"` para poder guardar la imagen decodificada como `.png`.
+
+## Flujo de respuesta
+
+Este endpoint es síncrono. Después de enviar `POST /images/edits`, mantén abierta la solicitud HTTP hasta que responda el servidor. Cuando la generación se completa, el contenido de la imagen se devuelve en `data[0].b64_json`.
+
+El endpoint no devuelve un `task_id`, y no existe un endpoint separado para consultar el estado o descargar el resultado.
+
+## Documentación relacionada
+
+- [De texto a imagen](/es/api-reference/images-generations)
+- [GPT Image 2 ya está disponible](/es/model-updates/gpt-image-2)

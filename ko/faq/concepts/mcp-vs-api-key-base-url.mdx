@@ -1,0 +1,57 @@
+---
+title: "MCP와 API Key 및 Base URL 비교"
+sidebarTitle: "MCP vs API"
+description: "MCP, API Key, Base URL, model protocols 및 tool protocols의 차이를 알아보세요."
+---
+
+## 짧은 답변
+
+MCP는 AI tools를 external tools, data sources 및 context에 연결하는 protocol입니다. API Key와 Base URL은 model request authentication 및 routing settings입니다.
+
+MCP는 agent가 사용할 tools와 data를 답합니다. API Key / Base URL은 model requests가 어디로 가고 어떻게 authenticate되는지 답합니다.
+
+MCP를 configuring해도 model API가 configure되지는 않습니다. model API를 configuring해도 tool에 external system access가 자동으로 부여되지는 않습니다.
+
+## 비교
+
+| 항목 | MCP | API Key / Base URL |
+| --- | --- | --- |
+| 주요 역할 | tool, data source, context integration | model requests, authentication, routing |
+| 일반 targets | local services, databases, files, browsers, business systems | OpenAI-compatible 또는 Anthropic-compatible endpoints |
+| 주요 risk | tool permissions, data access, side effects | secret leakage, protocol mismatch, model cost |
+| model 결정 | 아니요 | 보통 예 |
+
+## 혼동하는 경우
+
+- MCP가 model을 변경한다고 생각함
+- Base URL 변경이 local tools를 연결한다고 생각함
+- MCP server를 model provider로 취급함
+- model API Key를 MCP configuration에 넣음
+- tool이 OpenAI-compatible 또는 Anthropic-compatible API를 기대하는지 모름
+
+## 결정 방법
+
+agent가 database, browser, filesystem, internal system 또는 extra tool에 access하게 하려면 MCP를 확인하세요.
+
+model, gateway, billing account 또는 provider를 전환하려면 API Key, Base URL 및 protocol을 확인하세요.
+
+workflow에 model switch와 external tools가 모두 필요하다면 두 layers를 configure하고 permissions를 별도로 review하세요.
+
+## BetterToken 정보
+
+BetterToken은 MCP server가 아닌 model API layer입니다. API Key, Base URL, model routing 및 usage records를 처리합니다.
+
+BetterToken과 MCP를 함께 사용할 수 있습니다. BetterToken은 model requests를, MCP는 tool 및 context extension을 처리합니다.
+
+## 관련 문서
+
+- [OpenAI-compatible API와 Anthropic-compatible API 비교](/ko/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- [Claude Desktop에서 MCP 구성](/ko/faq/claude-desktop/mcp)
+- [Cursor에서 MCP 구성](/ko/faq/cursor/mcp)
+- [Claude Code permissions와 hooks](/ko/faq/claude-code/permissions-and-hooks)
+
+## 참고 자료
+
+- [Claude Code MCP 문서](https://docs.anthropic.com/en/docs/claude-code/mcp)
+- [Model Context Protocol 소개](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [Anthropic MCP 개요](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)

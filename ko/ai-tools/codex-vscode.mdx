@@ -1,0 +1,119 @@
+---
+title: "Codex VS Code Extension: 사용자 지정 Base URL, API Key 및 Official Login"
+sidebarTitle: "Codex VS Code Extension"
+description: "Codex VS Code Extension의 공유 config.toml을 구성하고 BetterToken Responses를 사용하며 official login, plugins 및 Remote Control을 유지하세요."
+icon: "/icons/codex-vscode.svg"
+---
+
+Codex VS Code Extension은 Codex CLI/App와 `~/.codex/config.toml`을 공유합니다. official login, plugins 또는 Remote Control을 유지해야 할 때 이 페이지를 사용하세요.
+
+## 주요 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
+| Base URL | `{{openai-base-url}}` |
+| Model | `YOUR_MODEL_ID` |
+
+## 사전 요구 사항
+
+- 최신 Codex VS Code Extension 설치
+- Extension 또는 Codex App에서 official login 완료
+- <a href={"{{register-url}}"}>BetterToken API Key 생성</a>
+- <a href={"{{model-plaza-url}}"}>모델 광장</a> 또는 key **Setup** dialog에서 Model ID 복사
+
+## 설치
+
+VS Code Marketplace에서 extension을 설치한 다음 VS Code를 다시 시작하세요.
+
+## 수동 설정
+
+### Extension 구성
+
+`~/.codex/config.toml`을 편집하세요.
+
+```toml
+model_provider = "custom"
+model = "YOUR_MODEL_ID"
+review_model = "YOUR_MODEL_ID"
+model_reasoning_effort = "high"
+
+[model_providers.custom]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+experimental_bearer_token = "YOUR_API_KEY"
+```
+
+파일을 저장하고 VS Code에서 **Developer: Reload Window**를 실행한 다음 Codex panel을 다시 여세요.
+
+<Note>
+  `requires_openai_auth = true`는 official login을 유지합니다. `experimental_bearer_token`은 BetterToken model requests를 authenticate합니다. BetterToken API Key를 `auth.json`에 쓰지 마세요.
+</Note>
+
+### CLI/App와 Extension authentication을 혼합하지 마세요
+
+| Scenario | Authentication fields |
+| --- | --- |
+| Codex CLI/App custom provider만 사용 | `env_key = "BETTERTOKEN_API_KEY"` 및 `requires_openai_auth = false` |
+| official login이 있는 Extension | `requires_openai_auth = true` 및 `experimental_bearer_token = "YOUR_API_KEY"` |
+
+두 대안 모두 `[model_providers.custom]`를 사용합니다. TOML file에는 table 하나만 유지하세요.
+
+## 연결 확인
+
+새 Extension session을 만들고 짧은 task를 보내세요. plugins와 Remote Control이 계속 사용 가능한 상태에서 `YOUR_MODEL_ID`의 response를 받으면 설정이 확인됩니다.
+
+## 모델 전환
+
+`model` 및 필요하면 `review_model`을 바꾼 다음 **Developer: Reload Window**를 실행하세요. Setup dialog 또는 모델 광장의 Model ID를 사용하세요.
+
+## 일반적인 오류
+
+| 오류 | 해결 방법 |
+| --- | --- |
+| Extension이 다시 sign in을 요청함 | official login을 복구하고 `requires_openai_auth = true`를 유지하세요. |
+| `401` 또는 `403` | `experimental_bearer_token`을 다시 복사하고 `auth.json`을 덮어쓰지 마세요. |
+| Duplicate table | 다른 `[model_providers.custom]` table을 제거하고 authentication mode 하나만 유지하세요. |
+| Model not found | `YOUR_MODEL_ID`를 현재의 완전한 Model ID로 바꾸세요. |
+| Configuration이 적용되지 않음 | 파일을 저장하고 **Developer: Reload Window**를 실행하세요. |
+
+## Advanced setup
+
+{/* tool-provider-support:start */}
+## 지원 Provider
+
+| Provider | 상태 |
+| --- | --- |
+| Claude | 지원되지 않음 |
+| GPT | 수동 설정 |
+| Kimi | 수동 설정 |
+| GLM | 수동 설정 |
+
+<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
+
+<Accordion title="설정 방식 설명">
+  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
+  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
+</Accordion>
+{/* tool-provider-support:end */}
+
+### 관련 가이드
+
+- [Codex CLI/App custom provider](/ko/ai-tools/codex)
+- [third-party API로 official Codex login 유지](/ko/faq/codex/official-login-third-party-api)
+- [Codex config.toml 설정 가이드](/ko/faq/codex/config-toml)
+- [model_provider, base_url 및 wire_api란 무엇인가요?](/ko/faq/codex/model-provider-base-url-wire-api)
+
+### 공식 참고 자료
+
+- [Codex IDE extension](https://developers.openai.com/codex/ide)
+- [Codex 기본 configuration](https://developers.openai.com/codex/config-basic)
+- [Codex configuration 참고 자료](https://developers.openai.com/codex/config-reference)
+
+## 기술 세부 정보
+
+<Accordion title="Extension authentication이 CLI/App와 다른 이유">
+  Extension은 일부 Codex product features에 official login을 사용하므로 이 설정은 `requires_openai_auth = true`를 유지합니다. 순수 CLI/App custom provider는 environment variable과 `requires_openai_auth = false`를 사용합니다. 두 방식 모두 `{{openai-base-url}}`을 통해 OpenAI Responses requests를 보냅니다.
+</Accordion>

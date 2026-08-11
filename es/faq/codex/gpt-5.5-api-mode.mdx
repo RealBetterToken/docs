@@ -1,0 +1,126 @@
+---
+title: "¿Por qué Codex no puede usar GPT-5.5 en modo API?"
+sidebarTitle: "Usar GPT-5.5 en el modo API de Codex"
+description: "Activa temporalmente GPT-5.5 en el modo de API personalizada de Codex mediante un catálogo local de modelos."
+---
+
+Desde el 24 de abril de 2026, algunas versiones de Codex pueden impedir que selecciones `gpt-5.5` directamente al usar un proveedor de API personalizado. Se trata de una limitación del catálogo local de modelos de Codex. No significa que el endpoint de BetterToken `{{openai-base-url}}` no esté disponible.
+
+Puedes añadir un archivo local `custom-models.json` para que Codex reconozca `gpt-5.5` y, después, hacer referencia a él desde `~/.codex/config.toml`. Si una versión posterior de Codex admite `gpt-5.5` de forma nativa, usa preferentemente la configuración integrada de Codex.
+
+<Note>
+  Usa el archivo `custom-models.json` completo que se ofrece en esta página. Si lo editas manualmente, conserva las entradas y los campos de modelo existentes y cambia solo la configuración del modelo que necesites.
+</Note>
+
+## Pasos de configuración
+
+<Steps>
+  <Step title="Prepara el archivo de configuración de modelos personalizados">
+    La ruta del archivo de configuración de modelos personalizados es `~/.codex/custom-models.json`.
+
+    <Tabs>
+      <Tab title="Descargar el archivo JSON">
+        Descarga el catálogo completo de modelos:
+
+        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">Descargar custom-models.json</a>
+
+        Coloca el archivo descargado en el directorio de configuración de Codex y llámalo `custom-models.json`.
+
+        | Sistema | Ruta de destino |
+        |--------|-------------|
+        | macOS / Linux | `~/.codex/custom-models.json` |
+        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+
+        El archivo descargado contiene el catálogo completo de modelos. En el paso siguiente lo vincularás desde la configuración de Codex.
+      </Tab>
+
+      <Tab title="Editar el JSON manualmente">
+        Si ya tienes `~/.codex/custom-models.json`, edita el archivo existente. No conserves únicamente una entrada de `gpt-5.5`.
+
+        Si lo editas manualmente, confirma que el array `models` contenga una entrada de `gpt-5.5` y conserva las demás configuraciones de modelos. Si no conoces bien JSON, usa la opción de descarga.
+
+        La entrada de `gpt-5.5` debe incluir campos clave similares a estos:
+
+        ```json
+        {
+          "slug": "gpt-5.5",
+          "display_name": "gpt-5.5",
+          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
+          "base_instructions": "...",
+          "model_messages": {
+            "instructions_template": "...",
+            "instructions_variables": {
+              "personality_default": "",
+              "personality_friendly": "...",
+              "personality_pragmatic": "..."
+            }
+          },
+          "supports_reasoning_summaries": true,
+          "support_verbosity": true,
+          "context_window": 272000
+        }
+        ```
+
+        <Note>
+          El bloque de código anterior solo muestra la estructura principal de una entrada de modelo. Usa como fuente de referencia el archivo descargado o tu catálogo completo de modelos existente.
+        </Note>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Referencia el archivo JSON en la configuración de Codex">
+    Abre el archivo de configuración de Codex `~/.codex/config.toml` y añade o combina la siguiente configuración.
+
+    Ejemplo para macOS / Linux:
+
+    ```toml
+    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
+    model_provider = "{{codex-provider-id}}"
+    model = "gpt-5.5"
+    review_model = "gpt-5.4"
+    model_reasoning_effort = "high"
+    model_context_window = 1000000
+    model_auto_compact_token_limit = 900000
+    windows_wsl_setup_acknowledged = true
+
+    [model_providers]
+    [model_providers.{{codex-provider-id}}]
+    name = "{{codex-provider-name}}"
+    base_url = "{{openai-base-url}}"
+    wire_api = "responses"
+    requires_openai_auth = false
+    request_max_retries = 4
+    stream_max_retries = 8
+    stream_idle_timeout_ms = 300000
+    supports_websockets = false
+    ```
+
+    Ejemplo para Windows:
+
+    ```toml
+    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
+    ```
+
+    `model_catalog_json` debe ser una ruta absoluta local. En las cadenas TOML entre comillas dobles para Windows, escribe `\` como `\\`.
+  </Step>
+
+  <Step title="Reinicia Codex">
+    Después de modificar el archivo de configuración, detén el proceso actual de Codex e inícialo en una sesión de terminal nueva:
+
+    ```bash
+    codex
+    ```
+  </Step>
+</Steps>
+
+## Solución de problemas
+
+Si `gpt-5.5` sigue sin funcionar, comprueba estos puntos en orden:
+
+1. `model_catalog_json` usa una ruta absoluta local
+2. `custom-models.json` conserva el catálogo completo de modelos
+3. `base_url` es `{{openai-base-url}}`
+4. `wire_api` es `responses`
+5. `model_provider` coincide con el ID del proveedor en `[model_providers.{{codex-provider-id}}]`
+
+Si tu versión de Codex ya admite `gpt-5.5` de forma nativa, elimina `model_catalog_json` y vuelve a la [guía habitual de configuración de Codex](/es/ai-tools/codex).
