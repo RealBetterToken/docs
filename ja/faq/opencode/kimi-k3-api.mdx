@@ -1,0 +1,87 @@
+---
+title: "OpenCode の Kimi K3 API: API Key、Base URL、モデル設定"
+sidebarTitle: "OpenCode の Kimi K3"
+description: "BetterToken 経由で Kimi K3 を OpenCode に接続します。`/connect` または opencode.json で API Key、Base URL、kimi-k3 Model ID を設定します。"
+keywords:
+  - "kimi k3 opencode"
+  - "kimi k3 api"
+  - "opencode kimi k3 setup"
+---
+
+BetterToken を OpenAI 互換プロバイダーとして接続し、OpenCode で Kimi K3 を使用します。BetterToken API Key、Base URL `https://bettertoken.ai/v1`、Model ID `kimi-k3` を入力します。
+
+## 重要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai/v1` |
+| モデル | `kimi-k3` |
+
+## 事前準備
+
+- 最新の [OpenCode](https://opencode.ai/)。
+- <a href={"{{register-url}}"}>BetterToken API Key を作成</a>。
+- Setup ダイアログで対象ツールとプロバイダーを選び、利用可能な Model ID をコピーします。
+
+## `/connect` で設定する
+
+```text
+/connect
+```
+
+`bettertoken/kimi-k3` を選び、OpenCode を再起動します。
+
+## 手動設定
+
+`~/.config/opencode/opencode.json` または project-level `opencode.json` を開きます。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/kimi-k3",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "https://bettertoken.ai/v1",
+        "apiKey": "YOUR_API_KEY"
+      },
+      "models": {
+        "kimi-k3": {
+          "name": "kimi-k3"
+        }
+      }
+    }
+  }
+}
+```
+
+`YOUR_API_KEY` と `kimi-k3` を Setup の値に置き換えます。`baseURL` に `/chat/completions` は追加しません。
+
+## 接続を確認する
+
+OpenCode で `bettertoken/kimi-k3` を選択して短い prompt を送信します。JSON の変更後は OpenCode を再起動します。
+
+## よくあるエラー
+
+| Error | 項目 |
+| --- | --- |
+| `401` | `/connect` または `apiKey` を確認します。 |
+| `404` | `baseURL` は `https://bettertoken.ai/v1` にします。 |
+| Model not found | `model`、`models`、Model ID を Setup と照合します。 |
+| Configuration is not applied | `opencode.json` が global file を上書きしていないか確認します。 |
+
+## 関連ガイド
+
+- [OpenCode の設定](/ja/ai-tools/opencode)
+- [Claude Code の設定](/ja/faq/claude-code/kimi-k3-api)
+- [OpenCode の GLM](/ja/faq/opencode/glm-api)
+- [Model ID を選ぶ](/ja/faq/model-calling/model-selection-guide)
+
+## 技術的な詳細
+
+<Accordion title="Base URL と Model ID">
+  OpenCode は OpenAI-compatible Chat Completions を使用します。`https://bettertoken.ai/v1` を Base URL に設定し、リクエストパスは OpenCode に追加させます。
+</Accordion>

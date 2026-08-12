@@ -1,0 +1,96 @@
+---
+title: "Kimi K3 in Claude Code: API Key, Base URL und Modellkonfiguration"
+sidebarTitle: "Kimi K3 in Claude Code"
+description: "Verbinden Sie Kimi K3 manuell mit Claude Code. Konfigurieren Sie BetterToken API Key, Base URL und kimi-k3-Modellzuordnungen in settings.json oder VS Code."
+keywords:
+  - "kimi k3 claude code"
+  - "kimi k3 api"
+  - "claude code kimi k3 setup"
+---
+
+Mit der Anthropic-kompatiblen Konfiguration können Sie Kimi K3 direkt mit Claude Code verbinden. Verwenden Sie Ihren BetterToken API Key, die Base URL `https://bettertoken.ai` und `kimi-k3` für alle drei Modellrollen.
+
+## Wichtige Einstellungen
+
+| Feld | Wert |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai` |
+| Modell | `kimi-k3` |
+
+## Voraussetzungen
+
+- Installieren Sie die aktuelle Version von [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+- <a href={"{{register-url}}"}>Erstellen Sie einen BetterToken API Key</a>.
+- Wählen Sie im Dialog **Setup** das passende Tool und den Provider und kopieren Sie die verfügbare Model ID.
+- Prüfen Sie, dass `kimi-k3` im Dialog Setup verfügbar ist.
+
+## Claude Code CLI konfigurieren
+
+Öffnen Sie unter macOS/Linux `~/.claude/settings.json` oder unter Windows `%USERPROFILE%\\.claude\\settings.json`. Ergänzen oder aktualisieren Sie das Objekt `env`.
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://bettertoken.ai",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k3",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k3",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k3",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+Ersetzen Sie `YOUR_API_KEY` durch Ihren BetterToken API Key. Gibt es bereits `env`, fügen Sie die Felder dort hinzu, statt ein zweites Objekt anzulegen.
+
+## Claude-Code-Erweiterung für VS Code konfigurieren
+
+Öffnen Sie die Benutzerdatei `settings.json` von VS Code und fügen Sie die Variablen hinzu. Führen Sie anschließend **Developer: Reload Window** aus oder starten Sie VS Code vollständig neu.
+
+```json
+{
+  "claudeCode.environmentVariables": [
+    { "name": "ANTHROPIC_BASE_URL", "value": "https://bettertoken.ai" },
+    { "name": "ANTHROPIC_AUTH_TOKEN", "value": "YOUR_API_KEY" },
+    { "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL", "value": "kimi-k3" },
+    { "name": "ANTHROPIC_DEFAULT_SONNET_MODEL", "value": "kimi-k3" },
+    { "name": "ANTHROPIC_DEFAULT_OPUS_MODEL", "value": "kimi-k3" },
+    { "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC", "value": "1" },
+    { "name": "API_TIMEOUT_MS", "value": "3000000" }
+  ]
+}
+```
+
+Führen Sie **Developer: Reload Window** aus oder starten Sie VS Code vollständig neu.
+
+## Verbindung prüfen
+
+```bash
+claude
+```
+
+Senden Sie eine kurze Anfrage. Eine Antwort ohne Authentifizierungs-, Verbindungs- oder Modellfehler bestätigt die Konfiguration. Starten Sie Claude Code nach jeder Änderung an `settings.json` vollständig neu.
+
+## Häufige Fehler
+
+| Fehler | Prüfen Sie |
+| --- | --- |
+| `401` | Tragen Sie Ihren BetterToken API Key erneut in `ANTHROPIC_AUTH_TOKEN` ein. |
+| `404` oder Endpoint-Fehler | Verwenden Sie `https://bettertoken.ai` als Base URL, ohne `/v1` oder `/messages`. |
+| Modell nicht gefunden | Setzen Sie alle drei Variablen `ANTHROPIC_DEFAULT_*_MODEL` auf das in Setup verfügbare `kimi-k3`. |
+| Konfiguration wird nicht übernommen | Prüfen Sie den Dateipfad und starten Sie Claude Code oder VS Code vollständig neu. |
+
+## Verwandte Anleitungen
+
+- [Claude Code einrichten](/de/ai-tools/claude-code)
+- [Claude Code API Key und Base URL](/de/faq/claude-code/api-key-base-url)
+- [Kimi K3 in OpenCode](/de/faq/opencode/kimi-k3-api)
+- [Model ID auswählen](/de/faq/model-calling/model-selection-guide)
+
+## Technische Details
+
+<Accordion title="Konfigurationsdetails">
+Claude Code fragt die Rollen Haiku, Sonnet und Opus an. Ordnen Sie `kimi-k3` allen drei Variablen zu, damit für jede Rolle dieselbe verfügbare Model ID verwendet wird. Claude Code ergänzt den Anthropic-Messages-Pfad selbst; fügen Sie daher nicht `/v1` zur Base URL hinzu.
+</Accordion>

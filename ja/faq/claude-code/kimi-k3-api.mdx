@@ -1,0 +1,96 @@
+---
+title: "Claude Code で Kimi K3 を使う: API Key、Base URL、モデル設定"
+sidebarTitle: "Claude Code の Kimi K3"
+description: "Kimi K3 を Claude Code に手動接続します。settings.json または VS Code で BetterToken API Key、Base URL、kimi-k3 のモデルマッピングを設定します。"
+keywords:
+  - "kimi k3 claude code"
+  - "kimi k3 api"
+  - "claude code kimi k3 setup"
+---
+
+Anthropic 互換設定を使うと、Kimi K3 を Claude Code に直接接続できます。BetterToken API Key、Base URL `https://bettertoken.ai`、3 つのモデルロール用の `kimi-k3` を使用します。
+
+## 重要な設定
+
+| 項目 | 値 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai` |
+| モデル | `kimi-k3` |
+
+## 事前準備
+
+- 最新の [Claude Code](https://docs.anthropic.com/en/docs/claude-code)。
+- <a href={"{{register-url}}"}>BetterToken API Key を作成</a>。
+- Setup ダイアログで対象ツールとプロバイダーを選び、利用可能な Model ID をコピーします。
+- `kimi-k3` が Setup で利用可能であることを確認します。
+
+## Claude Code CLI を設定する
+
+`~/.claude/settings.json` または `%USERPROFILE%\\.claude\\settings.json` を開き、`env` を更新します。
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://bettertoken.ai",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k3",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k3",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k3",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+`YOUR_API_KEY` を BetterToken API Key に置き換えます。既存の `env` に追加します。
+
+## VS Code の Claude Code 拡張機能を設定する
+
+VS Code の user `settings.json` に追加します。
+
+```json
+{
+  "claudeCode.environmentVariables": [
+    { "name": "ANTHROPIC_BASE_URL", "value": "https://bettertoken.ai" },
+    { "name": "ANTHROPIC_AUTH_TOKEN", "value": "YOUR_API_KEY" },
+    { "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL", "value": "kimi-k3" },
+    { "name": "ANTHROPIC_DEFAULT_SONNET_MODEL", "value": "kimi-k3" },
+    { "name": "ANTHROPIC_DEFAULT_OPUS_MODEL", "value": "kimi-k3" },
+    { "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC", "value": "1" },
+    { "name": "API_TIMEOUT_MS", "value": "3000000" }
+  ]
+}
+```
+
+**Developer: Reload Window** を実行するか VS Code を再起動します。
+
+## 接続を確認する
+
+```bash
+claude
+```
+
+短い prompt を送信します。`settings.json` の変更後は Claude Code を再起動します。
+
+## よくあるエラー
+
+| エラー | 確認する項目 |
+| --- | --- |
+| `401` | `ANTHROPIC_AUTH_TOKEN` の BetterToken API Key を確認します。 |
+| `404` または endpoint エラー | Base URL は `https://bettertoken.ai` を使い、`/v1` や `/messages` を追加しません。 |
+| モデルが見つからない | 3 つの `ANTHROPIC_DEFAULT_*_MODEL` に `kimi-k3` を設定します。 |
+| 設定が反映されない | ファイルパスを確認して再起動します。 |
+
+## 関連ガイド
+
+- [Claude Code の設定](/ja/ai-tools/claude-code)
+- [Claude Code の API Key と Base URL](/ja/faq/claude-code/api-key-base-url)
+- [OpenCode の Kimi K3](/ja/faq/opencode/kimi-k3-api)
+- [Model ID を選ぶ](/ja/faq/model-calling/model-selection-guide)
+
+## 技術的な詳細
+
+<Accordion title="モデルロールのマッピング">
+  Claude Code は Haiku、Sonnet、Opus を要求します。`kimi-k3` を 3 つの変数に割り当て、Base URL に `/v1` を追加しません。
+</Accordion>

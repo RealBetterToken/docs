@@ -1,0 +1,87 @@
+---
+title: "OpenCode에서 GLM API 사용: API Key, Base URL 및 모델 설정"
+sidebarTitle: "OpenCode의 GLM"
+description: "BetterToken을 통해 GLM 모델을 OpenCode에 연결합니다. `/connect` 또는 opencode.json에서 API Key, Base URL 및 정확한 GLM Model ID를 설정합니다."
+keywords:
+  - "glm opencode"
+  - "glm api opencode"
+  - "opencode glm setup"
+---
+
+BetterToken을 OpenAI 호환 provider로 연결해 OpenCode에서 GLM을 사용합니다. BetterToken API Key, Base URL `https://bettertoken.ai/v1`, Setup 대화 상자의 GLM Model ID를 입력하세요.
+
+## 핵심 설정
+
+| 필드 | 값 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai/v1` |
+| 모델 | `YOUR_GLM_MODEL_ID` |
+
+## 사전 준비
+
+- 최신 [OpenCode](https://opencode.ai/).
+- <a href={"{{register-url}}"}>BetterToken API Key 만들기</a>.
+- **Setup** 대화 상자에서 해당 도구와 provider를 선택하고 사용 가능한 Model ID를 복사하세요.
+
+## `/connect`로 구성
+
+```text
+/connect
+```
+
+**Other**를 선택하고 provider id로 `bettertoken`을 입력한 후 BetterToken API Key를 붙여넣으세요. `bettertoken/YOUR_GLM_MODEL_ID`를 선택한 다음 OpenCode를 다시 시작하세요.
+
+## 수동 구성
+
+전역 파일 `~/.config/opencode/opencode.json`을 엽니다. 한 프로젝트에만 적용하려면 프로젝트 루트의 `opencode.json`을 사용할 수 있습니다.
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_GLM_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "https://bettertoken.ai/v1",
+        "apiKey": "YOUR_API_KEY"
+      },
+      "models": {
+        "YOUR_GLM_MODEL_ID": {
+          "name": "YOUR_GLM_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+`YOUR_API_KEY`와 `YOUR_GLM_MODEL_ID`를 Setup 대화 상자의 값으로 바꾸세요. 현재 BetterToken API Key에서 사용할 수 있는 Model ID를 사용하세요.
+
+## 연결 확인
+
+OpenCode에서 `bettertoken/YOUR_GLM_MODEL_ID`를 선택하고 짧은 프롬프트를 보내세요. API 오류 없이 응답이 오면 설정이 확인됩니다.
+
+## 일반적인 오류
+
+| 오류 | 확인할 항목 |
+| --- | --- |
+| `401` | `/connect` 또는 `apiKey`에 저장된 BetterToken API Key를 확인하세요. |
+| `404` | `baseURL`에는 `/chat/completions` 없이 `https://bettertoken.ai/v1`만 사용하세요. |
+| 모델을 찾을 수 없음 | Setup에서 전체 GLM Model ID를 다시 복사하고 JSON의 두 위치에 모두 사용하세요. |
+| 구성이 적용되지 않음 | 프로젝트 수준 `opencode.json`이 전역 파일을 덮어쓰는지 확인하세요. |
+
+## 관련 가이드
+
+- [OpenCode 설정](/ko/ai-tools/opencode)
+- [OpenCode의 Kimi K3](/ko/faq/opencode/kimi-k3-api)
+- [Claude Code 설정](/ko/ai-tools/claude-code)
+- [Model ID 선택](/ko/faq/model-calling/model-selection-guide)
+
+## 기술 세부 사항
+
+<Accordion title="구성 세부 사항">
+OpenCode는 OpenAI-compatible Chat Completions를 사용합니다. OpenCode가 요청 경로를 추가하므로 Base URL에는 `https://bettertoken.ai/v1`만 설정하세요. 사용 가능한 GLM Model ID는 선택한 provider와 API Key에 따라 달라집니다.
+</Accordion>

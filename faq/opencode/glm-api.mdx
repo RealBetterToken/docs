@@ -1,0 +1,89 @@
+---
+title: "GLM API в OpenCode: настройка API Key, Base URL и модели"
+sidebarTitle: "GLM в OpenCode"
+description: "Подключите модель GLM к OpenCode через BetterToken: укажите API Key, Base URL и точный GLM Model ID в /connect или opencode.json."
+keywords:
+  - "glm opencode"
+  - "glm api opencode"
+  - "opencode glm setup"
+---
+
+GLM можно подключить к OpenCode через BetterToken как OpenAI-compatible provider. Укажите BetterToken API Key, Base URL `https://bettertoken.ai/v1` и точный GLM Model ID из окна Setup.
+
+## Ключевые параметры
+
+| Поле | Значение |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai/v1` |
+| Model | `YOUR_GLM_MODEL_ID` |
+
+## Подготовка
+
+- Установите [OpenCode](https://opencode.ai/).
+- <a href={"{{register-url}}"}>Создайте BetterToken API Key</a>.
+- В окне **Setup** выберите OpenCode и provider **GLM**, затем скопируйте доступный полный Model ID.
+
+## Настройка через /connect
+
+Запустите OpenCode и выполните:
+
+```text
+/connect
+```
+
+Выберите **Other**, укажите provider id `bettertoken` и вставьте BetterToken API Key. Затем выберите `bettertoken/YOUR_GLM_MODEL_ID` и перезапустите OpenCode.
+
+## Ручная настройка
+
+Откройте `~/.config/opencode/opencode.json` или проектный `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_GLM_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "https://bettertoken.ai/v1",
+        "apiKey": "YOUR_API_KEY"
+      },
+      "models": {
+        "YOUR_GLM_MODEL_ID": {
+          "name": "YOUR_GLM_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+Замените `YOUR_API_KEY` и `YOUR_GLM_MODEL_ID` значениями из окна Setup. Не фиксируйте Model ID из старой статьи: используйте доступное для вашего API Key значение.
+
+## Проверка подключения
+
+Выберите `bettertoken/YOUR_GLM_MODEL_ID` в OpenCode и отправьте короткое сообщение. Если ответ приходит без ошибки API, модель настроена. После изменения JSON полностью перезапустите OpenCode.
+
+## Частые ошибки
+
+| Ошибка | Что проверить |
+| --- | --- |
+| `401` | Проверьте BetterToken API Key в `/connect` или `apiKey`. |
+| `404` | В `baseURL` оставьте `https://bettertoken.ai/v1`, без `/chat/completions`. |
+| Модель не найдена | Скопируйте полный GLM Model ID заново из окна Setup и используйте его одинаково в обоих местах JSON. |
+| Конфигурация не применяется | Проверьте проектный `opencode.json`, который может перекрывать глобальный файл. |
+
+## Связанные инструкции
+
+- [Общая настройка OpenCode](/ai-tools/opencode)
+- [Kimi K3 в OpenCode](/faq/opencode/kimi-k3-api)
+- [Общая настройка Claude Code](/ai-tools/claude-code)
+- [Выбор Model ID](/faq/model-calling/model-selection-guide)
+
+## Технические детали
+
+<Accordion title="Base URL и Model ID">
+  OpenCode использует OpenAI-compatible Chat Completions. Укажите только Base URL `https://bettertoken.ai/v1`; путь запроса добавляет сам инструмент. GLM Model ID зависит от выбранного provider и доступности для API Key.
+</Accordion>

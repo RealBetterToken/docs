@@ -1,0 +1,89 @@
+---
+title: "Kimi K3 API no OpenCode: API Key, Base URL e configuração do modelo"
+sidebarTitle: "Kimi K3 no OpenCode"
+description: "Conecte o Kimi K3 ao OpenCode pela BetterToken. Configure API Key, Base URL e o Model ID kimi-k3 com `/connect` ou opencode.json."
+keywords:
+  - "kimi k3 opencode"
+  - "kimi k3 api"
+  - "opencode kimi k3 setup"
+---
+
+Use o Kimi K3 no OpenCode conectando a BetterToken como provedor compatível com OpenAI. Informe sua API Key da BetterToken, o Base URL `https://bettertoken.ai/v1` e o Model ID `kimi-k3`.
+
+## Configurações principais
+
+| Campo | Valor |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai/v1` |
+| Modelo | `kimi-k3` |
+
+## Pré-requisitos
+
+- Instale a versão mais recente do [OpenCode](https://opencode.ai/)。
+- <a href={"{{register-url}}"}>Crie uma API Key da BetterToken</a>。
+- No diálogo **Setup**, selecione a ferramenta e o provedor correspondentes e copie o Model ID disponível.
+
+## Configurar com `/connect`
+
+Inicie o OpenCode e execute:
+
+```text
+/connect
+```
+
+Escolha **Other**, informe `bettertoken` como id do provedor e cole sua API Key da BetterToken. Em seguida, selecione `bettertoken/kimi-k3` e reinicie o OpenCode.
+
+## Configuração manual
+
+Abra o arquivo global `~/.config/opencode/opencode.json`. Para um projeto, use `opencode.json` na raiz:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/kimi-k3",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "https://bettertoken.ai/v1",
+        "apiKey": "YOUR_API_KEY"
+      },
+      "models": {
+        "kimi-k3": {
+          "name": "kimi-k3"
+        }
+      }
+    }
+  }
+}
+```
+
+Substitua `YOUR_API_KEY`. Não acrescente `/chat/completions` a `baseURL`; o OpenCode adiciona a rota da solicitação.
+
+## Verificar a conexão
+
+Selecione `bettertoken/kimi-k3` no OpenCode e envie um prompt curto. Uma resposta normal confirma a conexão. Reinicie o OpenCode após editar o JSON.
+
+## Erros comuns
+
+| Error | Campo |
+| --- | --- |
+| `401` | Execute `/connect` novamente ou verifique `apiKey`. |
+| `404` | Use somente `https://bettertoken.ai/v1` em `baseURL`. |
+| Model not found | O `model` superior deve ser `bettertoken/kimi-k3` e a chave em `models` deve ser `kimi-k3`. |
+| Configuration is not applied | Verifique se `opencode.json` do projeto substitui o arquivo global. |
+
+## Guias relacionados
+
+- [Configuração do OpenCode](/pt-br/ai-tools/opencode)
+- [Configuração do Claude Code](/pt-br/faq/claude-code/kimi-k3-api)
+- [GLM no OpenCode](/pt-br/faq/opencode/glm-api)
+- [Escolher um Model ID](/pt-br/faq/model-calling/model-selection-guide)
+
+## Detalhes técnicos
+
+<Accordion title="Provedor do OpenCode e provedor de modelo">
+  `bettertoken` é o id do provedor no OpenCode. Kimi é um provedor de modelos na BetterToken e `kimi-k3` é o Model ID escrito após `bettertoken/`.
+</Accordion>

@@ -1,0 +1,97 @@
+---
+title: "Kimi K3 в Claude Code: API Key, Base URL и настройка модели"
+sidebarTitle: "Kimi K3 в Claude Code"
+description: "Подключите Kimi K3 к Claude Code вручную: укажите BetterToken API Key, Base URL и сопоставление модели kimi-k3 в settings.json или VS Code."
+keywords:
+  - "kimi k3 claude code"
+  - "kimi k3 api"
+  - "claude code kimi k3 setup"
+---
+
+Kimi K3 можно подключить к Claude Code напрямую через Anthropic-compatible настройку. Укажите BetterToken API Key, Base URL `https://bettertoken.ai` и сопоставьте `kimi-k3` для Haiku, Sonnet и Opus.
+
+## Ключевые параметры
+
+| Поле | Значение |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai` |
+| Model | `kimi-k3` |
+
+## Подготовка
+
+- Установите последнюю версию [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+- <a href={"{{register-url}}"}>Создайте BetterToken API Key</a> и в окне **Setup** выберите **Claude Code** и provider **Kimi**.
+- Убедитесь, что в окне Setup доступен Model ID `kimi-k3`.
+
+## Настройка Claude Code CLI
+
+Откройте файл `~/.claude/settings.json` в macOS/Linux или `%USERPROFILE%\\.claude\\settings.json` в Windows. Добавьте или обновите блок `env`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://bettertoken.ai",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k3",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k3",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k3",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000"
+  }
+}
+```
+
+Замените `YOUR_API_KEY` на свой BetterToken API Key. Если файл уже содержит `env`, добавьте поля в существующий объект, не создавая второй `env`.
+
+## Настройка расширения Claude Code для VS Code
+
+Откройте пользовательский `settings.json` VS Code и добавьте:
+
+```json
+{
+  "claudeCode.environmentVariables": [
+    { "name": "ANTHROPIC_BASE_URL", "value": "https://bettertoken.ai" },
+    { "name": "ANTHROPIC_AUTH_TOKEN", "value": "YOUR_API_KEY" },
+    { "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL", "value": "kimi-k3" },
+    { "name": "ANTHROPIC_DEFAULT_SONNET_MODEL", "value": "kimi-k3" },
+    { "name": "ANTHROPIC_DEFAULT_OPUS_MODEL", "value": "kimi-k3" },
+    { "name": "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC", "value": "1" },
+    { "name": "API_TIMEOUT_MS", "value": "3000000" }
+  ]
+}
+```
+
+Затем выполните **Developer: Reload Window** или полностью перезапустите VS Code.
+
+## Проверка подключения
+
+В каталоге проекта запустите:
+
+```bash
+claude
+```
+
+Отправьте короткий запрос. Ответ без ошибок авторизации, соединения или модели означает, что Kimi K3 подключен. После любого изменения `settings.json` полностью перезапускайте Claude Code.
+
+## Частые ошибки
+
+| Ошибка | Что проверить |
+| --- | --- |
+| `401` | Снова скопируйте BetterToken API Key в `ANTHROPIC_AUTH_TOKEN`. |
+| `404` или ошибка endpoint | Base URL должен быть `https://bettertoken.ai`, без `/v1` и `/messages`. |
+| Модель не найдена | Во всех трех `ANTHROPIC_DEFAULT_*_MODEL` укажите `kimi-k3`, доступный в вашем окне Setup. |
+| Настройка не применилась | Проверьте путь к файлу и полностью перезапустите Claude Code или VS Code. |
+
+## Связанные инструкции
+
+- [Общая настройка Claude Code](/ai-tools/claude-code)
+- [API Key и Base URL в Claude Code](/faq/claude-code/api-key-base-url)
+- [Kimi K3 в OpenCode](/faq/opencode/kimi-k3-api)
+- [Выбор Model ID](/faq/model-calling/model-selection-guide)
+
+## Технические детали
+
+<Accordion title="Почему нужны три сопоставления модели">
+  Claude Code запрашивает роли Haiku, Sonnet и Opus. Для Kimi K3 сопоставьте `kimi-k3` со всеми тремя переменными, чтобы один доступный Model ID использовался для каждой роли. Claude Code сам добавляет путь Anthropic Messages, поэтому `/v1` в Base URL не нужен.
+</Accordion>

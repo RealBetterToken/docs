@@ -1,0 +1,89 @@
+---
+title: "Kimi K3 API 接入 OpenCode：API Key、Base URL 与模型配置"
+sidebarTitle: "Kimi K3 接入 OpenCode"
+description: "通过 BetterToken 将 Kimi K3 接入 OpenCode：使用 /connect 或 opencode.json 填写 API Key、Base URL 和 kimi-k3 Model ID。"
+keywords:
+  - "kimi k3 opencode"
+  - "kimi k3 api"
+  - "OpenCode Kimi K3 配置"
+---
+
+要在 OpenCode 中使用 Kimi K3，请将 BetterToken 配置为 OpenAI-compatible provider。填写 BetterToken API Key、Base URL `https://bettertoken.ai/v1` 和 Model ID `kimi-k3`。
+
+## 重点信息
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai/v1` |
+| Model | `kimi-k3` |
+
+## 准备工作
+
+- 安装 [OpenCode](https://opencode.ai/)。
+- <a href={"{{register-url}}"}>创建 BetterToken API Key</a>。
+- 在 **Setup** 弹窗中选择 OpenCode 和 **Kimi** provider，复制 `kimi-k3` Model ID。
+
+## 使用 /connect 配置
+
+启动 OpenCode 并执行：
+
+```text
+/connect
+```
+
+选择 **Other**，provider id 填写 `bettertoken`，然后粘贴 BetterToken API Key。保存后选择 `bettertoken/kimi-k3`，并重启 OpenCode。
+
+## 手动配置
+
+打开全局文件 `~/.config/opencode/opencode.json`。也可以在项目根目录使用 `opencode.json`。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/kimi-k3",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "https://bettertoken.ai/v1",
+        "apiKey": "YOUR_API_KEY"
+      },
+      "models": {
+        "kimi-k3": {
+          "name": "kimi-k3"
+        }
+      }
+    }
+  }
+}
+```
+
+将 `YOUR_API_KEY` 替换为你的 BetterToken API Key。不要在 `baseURL` 后添加 `/chat/completions`，OpenCode 会自行追加请求路径。
+
+## 验证连接
+
+在 OpenCode 中打开项目，选择 `bettertoken/kimi-k3` 并发送一条简短消息。正常返回内容即表示接入成功。修改 JSON 后，请完全重启 OpenCode 再测试。
+
+## 常见错误
+
+| 错误 | 检查内容 |
+| --- | --- |
+| `401` | 重新执行 `/connect` 或检查 `apiKey`。 |
+| `404` | `baseURL` 只填写 `https://bettertoken.ai/v1`。 |
+| 模型不存在 | 顶层 `model` 应为 `bettertoken/kimi-k3`，`models` 中的键应为 `kimi-k3`。 |
+| 配置未生效 | 检查项目级 `opencode.json` 是否覆盖了全局文件。 |
+
+## 相关文档
+
+- [OpenCode 通用配置](/zh/ai-tools/opencode)
+- [Kimi K3 接入 Claude Code](/zh/faq/claude-code/kimi-k3-api)
+- [GLM 接入 OpenCode](/zh/faq/opencode/glm-api)
+- [如何选择 Model ID](/zh/faq/model-calling/model-selection-guide)
+
+## 技术说明
+
+<Accordion title="OpenCode provider 与模型提供商">
+  `bettertoken` 是 OpenCode 配置中的 provider id。Kimi 是 BetterToken 中的模型提供商，`kimi-k3` 是写在 `bettertoken/` 后的 Model ID。
+</Accordion>

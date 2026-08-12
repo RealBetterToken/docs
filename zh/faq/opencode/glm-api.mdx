@@ -1,0 +1,89 @@
+---
+title: "GLM API 接入 OpenCode：API Key、Base URL 与模型配置"
+sidebarTitle: "GLM 接入 OpenCode"
+description: "通过 BetterToken 将 GLM 模型接入 OpenCode：使用 /connect 或 opencode.json 填写 API Key、Base URL 和准确的 GLM Model ID。"
+keywords:
+  - "glm opencode"
+  - "glm api opencode"
+  - "OpenCode GLM 配置"
+---
+
+GLM 可以通过 BetterToken 作为 OpenAI-compatible provider 接入 OpenCode。填写 BetterToken API Key、Base URL `https://bettertoken.ai/v1`，以及 Setup 弹窗中的准确 GLM Model ID。
+
+## 重点信息
+
+| 字段 | 填写内容 |
+| --- | --- |
+| API Key | BetterToken API Key |
+| Base URL | `https://bettertoken.ai/v1` |
+| Model | `YOUR_GLM_MODEL_ID` |
+
+## 准备工作
+
+- 安装 [OpenCode](https://opencode.ai/)。
+- <a href={"{{register-url}}"}>创建 BetterToken API Key</a>。
+- 在 **Setup** 弹窗中选择 OpenCode 和 **GLM** provider，复制当前可用的完整 Model ID。
+
+## 使用 /connect 配置
+
+启动 OpenCode 并执行：
+
+```text
+/connect
+```
+
+选择 **Other**，provider id 填写 `bettertoken`，然后粘贴 BetterToken API Key。接着选择 `bettertoken/YOUR_GLM_MODEL_ID`，并重启 OpenCode。
+
+## 手动配置
+
+打开 `~/.config/opencode/opencode.json`，或项目级的 `opencode.json`：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bettertoken/YOUR_GLM_MODEL_ID",
+  "provider": {
+    "bettertoken": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BetterToken",
+      "options": {
+        "baseURL": "https://bettertoken.ai/v1",
+        "apiKey": "YOUR_API_KEY"
+      },
+      "models": {
+        "YOUR_GLM_MODEL_ID": {
+          "name": "YOUR_GLM_MODEL_ID"
+        }
+      }
+    }
+  }
+}
+```
+
+将 `YOUR_API_KEY` 和 `YOUR_GLM_MODEL_ID` 替换为 Setup 弹窗中的值。不要沿用旧文章中的 Model ID，应使用当前 API Key 可用的值。
+
+## 验证连接
+
+在 OpenCode 中选择 `bettertoken/YOUR_GLM_MODEL_ID`，然后发送一条简短消息。能够正常返回、没有 API 错误，即表示配置成功。修改 JSON 后请完全重启 OpenCode。
+
+## 常见错误
+
+| 错误 | 检查内容 |
+| --- | --- |
+| `401` | 检查 `/connect` 保存的 BetterToken API Key 或 `apiKey`。 |
+| `404` | `baseURL` 保持为 `https://bettertoken.ai/v1`，不要添加 `/chat/completions`。 |
+| 模型不存在 | 重新从 Setup 弹窗复制完整 GLM Model ID，并在 JSON 两处保持一致。 |
+| 配置未生效 | 检查可能覆盖全局文件的项目级 `opencode.json`。 |
+
+## 相关文档
+
+- [OpenCode 通用配置](/zh/ai-tools/opencode)
+- [Kimi K3 接入 OpenCode](/zh/faq/opencode/kimi-k3-api)
+- [Claude Code 通用配置](/zh/ai-tools/claude-code)
+- [如何选择 Model ID](/zh/faq/model-calling/model-selection-guide)
+
+## 技术说明
+
+<Accordion title="Base URL 与 Model ID">
+  OpenCode 使用 OpenAI-compatible Chat Completions。Base URL 只填写 `https://bettertoken.ai/v1`，请求路径由 OpenCode 自行追加。可用的 GLM Model ID 取决于所选 provider 和你的 API Key。
+</Accordion>
