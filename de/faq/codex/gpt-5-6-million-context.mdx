@@ -1,0 +1,73 @@
+---
+title: "So aktivierst du 1 Million Token Kontext für GPT-5.6 Sol in Codex"
+sidebarTitle: "GPT-5.6 1M Kontext"
+description: "Lege in config.toml ein Kontextbudget von einer Million Token und den Kompaktierungsschwellenwert für GPT-5.6 Sol fest oder aktiviere beides nur für eine Codex-CLI-Sitzung."
+---
+
+## Kurzantwort
+
+Trage `model`, `model_context_window` und `model_auto_compact_token_limit` am Anfang der `config.toml` ein. Beende Codex anschließend vollständig, starte es neu und öffne eine neue Unterhaltung. GPT-5.6 Sol unterstützt laut offizieller API-Spezifikation 1.050.000 Token. Die folgende Konfiguration fordert ein Budget von 1.000.000 Token an und beginnt die automatische Kompaktierung bei ungefähr 900.000 Token.
+
+<Warning>
+  Die Einstellung erweitert kein Modell ohne Long-Context-Unterstützung. Der effektiv verfügbare Kontext hängt von Codex-Version, provider, Serverlimits, reserviertem Platz für Ausgabe und Tools sowie der Kompaktierungsstrategie ab. Exakt 1.000.000 nutzbare Token sind nicht garantiert.
+</Warning>
+
+## Dauerhafte Konfiguration
+
+| System | Datei |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+
+Setze diese Zeilen vor jeden `[section]`-Header:
+
+```toml
+model = "gpt-5.6-sol"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+```
+
+Speichere die Datei, starte Codex vollständig neu und beginne eine neue Unterhaltung. Der Schwellenwert `900000` lässt Platz für Ausgabe, Tools und weitere Nachrichten.
+
+## Nur für eine CLI-Sitzung
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    codex -m gpt-5.6-sol \
+      -c model_context_window=1000000 \
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    codex -m gpt-5.6-sol `
+      -c model_context_window=1000000 `
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+</Tabs>
+
+Die temporären Werte verfallen mit dem Ende der Sitzung.
+
+## Prüfen und Fehler beheben
+
+1. Starte Codex neu und öffne eine neue Unterhaltung.
+2. Prüfe, ob `gpt-5.6-sol` aktiv ist.
+3. Falls das Modell fehlt, prüfe Model ID und provider im <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. Werden Werte ignoriert, müssen sie in der richtigen Benutzerdatei auf oberster Ebene und ohne Duplikate stehen.
+
+## Effektiver Kontext, Verbrauch und Kosten
+
+Codex reserviert Kontext für Ausgabe, Tool-Aufrufe und Systemanweisungen. Client- oder Serverlimits können eine frühere Kompaktierung auslösen. Mehr Kontext hält mehr Code und Verlauf bereit, kann aber Eingabe-Token, Latenz und Kosten deutlich erhöhen. Für kurze Aufgaben ist der Standard meist sinnvoller.
+
+## Verwandte Dokumente
+
+- [Codex installieren und custom provider einrichten](/de/ai-tools/codex)
+- [Vollständige config.toml-Anleitung](/de/faq/codex/config-toml)
+- [model_provider, Base URL und wire_api](/de/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [OpenAI Codex Konfigurationsreferenz](https://developers.openai.com/codex/config-reference)
+- [Beschreibung des OpenAI GPT-5.6 Sol Modells](https://developers.openai.com/api/docs/models/gpt-5.6-sol)

@@ -1,0 +1,85 @@
+---
+title: "如何在 Codex 中开启 1M token 的 GPT-5.6 Sol 上下文？"
+sidebarTitle: "GPT-5.6 百万上下文"
+description: "在 config.toml 中为 GPT-5.6 Sol 设置百万 token 上下文和自动压缩阈值，或仅为单次 Codex CLI 会话临时启用。"
+---
+
+## 快速答案
+
+在 `config.toml` 顶部设置 `model`、`model_context_window` 和 `model_auto_compact_token_limit`，然后完全重启 Codex 并新建对话。GPT-5.6 Sol 的官方 API 规格支持 1,050,000 token 上下文；下面的配置让 Codex 以 1,000,000 token 作为上下文预算，并在约 900,000 token 时开始自动压缩。
+
+<Warning>
+  这项设置不会让不支持长上下文的模型获得百万上下文。实际可用长度还会受到 Codex 版本、provider、服务端限制、输出与工具调用预留空间以及自动压缩策略影响，因此不保证界面中显示或实际使用正好 1,000,000 token。
+</Warning>
+
+## 永久设置
+
+打开 Codex 用户配置文件：
+
+| 系统 | 文件路径 |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+
+将以下三行放在文件顶部，必须位于所有 `[section]` 标题之前：
+
+```toml
+model = "gpt-5.6-sol"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+```
+
+保存后完全退出 Codex，重新打开并创建新对话。已有对话可能继续沿用原来的模型和上下文设置。
+
+<Note>
+  `model_auto_compact_token_limit = 900000` 会在达到完整上下文窗口前压缩较早的历史记录，为模型输出、工具结果和后续消息留出空间。
+</Note>
+
+## 仅为一次 CLI 会话启用
+
+不想修改默认设置时，可以通过 `-c` 只覆盖当前 Codex CLI 会话。
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    codex -m gpt-5.6-sol \
+      -c model_context_window=1000000 \
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    codex -m gpt-5.6-sol `
+      -c model_context_window=1000000 `
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+</Tabs>
+
+关闭这个 CLI 会话后，临时覆盖即失效。
+
+## 如何确认配置已生效
+
+1. 完全重启 Codex，而不是只关闭当前对话。
+2. 创建新对话，并确认当前模型为 `gpt-5.6-sol`。
+3. 如果模型不可用，请到 <a href={"{{model-plaza-url}}"}>模型广场</a>确认当前 Model ID 和 provider 支持情况。
+4. 如果设置未生效，请确认字段位于顶层、文件路径正确，并且没有重复的同名字段。
+
+## 为什么实际可用上下文可能低于 100 万？
+
+`model_context_window` 告诉 Codex 当前模型可使用的上下文预算，但最终可用长度还要扣除输出、工具调用和系统指令等预留空间。Codex 也可能根据客户端或服务端配置提前压缩历史记录。因此，100 万是配置预算，不是每次请求都能填满的保证值。
+
+## 使用成本与适用场景
+
+更大的上下文可以在长任务中保留更多代码、终端输出和对话历史，但也可能显著增加输入 token、响应时间和费用。短任务通常保留默认值更合适。使用 BetterToken 时，请在 <a href={"{{model-plaza-url}}"}>模型广场</a>查看当前模型与计费信息。
+
+## 相关文档
+
+- [Codex 安装与自定义 provider 配置](/ai-tools/codex)
+- [Codex config.toml 完整配置说明](/faq/codex/config-toml)
+- [model_provider、Base URL 与 wire_api 的含义](/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [OpenAI Codex 配置参考](https://developers.openai.com/codex/config-reference)
+- [OpenAI GPT-5.6 Sol 模型说明](https://developers.openai.com/api/docs/models/gpt-5.6-sol)

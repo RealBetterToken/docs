@@ -1,0 +1,73 @@
+---
+title: "Codex में 1M token context के साथ GPT-5.6 Sol कैसे चलाएँ"
+sidebarTitle: "GPT-5.6 1M context"
+description: "config.toml में GPT-5.6 Sol के लिए दस लाख token का context budget और automatic compaction सीमा सेट करें, या इसे केवल एक Codex CLI session में लागू करें।"
+---
+
+## संक्षिप्त उत्तर
+
+`config.toml` की शुरुआत में `model`, `model_context_window` और `model_auto_compact_token_limit` जोड़ें। फिर Codex को पूरी तरह बंद करके दोबारा खोलें और नई conversation शुरू करें। GPT-5.6 Sol की आधिकारिक API context window 1,050,000 tokens है। नीचे का config Codex से 1,000,000-token budget का अनुरोध करता है और लगभग 900,000 tokens पर history compaction शुरू करता है।
+
+<Warning>
+  यह setting ऐसे model को लंबा context नहीं देती जो इसका समर्थन नहीं करता। वास्तविक usable context Codex version, provider, server limits, output और tools के लिए reserve, तथा compaction policy पर निर्भर करता है। ठीक 1,000,000 tokens उपलब्ध होना सुनिश्चित नहीं है।
+</Warning>
+
+## स्थायी configuration
+
+| सिस्टम | फ़ाइल |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+
+इन पंक्तियों को किसी भी `[section]` header से पहले रखें:
+
+```toml
+model = "gpt-5.6-sol"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+```
+
+फ़ाइल सेव करें, Codex को पूरी तरह restart करें और नई conversation बनाएँ। `900000` की सीमा output, tool results और अगले messages के लिए जगह छोड़ती है।
+
+## केवल एक CLI session के लिए
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    codex -m gpt-5.6-sol \
+      -c model_context_window=1000000 \
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    codex -m gpt-5.6-sol `
+      -c model_context_window=1000000 `
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+</Tabs>
+
+Session बंद होने पर ये temporary values समाप्त हो जाती हैं।
+
+## जाँच और समस्या समाधान
+
+1. Codex restart करके नई conversation बनाएँ।
+2. पुष्टि करें कि active model `gpt-5.6-sol` है।
+3. Model उपलब्ध न हो तो <a href={"{{model-plaza-url}}"}>model plaza</a> में वर्तमान Model ID और provider support देखें।
+4. Values लागू न हों तो जाँचें कि वे सही user file के top level पर हैं और दो बार घोषित नहीं की गई हैं।
+
+## वास्तविक context, usage और लागत
+
+Codex output, tool calls और system instructions के लिए context का कुछ भाग reserve करता है। Client या server limits compaction को पहले शुरू कर सकती हैं। बड़ा context अधिक code और history रख सकता है, लेकिन input tokens, latency और लागत काफी बढ़ा सकता है। छोटी tasks के लिए default setting सामान्यतः बेहतर है।
+
+## संबंधित दस्तावेज़
+
+- [Codex installation और custom provider setup](/hi/ai-tools/codex)
+- [config.toml की पूरी guide](/hi/faq/codex/config-toml)
+- [model_provider, Base URL और wire_api](/hi/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [OpenAI Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)
+- [OpenAI GPT-5.6 Sol model विवरण](https://developers.openai.com/api/docs/models/gpt-5.6-sol)

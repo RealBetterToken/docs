@@ -1,0 +1,85 @@
+---
+title: "How to enable a 1M context window for GPT-5.6 Sol in Codex"
+sidebarTitle: "GPT-5.6 1M context"
+description: "Set a one-million-token context budget and compaction threshold for GPT-5.6 Sol in config.toml, or enable it for one Codex CLI session."
+---
+
+## Quick answer
+
+Set `model`, `model_context_window`, and `model_auto_compact_token_limit` at the top of `config.toml`, then fully restart Codex and start a new conversation. GPT-5.6 Sol has an official API context window of 1,050,000 tokens. The configuration below gives Codex a 1,000,000-token context budget and starts automatic compaction around 900,000 tokens.
+
+<Warning>
+  This setting cannot give a one-million-token window to a model that does not support it. The usable context can also vary with the Codex version, provider, server limits, reserved output and tool tokens, and compaction policy. It is not a guarantee that exactly 1,000,000 tokens will be displayed or usable.
+</Warning>
+
+## Save the setting in config.toml
+
+Open the Codex user configuration file:
+
+| System | Path |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+
+Place these lines at the top level, before every `[section]` header:
+
+```toml
+model = "gpt-5.6-sol"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+```
+
+Save the file, fully quit Codex, reopen it, and start a new conversation. Existing conversations may retain their previous model and context settings.
+
+<Note>
+  The `900000` compaction threshold leaves room for model output, tool results, and later messages before the configured context budget is exhausted.
+</Note>
+
+## Enable it for one CLI session
+
+Use `-c` overrides when you do not want to change your defaults.
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    codex -m gpt-5.6-sol \
+      -c model_context_window=1000000 \
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    codex -m gpt-5.6-sol `
+      -c model_context_window=1000000 `
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+</Tabs>
+
+The overrides expire when that CLI session ends.
+
+## Verify the configuration
+
+1. Fully restart Codex and create a new conversation.
+2. Confirm that the active model is `gpt-5.6-sol`.
+3. If the model is unavailable, check the current Model ID and provider support in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+4. If Codex ignores the values, confirm that they are top-level fields in the correct user file and are not declared twice.
+
+## Why the usable context may be lower
+
+`model_context_window` tells Codex the context budget available to the model. Output tokens, tool calls, system instructions, client settings, and server-side limits can reduce the effective space. Codex may also compact history before the full budget is reached. Treat one million as the requested budget, not a promise that every request can fill it.
+
+## Usage and cost
+
+A larger context can retain more code, terminal output, and conversation history during long tasks, but it can also increase input tokens, latency, and cost substantially. The default is usually better for short tasks. Check current model and billing details in the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+## Related docs
+
+- [Codex installation and custom provider setup](/en/ai-tools/codex)
+- [Complete Codex config.toml guide](/en/faq/codex/config-toml)
+- [How model_provider, Base URL, and wire_api work](/en/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [OpenAI Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [OpenAI GPT-5.6 Sol model](https://developers.openai.com/api/docs/models/gpt-5.6-sol)

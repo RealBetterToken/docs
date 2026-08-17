@@ -1,0 +1,73 @@
+---
+title: "Codex で 1M トークンの GPT-5.6 Sol コンテキストを有効にする方法"
+sidebarTitle: "GPT-5.6 1Mコンテキスト"
+description: "config.toml で GPT-5.6 Sol の百万トークンのコンテキスト予算と自動圧縮しきい値を設定する方法と、一回の Codex CLI セッションだけで有効にする方法を説明します。"
+---
+
+## すぐに設定する
+
+`config.toml` の先頭に `model`、`model_context_window`、`model_auto_compact_token_limit` を追加し、Codex を完全に終了してから再起動し、新しい会話を作成します。GPT-5.6 Sol の公式 API 仕様は 1,050,000 トークンです。以下の設定では 1,000,000 トークンをコンテキスト予算として要求し、約 900,000 トークンで履歴の自動圧縮を開始します。
+
+<Warning>
+  長いコンテキストに対応しないモデルを拡張する設定ではありません。実際に使える長さは Codex のバージョン、provider、サーバー制限、出力やツール用の予約領域、圧縮ポリシーによって変わります。正確に 1,000,000 トークン使えることを保証するものではありません。
+</Warning>
+
+## 永続設定
+
+| OS | ファイル |
+| --- | --- |
+| macOS / Linux | `~/.codex/config.toml` |
+| Windows | `%USERPROFILE%\.codex\config.toml` |
+
+すべての `[section]` 見出しより前に配置します。
+
+```toml
+model = "gpt-5.6-sol"
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+```
+
+保存後、Codex を完全に再起動して新しい会話を開始します。`900000` のしきい値は、出力、ツール結果、後続メッセージのための余白を残します。
+
+## 1 回の CLI セッションだけで有効にする
+
+<Tabs>
+  <Tab title="macOS / Linux">
+    ```bash
+    codex -m gpt-5.6-sol \
+      -c model_context_window=1000000 \
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    codex -m gpt-5.6-sol `
+      -c model_context_window=1000000 `
+      -c model_auto_compact_token_limit=900000
+    ```
+  </Tab>
+</Tabs>
+
+セッションを閉じると一時設定は失効します。
+
+## 確認とトラブルシューティング
+
+1. Codex を再起動し、新しい会話を作成します。
+2. 有効なモデルが `gpt-5.6-sol` であることを確認します。
+3. モデルが表示されない場合は、<a href={"{{model-plaza-url}}"}>model plaza</a> で現在の Model ID と provider 対応状況を確認します。
+4. 設定が無視される場合は、正しいユーザーファイルの最上位にあり、重複していないことを確認します。
+
+## 実効コンテキスト、消費量、コスト
+
+Codex は出力、ツール呼び出し、システム指示のために一部を予約します。クライアントやサーバーの制限で早めに圧縮される場合もあります。大きなコンテキストはより多くのコードと履歴を保持できますが、入力トークン、待ち時間、コストを大幅に増やす可能性があります。短いタスクでは通常、既定値が適しています。
+
+## 関連ドキュメント
+
+- [Codex のインストールと custom provider 設定](/ja/ai-tools/codex)
+- [config.toml 完全ガイド](/ja/faq/codex/config-toml)
+- [model_provider、Base URL、wire_api](/ja/faq/codex/model-provider-base-url-wire-api)
+
+## References
+
+- [OpenAI Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)
+- [OpenAI GPT-5.6 Sol モデル仕様](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
