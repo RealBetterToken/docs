@@ -11,16 +11,16 @@ const source = await readFile(path.join(rootDir, 'scripts', 'llmeasy-metrica-spa
 const docsConfig = JSON.parse(await readFile(path.join(rootDir, 'docs.json'), 'utf8'));
 
 assert.equal(
-  docsConfig.integrations?.gtm,
-  undefined,
-  'GTM must not also be injected through docs.json'
+  docsConfig.integrations?.gtm?.tagId,
+  'GTM-KXQ798MR',
+  'GTM must be injected through the native Mintlify integration'
 );
+assert.doesNotMatch(source, /googletagmanager\.com|GTM-KXQ798MR|gtm\.js/);
 
 function createHarness(initialUrl) {
   const listeners = new Map();
   const clarityCalls = [];
   const metricaCalls = [];
-  const appendedScripts = [];
   const maskedAttributes = new Map();
   const playground = {
     matches(selector) {
@@ -55,9 +55,6 @@ function createHarness(initialUrl) {
   };
 
   const documentElement = {
-    appendChild(script) {
-      appendedScripts.push(script);
-    },
     getAttribute(name) {
       return name === 'data-current-path' ? currentPath : null;
     },
@@ -72,30 +69,8 @@ function createHarness(initialUrl) {
   const document = {
     title: 'Quickstart | BetterToken',
     documentElement,
-    head: {
-      appendChild(script) {
-        appendedScripts.push(script);
-      },
-    },
     addEventListener(name, callback) {
       listeners.set(name, callback);
-    },
-    createElement(tagName) {
-      assert.equal(tagName, 'script');
-      return {
-        async: false,
-        attributes: new Map(),
-        setAttribute(name, value) {
-          this.attributes.set(name, value);
-        },
-      };
-    },
-    querySelector(selector) {
-      if (!selector.includes('googletagmanager.com/gtm.js')) {
-        return null;
-      }
-
-      return appendedScripts.find((script) => script.src?.includes('googletagmanager.com/gtm.js')) ?? null;
     },
   };
 
@@ -147,7 +122,6 @@ function createHarness(initialUrl) {
   };
 
   return {
-    appendedScripts,
     clarityCalls,
     context,
     document,
@@ -189,7 +163,6 @@ for (const blockedUrl of blockedUrls) {
   const preview = createHarness(blockedUrl);
   vm.runInNewContext(source, preview.context);
 
-  assert.equal(preview.appendedScripts.length, 0, `${blockedUrl} must not load GTM`);
   assert.equal(preview.listeners.size, 0, `${blockedUrl} must not install analytics listeners`);
   assert.equal(preview.window.dataLayer, undefined, `${blockedUrl} must not create an analytics queue`);
 }
@@ -198,11 +171,6 @@ const production = createHarness('https://docs.bettertoken.ai/en/quickstart?api_
 vm.runInNewContext(source, production.context);
 vm.runInNewContext(source, production.context);
 
-assert.equal(production.appendedScripts.length, 1, 'production must load GTM exactly once');
-assert.equal(
-  production.appendedScripts[0].src,
-  'https://www.googletagmanager.com/gtm.js?id=GTM-KXQ798MR'
-);
 assert.equal(
   production.maskedAttributes.get('data-clarity-mask'),
   'true',

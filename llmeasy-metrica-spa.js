@@ -13,7 +13,6 @@
 
   window.__bettertokenDocsAnalyticsInstalled = true;
 
-  var gtmId = 'GTM-KXQ798MR';
   var counterId = 110565477;
   var pollIntervalMs = 50;
   var titleFallbackMs = 1000;
@@ -26,31 +25,6 @@
   var pendingMetricaGoals = [];
   var trackerPollTimer = null;
   var trackerPollStartedAt = 0;
-
-  function loadGtmOnce() {
-    window.dataLayer = window.dataLayer || [];
-
-    var existingScript = document.querySelector(
-      'script[src*="googletagmanager.com/gtm.js?id=' + gtmId + '"]'
-    );
-
-    if (existingScript || window.__bettertokenGtmLoaded) {
-      window.__bettertokenGtmLoaded = true;
-      return;
-    }
-
-    window.__bettertokenGtmLoaded = true;
-    window.dataLayer.push({
-      'gtm.start': Date.now(),
-      event: 'gtm.js',
-    });
-
-    var script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtm.js?id=' + gtmId;
-    script.setAttribute('data-bettertoken-gtm', gtmId);
-    (document.head || document.documentElement).appendChild(script);
-  }
 
   function installGtagQueue() {
     window.dataLayer = window.dataLayer || [];
@@ -286,7 +260,6 @@
     });
   }
 
-  loadGtmOnce();
   installGtagQueue();
   scheduleTrackerFlush();
 })();
