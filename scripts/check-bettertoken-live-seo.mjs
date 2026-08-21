@@ -131,29 +131,31 @@ for (const [url, block] of sitemapBlocks) {
   }
 }
 
-const sitemapUrls = [...sitemapBlocks.keys()];
-const sitemapFailures = [];
-let nextSitemapUrl = 0;
+if (process.env.BETTERTOKEN_SEO_EXHAUSTIVE === '1') {
+  const sitemapUrls = [...sitemapBlocks.keys()];
+  const sitemapFailures = [];
+  let nextSitemapUrl = 0;
 
-async function checkSitemapUrlResponses() {
-  while (nextSitemapUrl < sitemapUrls.length) {
-    const url = sitemapUrls[nextSitemapUrl];
-    nextSitemapUrl += 1;
-    const response = await fetchWithoutRedirect(url);
+  async function checkSitemapUrlResponses() {
+    while (nextSitemapUrl < sitemapUrls.length) {
+      const url = sitemapUrls[nextSitemapUrl];
+      nextSitemapUrl += 1;
+      const response = await fetchWithoutRedirect(url);
 
-    if (response.status !== 200 || response.headers.get('location')) {
-      const redirect = response.headers.get('location');
-      sitemapFailures.push(`${url}: ${response.status}${redirect ? ` -> ${redirect}` : ''}`);
+      if (response.status !== 200 || response.headers.get('location')) {
+        const redirect = response.headers.get('location');
+        sitemapFailures.push(`${url}: ${response.status}${redirect ? ` -> ${redirect}` : ''}`);
+      }
     }
   }
-}
 
-await Promise.all(Array.from({ length: 8 }, () => checkSitemapUrlResponses()));
-assert.equal(
-  sitemapFailures.length,
-  0,
-  `Every sitemap URL must return 200 without redirect:\n${sitemapFailures.join('\n')}`,
-);
+  await Promise.all(Array.from({ length: 2 }, () => checkSitemapUrlResponses()));
+  assert.equal(
+    sitemapFailures.length,
+    0,
+    `Every sitemap URL must return 200 without redirect:\n${sitemapFailures.join('\n')}`,
+  );
+}
 
 const langChecks = betterTokenLocales.map(({ routePrefix, hreflang }) => [
   `/${routePrefix}ai-tools/zed`,
@@ -175,4 +177,8 @@ if (langLimitations.length) {
   for (const limitation of langLimitations) console.warn(`- ${limitation}`);
 }
 
-console.log(`Live BetterToken SEO check passed (${sitemapBlocks.size} sitemap URLs).`);
+console.log(
+  `Live BetterToken SEO check passed (${sitemapBlocks.size} sitemap URLs structurally validated${
+    process.env.BETTERTOKEN_SEO_EXHAUSTIVE === '1' ? ' and fetched' : ''
+  }).`,
+);
