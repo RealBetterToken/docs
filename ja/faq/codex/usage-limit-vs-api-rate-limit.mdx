@@ -1,0 +1,51 @@
+---
+title: "Codex の使用上限か API 429 かを判別する"
+sidebarTitle: "使用上限と API 429"
+description: "Codex プランの使用上限と、API の rate limit、使用上限、BetterToken 残高不足を区別します。"
+---
+
+Codex の使用上限警告と API `429` は同じ制限ではありません。最初にアクセス方法を確認してください。
+
+## アクセス方法を確認する
+
+| 使用方法 | 制限の対象 | 確認項目 |
+| --- | --- | --- |
+| 公式 ChatGPT/Codex ログイン | Codex プランまたは credits | Codex の使用状況と公式ガイド |
+| BetterToken API Key | 独立した API ワークフロー | HTTP status、body、request ID、残高、リクエスト履歴 |
+
+<Warning>
+  BetterToken API Key は公式 Codex プランの上限を延長または回避しません。別の API ワークフローを作成します。
+</Warning>
+
+## Codex がプラン上限を表示する場合
+
+1. タスクの状態、変更ファイル、検証結果を保存します。
+2. 警告の全文と表示時刻を記録します。
+3. [Codex の使用量と credits に関する公式ガイド](https://help.openai.com/en/articles/12642688)を確認します。
+4. 公式アカウント画面に表示される選択肢を使うか、上限のリセットを待ちます。
+
+1 つの割合だけで残量を推測しないでください。表示は異なる期間やリソースを示す場合があります。
+
+## API が 429 を返す場合
+
+1. HTTP status、body、request ID、rate-limit または retry header を保存します。
+2. BetterToken Workspace で残高と失敗したリクエストを確認します。
+3. OpenAI-compatible Base URL `https://bettertoken.ai/v1` と自分の BetterToken API Key を確認します。
+4. 一時的な rate limit の場合だけ、回数を制限した exponential backoff で再試行します。
+
+残高、アクセス権、設定が原因なら、先に修正してから短いテストを送ります。
+
+## 修正を確認する
+
+短い prompt を送り、Dashboard でモデル、status、Token、課金を確認します。
+
+[Codex を BetterToken に接続する](/ja/ai-tools/codex)も参照してください。
+
+<Card title="BetterToken Workspace を開く" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  残高を確認し、自分の API Key を作成して、リクエスト履歴を確認します。
+</Card>
+
+## 参照元
+
+- [OpenAI: 使用量と credits のガイド](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex ヘルプコレクション](https://help.openai.com/en/collections/14937394-codex)

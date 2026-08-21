@@ -1,0 +1,51 @@
+---
+title: "Limite d’usage Codex ou erreur API 429 : identifier la limite"
+sidebarTitle: "Limite d’usage et API 429"
+description: "Distinguez une limite du forfait Codex d’un rate limit, d’un plafond d’usage ou d’un problème de solde BetterToken."
+---
+
+Un avertissement d’usage Codex et une réponse API `429` ne correspondent pas à la même limite. Identifiez d’abord le mode d’accès.
+
+## Identifier le mode d’accès
+
+| Mode | Où s’applique la limite | À vérifier |
+| --- | --- | --- |
+| Codex avec la connexion officielle ChatGPT/Codex | Forfait ou credits Codex | Informations d’usage et documentation officielle |
+| Codex avec une BetterToken API Key | Workflow API distinct | Statut HTTP, body, request ID, solde et requête |
+
+<Warning>
+  Une BetterToken API Key ne prolonge ni ne contourne la limite du forfait officiel Codex. Elle crée un workflow API séparé.
+</Warning>
+
+## Si Codex affiche une limite de forfait
+
+1. Enregistrez l’état de la tâche, les fichiers modifiés et les vérifications.
+2. Notez le message exact et l’heure.
+3. Consultez le [guide officiel sur l’usage et les credits Codex](https://help.openai.com/en/articles/12642688).
+4. Utilisez les options affichées dans le compte officiel ou attendez la réinitialisation.
+
+N’estimez pas le quota restant avec un seul pourcentage. Les indicateurs peuvent couvrir des périodes ou ressources différentes.
+
+## Si l’API renvoie 429
+
+1. Enregistrez le statut HTTP, le body, le request ID et les headers de rate limit ou retry.
+2. Vérifiez le solde et la requête échouée dans BetterToken Workspace.
+3. Confirmez le Base URL OpenAI-compatible `https://bettertoken.ai/v1` et votre BetterToken API Key.
+4. Réessayez uniquement pour un rate limit temporaire, avec un exponential backoff limité.
+
+Pour un problème de solde, d’accès ou de configuration, corrigez d’abord la cause puis envoyez un test court.
+
+## Confirmer la correction
+
+Envoyez un prompt court. Vérifiez la réponse ainsi que le modèle, le statut, les Token et le débit dans le Dashboard.
+
+Consultez [Connecter Codex à BetterToken](/fr/ai-tools/codex).
+
+<Card title="Ouvrir BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Vérifiez le solde, créez votre API Key et consultez les requêtes.
+</Card>
+
+## Sources
+
+- [OpenAI : guide sur l’usage et les credits](https://help.openai.com/en/articles/12642688)
+- [Collection d’aide OpenAI Codex](https://help.openai.com/en/collections/14937394-codex)

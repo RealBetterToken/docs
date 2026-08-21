@@ -1,0 +1,51 @@
+---
+title: "Codex 使用额度还是 API 429：你遇到的是哪一种限制？"
+sidebarTitle: "使用额度与 API 429"
+description: "在重试前，区分 Codex 套餐使用额度、API 速率限制、消费上限与 BetterToken 余额问题。"
+---
+
+Codex 的使用额度提醒与 API `429` 不属于同一种限制。先确认当前接入方式，避免重复发送注定失败的请求。
+
+## 确认接入方式
+
+| 你正在使用 | 限制属于哪里 | 应检查什么 |
+| --- | --- | --- |
+| 使用官方 ChatGPT/Codex 登录的 Codex | Codex 套餐或 credits | Codex 显示的 usage 信息与官方使用额度说明 |
+| 使用 BetterToken API Key 的 Codex | 独立 API 工作流 | HTTP 状态、响应 body、request ID、当前余额与请求记录 |
+
+<Warning>
+  BetterToken API Key 不会延长或绕过官方 Codex 套餐限额。它建立的是拥有独立余额和请求历史的 API 工作流。
+</Warning>
+
+## 如果 Codex 提示套餐额度限制
+
+1. 保存当前任务状态、已修改文件与验证结果。
+2. 记录完整提示文本和出现时间。
+3. 查看 OpenAI 官方的 [Codex usage 与 credits 说明](https://help.openai.com/en/articles/12642688)。
+4. 如果你的套餐提供 credits，按官方账户界面的可用选项操作；否则等待套餐额度重置。
+
+不要只根据一个百分比推算剩余额度。不同界面指标可能对应不同周期或资源。
+
+## 如果 API 返回 429
+
+1. 保存 HTTP 状态、响应 body、request ID，以及返回的 rate-limit 或 retry headers。
+2. 在 BetterToken Workspace 检查当前余额与失败请求。
+3. 确认 Codex 使用 OpenAI-compatible Base URL `https://bettertoken.ai/v1` 和你自己的 BetterToken API Key。
+4. 只有在响应表明属于临时速率限制时才重试；使用有次数上限的指数退避。
+
+如果响应指向余额、访问权限或配置问题，重复同一请求不会解决问题。先修正原因，再发送一个短测试请求。
+
+## 验证修复结果
+
+发送一个非关键的短提示。确认响应正常，并在 Dashboard 中核对模型、状态、Token 用量与扣费记录。
+
+完整接入步骤见[将 Codex 连接到 BetterToken](/zh/ai-tools/codex)。
+
+<Card title="打开 BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  检查余额、创建自己的 API Key，并查看请求记录。
+</Card>
+
+## 来源
+
+- [OpenAI：Using Credits for Flexible Usage in ChatGPT (Free/Go/Plus/Pro)](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex 帮助中心集合](https://help.openai.com/en/collections/14937394-codex)

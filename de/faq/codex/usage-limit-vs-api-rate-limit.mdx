@@ -1,0 +1,51 @@
+---
+title: "Codex-Nutzungslimit oder API 429: Welches Limit greift?"
+sidebarTitle: "Nutzungslimit und API 429"
+description: "Unterscheide ein Codex-Planlimit von Rate Limit, Nutzungslimit oder einem BetterToken-Guthabenproblem."
+---
+
+Eine Codex-Nutzungswarnung und eine API-Antwort `429` sind nicht dasselbe Limit. Bestimme zuerst den Zugriffsmodus.
+
+## Zugriffsmodus bestimmen
+
+| Modus | Wo das Limit gilt | Was du prüfst |
+| --- | --- | --- |
+| Codex mit offizieller ChatGPT/Codex-Anmeldung | Codex-Plan oder credits | Codex-Nutzungsanzeige und offizielle Anleitung |
+| Codex mit BetterToken API Key | Separater API-Workflow | HTTP-Status, Body, request ID, Guthaben und Anfrageprotokoll |
+
+<Warning>
+  Ein BetterToken API Key erweitert oder umgeht kein offizielles Codex-Planlimit. Er erstellt einen separaten API-Workflow.
+</Warning>
+
+## Wenn Codex ein Planlimit meldet
+
+1. Speichere Aufgabenstatus, geänderte Dateien und Prüfergebnisse.
+2. Notiere die genaue Warnung und die Uhrzeit.
+3. Öffne die [offizielle Anleitung zu Codex-Nutzung und credits](https://help.openai.com/en/articles/12642688).
+4. Nutze die im offiziellen Konto verfügbaren Optionen oder warte auf die Rücksetzung.
+
+Leite das Restkontingent nicht aus einer einzigen Prozentanzeige ab. Anzeigen können unterschiedliche Zeiträume oder Ressourcen betreffen.
+
+## Wenn die API 429 zurückgibt
+
+1. Speichere HTTP-Status, Body, request ID und vorhandene Rate-Limit- oder Retry-Header.
+2. Prüfe Guthaben und fehlgeschlagene Anfrage im BetterToken Workspace.
+3. Bestätige den OpenAI-compatible Base URL `https://bettertoken.ai/v1` und deinen BetterToken API Key.
+4. Wiederhole nur bei einem temporären Rate Limit und nutze begrenztes exponential backoff.
+
+Bei Guthaben-, Zugriffs- oder Konfigurationsfehlern behebst du zuerst die Ursache und sendest dann einen kurzen Test.
+
+## Korrektur bestätigen
+
+Sende einen kurzen Prompt. Prüfe Antwort, Modell, Status, Token und Abbuchung im Dashboard.
+
+Siehe [Codex mit BetterToken verbinden](/de/ai-tools/codex).
+
+<Card title="BetterToken Workspace öffnen" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Prüfe Guthaben, erstelle deinen API Key und öffne die Anfragen.
+</Card>
+
+## Quellen
+
+- [OpenAI: Anleitung zu Nutzung und credits](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex Help Center](https://help.openai.com/en/collections/14937394-codex)

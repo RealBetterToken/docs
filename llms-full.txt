@@ -7714,6 +7714,60 @@ Description: Используйте CC Switch со сторонним API или
 
 ---
 
+## Лимит Codex или API 429: какое ограничение сработало?
+
+Source: https://docs.bettertoken.ai/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Отличите лимит плана Codex от API rate limit, лимита расходов или проблемы с балансом BetterToken до повторного запроса.
+
+Предупреждение о лимите Codex и ответ API `429` относятся к разным контурам. Сначала определите способ доступа. Так вы не будете повторять запрос, который не может выполниться.
+
+## Определите способ доступа
+
+| Что вы используете | Где действует лимит | Что проверить |
+| --- | --- | --- |
+| Codex с официальным входом ChatGPT/Codex | План Codex или credits | Данные usage в Codex и официальное руководство по лимитам |
+| Codex с BetterToken API Key | Отдельный API workflow | HTTP-статус, body, request ID, текущий баланс и запись запроса |
+
+<Warning>
+  BetterToken API Key не продлевает и не обходит лимит официального плана Codex. Это отдельный API workflow со своим балансом и историей запросов.
+</Warning>
+
+## Если Codex показывает лимит плана
+
+1. Сохраните состояние задачи, изменённые файлы и результаты проверок.
+2. Запишите точный текст предупреждения и время.
+3. Откройте официальное [руководство по usage и credits Codex](https://help.openai.com/en/articles/12642688).
+4. Если вашему плану доступны credits, используйте варианты из официального интерфейса аккаунта. Иначе дождитесь сброса лимита плана.
+
+Не вычисляйте остаток только по одному проценту. Индикаторы интерфейса могут относиться к разным периодам или ресурсам.
+
+## Если API возвращает 429
+
+1. Сохраните HTTP-статус, body ответа, request ID и заголовки rate limit или retry, если они есть.
+2. Проверьте текущий баланс и неуспешный запрос в BetterToken Workspace.
+3. Убедитесь, что Codex использует OpenAI-compatible Base URL `https://bettertoken.ai/v1` и ваш собственный BetterToken API Key.
+4. Повторяйте запрос только при временном rate limit. Используйте ограниченный exponential backoff и заранее задайте число попыток.
+
+Если ответ указывает на баланс, доступ или конфигурацию, повтор того же запроса не поможет. Сначала исправьте причину, затем отправьте один короткий тест.
+
+## Подтвердите исправление
+
+Отправьте короткий некритичный запрос. Проверьте ответ и запись в Dashboard: модель, статус, Token и списание должны соответствовать ожиданию.
+
+Полная настройка описана на странице [Подключение Codex к BetterToken](/ai-tools/codex).
+
+<Card title="Открыть BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Проверьте баланс, создайте собственный API Key и откройте историю запросов.
+</Card>
+
+## Источники
+
+- [OpenAI: Using Credits for Flexible Usage in ChatGPT (Free/Go/Plus/Pro)](https://help.openai.com/en/articles/12642688)
+- [Коллекция справки OpenAI Codex](https://help.openai.com/en/collections/14937394-codex)
+
+---
+
 ## Cursor Custom OpenAI API: Base URL, API Key и модель
 
 Source: https://docs.bettertoken.ai/faq/cursor/custom-openai-api
@@ -16786,6 +16840,60 @@ Manual setup is for advanced users who are comfortable editing local Codex files
     If the model is unavailable, confirm that `model` is a Model ID offered by the GPT provider in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
   </Step>
 </Steps>
+
+---
+
+## Codex usage limit or API 429: which limit did you hit?
+
+Source: https://docs.bettertoken.ai/en/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Distinguish a Codex plan usage limit from an API rate limit, usage cap, or BetterToken balance issue before you retry.
+
+A Codex usage warning and an API `429` are not the same limit. Identify the access mode first. This prevents repeated requests that cannot succeed.
+
+## Identify the access mode
+
+| What you use | Where the limit belongs | What to check |
+| --- | --- | --- |
+| Codex with your official ChatGPT/Codex login | Your Codex plan or credits | The usage information shown by Codex and the official Codex usage guidance |
+| Codex with a BetterToken API Key | Your API workflow | HTTP status, response body, request ID, current balance, and request record |
+
+<Warning>
+  A BetterToken API Key does not extend or bypass an official Codex plan limit. It creates a separate API workflow with its own balance and request history.
+</Warning>
+
+## If Codex shows a plan usage warning
+
+1. Save the current task state, changed files, and validation results.
+2. Record the exact warning and the time it appeared.
+3. Check the official [Codex usage limits and credits guidance](https://help.openai.com/en/articles/12642688).
+4. If credits are available for your plan, follow the options shown in the official account UI. Otherwise, wait for the plan limit to reset.
+
+Do not infer the remaining allowance from one percentage alone. Different UI indicators can describe different periods or resources.
+
+## If the API returns 429
+
+1. Save the HTTP status, response body, request ID, and any rate-limit or retry headers.
+2. Check the current balance and the failed request in BetterToken Workspace.
+3. Confirm that Codex uses the OpenAI-compatible Base URL `https://bettertoken.ai/v1` and your own BetterToken API Key.
+4. Retry only when the response indicates a temporary rate limit. Use bounded exponential backoff and stop after a defined number of attempts.
+
+If the response points to balance, access, or configuration, retrying the same request will not fix it. Correct that cause first, then send one small test request.
+
+## Confirm the fix
+
+Send a short, non-critical prompt. Confirm that it returns normally and that the request appears in the Dashboard with the expected model, status, Token usage, and charge.
+
+For the complete setup, see [Connect Codex to BetterToken](/en/ai-tools/codex).
+
+<Card title="Open BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Check your balance, create your own API Key, and review request records.
+</Card>
+
+## Sources
+
+- [OpenAI: Using Credits for Flexible Usage in ChatGPT (Free/Go/Plus/Pro)](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex Help Center collection](https://help.openai.com/en/collections/14937394-codex)
 
 ---
 
@@ -25927,6 +26035,60 @@ Description: 通过 CC Switch 使用第三方 API 或自定义模型，同时保
 
 ---
 
+## Codex 使用额度还是 API 429：你遇到的是哪一种限制？
+
+Source: https://docs.bettertoken.ai/zh/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: 在重试前，区分 Codex 套餐使用额度、API 速率限制、消费上限与 BetterToken 余额问题。
+
+Codex 的使用额度提醒与 API `429` 不属于同一种限制。先确认当前接入方式，避免重复发送注定失败的请求。
+
+## 确认接入方式
+
+| 你正在使用 | 限制属于哪里 | 应检查什么 |
+| --- | --- | --- |
+| 使用官方 ChatGPT/Codex 登录的 Codex | Codex 套餐或 credits | Codex 显示的 usage 信息与官方使用额度说明 |
+| 使用 BetterToken API Key 的 Codex | 独立 API 工作流 | HTTP 状态、响应 body、request ID、当前余额与请求记录 |
+
+<Warning>
+  BetterToken API Key 不会延长或绕过官方 Codex 套餐限额。它建立的是拥有独立余额和请求历史的 API 工作流。
+</Warning>
+
+## 如果 Codex 提示套餐额度限制
+
+1. 保存当前任务状态、已修改文件与验证结果。
+2. 记录完整提示文本和出现时间。
+3. 查看 OpenAI 官方的 [Codex usage 与 credits 说明](https://help.openai.com/en/articles/12642688)。
+4. 如果你的套餐提供 credits，按官方账户界面的可用选项操作；否则等待套餐额度重置。
+
+不要只根据一个百分比推算剩余额度。不同界面指标可能对应不同周期或资源。
+
+## 如果 API 返回 429
+
+1. 保存 HTTP 状态、响应 body、request ID，以及返回的 rate-limit 或 retry headers。
+2. 在 BetterToken Workspace 检查当前余额与失败请求。
+3. 确认 Codex 使用 OpenAI-compatible Base URL `https://bettertoken.ai/v1` 和你自己的 BetterToken API Key。
+4. 只有在响应表明属于临时速率限制时才重试；使用有次数上限的指数退避。
+
+如果响应指向余额、访问权限或配置问题，重复同一请求不会解决问题。先修正原因，再发送一个短测试请求。
+
+## 验证修复结果
+
+发送一个非关键的短提示。确认响应正常，并在 Dashboard 中核对模型、状态、Token 用量与扣费记录。
+
+完整接入步骤见[将 Codex 连接到 BetterToken](/zh/ai-tools/codex)。
+
+<Card title="打开 BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  检查余额、创建自己的 API Key，并查看请求记录。
+</Card>
+
+## 来源
+
+- [OpenAI：Using Credits for Flexible Usage in ChatGPT (Free/Go/Plus/Pro)](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex 帮助中心集合](https://help.openai.com/en/collections/14937394-codex)
+
+---
+
 ## Cursor 自定义 OpenAI API：Base URL、API Key 与模型
 
 Source: https://docs.bettertoken.ai/zh/faq/cursor/custom-openai-api
@@ -34988,6 +35150,60 @@ Manual setup उन advanced users के लिए है जो local Codex fi
     यदि model उपलब्ध नहीं है, तो पुष्टि करें कि `model`, <a href={"https://bettertoken.ai/pricing"}>model plaza</a> में GPT provider द्वारा दिया गया Model ID है।
   </Step>
 </Steps>
+
+---
+
+## Codex usage limit या API 429: सही सीमा पहचानें
+
+Source: https://docs.bettertoken.ai/hi/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Codex plan limit को API rate limit, usage cap या BetterToken balance समस्या से अलग पहचानें।
+
+Codex usage warning और API `429` एक ही सीमा नहीं हैं। पहले access mode पहचानें।
+
+## Access mode पहचानें
+
+| उपयोग | सीमा कहाँ लागू होती है | क्या जाँचें |
+| --- | --- | --- |
+| आधिकारिक ChatGPT/Codex login | Codex plan या credits | Codex usage जानकारी और आधिकारिक guide |
+| BetterToken API Key | अलग API workflow | HTTP status, body, request ID, balance और request record |
+
+<Warning>
+  BetterToken API Key आधिकारिक Codex plan limit को बढ़ाती या bypass नहीं करती। यह अलग API workflow बनाती है।
+</Warning>
+
+## अगर Codex plan limit दिखाए
+
+1. Task state, बदली हुई files और verification result सेव करें।
+2. सही warning और समय लिखें।
+3. [Codex usage और credits की आधिकारिक guide](https://help.openai.com/en/articles/12642688) देखें।
+4. आधिकारिक account UI में उपलब्ध विकल्प उपयोग करें या limit reset होने तक प्रतीक्षा करें।
+
+केवल एक percentage से शेष usage का अनुमान न लगाएँ। Indicators अलग अवधि या resource दिखा सकते हैं।
+
+## अगर API 429 लौटाए
+
+1. HTTP status, body, request ID और rate-limit या retry headers सेव करें।
+2. BetterToken Workspace में balance और failed request जाँचें।
+3. OpenAI-compatible Base URL `https://bettertoken.ai/v1` और अपनी BetterToken API Key की पुष्टि करें।
+4. केवल अस्थायी rate limit पर सीमित exponential backoff से retry करें।
+
+Balance, access या configuration कारण हो तो पहले उसे ठीक करें, फिर छोटा test request भेजें।
+
+## सुधार की पुष्टि करें
+
+छोटा prompt भेजें। Dashboard में model, status, Token और charge जाँचें।
+
+[Codex को BetterToken से जोड़ें](/hi/ai-tools/codex)।
+
+<Card title="BetterToken Workspace खोलें" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Balance जाँचें, अपनी API Key बनाएँ और request records देखें।
+</Card>
+
+## स्रोत
+
+- [OpenAI: usage और credits guide](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex सहायता संग्रह](https://help.openai.com/en/collections/14937394-codex)
 
 ---
 
@@ -44053,6 +44269,60 @@ La configuración manual está dirigida a usuarios avanzados que se sienten cóm
 
 ---
 
+## Límite de uso de Codex o error API 429: identifica el límite
+
+Source: https://docs.bettertoken.ai/es/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Distingue un límite del plan de Codex de un rate limit, un tope de uso o un problema de saldo de BetterToken.
+
+Un aviso de uso de Codex y una respuesta API `429` no son el mismo límite. Primero identifica el modo de acceso.
+
+## Identifica el modo de acceso
+
+| Modo | Dónde se aplica el límite | Qué revisar |
+| --- | --- | --- |
+| Codex con inicio de sesión oficial de ChatGPT/Codex | Plan o credits de Codex | Información de uso de Codex y guía oficial |
+| Codex con una BetterToken API Key | Flujo de API independiente | Estado HTTP, body, request ID, saldo y registro de la solicitud |
+
+<Warning>
+  Una BetterToken API Key no amplía ni evita el límite del plan oficial de Codex. Crea un flujo de API separado.
+</Warning>
+
+## Si Codex muestra un límite del plan
+
+1. Guarda el estado de la tarea, los archivos modificados y las comprobaciones.
+2. Anota el aviso exacto y la hora.
+3. Consulta la [guía oficial de uso y credits de Codex](https://help.openai.com/en/articles/12642688).
+4. Usa las opciones que muestre la cuenta oficial o espera al restablecimiento del límite.
+
+No calcules el uso restante con un solo porcentaje. Los indicadores pueden representar periodos o recursos distintos.
+
+## Si la API devuelve 429
+
+1. Guarda el estado HTTP, el body, el request ID y los headers de rate limit o retry.
+2. Revisa el saldo y la solicitud fallida en BetterToken Workspace.
+3. Confirma el Base URL OpenAI-compatible `https://bettertoken.ai/v1` y tu propia BetterToken API Key.
+4. Reintenta solo si es un rate limit temporal. Usa exponential backoff con un máximo de intentos.
+
+Si la causa es saldo, acceso o configuración, corrígela antes de enviar una prueba corta.
+
+## Confirma la solución
+
+Envía un prompt breve. Verifica la respuesta y el modelo, estado, Token y cargo en el Dashboard.
+
+Consulta [Conectar Codex a BetterToken](/es/ai-tools/codex).
+
+<Card title="Abrir BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Revisa el saldo, crea tu API Key y consulta las solicitudes.
+</Card>
+
+## Fuentes
+
+- [OpenAI: guía de uso y credits](https://help.openai.com/en/articles/12642688)
+- [Colección de ayuda de OpenAI Codex](https://help.openai.com/en/collections/14937394-codex)
+
+---
+
 ## API OpenAI personalizada en Cursor: Base URL, API Key y modelos
 
 Source: https://docs.bettertoken.ai/es/faq/cursor/custom-openai-api
@@ -53099,6 +53369,60 @@ A configuração manual é destinada a usuários avançados que sabem editar arq
     Se o modelo não estiver disponível, confirme que `model` é um ID oferecido pelo provedor GPT na <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
   </Step>
 </Steps>
+
+---
+
+## Limite de uso do Codex ou API 429: identifique o limite
+
+Source: https://docs.bettertoken.ai/pt-br/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Diferencie o limite do plano Codex de rate limit, teto de uso ou problema de saldo da BetterToken.
+
+Um aviso de uso do Codex e uma resposta API `429` não são o mesmo limite. Primeiro identifique o modo de acesso.
+
+## Identifique o modo de acesso
+
+| Modo | Onde o limite se aplica | O que verificar |
+| --- | --- | --- |
+| Codex com login oficial ChatGPT/Codex | Plano ou credits do Codex | Informações de uso e orientação oficial |
+| Codex com BetterToken API Key | Fluxo de API separado | Status HTTP, body, request ID, saldo e registro da solicitação |
+
+<Warning>
+  Uma BetterToken API Key não amplia nem contorna o limite do plano oficial do Codex. Ela cria um fluxo de API separado.
+</Warning>
+
+## Se o Codex mostrar um limite do plano
+
+1. Salve o estado da tarefa, os arquivos alterados e as verificações.
+2. Registre o aviso exato e o horário.
+3. Consulte a [orientação oficial sobre uso e credits do Codex](https://help.openai.com/en/articles/12642688).
+4. Use as opções mostradas na conta oficial ou aguarde a redefinição do limite.
+
+Não estime o uso restante por uma única porcentagem. Indicadores podem representar períodos ou recursos diferentes.
+
+## Se a API retornar 429
+
+1. Salve o status HTTP, body, request ID e headers de rate limit ou retry.
+2. Verifique o saldo e a solicitação com falha no BetterToken Workspace.
+3. Confirme o Base URL OpenAI-compatible `https://bettertoken.ai/v1` e sua própria BetterToken API Key.
+4. Tente novamente apenas para rate limit temporário, com exponential backoff e número máximo de tentativas.
+
+Se a causa for saldo, acesso ou configuração, corrija-a antes de enviar um teste curto.
+
+## Confirme a correção
+
+Envie um prompt curto. Verifique a resposta e o modelo, status, Token e cobrança no Dashboard.
+
+Consulte [Conectar o Codex à BetterToken](/pt-br/ai-tools/codex).
+
+<Card title="Abrir BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Verifique o saldo, crie sua API Key e consulte as solicitações.
+</Card>
+
+## Fontes
+
+- [OpenAI: orientação sobre uso e credits](https://help.openai.com/en/articles/12642688)
+- [Coleção de ajuda do OpenAI Codex](https://help.openai.com/en/collections/14937394-codex)
 
 ---
 
@@ -62150,6 +62474,60 @@ CC Switch で **Settings → General → Codex App Enhancements** を開き、�
 
 ---
 
+## Codex の使用上限か API 429 かを判別する
+
+Source: https://docs.bettertoken.ai/ja/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Codex プランの使用上限と、API の rate limit、使用上限、BetterToken 残高不足を区別します。
+
+Codex の使用上限警告と API `429` は同じ制限ではありません。最初にアクセス方法を確認してください。
+
+## アクセス方法を確認する
+
+| 使用方法 | 制限の対象 | 確認項目 |
+| --- | --- | --- |
+| 公式 ChatGPT/Codex ログイン | Codex プランまたは credits | Codex の使用状況と公式ガイド |
+| BetterToken API Key | 独立した API ワークフロー | HTTP status、body、request ID、残高、リクエスト履歴 |
+
+<Warning>
+  BetterToken API Key は公式 Codex プランの上限を延長または回避しません。別の API ワークフローを作成します。
+</Warning>
+
+## Codex がプラン上限を表示する場合
+
+1. タスクの状態、変更ファイル、検証結果を保存します。
+2. 警告の全文と表示時刻を記録します。
+3. [Codex の使用量と credits に関する公式ガイド](https://help.openai.com/en/articles/12642688)を確認します。
+4. 公式アカウント画面に表示される選択肢を使うか、上限のリセットを待ちます。
+
+1 つの割合だけで残量を推測しないでください。表示は異なる期間やリソースを示す場合があります。
+
+## API が 429 を返す場合
+
+1. HTTP status、body、request ID、rate-limit または retry header を保存します。
+2. BetterToken Workspace で残高と失敗したリクエストを確認します。
+3. OpenAI-compatible Base URL `https://bettertoken.ai/v1` と自分の BetterToken API Key を確認します。
+4. 一時的な rate limit の場合だけ、回数を制限した exponential backoff で再試行します。
+
+残高、アクセス権、設定が原因なら、先に修正してから短いテストを送ります。
+
+## 修正を確認する
+
+短い prompt を送り、Dashboard でモデル、status、Token、課金を確認します。
+
+[Codex を BetterToken に接続する](/ja/ai-tools/codex)も参照してください。
+
+<Card title="BetterToken Workspace を開く" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  残高を確認し、自分の API Key を作成して、リクエスト履歴を確認します。
+</Card>
+
+## 参照元
+
+- [OpenAI: 使用量と credits のガイド](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex ヘルプコレクション](https://help.openai.com/en/collections/14937394-codex)
+
+---
+
 ## Cursor カスタム OpenAI API：Base URL、API Key、モデル
 
 Source: https://docs.bettertoken.ai/ja/faq/cursor/custom-openai-api
@@ -71194,6 +71572,60 @@ La configuration manuelle est destinée aux utilisateurs avancés à l’aise av
     Si le modèle est indisponible, vérifiez que `model` est un Model ID proposé par le fournisseur GPT dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
   </Step>
 </Steps>
+
+---
+
+## Limite d’usage Codex ou erreur API 429 : identifier la limite
+
+Source: https://docs.bettertoken.ai/fr/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Distinguez une limite du forfait Codex d’un rate limit, d’un plafond d’usage ou d’un problème de solde BetterToken.
+
+Un avertissement d’usage Codex et une réponse API `429` ne correspondent pas à la même limite. Identifiez d’abord le mode d’accès.
+
+## Identifier le mode d’accès
+
+| Mode | Où s’applique la limite | À vérifier |
+| --- | --- | --- |
+| Codex avec la connexion officielle ChatGPT/Codex | Forfait ou credits Codex | Informations d’usage et documentation officielle |
+| Codex avec une BetterToken API Key | Workflow API distinct | Statut HTTP, body, request ID, solde et requête |
+
+<Warning>
+  Une BetterToken API Key ne prolonge ni ne contourne la limite du forfait officiel Codex. Elle crée un workflow API séparé.
+</Warning>
+
+## Si Codex affiche une limite de forfait
+
+1. Enregistrez l’état de la tâche, les fichiers modifiés et les vérifications.
+2. Notez le message exact et l’heure.
+3. Consultez le [guide officiel sur l’usage et les credits Codex](https://help.openai.com/en/articles/12642688).
+4. Utilisez les options affichées dans le compte officiel ou attendez la réinitialisation.
+
+N’estimez pas le quota restant avec un seul pourcentage. Les indicateurs peuvent couvrir des périodes ou ressources différentes.
+
+## Si l’API renvoie 429
+
+1. Enregistrez le statut HTTP, le body, le request ID et les headers de rate limit ou retry.
+2. Vérifiez le solde et la requête échouée dans BetterToken Workspace.
+3. Confirmez le Base URL OpenAI-compatible `https://bettertoken.ai/v1` et votre BetterToken API Key.
+4. Réessayez uniquement pour un rate limit temporaire, avec un exponential backoff limité.
+
+Pour un problème de solde, d’accès ou de configuration, corrigez d’abord la cause puis envoyez un test court.
+
+## Confirmer la correction
+
+Envoyez un prompt court. Vérifiez la réponse ainsi que le modèle, le statut, les Token et le débit dans le Dashboard.
+
+Consultez [Connecter Codex à BetterToken](/fr/ai-tools/codex).
+
+<Card title="Ouvrir BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Vérifiez le solde, créez votre API Key et consultez les requêtes.
+</Card>
+
+## Sources
+
+- [OpenAI : guide sur l’usage et les credits](https://help.openai.com/en/articles/12642688)
+- [Collection d’aide OpenAI Codex](https://help.openai.com/en/collections/14937394-codex)
 
 ---
 
@@ -80245,6 +80677,60 @@ Die manuelle Einrichtung ist für fortgeschrittene Nutzer gedacht, die lokale Co
 
 ---
 
+## Codex-Nutzungslimit oder API 429: Welches Limit greift?
+
+Source: https://docs.bettertoken.ai/de/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Unterscheide ein Codex-Planlimit von Rate Limit, Nutzungslimit oder einem BetterToken-Guthabenproblem.
+
+Eine Codex-Nutzungswarnung und eine API-Antwort `429` sind nicht dasselbe Limit. Bestimme zuerst den Zugriffsmodus.
+
+## Zugriffsmodus bestimmen
+
+| Modus | Wo das Limit gilt | Was du prüfst |
+| --- | --- | --- |
+| Codex mit offizieller ChatGPT/Codex-Anmeldung | Codex-Plan oder credits | Codex-Nutzungsanzeige und offizielle Anleitung |
+| Codex mit BetterToken API Key | Separater API-Workflow | HTTP-Status, Body, request ID, Guthaben und Anfrageprotokoll |
+
+<Warning>
+  Ein BetterToken API Key erweitert oder umgeht kein offizielles Codex-Planlimit. Er erstellt einen separaten API-Workflow.
+</Warning>
+
+## Wenn Codex ein Planlimit meldet
+
+1. Speichere Aufgabenstatus, geänderte Dateien und Prüfergebnisse.
+2. Notiere die genaue Warnung und die Uhrzeit.
+3. Öffne die [offizielle Anleitung zu Codex-Nutzung und credits](https://help.openai.com/en/articles/12642688).
+4. Nutze die im offiziellen Konto verfügbaren Optionen oder warte auf die Rücksetzung.
+
+Leite das Restkontingent nicht aus einer einzigen Prozentanzeige ab. Anzeigen können unterschiedliche Zeiträume oder Ressourcen betreffen.
+
+## Wenn die API 429 zurückgibt
+
+1. Speichere HTTP-Status, Body, request ID und vorhandene Rate-Limit- oder Retry-Header.
+2. Prüfe Guthaben und fehlgeschlagene Anfrage im BetterToken Workspace.
+3. Bestätige den OpenAI-compatible Base URL `https://bettertoken.ai/v1` und deinen BetterToken API Key.
+4. Wiederhole nur bei einem temporären Rate Limit und nutze begrenztes exponential backoff.
+
+Bei Guthaben-, Zugriffs- oder Konfigurationsfehlern behebst du zuerst die Ursache und sendest dann einen kurzen Test.
+
+## Korrektur bestätigen
+
+Sende einen kurzen Prompt. Prüfe Antwort, Modell, Status, Token und Abbuchung im Dashboard.
+
+Siehe [Codex mit BetterToken verbinden](/de/ai-tools/codex).
+
+<Card title="BetterToken Workspace öffnen" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Prüfe Guthaben, erstelle deinen API Key und öffne die Anfragen.
+</Card>
+
+## Quellen
+
+- [OpenAI: Anleitung zu Nutzung und credits](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex Help Center](https://help.openai.com/en/collections/14937394-codex)
+
+---
+
 ## Eigene OpenAI API in Cursor: Base URL, API Key und Modelle
 
 Source: https://docs.bettertoken.ai/de/faq/cursor/custom-openai-api
@@ -89285,6 +89771,60 @@ manual setup은 local Codex files 편집에 익숙한 advanced users용입니다
     model을 사용할 수 없다면 `model`이 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>의 GPT provider가 제공하는 Model ID인지 확인하세요.
   </Step>
 </Steps>
+
+---
+
+## Codex 사용 한도와 API 429 구분하기
+
+Source: https://docs.bettertoken.ai/ko/faq/codex/usage-limit-vs-api-rate-limit
+
+Description: Codex 플랜 사용 한도와 API rate limit, 사용 상한, BetterToken 잔액 문제를 구분합니다.
+
+Codex 사용 경고와 API `429` 응답은 같은 제한이 아닙니다. 먼저 접근 방식을 확인하세요.
+
+## 접근 방식 확인
+
+| 사용 방식 | 제한이 적용되는 곳 | 확인할 항목 |
+| --- | --- | --- |
+| 공식 ChatGPT/Codex 로그인 | Codex 플랜 또는 credits | Codex 사용 정보와 공식 가이드 |
+| BetterToken API Key | 별도 API 워크플로 | HTTP status, body, request ID, 잔액, 요청 기록 |
+
+<Warning>
+  BetterToken API Key는 공식 Codex 플랜 한도를 늘리거나 우회하지 않습니다. 별도의 API 워크플로를 만듭니다.
+</Warning>
+
+## Codex가 플랜 한도를 표시하는 경우
+
+1. 작업 상태, 변경 파일, 검증 결과를 저장합니다.
+2. 정확한 경고 문구와 시간을 기록합니다.
+3. [Codex 사용량 및 credits 공식 가이드](https://help.openai.com/en/articles/12642688)를 확인합니다.
+4. 공식 계정 화면에 표시되는 옵션을 사용하거나 한도 재설정을 기다립니다.
+
+하나의 백분율만으로 남은 사용량을 추정하지 마세요. 지표가 서로 다른 기간이나 리소스를 나타낼 수 있습니다.
+
+## API가 429를 반환하는 경우
+
+1. HTTP status, body, request ID, rate-limit 또는 retry header를 저장합니다.
+2. BetterToken Workspace에서 잔액과 실패한 요청을 확인합니다.
+3. OpenAI-compatible Base URL `https://bettertoken.ai/v1`과 본인의 BetterToken API Key를 확인합니다.
+4. 일시적인 rate limit일 때만 횟수가 제한된 exponential backoff로 재시도합니다.
+
+잔액, 접근 권한, 설정이 원인이면 먼저 수정한 뒤 짧은 테스트 요청을 보내세요.
+
+## 수정 확인
+
+짧은 prompt를 보내고 Dashboard에서 모델, status, Token, 과금 기록을 확인합니다.
+
+[Codex를 BetterToken에 연결](/ko/ai-tools/codex) 문서도 확인하세요.
+
+<Card title="BetterToken Workspace 열기" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  잔액을 확인하고 API Key를 만든 뒤 요청 기록을 검토합니다.
+</Card>
+
+## 출처
+
+- [OpenAI: 사용량 및 credits 가이드](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex 도움말 모음](https://help.openai.com/en/collections/14937394-codex)
 
 ---
 

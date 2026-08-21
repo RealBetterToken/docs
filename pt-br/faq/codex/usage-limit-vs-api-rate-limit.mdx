@@ -1,0 +1,51 @@
+---
+title: "Limite de uso do Codex ou API 429: identifique o limite"
+sidebarTitle: "Limite de uso e API 429"
+description: "Diferencie o limite do plano Codex de rate limit, teto de uso ou problema de saldo da BetterToken."
+---
+
+Um aviso de uso do Codex e uma resposta API `429` não são o mesmo limite. Primeiro identifique o modo de acesso.
+
+## Identifique o modo de acesso
+
+| Modo | Onde o limite se aplica | O que verificar |
+| --- | --- | --- |
+| Codex com login oficial ChatGPT/Codex | Plano ou credits do Codex | Informações de uso e orientação oficial |
+| Codex com BetterToken API Key | Fluxo de API separado | Status HTTP, body, request ID, saldo e registro da solicitação |
+
+<Warning>
+  Uma BetterToken API Key não amplia nem contorna o limite do plano oficial do Codex. Ela cria um fluxo de API separado.
+</Warning>
+
+## Se o Codex mostrar um limite do plano
+
+1. Salve o estado da tarefa, os arquivos alterados e as verificações.
+2. Registre o aviso exato e o horário.
+3. Consulte a [orientação oficial sobre uso e credits do Codex](https://help.openai.com/en/articles/12642688).
+4. Use as opções mostradas na conta oficial ou aguarde a redefinição do limite.
+
+Não estime o uso restante por uma única porcentagem. Indicadores podem representar períodos ou recursos diferentes.
+
+## Se a API retornar 429
+
+1. Salve o status HTTP, body, request ID e headers de rate limit ou retry.
+2. Verifique o saldo e a solicitação com falha no BetterToken Workspace.
+3. Confirme o Base URL OpenAI-compatible `https://bettertoken.ai/v1` e sua própria BetterToken API Key.
+4. Tente novamente apenas para rate limit temporário, com exponential backoff e número máximo de tentativas.
+
+Se a causa for saldo, acesso ou configuração, corrija-a antes de enviar um teste curto.
+
+## Confirme a correção
+
+Envie um prompt curto. Verifique a resposta e o modelo, status, Token e cobrança no Dashboard.
+
+Consulte [Conectar o Codex à BetterToken](/pt-br/ai-tools/codex).
+
+<Card title="Abrir BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Verifique o saldo, crie sua API Key e consulte as solicitações.
+</Card>
+
+## Fontes
+
+- [OpenAI: orientação sobre uso e credits](https://help.openai.com/en/articles/12642688)
+- [Coleção de ajuda do OpenAI Codex](https://help.openai.com/en/collections/14937394-codex)

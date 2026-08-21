@@ -1,0 +1,51 @@
+---
+title: "Codex usage limit या API 429: सही सीमा पहचानें"
+sidebarTitle: "Usage limit और API 429"
+description: "Codex plan limit को API rate limit, usage cap या BetterToken balance समस्या से अलग पहचानें।"
+---
+
+Codex usage warning और API `429` एक ही सीमा नहीं हैं। पहले access mode पहचानें।
+
+## Access mode पहचानें
+
+| उपयोग | सीमा कहाँ लागू होती है | क्या जाँचें |
+| --- | --- | --- |
+| आधिकारिक ChatGPT/Codex login | Codex plan या credits | Codex usage जानकारी और आधिकारिक guide |
+| BetterToken API Key | अलग API workflow | HTTP status, body, request ID, balance और request record |
+
+<Warning>
+  BetterToken API Key आधिकारिक Codex plan limit को बढ़ाती या bypass नहीं करती। यह अलग API workflow बनाती है।
+</Warning>
+
+## अगर Codex plan limit दिखाए
+
+1. Task state, बदली हुई files और verification result सेव करें।
+2. सही warning और समय लिखें।
+3. [Codex usage और credits की आधिकारिक guide](https://help.openai.com/en/articles/12642688) देखें।
+4. आधिकारिक account UI में उपलब्ध विकल्प उपयोग करें या limit reset होने तक प्रतीक्षा करें।
+
+केवल एक percentage से शेष usage का अनुमान न लगाएँ। Indicators अलग अवधि या resource दिखा सकते हैं।
+
+## अगर API 429 लौटाए
+
+1. HTTP status, body, request ID और rate-limit या retry headers सेव करें।
+2. BetterToken Workspace में balance और failed request जाँचें।
+3. OpenAI-compatible Base URL `https://bettertoken.ai/v1` और अपनी BetterToken API Key की पुष्टि करें।
+4. केवल अस्थायी rate limit पर सीमित exponential backoff से retry करें।
+
+Balance, access या configuration कारण हो तो पहले उसे ठीक करें, फिर छोटा test request भेजें।
+
+## सुधार की पुष्टि करें
+
+छोटा prompt भेजें। Dashboard में model, status, Token और charge जाँचें।
+
+[Codex को BetterToken से जोड़ें](/hi/ai-tools/codex)।
+
+<Card title="BetterToken Workspace खोलें" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Balance जाँचें, अपनी API Key बनाएँ और request records देखें।
+</Card>
+
+## स्रोत
+
+- [OpenAI: usage और credits guide](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex सहायता संग्रह](https://help.openai.com/en/collections/14937394-codex)

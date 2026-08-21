@@ -1,0 +1,51 @@
+---
+title: "Codex usage limit or API 429: which limit did you hit?"
+sidebarTitle: "Usage limit vs API 429"
+description: "Distinguish a Codex plan usage limit from an API rate limit, usage cap, or BetterToken balance issue before you retry."
+---
+
+A Codex usage warning and an API `429` are not the same limit. Identify the access mode first. This prevents repeated requests that cannot succeed.
+
+## Identify the access mode
+
+| What you use | Where the limit belongs | What to check |
+| --- | --- | --- |
+| Codex with your official ChatGPT/Codex login | Your Codex plan or credits | The usage information shown by Codex and the official Codex usage guidance |
+| Codex with a BetterToken API Key | Your API workflow | HTTP status, response body, request ID, current balance, and request record |
+
+<Warning>
+  A BetterToken API Key does not extend or bypass an official Codex plan limit. It creates a separate API workflow with its own balance and request history.
+</Warning>
+
+## If Codex shows a plan usage warning
+
+1. Save the current task state, changed files, and validation results.
+2. Record the exact warning and the time it appeared.
+3. Check the official [Codex usage limits and credits guidance](https://help.openai.com/en/articles/12642688).
+4. If credits are available for your plan, follow the options shown in the official account UI. Otherwise, wait for the plan limit to reset.
+
+Do not infer the remaining allowance from one percentage alone. Different UI indicators can describe different periods or resources.
+
+## If the API returns 429
+
+1. Save the HTTP status, response body, request ID, and any rate-limit or retry headers.
+2. Check the current balance and the failed request in BetterToken Workspace.
+3. Confirm that Codex uses the OpenAI-compatible Base URL `https://bettertoken.ai/v1` and your own BetterToken API Key.
+4. Retry only when the response indicates a temporary rate limit. Use bounded exponential backoff and stop after a defined number of attempts.
+
+If the response points to balance, access, or configuration, retrying the same request will not fix it. Correct that cause first, then send one small test request.
+
+## Confirm the fix
+
+Send a short, non-critical prompt. Confirm that it returns normally and that the request appears in the Dashboard with the expected model, status, Token usage, and charge.
+
+For the complete setup, see [Connect Codex to BetterToken](/en/ai-tools/codex).
+
+<Card title="Open BetterToken Workspace" href="https://bettertoken.ai/workspace?utm_source=docs&utm_medium=organic_content&utm_campaign=SEO-KW-203&utm_content=codex-limit-diagnostics">
+  Check your balance, create your own API Key, and review request records.
+</Card>
+
+## Sources
+
+- [OpenAI: Using Credits for Flexible Usage in ChatGPT (Free/Go/Plus/Pro)](https://help.openai.com/en/articles/12642688)
+- [OpenAI Codex Help Center collection](https://help.openai.com/en/collections/14937394-codex)
