@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { betterTokenLocales, xDefaultLanguage } from './i18n-locales.mjs';
 
 const siteUrl = 'https://docs.bettertoken.ai';
@@ -41,20 +42,33 @@ async function fetchWithoutRedirect(url) {
   }
 }
 
-async function fetchLocalizedSitemap() {
+function sitemapLocations(xml) {
+  return new Set([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]));
+}
+
+async function fetchLocalizedSitemap(expectedLocations) {
   const attempts = Number(process.env.BETTERTOKEN_SEO_CHECK_ATTEMPTS ?? 5);
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const response = await fetchWithoutRedirect(`${siteUrl}/sitemap.xml`);
     const xml = await response.text();
-    if (response.status === 200 && xml.includes('hreflang="hi-IN"')) return xml;
+    const liveLocations = sitemapLocations(xml);
+    const isCurrentDeployment = [...expectedLocations].every((url) => liveLocations.has(url));
+    if (
+      response.status === 200
+      && xml.includes('hreflang="hi-IN"')
+      && isCurrentDeployment
+    ) return xml;
     if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 15_000));
   }
 
-  throw new Error(`Live sitemap did not expose hreflang after ${attempts} attempts`);
+  throw new Error(
+    `Live sitemap did not match the checked-out deployment after ${attempts} attempts`,
+  );
 }
 
-const sitemap = await fetchLocalizedSitemap();
+const expectedSitemap = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
+const sitemap = await fetchLocalizedSitemap(sitemapLocations(expectedSitemap));
 const sitemapBlocks = new Map();
 
 for (const match of sitemap.matchAll(/<url>\s*([\s\S]*?)\s*<\/url>/g)) {
