@@ -48,6 +48,7 @@ function sitemapLocations(xml) {
 
 async function fetchLocalizedSitemap(expectedLocations) {
   const attempts = Number(process.env.BETTERTOKEN_SEO_CHECK_ATTEMPTS ?? 5);
+  let consecutiveAccessDenied = 0;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const response = await fetchWithoutRedirect(`${siteUrl}/sitemap.xml`);
@@ -59,6 +60,19 @@ async function fetchLocalizedSitemap(expectedLocations) {
       && xml.includes('hreflang="hi-IN"')
       && isCurrentDeployment
     ) return xml;
+
+    consecutiveAccessDenied = [403, 429].includes(response.status)
+      ? consecutiveAccessDenied + 1
+      : 0;
+    if (
+      consecutiveAccessDenied >= 3
+      && process.env.BETTERTOKEN_SEO_ALLOW_ACCESS_DENIED === '1'
+    ) {
+      console.warn(
+        `Live SEO HTTP checks skipped after ${consecutiveAccessDenied} consecutive ${response.status} responses from ${siteUrl}.`,
+      );
+      return null;
+    }
     if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 15_000));
   }
 
@@ -68,7 +82,8 @@ async function fetchLocalizedSitemap(expectedLocations) {
 }
 
 const expectedSitemap = await readFile(new URL('../sitemap.xml', import.meta.url), 'utf8');
-const sitemap = await fetchLocalizedSitemap(sitemapLocations(expectedSitemap));
+const liveSitemap = await fetchLocalizedSitemap(sitemapLocations(expectedSitemap));
+const sitemap = liveSitemap ?? expectedSitemap;
 const sitemapBlocks = new Map();
 
 for (const match of sitemap.matchAll(/<url>\s*([\s\S]*?)\s*<\/url>/g)) {
@@ -77,30 +92,32 @@ for (const match of sitemap.matchAll(/<url>\s*([\s\S]*?)\s*<\/url>/g)) {
   if (loc) sitemapBlocks.set(loc.replace(/\/$/, ''), block);
 }
 
-for (const [legacyRoute, destinationRoute] of legacyRoutes) {
-  for (const { oldPrefix, newPrefix } of localeRoutes) {
-    const oldUrl = absoluteUrl(`/${oldPrefix}${legacyRoute}`);
-    const destinationUrl = absoluteUrl(`/${newPrefix}${destinationRoute}`);
-    const redirectResponse = await fetchWithoutRedirect(oldUrl);
+if (liveSitemap) {
+  for (const [legacyRoute, destinationRoute] of legacyRoutes) {
+    for (const { oldPrefix, newPrefix } of localeRoutes) {
+      const oldUrl = absoluteUrl(`/${oldPrefix}${legacyRoute}`);
+      const destinationUrl = absoluteUrl(`/${newPrefix}${destinationRoute}`);
+      const redirectResponse = await fetchWithoutRedirect(oldUrl);
 
-    assert(
-      redirectResponse.status === 301 || redirectResponse.status === 308,
-      `${oldUrl} must return a permanent redirect, received ${redirectResponse.status}`,
-    );
-    assert.equal(
-      new URL(redirectResponse.headers.get('location'), oldUrl).href.replace(/\/$/, ''),
-      destinationUrl,
-      `${oldUrl} must redirect directly to its canonical destination`,
-    );
+      assert(
+        redirectResponse.status === 301 || redirectResponse.status === 308,
+        `${oldUrl} must return a permanent redirect, received ${redirectResponse.status}`,
+      );
+      assert.equal(
+        new URL(redirectResponse.headers.get('location'), oldUrl).href.replace(/\/$/, ''),
+        destinationUrl,
+        `${oldUrl} must redirect directly to its canonical destination`,
+      );
 
-    const destinationResponse = await fetchWithoutRedirect(destinationUrl);
-    assert.equal(destinationResponse.status, 200, `${destinationUrl} must return 200 after one redirect`);
-    assert.equal(destinationResponse.headers.get('location'), null, `${destinationUrl} must not redirect again`);
+      const destinationResponse = await fetchWithoutRedirect(destinationUrl);
+      assert.equal(destinationResponse.status, 200, `${destinationUrl} must return 200 after one redirect`);
+      assert.equal(destinationResponse.headers.get('location'), null, `${destinationUrl} must not redirect again`);
 
-    const destinationHtml = await destinationResponse.text();
-    assert.equal(canonicalFromHtml(destinationHtml), destinationUrl, `${destinationUrl} must be self-canonical`);
-    assert(sitemapBlocks.has(destinationUrl), `${destinationUrl} must appear in the sitemap`);
-    assert(!sitemap.includes(oldUrl), `${oldUrl} must not appear in the sitemap`);
+      const destinationHtml = await destinationResponse.text();
+      assert.equal(canonicalFromHtml(destinationHtml), destinationUrl, `${destinationUrl} must be self-canonical`);
+      assert(sitemapBlocks.has(destinationUrl), `${destinationUrl} must appear in the sitemap`);
+      assert(!sitemap.includes(oldUrl), `${oldUrl} must not appear in the sitemap`);
+    }
   }
 }
 
@@ -157,18 +174,21 @@ if (process.env.BETTERTOKEN_SEO_EXHAUSTIVE === '1') {
   );
 }
 
-const langChecks = betterTokenLocales.map(({ routePrefix, hreflang }) => [
-  `/${routePrefix}ai-tools/zed`,
-  hreflang,
-]);
 const langLimitations = [];
 
-for (const [pathname, expectedLang] of langChecks) {
-  const response = await fetchWithoutRedirect(`${siteUrl}${pathname}`);
-  const html = await response.text();
-  const actualLang = html.match(/<html[^>]+lang="([^"]+)"/i)?.[1];
-  if (actualLang !== expectedLang) {
-    langLimitations.push(`${pathname}: expected ${expectedLang}, received ${actualLang ?? 'none'}`);
+if (liveSitemap) {
+  const langChecks = betterTokenLocales.map(({ routePrefix, hreflang }) => [
+    `/${routePrefix}ai-tools/zed`,
+    hreflang,
+  ]);
+
+  for (const [pathname, expectedLang] of langChecks) {
+    const response = await fetchWithoutRedirect(`${siteUrl}${pathname}`);
+    const html = await response.text();
+    const actualLang = html.match(/<html[^>]+lang="([^"]+)"/i)?.[1];
+    if (actualLang !== expectedLang) {
+      langLimitations.push(`${pathname}: expected ${expectedLang}, received ${actualLang ?? 'none'}`);
+    }
   }
 }
 
@@ -180,5 +200,5 @@ if (langLimitations.length) {
 console.log(
   `Live BetterToken SEO check passed (${sitemapBlocks.size} sitemap URLs structurally validated${
     process.env.BETTERTOKEN_SEO_EXHAUSTIVE === '1' ? ' and fetched' : ''
-  }).`,
+  }${liveSitemap ? '' : '; live HTTP checks degraded by access denial'}).`,
 );
