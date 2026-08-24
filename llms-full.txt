@@ -16919,15 +16919,17 @@ For the complete setup, see [Connect Codex to BetterToken](/en/ai-tools/codex).
 
 ---
 
-## Cursor Custom OpenAI API: Base URL, API Key, and Models
+## How to Override the OpenAI Base URL in Cursor
 
 Source: https://docs.bettertoken.ai/en/faq/cursor/custom-openai-api
 
-Description: Configure a Custom OpenAI API in Cursor with a BetterToken API Key, Override OpenAI Base URL, and GPT Model ID, with fixes for 401 and model not found.
+Description: Learn how to override the OpenAI Base URL in Cursor, add a custom API key and model ID, and fix 401, model-not-found, or private-network errors.
 
-## Short answer
+In Cursor, open **Settings → Models**, enter your OpenAI-compatible API key, enable **Override OpenAI Base URL**, set the public endpoint to [https://bettertoken.ai/v1](https://bettertoken.ai/v1), and add the exact model ID.
 
-To connect BetterToken as a Custom OpenAI API in Cursor, enter an BetterToken API Key, enable Override OpenAI Base URL, and set it to `https://bettertoken.ai/v1`. Then add a current GPT Model ID from the model plaza. The API Key, Base URL, and Model ID must all belong to the same provider.
+<Note>
+  Independent BetterToken setup guide; not Cursor’s official documentation.
+</Note>
 
 ## When this matters
 
@@ -16948,14 +16950,21 @@ To connect BetterToken as a Custom OpenAI API in Cursor, enter an BetterToken AP
 
 ## Recommended steps
 
-1. Create an API Key in the provider dashboard.
-2. Add the API Key in Cursor model settings.
-3. Enter the provider Base URL in Override OpenAI Base URL.
-4. Add or select a Model ID supported by the provider.
+1. Create a BetterToken API Key.
+2. Open **Settings → Models** in Cursor and add the API Key.
+3. Enable **Override OpenAI Base URL** and enter [https://bettertoken.ai/v1](https://bettertoken.ai/v1).
+4. Add the exact Model ID shown in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 5. Save and verify with a simple request.
+
+## Fix “Access to private networks is forbidden”
+
+When the overridden Base URL points to `localhost`, `127.0.0.1`, a private LAN address, or another non-public endpoint, Cursor may reject the request. For BetterToken, use the public HTTPS endpoint [https://bettertoken.ai/v1](https://bettertoken.ai/v1). If you intentionally use a local server, follow Cursor’s current local-network restrictions instead of replacing the BetterToken endpoint with a private address.
 
 ## Common mistakes
 
+- **401 Unauthorized:** Check that Cursor is using your active BetterToken API Key and that no extra spaces were copied.
+- **404 Not Found:** Use [https://bettertoken.ai/v1](https://bettertoken.ai/v1) as the Base URL, not a full request path such as `/v1/chat/completions`.
+- **Model Not Found:** Copy the exact Model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> instead of using a display name.
 - Using an API Key from one provider and Base URL from another.
 - Putting a Claude model name into OpenAI-compatible configuration.
 - Using a UI display name instead of an API model ID.
