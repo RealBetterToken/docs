@@ -1,0 +1,93 @@
+---
+title: "如何用 Pydantic 校验结构化 JSON？"
+sidebarTitle: "Pydantic 结构化 JSON"
+description: "使用 Pydantic 校验 LLM 返回的 JSON，保留原始响应，并显式处理修复与重试。"
+---
+
+## 简要说明
+
+应把模型输出视为不可信文本。要求模型返回 JSON，保留原始响应，在本地解析，再用 Pydantic 校验对象。校验失败时，返回明确错误，或只执行一次有界修复。
+
+这种方法不依赖特定提供商的结构化输出参数，也不保证模型第一次就返回有效 JSON。
+
+## Python 示例
+
+安装 OpenAI SDK 与 Pydantic，然后调用 OpenAI-compatible Chat Completions API：
+
+```python
+import json
+import os
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="{{openai-base-url}}",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+从<a href={"{{model-plaza-url}}"}>模型广场</a>复制完整 Model ID。BetterToken API Key 应放在环境变量中，不要写入源代码。
+
+## 校验流程
+
+1. 定义应用真正需要的最小 schema。
+2. 要求返回 JSON，不要加入 schema 之外的字段。
+3. 数据政策允许时，把原始响应保存在受保护位置。
+4. 使用 `json.loads` 解析。
+5. 使用 `model_validate` 校验。
+6. 返回明确失败，或只执行一次有界修复。
+
+不要静默补齐缺失值、编造默认值或无限重试。修复后的对象必须通过同一份 schema。
+
+## 校验失败时检查什么
+
+| 失败类型 | 检查内容 |
+| --- | --- |
+| JSON 语法错误 | 多余说明、Markdown fences、截断或输出不完整 |
+| 缺少字段 | Prompt 与 schema 使用相同字段名 |
+| 类型错误 | Schema 是否符合真实应用契约 |
+| 重复失败 | 停止重试并返回带类型的应用错误 |
+
+Pydantic 只校验客户端对象，不能证明对象中的事实值正确。ID、权限、合计值和其他领域规则仍需单独进行业务校验。
+
+## 能力边界
+
+BetterToken 已发布的 Chat Completions 契约描述 OpenAI-compatible 请求和文本响应。提供商专用的结构化输出字段会随模型与路由变化。除非所选模型与当前 API 文档明确支持，否则不要发送未记录字段。
+
+## 相关文档
+
+- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)
+- [如何选择合适的 AI 模型？](/zh/faq/model-calling/model-selection-guide)
+- [Pydantic 模型](https://docs.pydantic.dev/latest/concepts/models/)

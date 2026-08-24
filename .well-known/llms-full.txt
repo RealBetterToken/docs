@@ -8593,6 +8593,98 @@ BetterToken записывает usage на уровне API Key и model reques
 
 ---
 
+## Как проверять структурированный JSON через Pydantic?
+
+Source: https://docs.bettertoken.ai/faq/model-calling/structured-json-pydantic
+
+Description: Проверяйте JSON от LLM через Pydantic, сохраняйте исходный ответ и явно обрабатывайте repair и повторные попытки.
+
+## Короткий ответ
+
+Считайте ответ модели недоверенным текстом. Попросите JSON, сохраните исходный ответ, разберите его локально и проверьте объект через Pydantic. Если проверка не прошла, верните явную ошибку или выполните одну ограниченную попытку исправления.
+
+Этот подход не требует специального параметра структурированного вывода конкретного провайдера. Он также не гарантирует валидный JSON с первой попытки.
+
+## Пример на Python
+
+Установите OpenAI SDK и Pydantic, затем вызовите OpenAI-compatible Chat Completions API:
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+Возьмите полный Model ID в <a href={"https://bettertoken.ai/pricing"}>каталоге моделей</a>. Храните BetterToken API Key в переменной окружения, а не в исходном коде.
+
+## Конвейер проверки
+
+1. Опишите минимальную схему, необходимую приложению.
+2. Запросите JSON без полей, которых нет в схеме.
+3. Сохраните исходный ответ в защищённом месте, если это допускает ваша политика данных.
+4. Разберите ответ через `json.loads`.
+5. Проверьте объект через `model_validate`.
+6. Верните явную ошибку или выполните одну ограниченную попытку исправления.
+
+Не подставляйте пропущенные значения незаметно, не выдумывайте defaults и не повторяйте запрос бесконечно. Исправленный объект должен пройти ту же схему.
+
+## Что проверять при ошибке
+
+| Ошибка | Что проверить |
+| --- | --- |
+| Синтаксис JSON | Лишний текст, Markdown fences, обрыв или неполный вывод |
+| Нет поля | Prompt и схема используют одинаковые имена |
+| Неверный тип | Схема соответствует реальному контракту приложения |
+| Повторная ошибка | Остановите retry и верните типизированную ошибку приложения |
+
+Pydantic проверяет объект на стороне клиента. Он не подтверждает истинность фактических значений. Для идентификаторов, прав, сумм и других правил нужны отдельные бизнес-проверки.
+
+## Граница возможностей
+
+Опубликованный контракт BetterToken Chat Completions описывает OpenAI-compatible запрос и текстовый ответ. Специальные поля структурированного вывода зависят от модели и маршрута. Не отправляйте недокументированное поле, пока выбранная модель и текущая API-справка явно его не поддерживают.
+
+## Связанные страницы
+
+- [OpenAI Chat Completions API](/api-reference/chat-completions)
+- [Как выбрать подходящую AI-модель?](/faq/model-calling/model-selection-guide)
+- [Модели Pydantic](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## Как BetterToken защищает данные?
 
 Source: https://docs.bettertoken.ai/faq/service-assurance/data-security
@@ -17821,6 +17913,98 @@ The output limit field is still determined by the API format and model you use. 
 
 ---
 
+## How do I validate structured JSON with Pydantic?
+
+Source: https://docs.bettertoken.ai/en/faq/model-calling/structured-json-pydantic
+
+Description: Validate JSON returned by an LLM with Pydantic, preserve the raw response, and handle repair and retries explicitly.
+
+## Short answer
+
+Treat model output as untrusted text. Ask for JSON, keep the raw response, parse it locally, and validate the parsed object with Pydantic. If validation fails, return an explicit error or make one bounded repair attempt.
+
+This approach does not require a provider-specific structured-output parameter. It also does not guarantee that the first model response will be valid JSON.
+
+## Python example
+
+Install the OpenAI SDK and Pydantic, then use the OpenAI-compatible Chat Completions API:
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+Use the complete Model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Keep the BetterToken API Key in an environment variable, not in source code.
+
+## Validation workflow
+
+1. Define the smallest schema that the application needs.
+2. Ask for JSON without adding fields that are not in the schema.
+3. Preserve the raw response in a protected location if your data policy allows it.
+4. Parse with `json.loads`.
+5. Validate with `model_validate`.
+6. Return an explicit failure or make one bounded repair attempt.
+
+Do not silently replace missing values, invent defaults, or retry forever. A repaired object must pass the same schema as the first response.
+
+## What to check when validation fails
+
+| Failure | Check |
+| --- | --- |
+| JSON syntax error | Extra prose, Markdown fences, truncation, or incomplete output |
+| Missing field | Prompt and schema use the same field names |
+| Wrong type | The schema matches the real application contract |
+| Repeated failure | Stop retrying and return a typed application error |
+
+Pydantic validates the client-side object. It does not prove that factual values inside the object are correct. Add separate business checks for IDs, permissions, totals, and other domain rules.
+
+## Capability boundary
+
+The published BetterToken Chat Completions contract documents the OpenAI-compatible request and text response. Provider-specific structured-output fields can vary by model and route. Do not send an undocumented field unless the selected model and current API reference explicitly support it.
+
+## Related docs
+
+- [OpenAI Chat Completions API](/en/api-reference/chat-completions)
+- [How do I choose the right AI model?](/en/faq/model-calling/model-selection-guide)
+- [Pydantic models](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## How does BetterToken protect data security?
 
 Source: https://docs.bettertoken.ai/en/faq/service-assurance/data-security
@@ -27028,6 +27212,98 @@ BetterToken 会记录 API Key 和模型请求层面的用量。你可以通过 d
 
 ---
 
+## 如何用 Pydantic 校验结构化 JSON？
+
+Source: https://docs.bettertoken.ai/zh/faq/model-calling/structured-json-pydantic
+
+Description: 使用 Pydantic 校验 LLM 返回的 JSON，保留原始响应，并显式处理修复与重试。
+
+## 简要说明
+
+应把模型输出视为不可信文本。要求模型返回 JSON，保留原始响应，在本地解析，再用 Pydantic 校验对象。校验失败时，返回明确错误，或只执行一次有界修复。
+
+这种方法不依赖特定提供商的结构化输出参数，也不保证模型第一次就返回有效 JSON。
+
+## Python 示例
+
+安装 OpenAI SDK 与 Pydantic，然后调用 OpenAI-compatible Chat Completions API：
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制完整 Model ID。BetterToken API Key 应放在环境变量中，不要写入源代码。
+
+## 校验流程
+
+1. 定义应用真正需要的最小 schema。
+2. 要求返回 JSON，不要加入 schema 之外的字段。
+3. 数据政策允许时，把原始响应保存在受保护位置。
+4. 使用 `json.loads` 解析。
+5. 使用 `model_validate` 校验。
+6. 返回明确失败，或只执行一次有界修复。
+
+不要静默补齐缺失值、编造默认值或无限重试。修复后的对象必须通过同一份 schema。
+
+## 校验失败时检查什么
+
+| 失败类型 | 检查内容 |
+| --- | --- |
+| JSON 语法错误 | 多余说明、Markdown fences、截断或输出不完整 |
+| 缺少字段 | Prompt 与 schema 使用相同字段名 |
+| 类型错误 | Schema 是否符合真实应用契约 |
+| 重复失败 | 停止重试并返回带类型的应用错误 |
+
+Pydantic 只校验客户端对象，不能证明对象中的事实值正确。ID、权限、合计值和其他领域规则仍需单独进行业务校验。
+
+## 能力边界
+
+BetterToken 已发布的 Chat Completions 契约描述 OpenAI-compatible 请求和文本响应。提供商专用的结构化输出字段会随模型与路由变化。除非所选模型与当前 API 文档明确支持，否则不要发送未记录字段。
+
+## 相关文档
+
+- [OpenAI Chat Completions API](/zh/api-reference/chat-completions)
+- [如何选择合适的 AI 模型？](/zh/faq/model-calling/model-selection-guide)
+- [Pydantic 模型](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## BetterToken 如何保障数据安全？
 
 Source: https://docs.bettertoken.ai/zh/faq/service-assurance/data-security
@@ -36150,6 +36426,98 @@ output limit field अब भी आपके API format और model से त
 - [सही AI model कैसे चुनें?](/hi/faq/model-calling/model-selection-guide)
 - [Base URL कैसे भरें?](/hi/faq/model-calling/base-url-config)
 - [Codex CLI में review_model और reasoning_effort क्या हैं?](/hi/faq/codex/review-model-reasoning-effort)
+
+---
+
+## Pydantic से structured JSON कैसे validate करें?
+
+Source: https://docs.bettertoken.ai/hi/faq/model-calling/structured-json-pydantic
+
+Description: LLM से मिले JSON को Pydantic से validate करें, raw response सुरक्षित रखें और repair तथा retry को स्पष्ट रूप से संभालें।
+
+## संक्षिप्त उत्तर
+
+Model output को अविश्वसनीय text मानें। JSON माँगें, raw response सुरक्षित रखें, उसे local रूप से parse करें और Pydantic से object validate करें। Validation विफल होने पर स्पष्ट error लौटाएँ या केवल एक सीमित repair प्रयास करें।
+
+इस तरीके को किसी provider-specific structured-output parameter की आवश्यकता नहीं है। यह पहली model response के valid JSON होने की गारंटी भी नहीं देता।
+
+## Python उदाहरण
+
+OpenAI SDK और Pydantic install करें, फिर OpenAI-compatible Chat Completions API उपयोग करें:
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+<a href={"https://bettertoken.ai/pricing"}>मॉडल प्लाज़ा</a> से पूरा Model ID लें। BetterToken API Key को environment variable में रखें, source code में नहीं।
+
+## Validation workflow
+
+1. Application के लिए आवश्यक सबसे छोटा schema बनाएँ।
+2. JSON माँगें और schema से बाहर के fields न जोड़ें।
+3. Data policy अनुमति दे तो raw response को सुरक्षित स्थान पर रखें।
+4. `json.loads` से parse करें।
+5. `model_validate` से validate करें।
+6. स्पष्ट failure लौटाएँ या एक सीमित repair प्रयास करें।
+
+Missing values को चुपचाप न भरें, defaults न गढ़ें और अनंत retry न करें। Repaired object को उसी schema से पास होना चाहिए।
+
+## Validation विफल होने पर क्या जाँचें
+
+| Failure | जाँच |
+| --- | --- |
+| JSON syntax error | अतिरिक्त prose, Markdown fences, truncation या अधूरा output |
+| Missing field | Prompt और schema में समान field names |
+| Wrong type | Schema वास्तविक application contract से मेल खाता है |
+| Repeated failure | Retry रोकें और typed application error लौटाएँ |
+
+Pydantic client-side object validate करता है। यह object के factual values सही होने का प्रमाण नहीं देता। IDs, permissions, totals और domain rules के लिए अलग business checks जोड़ें।
+
+## Capability boundary
+
+Published BetterToken Chat Completions contract OpenAI-compatible request और text response बताता है। Provider-specific structured-output fields model और route के अनुसार बदल सकते हैं। Current API reference में स्पष्ट support के बिना undocumented field न भेजें।
+
+## संबंधित दस्तावेज़
+
+- [OpenAI Chat Completions API](/hi/api-reference/chat-completions)
+- [सही AI model कैसे चुनें?](/hi/faq/model-calling/model-selection-guide)
+- [Pydantic models](https://docs.pydantic.dev/latest/concepts/models/)
 
 ---
 
@@ -45280,6 +45648,98 @@ El campo de límite de salida sigue dependiendo del formato de API y del modelo 
 
 ---
 
+## ¿Cómo valido JSON estructurado con Pydantic?
+
+Source: https://docs.bettertoken.ai/es/faq/model-calling/structured-json-pydantic
+
+Description: Valida con Pydantic el JSON devuelto por un LLM, conserva la respuesta original y gestiona reparación y reintentos de forma explícita.
+
+## Respuesta breve
+
+Trata la salida del modelo como texto no confiable. Pide JSON, conserva la respuesta original, analízala localmente y valida el objeto con Pydantic. Si falla, devuelve un error explícito o realiza un único intento de reparación limitado.
+
+Este enfoque no requiere un parámetro de salida estructurada específico del proveedor. Tampoco garantiza JSON válido en la primera respuesta.
+
+## Ejemplo en Python
+
+Instala OpenAI SDK y Pydantic, y usa la API OpenAI-compatible Chat Completions:
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+Copia el Model ID completo desde la <a href={"https://bettertoken.ai/pricing"}>plaza de modelos</a>. Guarda la BetterToken API Key en una variable de entorno, no en el código fuente.
+
+## Flujo de validación
+
+1. Define el esquema mínimo que necesita la aplicación.
+2. Pide JSON sin añadir campos ajenos al esquema.
+3. Conserva la respuesta original en un lugar protegido si tu política de datos lo permite.
+4. Analiza con `json.loads`.
+5. Valida con `model_validate`.
+6. Devuelve un fallo explícito o realiza un intento de reparación limitado.
+
+No rellenes valores ausentes en silencio, no inventes valores predeterminados ni reintentes sin límite. El objeto reparado debe pasar el mismo esquema.
+
+## Qué revisar si falla
+
+| Fallo | Revisión |
+| --- | --- |
+| Error de sintaxis JSON | Texto adicional, Markdown fences, truncamiento o salida incompleta |
+| Campo ausente | Prompt y esquema usan los mismos nombres |
+| Tipo incorrecto | El esquema coincide con el contrato real de la aplicación |
+| Fallo repetido | Detén los reintentos y devuelve un error tipado |
+
+Pydantic valida el objeto del cliente. No demuestra que los valores factuales sean correctos. Añade comprobaciones de negocio para IDs, permisos, totales y otras reglas del dominio.
+
+## Límite de capacidad
+
+El contrato publicado de BetterToken Chat Completions documenta la solicitud OpenAI-compatible y la respuesta de texto. Los campos específicos de salida estructurada cambian según modelo y ruta. No envíes campos no documentados sin soporte explícito en la referencia actual.
+
+## Documentos relacionados
+
+- [OpenAI Chat Completions API](/es/api-reference/chat-completions)
+- [¿Cómo elijo el modelo de IA adecuado?](/es/faq/model-calling/model-selection-guide)
+- [Modelos de Pydantic](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## ¿Cómo protege BetterToken la seguridad de los datos?
 
 Source: https://docs.bettertoken.ai/es/faq/service-assurance/data-security
@@ -54394,6 +54854,98 @@ O campo de limite ainda é determinado pelo formato da API e pelo modelo. Ao con
 
 ---
 
+## Como validar JSON estruturado com Pydantic?
+
+Source: https://docs.bettertoken.ai/pt-br/faq/model-calling/structured-json-pydantic
+
+Description: Valide com Pydantic o JSON retornado por um LLM, preserve a resposta original e trate reparo e novas tentativas explicitamente.
+
+## Resposta curta
+
+Trate a saída do modelo como texto não confiável. Peça JSON, preserve a resposta original, faça o parse local e valide o objeto com Pydantic. Se falhar, retorne um erro explícito ou faça uma única tentativa limitada de reparo.
+
+Essa abordagem não exige um parâmetro de saída estruturada específico do provedor. Ela também não garante JSON válido na primeira resposta.
+
+## Exemplo em Python
+
+Instale OpenAI SDK e Pydantic e use a API OpenAI-compatible Chat Completions:
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+Copie o Model ID completo na <a href={"https://bettertoken.ai/pricing"}>praça de modelos</a>. Guarde a BetterToken API Key em uma variável de ambiente, não no código-fonte.
+
+## Fluxo de validação
+
+1. Defina o menor schema necessário para a aplicação.
+2. Peça JSON sem adicionar campos fora do schema.
+3. Preserve a resposta original em local protegido se a política de dados permitir.
+4. Faça o parse com `json.loads`.
+5. Valide com `model_validate`.
+6. Retorne falha explícita ou faça uma tentativa limitada de reparo.
+
+Não preencha valores ausentes silenciosamente, não invente defaults nem tente indefinidamente. O objeto reparado deve passar pelo mesmo schema.
+
+## O que verificar quando falhar
+
+| Falha | Verificação |
+| --- | --- |
+| Erro de sintaxe JSON | Texto extra, Markdown fences, truncamento ou saída incompleta |
+| Campo ausente | Prompt e schema usam os mesmos nomes |
+| Tipo incorreto | O schema corresponde ao contrato real da aplicação |
+| Falha repetida | Pare as tentativas e retorne um erro tipado |
+
+Pydantic valida o objeto no cliente. Ele não prova que valores factuais estão corretos. Adicione verificações de negócio para IDs, permissões, totais e regras do domínio.
+
+## Limite de capacidade
+
+O contrato publicado de BetterToken Chat Completions documenta a solicitação OpenAI-compatible e a resposta em texto. Campos específicos de saída estruturada variam por modelo e rota. Não envie campo não documentado sem suporte explícito na referência atual.
+
+## Documentos relacionados
+
+- [OpenAI Chat Completions API](/pt-br/api-reference/chat-completions)
+- [Como escolher o modelo de IA certo?](/pt-br/faq/model-calling/model-selection-guide)
+- [Modelos Pydantic](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## Como a BetterToken protege a segurança dos dados?
 
 Source: https://docs.bettertoken.ai/pt-br/faq/service-assurance/data-security
@@ -63500,6 +64052,98 @@ BetterToken は API Key とモデルリクエストのレベルで使用量を�
 - [適切な AI モデルを選ぶ方法](/ja/faq/model-calling/model-selection-guide)
 - [Base URL の入力方法](/ja/faq/model-calling/base-url-config)
 - [Codex CLI の review_model と reasoning_effort とは？](/ja/faq/codex/review-model-reasoning-effort)
+
+---
+
+## Pydantic で構造化 JSON を検証するには？
+
+Source: https://docs.bettertoken.ai/ja/faq/model-calling/structured-json-pydantic
+
+Description: LLM が返す JSON を Pydantic で検証し、元の応答を保持して修復と再試行を明示的に扱います。
+
+## 要点
+
+モデル出力は信頼できないテキストとして扱います。JSON を要求し、元の応答を保持し、ローカルで解析して Pydantic でオブジェクトを検証します。失敗した場合は明示的なエラーを返すか、制限した修復を一度だけ実行します。
+
+この方法はプロバイダー固有の構造化出力パラメータを必要としません。最初の応答が有効な JSON になることも保証しません。
+
+## Python の例
+
+OpenAI SDK と Pydantic をインストールし、OpenAI-compatible Chat Completions API を使用します。
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+<a href={"https://bettertoken.ai/pricing"}>モデルプラザ</a>から完全な Model ID を取得します。BetterToken API Key はソースコードではなく環境変数に保存します。
+
+## 検証フロー
+
+1. アプリケーションに必要な最小の schema を定義します。
+2. Schema にないフィールドを追加せず JSON を要求します。
+3. データポリシーで許可される場合だけ元の応答を保護された場所に保存します。
+4. `json.loads` で解析します。
+5. `model_validate` で検証します。
+6. 明示的な失敗を返すか、制限した修復を一度だけ実行します。
+
+不足値を暗黙に補完せず、default を捏造せず、無制限に再試行しないでください。修復したオブジェクトも同じ schema に合格する必要があります。
+
+## 検証失敗時の確認
+
+| 失敗 | 確認事項 |
+| --- | --- |
+| JSON 構文エラー | 余分な説明、Markdown fences、切り詰め、不完全な出力 |
+| フィールド不足 | Prompt と schema のフィールド名が一致しているか |
+| 型の誤り | Schema が実際のアプリケーション契約と一致するか |
+| 失敗の反復 | 再試行を停止し型付きエラーを返す |
+
+Pydantic はクライアント側オブジェクトを検証します。値の事実性は証明しません。ID、権限、合計値などには別の業務チェックを追加します。
+
+## 機能の境界
+
+公開済みの BetterToken Chat Completions 契約は OpenAI-compatible リクエストとテキスト応答を記載しています。固有の構造化出力フィールドはモデルとルートで異なります。現在の API リファレンスに明示的な対応がないフィールドは送信しないでください。
+
+## 関連ドキュメント
+
+- [OpenAI Chat Completions API](/ja/api-reference/chat-completions)
+- [適切な AI モデルの選び方](/ja/faq/model-calling/model-selection-guide)
+- [Pydantic モデル](https://docs.pydantic.dev/latest/concepts/models/)
 
 ---
 
@@ -72619,6 +73263,98 @@ Le champ de limite de sortie est toujours déterminé par le format API et le mo
 
 ---
 
+## Comment valider du JSON structuré avec Pydantic ?
+
+Source: https://docs.bettertoken.ai/fr/faq/model-calling/structured-json-pydantic
+
+Description: Validez avec Pydantic le JSON renvoyé par un LLM, conservez la réponse brute et gérez explicitement réparation et nouvelles tentatives.
+
+## Réponse courte
+
+Traitez la sortie du modèle comme un texte non fiable. Demandez du JSON, conservez la réponse brute, analysez-la localement et validez l'objet avec Pydantic. En cas d'échec, renvoyez une erreur explicite ou effectuez une seule tentative de réparation limitée.
+
+Cette méthode ne nécessite pas de paramètre de sortie structurée propre à un fournisseur. Elle ne garantit pas non plus un JSON valide dès la première réponse.
+
+## Exemple Python
+
+Installez OpenAI SDK et Pydantic, puis utilisez l'API OpenAI-compatible Chat Completions :
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+Copiez le Model ID complet depuis la <a href={"https://bettertoken.ai/pricing"}>place des modèles</a>. Conservez la BetterToken API Key dans une variable d'environnement, pas dans le code source.
+
+## Flux de validation
+
+1. Définissez le plus petit schema nécessaire à l'application.
+2. Demandez du JSON sans ajouter de champs absents du schema.
+3. Conservez la réponse brute dans un emplacement protégé si votre politique de données l'autorise.
+4. Analysez avec `json.loads`.
+5. Validez avec `model_validate`.
+6. Renvoyez un échec explicite ou effectuez une tentative de réparation limitée.
+
+Ne complétez pas silencieusement les valeurs absentes, n'inventez pas de defaults et ne réessayez pas indéfiniment. L'objet réparé doit passer le même schema.
+
+## Vérifications en cas d'échec
+
+| Échec | Vérification |
+| --- | --- |
+| Erreur de syntaxe JSON | Texte supplémentaire, Markdown fences, troncature ou sortie incomplète |
+| Champ absent | Prompt et schema utilisent les mêmes noms |
+| Type incorrect | Le schema correspond au contrat réel de l'application |
+| Échec répété | Arrêtez les tentatives et renvoyez une erreur typée |
+
+Pydantic valide l'objet côté client. Il ne prouve pas que les valeurs factuelles sont correctes. Ajoutez des contrôles métier pour les ID, autorisations, totaux et autres règles du domaine.
+
+## Limite de capacité
+
+Le contrat publié de BetterToken Chat Completions documente la requête OpenAI-compatible et la réponse texte. Les champs de sortie structurée spécifiques varient selon le modèle et la route. N'envoyez aucun champ non documenté sans prise en charge explicite dans la référence actuelle.
+
+## Documents associés
+
+- [OpenAI Chat Completions API](/fr/api-reference/chat-completions)
+- [Comment choisir le bon modèle d'IA ?](/fr/faq/model-calling/model-selection-guide)
+- [Modèles Pydantic](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## Comment BetterToken protège-t-il la sécurité des données ?
 
 Source: https://docs.bettertoken.ai/fr/faq/service-assurance/data-security
@@ -81728,6 +82464,98 @@ Das Ausgabe-Limit-Feld wird weiterhin durch verwendetes API-Format und Modell be
 
 ---
 
+## Wie validiere ich strukturiertes JSON mit Pydantic?
+
+Source: https://docs.bettertoken.ai/de/faq/model-calling/structured-json-pydantic
+
+Description: Validieren Sie JSON eines LLM mit Pydantic, bewahren Sie die Rohantwort auf und behandeln Sie Reparatur und Wiederholung ausdrücklich.
+
+## Kurzantwort
+
+Behandeln Sie die Modellausgabe als nicht vertrauenswürdigen Text. Fordern Sie JSON an, bewahren Sie die Rohantwort auf, parsen Sie lokal und validieren Sie das Objekt mit Pydantic. Bei einem Fehler geben Sie einen eindeutigen Fehler zurück oder führen genau einen begrenzten Reparaturversuch aus.
+
+Dieser Ansatz benötigt keinen anbieterspezifischen Parameter für strukturierte Ausgaben. Er garantiert auch kein gültiges JSON in der ersten Antwort.
+
+## Python-Beispiel
+
+Installieren Sie OpenAI SDK und Pydantic und verwenden Sie die OpenAI-compatible Chat Completions API:
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+Kopieren Sie die vollständige Model ID aus dem <a href={"https://bettertoken.ai/pricing"}>Modellplatz</a>. Speichern Sie die BetterToken API Key in einer Umgebungsvariable, nicht im Quellcode.
+
+## Validierungsablauf
+
+1. Definieren Sie das kleinste für die Anwendung erforderliche schema.
+2. Fordern Sie JSON ohne zusätzliche Felder außerhalb des schema an.
+3. Bewahren Sie die Rohantwort geschützt auf, wenn Ihre Datenrichtlinie dies erlaubt.
+4. Parsen Sie mit `json.loads`.
+5. Validieren Sie mit `model_validate`.
+6. Geben Sie einen eindeutigen Fehler zurück oder führen Sie einen begrenzten Reparaturversuch aus.
+
+Ergänzen Sie fehlende Werte nicht stillschweigend, erfinden Sie keine defaults und wiederholen Sie nicht unbegrenzt. Das reparierte Objekt muss dasselbe schema erfüllen.
+
+## Prüfung bei Fehlern
+
+| Fehler | Prüfung |
+| --- | --- |
+| JSON-Syntaxfehler | Zusätzlicher Text, Markdown fences, Kürzung oder unvollständige Ausgabe |
+| Fehlendes Feld | Prompt und schema verwenden dieselben Feldnamen |
+| Falscher Typ | Das schema entspricht dem tatsächlichen Anwendungsvertrag |
+| Wiederholter Fehler | Wiederholung stoppen und typisierten Anwendungsfehler zurückgeben |
+
+Pydantic validiert das clientseitige Objekt. Es beweist nicht, dass sachliche Werte korrekt sind. Ergänzen Sie Geschäftsprüfungen für IDs, Berechtigungen, Summen und weitere Domänenregeln.
+
+## Funktionsgrenze
+
+Der veröffentlichte BetterToken Chat Completions Vertrag dokumentiert die OpenAI-compatible Anfrage und Textantwort. Spezifische Felder für strukturierte Ausgaben unterscheiden sich je nach Modell und Route. Senden Sie keine undokumentierten Felder ohne ausdrückliche Unterstützung in der aktuellen API-Referenz.
+
+## Verwandte Dokumente
+
+- [OpenAI Chat Completions API](/de/api-reference/chat-completions)
+- [Wie wähle ich das richtige KI-Modell?](/de/faq/model-calling/model-selection-guide)
+- [Pydantic-Modelle](https://docs.pydantic.dev/latest/concepts/models/)
+
+---
+
 ## Wie schützt BetterToken die Datensicherheit?
 
 Source: https://docs.bettertoken.ai/de/faq/service-assurance/data-security
@@ -90833,6 +91661,98 @@ output limit field는 여전히 사용하는 API format과 model에 따라 결�
 - [올바른 AI model을 선택하는 방법](/ko/faq/model-calling/model-selection-guide)
 - [Base URL은 어떻게 입력하나요?](/ko/faq/model-calling/base-url-config)
 - [Codex CLI의 review_model과 reasoning_effort란 무엇인가요?](/ko/faq/codex/review-model-reasoning-effort)
+
+---
+
+## Pydantic로 구조화된 JSON을 검증하려면?
+
+Source: https://docs.bettertoken.ai/ko/faq/model-calling/structured-json-pydantic
+
+Description: LLM이 반환한 JSON을 Pydantic로 검증하고 원본 응답을 보존하며 복구와 재시도를 명시적으로 처리합니다.
+
+## 짧은 답변
+
+모델 출력을 신뢰할 수 없는 텍스트로 취급하세요. JSON을 요청하고 원본 응답을 보존한 뒤 로컬에서 파싱하고 Pydantic로 객체를 검증합니다. 실패하면 명시적인 오류를 반환하거나 제한된 복구를 한 번만 수행합니다.
+
+이 방법은 제공자 전용 구조화 출력 매개변수가 필요하지 않습니다. 첫 모델 응답이 유효한 JSON일 것이라고 보장하지도 않습니다.
+
+## Python 예제
+
+OpenAI SDK와 Pydantic를 설치하고 OpenAI-compatible Chat Completions API를 사용하세요.
+
+```python
+
+from openai import OpenAI
+from pydantic import BaseModel, ValidationError
+
+class Ticket(BaseModel):
+    category: str
+    summary: str
+
+client = OpenAI(
+    api_key=os.environ["BETTERTOKEN_API_KEY"],
+    base_url="https://bettertoken.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="YOUR_MODEL_ID",
+    messages=[
+        {
+            "role": "user",
+            "content": (
+                "Return only a JSON object with string fields "
+                "category and summary for this support request: "
+                "The API request timed out."
+            ),
+        }
+    ],
+)
+
+raw = response.choices[0].message.content or ""
+
+try:
+    payload = json.loads(raw)
+    ticket = Ticket.model_validate(payload)
+except (json.JSONDecodeError, ValidationError) as error:
+    # Store raw only in a protected debug record allowed by your data policy.
+    raise RuntimeError("Model output failed validation") from error
+
+print(ticket.model_dump())
+```
+
+<a href={"https://bettertoken.ai/pricing"}>모델 플라자</a>에서 전체 Model ID를 복사하세요. BetterToken API Key는 소스 코드가 아니라 환경 변수에 저장하세요.
+
+## 검증 흐름
+
+1. 애플리케이션에 필요한 가장 작은 schema를 정의합니다.
+2. Schema에 없는 필드를 추가하지 않고 JSON을 요청합니다.
+3. 데이터 정책이 허용하는 경우 원본 응답을 보호된 위치에 보관합니다.
+4. `json.loads`로 파싱합니다.
+5. `model_validate`로 검증합니다.
+6. 명시적인 실패를 반환하거나 제한된 복구를 한 번 수행합니다.
+
+누락된 값을 조용히 채우거나 defaults를 만들거나 무한히 재시도하지 마세요. 복구된 객체도 같은 schema를 통과해야 합니다.
+
+## 검증 실패 시 확인 사항
+
+| 실패 | 확인 |
+| --- | --- |
+| JSON 구문 오류 | 추가 설명, Markdown fences, 잘림 또는 불완전한 출력 |
+| 필드 누락 | Prompt와 schema가 같은 필드 이름을 사용하는지 |
+| 잘못된 타입 | Schema가 실제 애플리케이션 계약과 일치하는지 |
+| 반복 실패 | 재시도를 중지하고 타입이 있는 애플리케이션 오류 반환 |
+
+Pydantic는 클라이언트 객체를 검증합니다. 객체의 사실 값이 맞다는 것을 증명하지 않습니다. ID, 권한, 합계 및 기타 도메인 규칙에는 별도 비즈니스 검사를 추가하세요.
+
+## 기능 경계
+
+게시된 BetterToken Chat Completions 계약은 OpenAI-compatible 요청과 텍스트 응답을 설명합니다. 전용 구조화 출력 필드는 모델과 경로에 따라 달라집니다. 현재 API 참조에서 명시적으로 지원하지 않는 필드는 보내지 마세요.
+
+## 관련 문서
+
+- [OpenAI Chat Completions API](/ko/api-reference/chat-completions)
+- [적절한 AI 모델을 선택하는 방법](/ko/faq/model-calling/model-selection-guide)
+- [Pydantic 모델](https://docs.pydantic.dev/latest/concepts/models/)
 
 ---
 
