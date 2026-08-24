@@ -16948,13 +16948,91 @@ In Cursor, open **Settings → Models**, enter your OpenAI-compatible API key, e
 | Model ID | Model identifier recognized by the provider |
 | Custom model | Manually added or selected model inside Cursor |
 
-## Recommended steps
+## Manual setup
 
-1. Create a BetterToken API Key.
-2. Open **Settings → Models** in Cursor and add the API Key.
-3. Enable **Override OpenAI Base URL** and enter [https://bettertoken.ai/v1](https://bettertoken.ai/v1).
-4. Add the exact Model ID shown in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
-5. Save and verify with a simple request.
+Complete this setup in the Cursor settings UI. You do not need to edit a configuration file.
+
+| Cursor field | Value |
+| --- | --- |
+| **Override OpenAI Base URL** | Turn on |
+| **Base URL** | `https://bettertoken.ai/v1` |
+| **OpenAI API Key** | BetterToken API Key |
+| Custom model | A complete Model ID from a supported provider |
+
+<Steps>
+  <Step title="Open the model settings page">
+    In Cursor, click **Settings** in the lower-left corner, then go to **Models**. Scroll down to **API Keys**.
+
+    <Frame>
+      <img
+        src="/images/cursor/settings-api-key.png"
+        alt="Cursor settings page showing Settings, Models, API Keys, OpenAI API Key, and Override OpenAI Base URL fields."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Enter the Base URL and API Key">
+    In **API Keys**, configure the fields in this order:
+
+    1. Enable **Override OpenAI Base URL**
+    2. Enter `https://bettertoken.ai/v1` in the Base URL field
+    3. Paste your BetterToken API Key into **OpenAI API Key**
+    4. After the URL and key are filled in, enable the **OpenAI API Key** toggle
+
+    Enter the key before turning on the toggle. This makes Cursor show the authentication confirmation dialog.
+  </Step>
+
+  <Step title="Enable the OpenAI API Key">
+    In the confirmation dialog, click **Enable OpenAI API Key**.
+
+    <Frame>
+      <img
+        src="/images/cursor/enable-openai-api-key.png"
+        alt="Cursor confirmation dialog asking you to enable your own OpenAI API key."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Refresh the model list and enable models">
+    Back in **Models**, click the refresh button on the right before selecting a model. Wait until the model list finishes refreshing.
+
+    Only select models that belong to the provider supported by the configured endpoint. When using a BetterToken API key, choose a model ID from the **supported provider** in the model plaza, then turn on the toggle for that model.
+
+    <Frame>
+      <img
+        src="/images/cursor/models-refresh-select.png"
+        alt="Cursor Models section showing the refresh button and model toggles."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Return to chat and turn off Auto">
+    After setup, return to the Cursor chat screen and open the model picker below the input box. If **Auto** is enabled, turn **Auto** off first.
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-disable-auto.png"
+        alt="Cursor chat model picker showing the Auto toggle that should be turned off."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+
+  <Step title="Select the model and start chatting">
+    Choose the model from a supported provider you enabled, then start chatting.
+
+    <Frame>
+      <img
+        src="/images/cursor/chat-select-model.png"
+        alt="Cursor chat input with an enabled model selected from the model picker."
+        style={{ borderRadius: '0.5rem' }}
+      />
+    </Frame>
+  </Step>
+</Steps>
 
 ## Fix “Access to private networks is forbidden”
 
@@ -16979,6 +17057,7 @@ Do not put the Claude Code `https://bettertoken.ai` into Cursor OpenAI-compatibl
 
 ## Related docs
 
+- [Complete Cursor setup guide](/en/ai-tools/cursor)
 - [Cursor Rules, AGENTS.md, and .cursorignore](/en/faq/cursor/rules-agents-cursorignore)
 - [How to configure MCP in Cursor](/en/faq/cursor/mcp)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
