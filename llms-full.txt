@@ -17126,9 +17126,19 @@ Complete this setup in the Cursor settings UI. You do not need to edit a configu
   </Step>
 </Steps>
 
-## Fix “Access to private networks is forbidden”
+## Troubleshooting
 
-When the overridden Base URL points to `localhost`, `127.0.0.1`, a private LAN address, or another non-public endpoint, Cursor may reject the request. For BetterToken, use the public HTTPS endpoint [https://bettertoken.ai/v1](https://bettertoken.ai/v1). If you intentionally use a local server, follow Cursor’s current local-network restrictions instead of replacing the BetterToken endpoint with a private address.
+### 401 Unauthorized
+
+Confirm that the API key was copied from BetterToken without extra spaces and that Cursor is using `https://bettertoken.ai/v1`. Do not mix an API key from one provider with another provider’s Base URL. If the key was regenerated or revoked, replace it in Cursor and test again.
+
+### Model Not Found or 404
+
+Use the exact API model ID shown in the BetterToken Model Plaza, not the display name shown in the interface. Confirm that the model is available through the OpenAI-compatible endpoint and that the Base URL ends with `/v1`.
+
+### Access to private networks is forbidden
+
+Cursor may reject `localhost`, `127.0.0.1`, private LAN addresses, or other non-public endpoints. When using BetterToken, keep the public HTTPS Base URL `https://bettertoken.ai/v1`. If you intentionally use a local proxy, configure it according to Cursor’s current local-network restrictions.
 
 ## Common mistakes
 
@@ -17154,6 +17164,8 @@ Do not put the Claude Code `https://bettertoken.ai` into Cursor OpenAI-compatibl
 - [How to configure MCP in Cursor](/en/faq/cursor/mcp)
 - [OpenAI-compatible API vs Anthropic-compatible API](/en/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
+
+This is an independent BetterToken setup guide, not Cursor’s official documentation.
 
 ## References
 
