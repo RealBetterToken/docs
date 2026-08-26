@@ -47,12 +47,20 @@ function expectedConfig(config) {
   assert(english, 'docs.json is missing English navigation');
 
   const addedLanguages = new Set(newBetterTokenLocales.map(({ language }) => language));
+  const currentLanguages = new Map(
+    config.navigation.languages.map((entry) => [entry.language, entry]),
+  );
   const existingLanguages = config.navigation.languages.filter(
     ({ language }) => !addedLanguages.has(language),
   );
   config.navigation.languages = [
     ...existingLanguages,
-    ...newBetterTokenLocales.map((locale) => localizeNavigation(english, locale)),
+    ...newBetterTokenLocales.map((locale) => {
+      const localized = localizeNavigation(english, locale);
+      const current = currentLanguages.get(locale.language);
+      if (current?.banner) localized.banner = current.banner;
+      return localized;
+    }),
   ];
 
   const redirects = new Map(config.redirects.map((redirect) => [redirect.source, redirect]));

@@ -29,7 +29,7 @@ export const betterTokenLocales = [
     directory: 'hi',
     routePrefix: 'hi/',
     hreflang: 'hi-IN',
-    navbarLabel: 'मुफ़्त साइन अप करें और $1 ट्रायल क्रेडिट पाएं',
+    navbarLabel: 'मुफ़्त साइन अप करें',
     labels: {
       'Agent setup': 'Agent सेटअप',
       'Getting started': 'शुरू करें',
@@ -59,7 +59,7 @@ export const betterTokenLocales = [
     directory: 'es',
     routePrefix: 'es/',
     hreflang: 'es',
-    navbarLabel: 'Regístrate gratis y obtén $1 de crédito de prueba',
+    navbarLabel: 'Regístrate gratis',
     labels: {
       'Agent setup': 'Configuración de agentes',
       'Getting started': 'Primeros pasos',
@@ -89,7 +89,7 @@ export const betterTokenLocales = [
     directory: 'pt-br',
     routePrefix: 'pt-br/',
     hreflang: 'pt-BR',
-    navbarLabel: 'Cadastre-se grátis e ganhe US$ 1 em créditos de teste',
+    navbarLabel: 'Cadastre-se grátis',
     labels: {
       'Agent setup': 'Configuração de agentes',
       'Getting started': 'Primeiros passos',
@@ -119,7 +119,7 @@ export const betterTokenLocales = [
     directory: 'ja',
     routePrefix: 'ja/',
     hreflang: 'ja',
-    navbarLabel: '無料登録して $1 のトライアルクレジットを獲得',
+    navbarLabel: '無料で登録',
     labels: {
       'Agent setup': 'エージェントのセットアップ',
       'Getting started': 'はじめに',
@@ -149,7 +149,7 @@ export const betterTokenLocales = [
     directory: 'fr',
     routePrefix: 'fr/',
     hreflang: 'fr',
-    navbarLabel: "Inscrivez-vous gratuitement et obtenez 1 $ de crédit d'essai",
+    navbarLabel: 'Inscrivez-vous gratuitement',
     labels: {
       'Agent setup': 'Configuration des agents',
       'Getting started': 'Bien démarrer',
@@ -179,7 +179,7 @@ export const betterTokenLocales = [
     directory: 'de',
     routePrefix: 'de/',
     hreflang: 'de',
-    navbarLabel: 'Kostenlos registrieren und 1 $ Testguthaben erhalten',
+    navbarLabel: 'Kostenlos registrieren',
     labels: {
       'Agent setup': 'Agenten einrichten',
       'Getting started': 'Erste Schritte',
@@ -209,7 +209,7 @@ export const betterTokenLocales = [
     directory: 'ko',
     routePrefix: 'ko/',
     hreflang: 'ko',
-    navbarLabel: '무료 가입하고 $1 체험 크레딧 받기',
+    navbarLabel: '무료 가입',
     labels: {
       'Agent setup': '에이전트 설정',
       'Getting started': '시작하기',

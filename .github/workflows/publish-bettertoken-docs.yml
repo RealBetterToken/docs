@@ -15,13 +15,18 @@ on:
       - "logo/**"
       - "scripts/check-bettertoken-*.mjs"
       - "scripts/check-docs-seo.mjs"
+      - "scripts/check-docs-market-policy.mjs"
       - "scripts/check-tool-doc-structure.mjs"
       - "scripts/generate-bettertoken-sitemap.mjs"
       - "scripts/indexnow-config.mjs"
+      - "scripts/i18n-locales.mjs"
       - "scripts/llmeasy-metrica-spa.js.template"
       - "scripts/prepare-bettertoken-artifacts.mjs"
       - "scripts/sync-tool-provider-support.mjs"
+      - "scripts/sync-i18n-navigation.mjs"
       - "data/tool-provider-support.json"
+      - "data/docs-locale-policy.json"
+      - "ops/docs-market-language-matrix.md"
       - ".github/workflows/publish-bettertoken-docs.yml"
       - ".github/workflows/submit-bettertoken-sitemap.yml"
 
@@ -54,7 +59,9 @@ jobs:
       - name: Check localized SEO and analytics
         run: |
           node scripts/check-tool-doc-structure.mjs
+          node scripts/sync-i18n-navigation.mjs --check
           node scripts/check-docs-seo.mjs
+          node scripts/check-docs-market-policy.mjs
           node scripts/check-bettertoken-sitemap.mjs
           node scripts/check-bettertoken-metrica-spa.mjs
 
