@@ -178,10 +178,13 @@
     flushTrackerQueues();
   }
 
+  const GA4_MEASUREMENT_ID = 'G-SRZJ57KDMT';
+
   function reportConversion(eventName) {
     window.gtag('event', eventName, {
       event_category: 'docs',
       site_surface: 'docs',
+      send_to: GA4_MEASUREMENT_ID,
     });
 
     pendingClarityEvents.push(eventName);

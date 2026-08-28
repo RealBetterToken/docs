@@ -215,8 +215,8 @@ assert.deepEqual(production.metricaCalls.slice(1), [
 assert.equal(
   JSON.stringify(ga4Events(production.window.dataLayer)),
   JSON.stringify([
-    ['event', 'docs_to_register', { event_category: 'docs', site_surface: 'docs' }],
-    ['event', 'docs_code_copied', { event_category: 'docs', site_surface: 'docs' }],
+    ['event', 'docs_to_register', { event_category: 'docs', site_surface: 'docs', send_to: 'G-SRZJ57KDMT' }],
+    ['event', 'docs_code_copied', { event_category: 'docs', site_surface: 'docs', send_to: 'G-SRZJ57KDMT' }],
   ])
 );
 
