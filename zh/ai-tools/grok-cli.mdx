@@ -1,167 +1,187 @@
 ---
-title: "Grok CLI 安装、API Key、Base URL 与首次运行"
-sidebarTitle: "Grok CLI"
-description: "安装第三方 Grok CLI 包，配置 BetterToken API Key 与 Base URL，选择 Model ID，并完成首次运行。"
+title: "Grok CLI 与 Grok Build：区别、安装、API Key 和 Base URL"
+sidebarTitle: "Grok CLI 与 Build"
+description: "区分 xAI 官方 Grok Build 与社区 Grok CLI，查看安装步骤，并使用 BetterToken API Key、Base URL 和 Model ID 配置社区版。"
+keywords:
+  - "grok cli"
+  - "grok api key"
+  - "grok cli api"
+  - "grok build"
 icon: "g"
 ---
 
-本文中的 Grok CLI 指第三方终端 npm 包 `@vibe-kit/grok-cli`，不是 xAI 官方 CLI。它通过 `GROK_API_KEY` 和 `GROK_BASE_URL` 发送请求。安装完成后，你可以选择当前可用的 Model ID，在项目目录运行 `grok`，并直接从终端发起请求。本文的字段名称和行为只适用于这个 npm 包，不应套用到 xAI 官方客户端。
+“Grok CLI”现在可能指两个不同的工具：
 
-<Note>
-  `@vibe-kit/grok-cli` 是第三方开源包，本文只说明该包的配置方式。
-</Note>
+- **Grok Build**：xAI 官方推出的 coding agent；
+- **社区 Grok CLI**：由社区维护、与 xAI 没有隶属关系的开源工具。
 
-## 重点信息
+官方 Grok Build 和社区 Grok CLI 都已验证可以通过 BetterToken 调用模型。使用 BetterToken API Key、Base URL 和 Model ID，两种客户端均能正常返回模型回复。本文优先介绍配置更直接的**社区 Grok CLI**。
 
-| 字段 | 填写内容 |
-| --- | --- |
-| API Key | BetterToken API Key |
-| Base URL | `{{openai-base-url}}` |
-| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+<Warning>
+  两个工具都使用 `grok` 命令。若同时安装，终端只会运行 `PATH` 中排在前面的版本，可能导致配置不生效。建议只保留一个版本，或在独立环境中分别安装。
+</Warning>
 
-## 准备工作
+## Grok CLI 与 Grok Build 有什么区别？
 
-- 已安装该工具的当前版本
-- BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>
-- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 Model ID
+| 对比项 | 官方 Grok Build | 社区 Grok CLI |
+| --- | --- | --- |
+| 维护方 | xAI | `superagent-ai/grok-cli`，与 xAI 无隶属关系 |
+| 适合谁 | 希望使用 xAI 官方 coding agent 的用户 | 希望通过自定义 Base URL 调用模型的用户 |
+| 默认认证方式 | 浏览器登录或 `XAI_API_KEY` | `GROK_API_KEY` |
+| 自定义 Base URL | 在 `~/.grok/config.toml` 中配置 | 使用 `GROK_BASE_URL` |
+| 模型设置 | 在配置文件中定义模型 alias | 使用 `GROK_MODEL` |
+| 通过 BetterToken 调用模型 | 已验证可用 | 已验证可用 |
+| 启动命令 | `grok` | `grok` |
 
-### 工具特定要求
+本文只介绍通过 BetterToken 发送文本和代码模型请求。X Search、语音转写、图像和视频等依赖 xAI 专属接口的功能不在本文支持范围内。
 
-- 已安装 Node.js 和 `npm`
+## 使用社区 Grok CLI 接入 BetterToken
 
-## 安装
+以下命令适用于 macOS、Linux 和 WSL。社区版在原生 Windows 上的安装与配置尚未验证。
 
-### 安装 Grok CLI
-
-Windows、macOS 和 Linux 都可以执行：
+### 安装
 
 ```bash
-npm install -g @vibe-kit/grok-cli
+curl -fsSL https://raw.githubusercontent.com/superagent-ai/grok-cli/main/install.sh | bash
+grok --version
 ```
 
-如果安装后找不到 `grok` 命令，请关闭并重新打开终端，再运行 `grok --help`。同时检查全局 `npm` 包目录是否已加入 `PATH`。
+已经安装 Bun 的用户也可以使用：
 
-## 手动配置
+```bash
+bun add -g grok-dev
+```
 
-| 字段 | 填写内容 |
-| --- | --- |
-| API Key | BetterToken API Key |
-| Base URL | `{{openai-base-url}}` |
-| Model | 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的当前 Model ID |
+旧的 `@vibe-kit/grok-cli` 已不是项目当前 README 推荐的安装方式。
 
-### 配置 Base URL 和 API Key
+### 配置 BetterToken
+
+```bash
+export GROK_BASE_URL="{{openai-base-url}}"
+export GROK_API_KEY="YOUR_API_KEY"
+export GROK_MODEL="YOUR_MODEL_ID"
+```
+
+将 `YOUR_MODEL_ID` 替换为<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID。使用你自己的 BetterToken API Key：<a href={"{{register-url}}"}>注册并获取</a>。
+
+### 验证连接
+
+```bash
+grok -p "只回复：OK"
+```
+
+能够返回模型回复，才说明 API Key、Base URL 和 Model ID 均已生效。客户端能够启动，不能证明模型请求已经成功。
+
+<Note>
+  社区 Grok CLI 已验证可以通过 BetterToken 返回模型回复。本结论只覆盖本页配置的基础文本和代码模型请求，不包含工具调用或 xAI 专属功能。
+</Note>
+
+已经打开的 Grok CLI 会话不会自动读取新的环境变量。修改配置后，请退出并重新启动。
+
+### 切换模型
+
+修改 `GROK_MODEL`，填入另一个完整 Model ID，然后重新启动 Grok CLI 并再次运行短请求。
+
+## 官方 Grok Build
+
+[Grok Build](https://docs.x.ai/build/overview) 是 xAI 官方终端 coding agent，可通过交互式 TUI、headless 模式或 ACP 使用。
+
+### 安装
 
 <Tabs>
-  <Tab title="macOS / Linux">
-    <Steps>
-      <Step title="清除冲突的环境变量">
-        ```bash
-        unset OPENAI_API_KEY
-        unset OPENAI_BASE_URL
-        ```
-      </Step>
-
-      <Step title="设置 BetterToken 环境变量">
-        ```bash
-        export GROK_BASE_URL="{{openai-base-url}}"
-        export GROK_API_KEY="YOUR_API_KEY"
-        ```
-      </Step>
-
-      <Step title="指定模型启动 Grok CLI">
-        ```bash
-        grok --model YOUR_MODEL_ID
-        ```
-
-        将 `YOUR_MODEL_ID` 替换为模型广场中当前可用的 **受支持提供商的模型 ID**。
-      </Step>
-    </Steps>
+  <Tab title="macOS / Linux / WSL">
+    ```bash
+    curl -fsSL https://x.ai/cli/install.sh | bash
+    grok --version
+    ```
   </Tab>
-
   <Tab title="Windows PowerShell">
-    <Steps>
-      <Step title="为当前 PowerShell 窗口设置变量">
-        ```powershell
-        $env:GROK_BASE_URL = "{{openai-base-url}}"
-        $env:GROK_API_KEY = "YOUR_API_KEY"
-        ```
-      </Step>
-
-      <Step title="指定模型启动 Grok CLI">
-        ```powershell
-        grok --model YOUR_MODEL_ID
-        ```
-
-        上述变量只在当前 PowerShell 窗口中有效。重新打开窗口后，请按团队认可的安全密钥管理方式再次设置。
-      </Step>
-    </Steps>
+    ```powershell
+    irm https://x.ai/cli/install.ps1 | iex
+    grok --version
+    ```
   </Tab>
 </Tabs>
 
-## 验证连接
+### 使用 xAI 账号或 API Key
 
-发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+首次启动时，Grok Build 会打开浏览器完成认证。对于没有浏览器的环境，xAI 文档提供 `XAI_API_KEY` 方式：
 
-Grok CLI 启动后，发送一条简短提示词。没有出现认证或模型 ID 错误，就说明连接已生效。每次修改环境变量后，都应结束当前 Grok CLI 会话并重新启动。
+```bash
+export XAI_API_KEY="YOUR_XAI_API_KEY"
+grok
+```
 
-## 切换模型
+### 可选：在 Grok Build 中配置 BetterToken
 
-打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+Grok Build 支持 OpenAI-compatible 自定义模型，可以设置 Base URL、Model ID、认证环境变量和请求协议。
+
+```toml
+[model.bettertoken]
+model = "YOUR_MODEL_ID"
+base_url = "{{openai-base-url}}"
+name = "BetterToken"
+env_key = "BETTERTOKEN_API_KEY"
+api_backend = "chat_completions"
+
+[models]
+default = "bettertoken"
+```
+
+`BETTERTOKEN_API_KEY` 是本例自定义的变量名，不是 Grok Build 固定要求的名称。Grok Build 会读取 `env_key` 指定的环境变量。
+
+```bash
+export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+grok inspect
+grok -p "只回复：OK" -m bettertoken
+```
+
+<Note>
+  Grok Build 已验证可以使用 BetterToken API Key、Base URL 和 Model ID 返回模型回复。该结果只覆盖本文介绍的文本和代码模型请求，不代表工具调用或 xAI 专属接口已经验证。
+</Note>
+
+## 避免 `grok` 命令冲突
+
+<Tabs>
+  <Tab title="macOS / Linux / WSL">
+    ```bash
+    type -a grok
+    grok --version
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    Get-Command grok -All
+    grok --version
+    ```
+  </Tab>
+</Tabs>
+
+`type -a grok` 和 `Get-Command grok -All` 可以列出多个同名命令。如果安装了两个客户端，请删除不用的版本或调整 `PATH`。
 
 ## 常见错误
 
 | 现象 | 排查方式 |
 | --- | --- |
-| `grok: command not found` | 重新执行安装命令，打开新的终端后运行 `grok --help`。 |
-| `401`、`Unauthorized` 或 `Invalid API key` | 检查 `GROK_API_KEY`，确认复制的 Key 没有多余空格，并确保在设置变量的同一个终端中启动 Grok CLI。 |
-| `model not found` 或模型不可用 | 从模型广场复制当前 **受支持提供商的模型 ID**。不要使用 Claude 提供商模型 ID。 |
-| 请求仍发往旧服务 | 检查 `GROK_BASE_URL`，不要填写 `/chat/completions`，然后重启终端和 Grok CLI。 |
-| 连接失败 | 确认 Base URL 是 `{{openai-base-url}}`，并确认网络可通过 HTTPS 访问 `bettertoken.ai`。 |
+| 安装后启动了错误的 Grok | 列出所有 `grok` 命令并检查路径与版本。 |
+| 官方 Grok Build 打开浏览器 | 这是 Grok Build 的默认登录流程。使用 xAI 时可以继续登录；使用 BetterToken 时，请配置自定义模型。 |
+| `401` 或 `Unauthorized` | Grok Build 自定义模型读取 `env_key` 指定的变量；社区版读取 `GROK_API_KEY`。只需设置当前客户端使用的变量。 |
+| `model not found` | 从模型广场复制完整 Model ID，然后重启客户端。 |
+| 请求仍发往 xAI | 社区版检查 `GROK_BASE_URL`；Grok Build 运行 `grok inspect`，确认 `base_url` 和当前模型 alias。 |
+| xAI 专属功能不可用 | BetterToken 只处理本页说明的模型请求。X Search、语音和媒体功能请使用 xAI 官方 API。 |
 
-### 配置 FAQ
+## 可用模型与功能限制
 
-**Grok CLI 应该填写哪个 Base URL？**
+配置时，请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制支持 OpenAI-compatible 调用的完整 Model ID。仅凭客户端允许修改 Base URL，不能推断某个模型系列的请求、工具调用或上下文格式已经兼容。
 
-填写 `{{openai-base-url}}`，这是 BetterToken 的 OpenAI-compatible Base URL。
+<Note>
+  本页只覆盖文本和代码模型请求。X Search、语音转写、图像生成、视频生成及其他 xAI 专属接口不通过 BetterToken 提供。
+</Note>
 
-**应该使用哪个 API Key 和模型？**
+## 来源与相关指南
 
-使用 BetterToken API Key，并选择与当前 endpoint 兼容的模型。
-
-**需要修改系统代理或开启 VPN 吗？**
-
-不需要。只要在终端中设置 Base URL 和 API Key，即可连接 BetterToken。
-
-## 进阶配置
-
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 暂不支持 |
-| GPT | 手动配置 |
-| Kimi | 手动配置 |
-| GLM | 手动配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-  - **不支持**：当前没有经过验证的直接配置方式。
-</Accordion>
-{/* tool-provider-support:end */}
-
-### 相关指南
-
-- [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
-- [Cursor 自定义 API、Base URL 和 API Key 配置](/zh/ai-tools/cursor)
-- [Cline 配置 OpenAI-compatible API](/zh/ai-tools/cline)
-- [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
-
-## 技术说明
-
-<Accordion title="协议、endpoint 与 provider 内部字段">
-  本页配置使用 `{{openai-base-url}}`。工具会自行拼接 OpenAI-compatible endpoint；除非具体字段明确要求，否则不要在 Base URL 后附加 `/chat/completions` 或 `/responses`。
-</Accordion>
+- [Grok Build：xAI 官方介绍](https://docs.x.ai/build/overview)
+- [Grok Build：xAI Settings Reference](https://docs.x.ai/build/settings/reference)
+- [社区 Grok CLI：当前仓库](https://github.com/superagent-ai/grok-cli)
+- [BetterToken OpenAI-compatible 与 Anthropic-compatible 协议说明](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a>

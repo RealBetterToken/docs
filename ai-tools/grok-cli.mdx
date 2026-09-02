@@ -1,176 +1,187 @@
 ---
-title: "Grok CLI: установка, API Key, Base URL и первый запуск"
-sidebarTitle: "Grok CLI"
-description: "Установите Grok CLI, задайте API Key и Base URL BetterToken, выполните первый запуск с Model ID и устраните ошибки подключения."
+title: "Grok CLI и Grok Build: отличия, установка, API Key и Base URL"
+sidebarTitle: "Grok CLI и Build"
+description: "Разберитесь, чем официальный Grok Build отличается от Community Grok CLI, установите нужный клиент и настройте Community CLI с API Key BetterToken, Base URL и Model ID."
 keywords:
-  - "grok cli api key"
-  - "official grok cli installation guide"
+  - "grok cli"
+  - "grok api key"
+  - "grok cli api"
+  - "grok build"
 icon: "g"
 ---
 
-Grok CLI в этой инструкции — сторонний терминальный npm-пакет `@vibe-kit/grok-cli`, а не официальный CLI от xAI. Он отправляет запросы через `GROK_API_KEY` и `GROK_BASE_URL`. После установки вы сможете выбрать доступный Model ID, запустить `grok` в проекте и выполнять короткие запросы из терминала. Пакет подходит для локальной работы без отдельного GUI. Названия полей и поведение зависят от этого пакета, поэтому не переносите пример на официальный клиент xAI.
+Под названием Grok CLI сейчас могут подразумевать два разных инструмента:
 
-<Note>
-  `@vibe-kit/grok-cli` — сторонний пакет с открытым исходным кодом, а не официальный CLI от xAI. Эта инструкция относится именно к указанному npm-пакету.
-</Note>
+- **Grok Build** — официальный coding agent от xAI;
+- **Community Grok CLI** — open-source-проект сообщества, не связанный с xAI.
 
-## Установка Grok CLI и API Key
+Официальный Grok Build и Community Grok CLI прошли проверку с BetterToken. Оба клиента вернули ответ модели с API Key BetterToken, Base URL и Model ID. В этой инструкции первым рассматривается **Community Grok CLI**, потому что его проще настроить.
 
-Команды ниже подходят для macOS, Linux и Windows с учётом синтаксиса оболочки. Для других CLI сравните [Aider](/ai-tools/aider) и [Continue CLI](/ai-tools/continue-cli), а точный Model ID выбирайте по [руководству по моделям](/faq/model-calling/model-selection-guide).
+<Warning>
+  Оба инструмента используют команду `grok`. Если установить их вместе, терминал запустит версию, которая стоит раньше в `PATH`. Из-за этого настройки могут не примениться. Оставьте один клиент или установите их в разных окружениях.
+</Warning>
 
-## Ключевые параметры
+## Чем отличаются Grok CLI и Grok Build
 
-| Поле | Значение |
-| --- | --- |
-| API Key | API Key BetterToken |
-| Base URL | `{{openai-base-url}}` |
-| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+| Параметр | Официальный Grok Build | Community Grok CLI |
+| --- | --- | --- |
+| Разработчик | xAI | `superagent-ai/grok-cli`, не связан с xAI |
+| Кому подходит | Тем, кому нужен официальный coding agent xAI | Тем, кому нужен пользовательский Base URL для модели |
+| Авторизация по умолчанию | Вход через браузер или `XAI_API_KEY` | `GROK_API_KEY` |
+| Пользовательский Base URL | Настраивается в `~/.grok/config.toml` | Задаётся через `GROK_BASE_URL` |
+| Выбор модели | Alias модели в конфигурационном файле | Переменная `GROK_MODEL` |
+| Запросы через BetterToken | Проверено, работает | Проверено, работает |
+| Команда запуска | `grok` | `grok` |
 
-## Подготовка
+В этой инструкции рассматриваются только запросы к текстовым моделям и моделям для работы с кодом. Функции на основе отдельных API xAI — X Search, распознавание речи, генерация изображений и видео — здесь не поддерживаются.
 
-- Установленная актуальная версия инструмента
-- API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>
-- Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>
+## Подключение Community Grok CLI к BetterToken
 
-### Дополнительные требования
+Команды ниже подходят для macOS, Linux и WSL. Установка и настройка Community Grok CLI в Windows без WSL не проверялись.
 
-- Node.js и `npm`
-
-## Установка
-
-### Установите Grok CLI
-
-В Windows, macOS и Linux выполните:
+### Установка
 
 ```bash
-npm install -g @vibe-kit/grok-cli
+curl -fsSL https://raw.githubusercontent.com/superagent-ai/grok-cli/main/install.sh | bash
+grok --version
 ```
 
-Если после установки команда `grok` не найдена, закройте терминал, откройте его снова и выполните `grok --help`. Проверьте, что каталог глобальных пакетов `npm` добавлен в `PATH`.
+Если Bun уже установлен, используйте альтернативный способ:
 
-## Ручная настройка
+```bash
+bun add -g grok-dev
+```
 
-| Поле | Значение |
-| --- | --- |
-| API Key | API Key BetterToken |
-| Base URL | `{{openai-base-url}}` |
-| Model | Актуальный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a> |
+Старый пакет `@vibe-kit/grok-cli` больше не указан в текущем README проекта как рекомендуемый способ установки.
 
-### Настройте Base URL и API Key
+### Настройка BetterToken
+
+```bash
+export GROK_BASE_URL="{{openai-base-url}}"
+export GROK_API_KEY="YOUR_API_KEY"
+export GROK_MODEL="YOUR_MODEL_ID"
+```
+
+Замените `YOUR_MODEL_ID` на полный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>. Используйте свой API Key BetterToken: <a href={"{{register-url}}"}>зарегистрироваться и получить</a>.
+
+### Проверка подключения
+
+```bash
+grok -p "Ответь только: OK"
+```
+
+API Key, Base URL и Model ID работают, только если модель вернула ответ. Запуск клиента сам по себе не подтверждает подключение.
+
+<Note>
+  Community Grok CLI прошёл проверку: модель вернула ответ через BetterToken. Результат относится только к описанным здесь запросам к текстовым моделям и моделям для работы с кодом, а не к вызовам инструментов или отдельным функциям xAI.
+</Note>
+
+Открытая сессия Grok CLI не подхватит новые переменные окружения автоматически. После изменения настроек завершите сессию и запустите клиент снова.
+
+### Смена модели
+
+Укажите другой полный Model ID в `GROK_MODEL`, перезапустите Grok CLI и повторите короткий запрос.
+
+## Официальный Grok Build
+
+[Grok Build](https://docs.x.ai/build/overview) — официальный терминальный coding agent xAI. Он работает в интерактивном TUI, headless-режиме и через ACP.
+
+### Установка
 
 <Tabs>
-  <Tab title="macOS / Linux">
-    <Steps>
-      <Step title="Очистите конфликтующие переменные">
-        ```bash
-        unset OPENAI_API_KEY
-        unset OPENAI_BASE_URL
-        ```
-      </Step>
-
-      <Step title="Задайте переменные BetterToken">
-        ```bash
-        export GROK_BASE_URL="{{openai-base-url}}"
-        export GROK_API_KEY="YOUR_API_KEY"
-        ```
-      </Step>
-
-      <Step title="Запустите Grok CLI с моделью">
-        ```bash
-        grok --model YOUR_MODEL_ID
-        ```
-
-        Замените `YOUR_MODEL_ID` на текущий ID модели у провайдера **GPT** в model plaza.
-      </Step>
-    </Steps>
+  <Tab title="macOS / Linux / WSL">
+    ```bash
+    curl -fsSL https://x.ai/cli/install.sh | bash
+    grok --version
+    ```
   </Tab>
-
   <Tab title="Windows PowerShell">
-    <Steps>
-      <Step title="Задайте переменные для текущего окна PowerShell">
-        ```powershell
-        $env:GROK_BASE_URL = "{{openai-base-url}}"
-        $env:GROK_API_KEY = "YOUR_API_KEY"
-        ```
-      </Step>
-
-      <Step title="Запустите Grok CLI с моделью">
-        ```powershell
-        grok --model YOUR_MODEL_ID
-        ```
-
-        Переменные в этом примере действуют только в текущем окне PowerShell. После открытия нового окна задайте их снова через безопасный способ хранения секретов, принятый в вашей команде.
-      </Step>
-    </Steps>
+    ```powershell
+    irm https://x.ai/cli/install.ps1 | iex
+    grok --version
+    ```
   </Tab>
 </Tabs>
 
-### Проверьте подключение
+### Вход через аккаунт xAI или API Key
 
-После запуска отправьте короткий запрос в Grok CLI. Если инструмент отвечает без ошибки авторизации или model ID, подключение готово. При изменении переменных окружения всегда завершайте текущую сессию Grok CLI и запускайте новую.
+При первом запуске Grok Build открывает браузер для входа. Для среды без браузера xAI документирует `XAI_API_KEY`:
 
-## Проверка подключения
+```bash
+export XAI_API_KEY="YOUR_XAI_API_KEY"
+grok
+```
 
-Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+### Дополнительно: настройка BetterToken в Grok Build
 
-## Смена модели
+Grok Build поддерживает OpenAI-compatible пользовательские модели. Для них можно задать Base URL, Model ID, переменную окружения с ключом и протокол запросов.
 
-Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+```toml
+[model.bettertoken]
+model = "YOUR_MODEL_ID"
+base_url = "{{openai-base-url}}"
+name = "BetterToken"
+env_key = "BETTERTOKEN_API_KEY"
+api_backend = "chat_completions"
+
+[models]
+default = "bettertoken"
+```
+
+`BETTERTOKEN_API_KEY` — имя переменной только для этого примера, а не обязательное имя в Grok Build. Клиент читает переменную, указанную в `env_key`.
+
+```bash
+export BETTERTOKEN_API_KEY="YOUR_API_KEY"
+grok inspect
+grok -p "Ответь только: OK" -m bettertoken
+```
+
+<Note>
+  Grok Build вернул ответ модели с API Key BetterToken, Base URL и Model ID. Проверка охватывает только описанные здесь запросы к текстовым моделям и моделям для работы с кодом, но не вызовы инструментов и отдельные API xAI.
+</Note>
+
+## Как избежать конфликта команды `grok`
+
+<Tabs>
+  <Tab title="macOS / Linux / WSL">
+    ```bash
+    type -a grok
+    grok --version
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    Get-Command grok -All
+    grok --version
+    ```
+  </Tab>
+</Tabs>
+
+Команды `type -a grok` и `Get-Command grok -All` показывают все исполняемые файлы с этим именем. Если установлены два клиента, удалите ненужный или измените `PATH`.
 
 ## Частые ошибки
 
 | Симптом | Что проверить |
 | --- | --- |
-| `grok: command not found` | Выполните установку еще раз, затем откройте новый терминал и проверьте `grok --help`. |
-| `401`, `Unauthorized` или `Invalid API key` | Проверьте `GROK_API_KEY`, убедитесь, что в ключ не попал пробел, и запустите Grok CLI в том же окне терминала, где задана переменная. |
-| `model not found` или модель недоступна | Скопируйте актуальный ID модели у провайдера **GPT** в model plaza. Не используйте ID у провайдера Claude. |
-| Запрос уходит на прежний сервис | Проверьте `GROK_BASE_URL`, не добавляйте путь `/chat/completions`, затем перезапустите терминал и Grok CLI. |
-| Ошибка соединения | Убедитесь, что Base URL равен `{{openai-base-url}}`, и что сеть разрешает HTTPS-соединения с `bettertoken.ai`. |
+| После установки запускается не тот Grok | Выведите все команды `grok`, затем проверьте путь и версию. |
+| Официальный Grok Build открывает браузер | Это стандартный вход в Grok Build. Для xAI продолжите вход, а для BetterToken настройте пользовательскую модель. |
+| `401` или `Unauthorized` | Пользовательская модель Grok Build читает переменную из `env_key`, а Community Grok CLI — `GROK_API_KEY`. Задайте только переменную текущего клиента. |
+| `model not found` | Скопируйте полный Model ID из model plaza и перезапустите клиент. |
+| Запрос уходит на xAI | Для Community Grok CLI проверьте `GROK_BASE_URL`. В Grok Build запустите `grok inspect` и проверьте `base_url` и активный alias модели. |
+| Не работает функция xAI | BetterToken обрабатывает только описанные здесь запросы к моделям. Для X Search, речи и медиа используйте официальный API xAI. |
 
-### Вопросы по настройке
+## Доступные модели и ограничения функций
 
-**Какой Base URL нужен для Grok CLI?**
+Скопируйте из <a href={"{{model-plaza-url}}"}>model plaza</a> полный Model ID с поддержкой OpenAI-compatible запросов. Возможность изменить Base URL сама по себе не подтверждает совместимость запросов, вызовов инструментов и формата контекста для конкретной модели.
 
-Используйте `{{openai-base-url}}`. Это OpenAI-compatible Base URL BetterToken.
+<Note>
+  Страница описывает только запросы к текстовым моделям и моделям для работы с кодом. BetterToken не предоставляет через эту настройку X Search, распознавание речи, генерацию изображений, видео и другие отдельные API xAI.
+</Note>
 
-**Какой API Key и модель выбрать?**
+## Источники и связанные материалы
 
-Для Grok CLI используйте API Key BetterToken и модель, совместимую с настроенным endpoint.
-
-**Нужно ли менять системный прокси или включать VPN?**
-
-Нет. Для подключения BetterToken достаточно настроить Base URL и API Key в терминале.
-
-## Расширенная настройка
-
-{/* tool-provider-support:start */}
-### Поддерживаемые провайдеры
-
-| Провайдер | Статус |
-| --- | --- |
-| Claude | Не поддерживается |
-| GPT | Ручная настройка |
-| Kimi | Ручная настройка |
-| GLM | Ручная настройка |
-
-<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
-
-<Accordion title="Что означают способы настройки">
-  - **Ручная настройка**: укажите API Key, Base URL и Model.
-  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
-</Accordion>
-{/* tool-provider-support:end */}
-
-### Связанные материалы
-
-- [Настройка Codex CLI с custom provider](/ai-tools/codex)
-- [Настройка custom API, Base URL и API Key в Cursor](/ai-tools/cursor)
-- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
-- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
-- [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
-
-## Технические детали
-
-<Accordion title="Протокол, endpoint и внутренние параметры provider">
-  В описанном сценарии используется Base URL `{{openai-base-url}}`. Инструмент сам добавляет путь OpenAI-compatible endpoint. Не добавляйте `/chat/completions` или `/responses` к Base URL, если это не требуется конкретным полем.
-</Accordion>
+- [Grok Build: официальное описание xAI](https://docs.x.ai/build/overview)
+- [Grok Build: Settings Reference xAI](https://docs.x.ai/build/settings/reference)
+- [Community Grok CLI: текущий репозиторий](https://github.com/superagent-ai/grok-cli)
+- [OpenAI-compatible API и Anthropic-compatible API BetterToken](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+- <a href={"{{model-plaza-url}}"}>Model plaza BetterToken</a>
