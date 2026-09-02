@@ -1,33 +1,63 @@
 ---
 title: "Claude Fable 5.1 출시"
-description: "Claude Fable 5.1을 BetterToken에서 사용할 수 있습니다. Model ID는 claude-fable-5-1입니다. ID 복사, 클라이언트 설정, 첫 요청 확인 방법을 안내합니다."
+description: "Claude Fable 5.1을 BetterToken에서 claude-fable-5-1로 사용할 수 있습니다. 100만 토큰 컨텍스트, 적응형 사고, 장시간 에이전트 작업을 지원합니다."
 tag: "NEW"
 ---
 
 업데이트: 2026년 9월 2일
 
-BetterToken에서 **Claude Fable 5.1**을 사용할 수 있습니다. 정확한 Model ID는 `claude-fable-5-1`입니다. <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 현재 제공 상태와 가격을 확인한 뒤 지원되는 클라이언트에 이 ID를 입력하세요.
+BetterToken에서 **Claude Fable 5.1**을 사용할 수 있습니다. 정확한 Model ID는 `claude-fable-5-1`입니다. Anthropic은 이 모델을 고난도 추론과 장시간 에이전트 작업용으로 소개하며, 복잡한 코딩, 다단계 연구, 문서 중심 워크플로에 적합하다고 설명합니다. 현재 제공 상태와 BetterToken 가격은 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 확인하세요.
 
-## 제공 정보
+## 업데이트 주요 내용
 
-- **모델**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **제공 상태 및 가격**: 모델 광장의 실시간 정보 확인
+- **장시간 에이전트 작업**: 여러 단계, 도구, 애플리케이션을 거치는 복잡한 작업에 맞게 설계
+- **코딩과 지식 작업**: 대규모 코드 변경, 코드 리뷰, 연구, 문서, 스프레드시트, 슬라이드, 차트와 다이어그램에 적합
+- **대규모 컨텍스트와 출력**: Anthropic 공식 사양은 `100만 토큰` 컨텍스트와 최대 `128K 토큰` 출력
+- **적응형 사고**: 항상 활성화되며 Claude API의 기본 effort는 `high`
+- **낮아진 캐시 읽기 비용**: Anthropic 기준 Claude Fable 5의 4분의 1이며, BetterToken 가격은 다를 수 있으므로 모델 광장을 확인
 
-## Claude Fable 5.1 설정하기
+## 설정 권장 사항
+
+- 고난도 추론이나 장시간 작업에는 Fable 5.1을 고려하세요. Anthropic은 대부분의 워크로드에서 먼저 Claude Opus 5를 사용하고 자체 평가 결과에 따라 Fable 5.1로 전환할 것을 권장합니다.
+- 프로덕션 트래픽을 전환하기 전에 실제 작업으로 품질, 지연 시간, 토큰 사용량을 비교하세요.
+- Claude Fable 5에서 이전할 때 대화 기록은 추가만 하세요. Fable 5.1은 강제 도구 호출을 거부합니다. 이전 모델은 Fable 5.1의 thinking blocks를 읽을 수 없고, 앞선 대화 턴을 수정하면 해당 blocks가 무효화됩니다.
+- 표시 이름이나 다른 플랫폼용 ID가 아닌 정확한 BetterToken Model ID `claude-fable-5-1`을 사용하세요.
+
+## 빠른 시작
 
 1. BetterToken API Key를 만들거나 기존 Key의 **Setup** 창을 엽니다.
-2. 모델 광장에서 `claude-fable-5-1`을 복사합니다.
+2. 모델 광장에서 `claude-fable-5-1`의 제공 상태를 확인합니다.
 3. 클라이언트 설정 문서를 열고 BetterToken API Key, 필요한 Base URL, 정확한 Model ID를 입력합니다.
-4. 모델 목록이 자동으로 갱신되지 않으면 클라이언트를 다시 시작합니다.
+4. 모델 목록이 갱신되지 않으면 클라이언트를 다시 시작합니다.
 5. 짧은 테스트 요청을 보내고 Dashboard에서 확인합니다.
 
 - [Claude Code 설정](/ko/ai-tools/claude-code)
 - [Claude Desktop 설정](/ko/faq/claude-desktop-bettertoken-api)
 - [모델 선택 가이드](/ko/faq/model-calling/model-selection-guide)
 
-## Model not found 해결하기
+## 자주 묻는 질문
 
-Model ID가 정확히 `claude-fable-5-1`인지, BetterToken API Key가 모델에 접근할 수 있는지, Base URL이 클라이언트 문서와 일치하는지 확인하세요. 클라이언트를 다시 시작한 뒤 재시험합니다.
+### Claude Fable 5.1은 언제 사용해야 하나요?
 
-<Note>현재 제공 상태와 가격은 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 확인하세요.</Note>
+고난도 추론, 장시간 코딩 에이전트, 다단계 연구 또는 복잡한 문서 작업에 사용하세요. 일상적인 작업에서는 먼저 Claude Opus 5 및 다른 제공 모델과 비교하는 것이 좋습니다.
+
+### BetterToken에서 100만 토큰 컨텍스트를 모두 사용할 수 있나요?
+
+Anthropic 공식 사양은 `100만 토큰` 컨텍스트입니다. 실제 사용 한도는 클라이언트와 요청 설정의 영향도 받을 수 있습니다. 매우 큰 프롬프트를 보내기 전에 모델 광장과 클라이언트 문서를 확인하세요.
+
+### Model not found 오류는 어떻게 해결하나요?
+
+Model ID가 정확히 `claude-fable-5-1`인지, BetterToken API Key에 접근 권한이 있는지, Base URL이 클라이언트 문서와 일치하는지 확인하세요. 클라이언트를 다시 시작한 뒤 재시험합니다.
+
+### Claude Fable 5에서 바로 전환할 수 있나요?
+
+먼저 Model ID를 변경하고 기존 평가를 실행하세요. 기존 프롬프트는 일반적으로 계속 사용할 수 있지만 강제 도구 호출, 모델 간 thinking blocks, 이전 대화 턴을 수정하는 코드를 점검해야 합니다.
+
+<Note>제공 상태와 BetterToken 가격은 변경될 수 있습니다. 설정 전에 <a href={"{{model-plaza-url}}"}>모델 광장</a>을 확인하세요.</Note>
+
+## 공식 출처
+
+- [Claude Fable 5.1 발표](https://www.anthropic.com/claude/fable)
+- [모델 개요](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [프롬프트 가이드](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [마이그레이션 가이드](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)

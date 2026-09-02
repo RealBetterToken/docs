@@ -5329,24 +5329,33 @@ Endpoint не возвращает `task_id`; отдельного status query 
 
 Source: https://docs.bettertoken.ai/model-updates/claude-fable-5-1
 
-Description: Модель Claude Fable 5.1 с ID claude-fable-5-1 доступна в BetterToken. Узнайте, где скопировать Model ID, как настроить клиент и проверить первый запрос.
+Description: Claude Fable 5.1 доступен в BetterToken как claude-fable-5-1: контекст 1 млн токенов, адаптивное мышление и поддержка длительных агентных задач.
 
 Дата обновления: 2 сентября 2026 года
 
-BetterToken добавил модель **Claude Fable 5.1** с точным Model ID `claude-fable-5-1`. Проверьте ее текущую доступность и цену в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>, затем используйте этот ID в поддерживаемом клиенте.
+BetterToken добавил **Claude Fable 5.1** с точным Model ID `claude-fable-5-1`. Anthropic позиционирует модель для сложных рассуждений и длительной агентной работы, включая крупные задачи по программированию, многоэтапные исследования и работу с документами. Актуальную доступность и цену BetterToken проверяйте в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-## Что добавлено
+## Основные обновления
 
-- **Модель**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **Доступность и цена**: актуальные данные отображаются в model plaza
+- **Длительная агентная работа**: модель рассчитана на сложные задачи с большим числом шагов, инструментов и приложений
+- **Программирование и интеллектуальная работа**: подходит для крупных изменений в кодовой базе, ревью кода, исследований, документов, таблиц, презентаций, графиков и схем
+- **Большой контекст и вывод**: Anthropic указывает контекст `1 млн токенов` и вывод до `128K токенов`
+- **Адаптивное мышление**: всегда включено, значение effort по умолчанию в Claude API — `high`
+- **Более дешёвое чтение кэша**: у Anthropic оно стоит в четыре раза меньше, чем для Claude Fable 5; цена BetterToken может отличаться, поэтому проверяйте model plaza
 
-## Как настроить модель
+## Рекомендации по настройке
+
+- Выбирайте Fable 5.1 для сложных рассуждений и длительных задач. Для большинства сценариев Anthropic рекомендует сначала Claude Opus 5 и переходить на Fable 5.1, если это подтверждают ваши тесты.
+- Перед переключением рабочего трафика проверьте модель на реальной задаче и сравните качество, задержку и расход токенов.
+- При переходе с Claude Fable 5 только добавляйте новые сообщения в историю. Fable 5.1 отклоняет принудительный вызов инструмента; ранние модели не читают созданные им thinking blocks, а изменение предыдущих сообщений делает эти блоки недействительными.
+- Всегда указывайте точный Model ID BetterToken `claude-fable-5-1`, а не отображаемое имя или ID другой платформы.
+
+## Быстрый старт
 
 1. Создайте BetterToken API Key или откройте окно **Setup** для существующего ключа.
-2. Скопируйте Model ID `claude-fable-5-1` из model plaza.
-3. Откройте инструкцию для вашего клиента и укажите BetterToken API Key, требуемый Base URL и точный Model ID.
-4. Перезапустите клиент, если он не обновляет список моделей автоматически.
+2. Убедитесь в model plaza, что `claude-fable-5-1` доступен.
+3. Откройте инструкцию для клиента и укажите BetterToken API Key, требуемый Base URL и точный Model ID.
+4. Перезапустите клиент, если список моделей не обновился автоматически.
 5. Отправьте короткий тестовый запрос и проверьте его в Dashboard.
 
 Готовые инструкции:
@@ -5355,13 +5364,34 @@ BetterToken добавил модель **Claude Fable 5.1** с точным Mod
 - [Подключение Claude Desktop](/faq/claude-desktop-bettertoken-api)
 - [Как выбрать модель](/faq/model-calling/model-selection-guide)
 
-## Если появляется Model not found
+## Частые вопросы
 
-Убедитесь, что указан точный ID `claude-fable-5-1`, API Key имеет доступ к этой модели, а Base URL соответствует инструкции выбранного клиента. Затем перезапустите клиент и повторите запрос.
+### Для каких задач подходит Claude Fable 5.1?
+
+Используйте модель для сложных рассуждений, длительных задач программирования, многоэтапных исследований и сложной работы с документами. Для обычных задач сначала сравните её с Claude Opus 5 и другими доступными моделями.
+
+### Доступен ли через BetterToken весь контекст в 1 млн токенов?
+
+Официальная спецификация Anthropic указывает контекст `1 млн токенов`. Фактический лимит также может зависеть от клиента и параметров запроса. Перед отправкой очень большого промпта проверьте model plaza и документацию клиента.
+
+### Как исправить ошибку Model not found?
+
+Убедитесь, что указан точный ID `claude-fable-5-1`, BetterToken API Key имеет доступ к модели, а Base URL соответствует инструкции клиента. Затем перезапустите клиент и повторите запрос.
+
+### Можно ли сразу перейти с Claude Fable 5 на 5.1?
+
+Сначала замените Model ID и запустите существующие тесты. Прежние промпты обычно остаются применимыми, но проверьте принудительный вызов инструментов, thinking blocks от других моделей и код, который изменяет ранние сообщения диалога.
 
 <Note>
-  Доступность и цена могут меняться. Проверяйте актуальные данные в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+  Доступность и цена BetterToken могут меняться. Проверяйте актуальные данные в <a href={"https://bettertoken.ai/pricing"}>model plaza</a> перед настройкой модели.
 </Note>
+
+## Официальные источники
+
+- [Анонс Claude Fable 5.1](https://www.anthropic.com/claude/fable)
+- [Обзор модели Claude Fable 5.1](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Рекомендации по промптам для Claude Fable 5.1](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Руководство по миграции](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -14602,22 +14632,31 @@ The endpoint does not return a `task_id`, and there is no separate status query 
 
 Source: https://docs.bettertoken.ai/en/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 is available on BetterToken with model ID claude-fable-5-1. Learn where to copy the Model ID, configure your client, and verify the first request.
+Description: Claude Fable 5.1 is available on BetterToken as claude-fable-5-1, with a 1M-token context window, adaptive thinking, and support for long-running agentic work.
 
 Updated: September 2, 2026
 
-BetterToken now supports **Claude Fable 5.1** with the exact Model ID `claude-fable-5-1`. Check its current availability and price in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>, then use this ID in a supported client.
+BetterToken now supports **Claude Fable 5.1** with the exact Model ID `claude-fable-5-1`. Anthropic positions it for demanding reasoning and long-horizon agentic work, including complex coding, multistep research, and document-heavy workflows. Check current availability and BetterToken pricing in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-## What is available
+## Highlights
 
-- **Model**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **Availability and price**: use the live information in the model plaza
+- **Long-running agentic work**: designed for complex tasks that can span many steps, tools, and applications
+- **Coding and knowledge work**: optimized for ambitious codebase changes, code review, research, and work with documents, spreadsheets, slides, charts, and diagrams
+- **Large context and output**: Anthropic lists a `1M-token` context window and up to `128K` output tokens
+- **Adaptive thinking**: always enabled, with `high` as the default effort level in the Claude API
+- **Lower cache-read cost**: Anthropic prices cache reads at one quarter of the Claude Fable 5 rate; BetterToken prices may differ, so use the model plaza for current rates
 
-## Configure Claude Fable 5.1
+## Configuration recommendations
+
+- Use Fable 5.1 for demanding reasoning or long-running work. Anthropic recommends starting with Claude Opus 5 for most workloads and moving to Fable 5.1 when your own evaluations justify it.
+- Test the model with a representative task before switching production traffic. Compare output quality, latency, and token usage in your own client.
+- If you migrate from Claude Fable 5, keep conversation history append-only. Fable 5.1 rejects forced tool use, earlier models cannot read its thinking blocks, and editing earlier turns invalidates those blocks.
+- Always use the exact BetterToken Model ID `claude-fable-5-1`. Do not substitute a display name or a platform-specific ID.
+
+## Quick start
 
 1. Create a BetterToken API Key or open the **Setup** dialog for an existing key.
-2. Copy `claude-fable-5-1` from the model plaza.
+2. Confirm that `claude-fable-5-1` is available in the model plaza.
 3. Open the setup guide for your client and enter the BetterToken API Key, required Base URL, and exact Model ID.
 4. Restart the client if it does not refresh its model list automatically.
 5. Send a short test request and verify it in the Dashboard.
@@ -14628,13 +14667,34 @@ Use one of these guides:
 - [Claude Desktop setup](/en/faq/claude-desktop-bettertoken-api)
 - [Model selection guide](/en/faq/model-calling/model-selection-guide)
 
-## Fix Model not found
+## Frequently asked questions
+
+### When should I use Claude Fable 5.1?
+
+Choose it for demanding reasoning, long-running coding agents, multistep research, or complex document work. For routine workloads, compare it with Claude Opus 5 and other available models before deciding.
+
+### Does BetterToken provide the full 1M-token context window?
+
+Anthropic lists a `1M-token` context window for Claude Fable 5.1. The usable limit can also depend on your client and request settings. Check the model plaza and your client documentation before sending very large prompts.
+
+### How do I fix Model not found?
 
 Confirm that the Model ID is exactly `claude-fable-5-1`, the BetterToken API Key can access the model, and the Base URL matches your client's setup guide. Restart the client and test again.
 
+### Can I replace Claude Fable 5 with Fable 5.1 directly?
+
+Start by changing the Model ID and running your existing evaluations. Existing prompts should usually remain useful, but review forced tool use, cross-model thinking blocks, and any code that edits earlier conversation turns.
+
 <Note>
-  Availability and pricing can change. Check the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before configuring the model.
+  Availability and BetterToken pricing can change. Check the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before configuring the model.
 </Note>
+
+## Official sources
+
+- [Claude Fable 5.1 announcement](https://www.anthropic.com/claude/fable)
+- [Claude Fable 5.1 model overview](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Prompting Claude Fable 5.1](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Migration guide](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -24051,22 +24111,31 @@ b64_json = result["data"][0]["b64_json"]
 
 Source: https://docs.bettertoken.ai/zh/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 已在 BetterToken 上架，模型 ID 为 claude-fable-5-1。了解如何复制 Model ID、配置客户端并验证首次请求。
+Description: Claude Fable 5.1 已在 BetterToken 上架，模型 ID 为 claude-fable-5-1，支持 100 万上下文、自适应思考和长周期 Agent 任务。
 
 更新日期：2026-09-02
 
-BetterToken 已上架 **Claude Fable 5.1**，准确的模型 ID 是 `claude-fable-5-1`。请先在<a href={"https://bettertoken.ai/pricing"}>模型广场</a>查看当前可用状态和价格，再在支持的客户端中使用这个 ID。
+BetterToken 已上架 **Claude Fable 5.1**，准确的模型 ID 是 `claude-fable-5-1`。Anthropic 将其定位为面向高强度推理和长周期 Agent 任务的模型，适用于复杂编程、多步骤研究和文档密集型工作。当前可用状态和 BetterToken 价格请以<a href={"https://bettertoken.ai/pricing"}>模型广场</a>为准。
 
-## 本次上架信息
+## 更新亮点
 
-- **模型**：Claude Fable 5.1
-- **模型 ID**：`claude-fable-5-1`
-- **可用状态和价格**：以模型广场实时信息为准
+- **长周期 Agent 任务**：适合需要多个步骤、工具和应用协作的复杂工作
+- **编程和知识工作**：面向大型代码修改、代码审查、研究，以及文档、表格、幻灯片、图表和示意图分析
+- **大上下文和输出**：Anthropic 官方规格为 `100 万 token` 上下文，最高输出 `128K token`
+- **自适应思考**：始终开启，Claude API 的默认 effort 为 `high`
+- **缓存读取成本降低**：Anthropic 官方缓存读取价格为 Claude Fable 5 的四分之一；BetterToken 价格可能不同，请查看模型广场实时价格
 
-## 配置 Claude Fable 5.1
+## 配置建议
+
+- 高强度推理或长周期任务可选择 Fable 5.1。Anthropic 建议大多数任务先从 Claude Opus 5 开始，再根据自己的评测结果决定是否使用 Fable 5.1。
+- 切换生产流量前，先用真实任务比较输出质量、延迟和 token 消耗。
+- 从 Claude Fable 5 迁移时，请保持对话历史只追加、不修改。Fable 5.1 不支持强制工具调用；早期模型无法读取它生成的 thinking blocks，修改前面的对话也会让这些 blocks 失效。
+- 始终填写 BetterToken 的准确模型 ID `claude-fable-5-1`，不要使用展示名称或其他平台的模型 ID。
+
+## 快速开始
 
 1. 创建 BetterToken API Key，或打开现有 Key 的 **Setup** 弹窗。
-2. 从模型广场复制 `claude-fable-5-1`。
+2. 在模型广场确认 `claude-fable-5-1` 当前可用。
 3. 打开对应客户端的接入文档，填写 BetterToken API Key、要求的 Base URL 和准确模型 ID。
 4. 如果客户端没有自动刷新模型列表，请完全重启客户端。
 5. 发送一个简短测试请求，并在 Dashboard 中确认请求记录。
@@ -24077,13 +24146,34 @@ BetterToken 已上架 **Claude Fable 5.1**，准确的模型 ID 是 `claude-fabl
 - [Claude Desktop 接入](/zh/faq/claude-desktop-bettertoken-api)
 - [模型选择指南](/zh/faq/model-calling/model-selection-guide)
 
-## 解决 Model not found
+## 常见问题
+
+### 哪些任务适合 Claude Fable 5.1？
+
+它适合高强度推理、长时间运行的编程 Agent、多步骤研究和复杂文档工作。常规任务建议先与 Claude Opus 5 及其他可用模型比较，再决定是否切换。
+
+### BetterToken 是否支持完整的 100 万上下文？
+
+Anthropic 官方规格为 `100 万 token` 上下文。实际可用长度还可能受到客户端和请求设置限制，发送超长提示词前请同时查看模型广场和客户端文档。
+
+### 如何解决 Model not found？
 
 确认模型 ID 完整填写为 `claude-fable-5-1`，BetterToken API Key 可以访问该模型，并且 Base URL 与当前客户端接入文档一致。完成后重启客户端并重新测试。
 
+### 可以直接从 Claude Fable 5 切换到 5.1 吗？
+
+可以先替换模型 ID，再运行现有评测。原有提示词通常仍可使用，但需要检查强制工具调用、跨模型 thinking blocks，以及会修改历史对话内容的客户端逻辑。
+
 <Note>
-  模型可用状态和价格可能变化。配置前请查看<a href={"https://bettertoken.ai/pricing"}>模型广场</a>的实时信息。
+  模型可用状态和 BetterToken 价格可能变化。配置前请查看<a href={"https://bettertoken.ai/pricing"}>模型广场</a>的实时信息。
 </Note>
+
+## 官方来源
+
+- [Claude Fable 5.1 官方发布](https://www.anthropic.com/claude/fable)
+- [Claude Fable 5.1 模型概览](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Claude Fable 5.1 提示词指南](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [迁移指南](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -33334,35 +33424,65 @@ endpoint `task_id` नहीं लौटाता, और कोई अलग s
 
 Source: https://docs.bettertoken.ai/hi/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 अब BetterToken पर claude-fable-5-1 Model ID के साथ उपलब्ध है। Model ID कॉपी करने, client configure करने और पहला request verify करने का तरीका जानें।
+Description: Claude Fable 5.1 BetterToken पर claude-fable-5-1 के रूप में उपलब्ध है, जिसमें 10 लाख token context, adaptive thinking और लंबे agentic tasks का समर्थन है।
 
 अपडेट: 2 सितंबर 2026
 
-BetterToken अब सटीक Model ID `claude-fable-5-1` के साथ **Claude Fable 5.1** उपलब्ध कराता है। मौजूदा उपलब्धता और कीमत <a href={"https://bettertoken.ai/pricing"}>model plaza</a> में जांचें, फिर supported client में यही ID उपयोग करें।
+BetterToken अब सटीक Model ID `claude-fable-5-1` के साथ **Claude Fable 5.1** उपलब्ध कराता है। Anthropic इसे कठिन reasoning और लंबे agentic work के लिए प्रस्तुत करता है, जिसमें complex coding, multi-step research और document-heavy workflows शामिल हैं। मौजूदा उपलब्धता और BetterToken कीमत <a href={"https://bettertoken.ai/pricing"}>model plaza</a> में देखें।
 
-## उपलब्ध जानकारी
+## मुख्य अपडेट
 
-- **Model**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **उपलब्धता और कीमत**: model plaza की live जानकारी देखें
+- **लंबे agentic tasks**: कई steps, tools और applications वाले complex work के लिए बनाया गया
+- **Coding और knowledge work**: बड़े codebase changes, code review, research, documents, spreadsheets, slides, charts और diagrams के लिए
+- **बड़ा context और output**: Anthropic के अनुसार `10 लाख tokens` का context और अधिकतम `128K tokens` output
+- **Adaptive thinking**: हमेशा enabled, Claude API में default effort `high`
+- **कम cache-read लागत**: Anthropic पर इसकी कीमत Claude Fable 5 की एक चौथाई है; BetterToken कीमत अलग हो सकती है, इसलिए model plaza देखें
 
-## Claude Fable 5.1 configure करें
+## Configuration सुझाव
+
+- कठिन reasoning या लंबे tasks के लिए Fable 5.1 चुनें। Anthropic अधिकांश workloads के लिए पहले Claude Opus 5 आज़माने और अपने evaluations के आधार पर Fable 5.1 चुनने की सलाह देता है।
+- Production traffic बदलने से पहले real task पर quality, latency और token usage की तुलना करें।
+- Claude Fable 5 से migrate करते समय conversation history को append-only रखें। Fable 5.1 forced tool use को reject करता है; पुराने models इसके thinking blocks नहीं पढ़ सकते और पुरानी turns edit करने पर ये blocks invalid हो जाते हैं।
+- हमेशा exact BetterToken Model ID `claude-fable-5-1` उपयोग करें, display name या किसी दूसरी platform का ID नहीं।
+
+## जल्दी शुरू करें
 
 1. BetterToken API Key बनाएं या मौजूदा Key का **Setup** dialog खोलें।
-2. model plaza से `claude-fable-5-1` कॉपी करें।
-3. अपने client की setup guide खोलें और BetterToken API Key, आवश्यक Base URL और सही Model ID भरें।
-4. Model सूची refresh न होने पर client restart करें।
-5. छोटा test request भेजें और Dashboard में उसे verify करें।
+2. model plaza में पुष्टि करें कि `claude-fable-5-1` उपलब्ध है।
+3. Client guide में BetterToken API Key, आवश्यक Base URL और exact Model ID भरें।
+4. Model list refresh न होने पर client restart करें।
+5. छोटा test request भेजें और Dashboard में verify करें।
 
 - [Claude Code setup](/hi/ai-tools/claude-code)
 - [Claude Desktop setup](/hi/faq/claude-desktop-bettertoken-api)
 - [Model selection guide](/hi/faq/model-calling/model-selection-guide)
 
-## Model not found को ठीक करें
+## सामान्य प्रश्न
 
-Model ID `claude-fable-5-1` ही है, API Key को model access मिला है और Base URL client guide से मेल खाता है, इसकी पुष्टि करें। फिर client restart करके दोबारा test करें।
+### Claude Fable 5.1 कब उपयोग करना चाहिए?
 
-<Note>उपलब्धता और कीमत के लिए <a href={"https://bettertoken.ai/pricing"}>model plaza</a> की live जानकारी देखें।</Note>
+इसे कठिन reasoning, लंबे coding agents, multi-step research या complex document work के लिए चुनें। Routine workloads के लिए पहले Claude Opus 5 और दूसरे available models से तुलना करें।
+
+### क्या BetterToken पूरा 10 लाख token context देता है?
+
+Anthropic की official specification `10 लाख tokens` context बताती है। उपयोग योग्य limit client और request settings पर भी निर्भर हो सकती है। बहुत बड़े prompts से पहले model plaza और client documentation देखें।
+
+### Model not found कैसे ठीक करें?
+
+पुष्टि करें कि Model ID ठीक `claude-fable-5-1` है, BetterToken API Key को access है और Base URL client guide से मेल खाता है। Client restart करके फिर test करें।
+
+### क्या Claude Fable 5 को सीधे Fable 5.1 से बदल सकते हैं?
+
+पहले Model ID बदलें और मौजूदा evaluations चलाएं। पुराने prompts आम तौर पर उपयोगी रहते हैं, लेकिन forced tool use, cross-model thinking blocks और पुरानी conversation turns बदलने वाले code की जांच करें।
+
+<Note>Availability और BetterToken pricing बदल सकती है। Configuration से पहले <a href={"https://bettertoken.ai/pricing"}>model plaza</a> देखें।</Note>
+
+## आधिकारिक स्रोत
+
+- [Claude Fable 5.1 announcement](https://www.anthropic.com/claude/fable)
+- [Model overview](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Migration guide](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -42592,22 +42712,31 @@ El endpoint no devuelve un `task_id`, y no existe un endpoint separado para cons
 
 Source: https://docs.bettertoken.ai/es/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 está disponible en BetterToken con el Model ID claude-fable-5-1. Aprende a copiar el ID, configurar tu cliente y verificar la primera solicitud.
+Description: Claude Fable 5.1 está disponible en BetterToken como claude-fable-5-1, con contexto de 1 millón de tokens, pensamiento adaptativo y tareas agénticas prolongadas.
 
 Actualizado: 2 de septiembre de 2026
 
-BetterToken ya admite **Claude Fable 5.1** con el Model ID exacto `claude-fable-5-1`. Consulta su disponibilidad y precio actuales en la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> y usa este ID en un cliente compatible.
+BetterToken ya admite **Claude Fable 5.1** con el Model ID exacto `claude-fable-5-1`. Anthropic lo presenta como un modelo para razonamiento exigente y trabajo agéntico de larga duración, incluidos programación compleja, investigación de varios pasos y flujos con muchos documentos. Consulta la disponibilidad y el precio de BetterToken en la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-## Información disponible
+## Novedades principales
 
-- **Modelo**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **Disponibilidad y precio**: consulta la información en tiempo real de la model plaza
+- **Trabajo agéntico prolongado**: diseñado para tareas complejas con muchos pasos, herramientas y aplicaciones
+- **Programación y trabajo de conocimiento**: orientado a cambios amplios de código, revisión, investigación, documentos, hojas de cálculo, presentaciones, gráficos y diagramas
+- **Contexto y salida amplios**: Anthropic especifica `1 millón de tokens` de contexto y hasta `128K tokens` de salida
+- **Pensamiento adaptativo**: siempre activo, con effort `high` por defecto en Claude API
+- **Lecturas de caché más económicas**: Anthropic cobra una cuarta parte del precio de Claude Fable 5; el precio de BetterToken puede variar, así que consulta la model plaza
 
-## Configurar Claude Fable 5.1
+## Recomendaciones de configuración
+
+- Usa Fable 5.1 para razonamiento exigente o tareas largas. Anthropic recomienda empezar con Claude Opus 5 en la mayoría de los casos y cambiar cuando tus evaluaciones justifiquen Fable 5.1.
+- Antes de mover tráfico de producción, prueba una tarea representativa y compara calidad, latencia y consumo de tokens.
+- Al migrar desde Claude Fable 5, mantén el historial como solo anexable. Fable 5.1 rechaza el uso forzado de herramientas; los modelos anteriores no pueden leer sus thinking blocks y editar turnos previos invalida esos bloques.
+- Usa siempre el Model ID exacto de BetterToken `claude-fable-5-1`, no el nombre visible ni un ID de otra plataforma.
+
+## Inicio rápido
 
 1. Crea una BetterToken API Key o abre el cuadro **Setup** de una Key existente.
-2. Copia `claude-fable-5-1` desde la model plaza.
+2. Confirma en la model plaza que `claude-fable-5-1` esté disponible.
 3. Abre la guía de tu cliente e introduce la BetterToken API Key, la Base URL requerida y el Model ID exacto.
 4. Reinicia el cliente si la lista de modelos no se actualiza automáticamente.
 5. Envía una solicitud corta y compruébala en el Dashboard.
@@ -42616,11 +42745,32 @@ BetterToken ya admite **Claude Fable 5.1** con el Model ID exacto `claude-fable-
 - [Configuración de Claude Desktop](/es/faq/claude-desktop-bettertoken-api)
 - [Guía para elegir modelos](/es/faq/model-calling/model-selection-guide)
 
-## Resolver Model not found
+## Preguntas frecuentes
 
-Confirma que el Model ID sea exactamente `claude-fable-5-1`, que la BetterToken API Key tenga acceso al modelo y que la Base URL coincida con la guía del cliente. Reinicia el cliente y vuelve a probar.
+### ¿Cuándo conviene usar Claude Fable 5.1?
 
-<Note>Consulta la disponibilidad y el precio actuales en la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.</Note>
+Úsalo para razonamiento exigente, agentes de programación de larga duración, investigación de varios pasos o trabajo complejo con documentos. Para tareas habituales, compáralo antes con Claude Opus 5 y otros modelos disponibles.
+
+### ¿BetterToken ofrece todo el contexto de 1 millón de tokens?
+
+Anthropic especifica un contexto de `1 millón de tokens`. El límite utilizable también puede depender del cliente y de la configuración de la solicitud. Consulta la model plaza y la documentación del cliente antes de enviar prompts muy grandes.
+
+### ¿Cómo soluciono Model not found?
+
+Comprueba que el Model ID sea exactamente `claude-fable-5-1`, que la BetterToken API Key tenga acceso y que la Base URL coincida con la guía del cliente. Reinicia el cliente y vuelve a probar.
+
+### ¿Puedo sustituir Claude Fable 5 por Fable 5.1 directamente?
+
+Empieza cambiando el Model ID y ejecutando tus evaluaciones. Los prompts existentes suelen seguir siendo útiles, pero revisa el uso forzado de herramientas, los thinking blocks entre modelos y cualquier código que modifique turnos anteriores.
+
+<Note>La disponibilidad y el precio de BetterToken pueden cambiar. Consulta la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> antes de configurar el modelo.</Note>
+
+## Fuentes oficiales
+
+- [Anuncio de Claude Fable 5.1](https://www.anthropic.com/claude/fable)
+- [Descripción general del modelo](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Guía de prompting](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Guía de migración](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -51839,22 +51989,31 @@ O endpoint não retorna `task_id`, nem há endpoint separado para consultar stat
 
 Source: https://docs.bettertoken.ai/pt-br/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 está disponível no BetterToken com o Model ID claude-fable-5-1. Veja como copiar o ID, configurar seu cliente e verificar a primeira solicitação.
+Description: Claude Fable 5.1 está disponível no BetterToken como claude-fable-5-1, com contexto de 1 milhão de tokens, pensamento adaptativo e trabalho agêntico prolongado.
 
 Atualizado em: 2 de setembro de 2026
 
-O BetterToken agora oferece **Claude Fable 5.1** com o Model ID exato `claude-fable-5-1`. Consulte a disponibilidade e o preço atuais na <a href={"https://bettertoken.ai/pricing"}>model plaza</a> e use esse ID em um cliente compatível.
+O BetterToken agora oferece **Claude Fable 5.1** com o Model ID exato `claude-fable-5-1`. A Anthropic posiciona o modelo para raciocínio exigente e trabalho agêntico de longo prazo, incluindo programação complexa, pesquisa em várias etapas e fluxos com muitos documentos. Consulte a disponibilidade e o preço do BetterToken na <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-## Informações disponíveis
+## Principais novidades
 
-- **Modelo**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **Disponibilidade e preço**: consulte as informações em tempo real na model plaza
+- **Trabalho agêntico prolongado**: projetado para tarefas complexas que envolvem muitas etapas, ferramentas e aplicativos
+- **Programação e trabalho intelectual**: indicado para grandes alterações em código, revisão, pesquisa, documentos, planilhas, slides, gráficos e diagramas
+- **Contexto e saída amplos**: a Anthropic especifica contexto de `1 milhão de tokens` e saída de até `128K tokens`
+- **Pensamento adaptativo**: sempre ativo, com effort `high` por padrão na Claude API
+- **Leitura de cache mais barata**: a Anthropic cobra um quarto do valor aplicado ao Claude Fable 5; o preço do BetterToken pode ser diferente, então consulte a model plaza
 
-## Configurar Claude Fable 5.1
+## Recomendações de configuração
+
+- Use Fable 5.1 para raciocínio exigente ou tarefas longas. A Anthropic recomenda começar com Claude Opus 5 na maioria dos casos e mudar quando suas avaliações justificarem Fable 5.1.
+- Antes de transferir tráfego de produção, teste uma tarefa representativa e compare qualidade, latência e consumo de tokens.
+- Ao migrar do Claude Fable 5, mantenha o histórico somente para acréscimos. Fable 5.1 rejeita o uso forçado de ferramentas; modelos anteriores não conseguem ler seus thinking blocks, e editar mensagens anteriores invalida esses blocos.
+- Use sempre o Model ID exato do BetterToken `claude-fable-5-1`, não o nome de exibição nem um ID de outra plataforma.
+
+## Início rápido
 
 1. Crie uma BetterToken API Key ou abra a janela **Setup** de uma Key existente.
-2. Copie `claude-fable-5-1` da model plaza.
+2. Confirme na model plaza que `claude-fable-5-1` está disponível.
 3. Abra o guia do seu cliente e informe a BetterToken API Key, a Base URL necessária e o Model ID exato.
 4. Reinicie o cliente se a lista de modelos não for atualizada automaticamente.
 5. Envie uma solicitação curta e confirme o registro no Dashboard.
@@ -51863,11 +52022,32 @@ O BetterToken agora oferece **Claude Fable 5.1** com o Model ID exato `claude-fa
 - [Configuração do Claude Desktop](/pt-br/faq/claude-desktop-bettertoken-api)
 - [Guia de seleção de modelos](/pt-br/faq/model-calling/model-selection-guide)
 
-## Corrigir Model not found
+## Perguntas frequentes
 
-Confirme que o Model ID seja exatamente `claude-fable-5-1`, que a BetterToken API Key tenha acesso ao modelo e que a Base URL corresponda ao guia do cliente. Reinicie o cliente e teste novamente.
+### Quando devo usar Claude Fable 5.1?
 
-<Note>Consulte a disponibilidade e o preço atuais na <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.</Note>
+Use-o para raciocínio exigente, agentes de programação de longa duração, pesquisa em várias etapas ou trabalho complexo com documentos. Para tarefas rotineiras, compare-o antes com Claude Opus 5 e outros modelos disponíveis.
+
+### O BetterToken oferece todo o contexto de 1 milhão de tokens?
+
+A especificação da Anthropic informa contexto de `1 milhão de tokens`. O limite utilizável também pode depender do cliente e das configurações da solicitação. Consulte a model plaza e a documentação do cliente antes de enviar prompts muito grandes.
+
+### Como corrigir Model not found?
+
+Confirme que o Model ID seja exatamente `claude-fable-5-1`, que a BetterToken API Key tenha acesso e que a Base URL corresponda ao guia do cliente. Reinicie o cliente e teste novamente.
+
+### Posso substituir Claude Fable 5 por Fable 5.1 diretamente?
+
+Comece alterando o Model ID e executando suas avaliações. Os prompts existentes geralmente continuam úteis, mas revise o uso forçado de ferramentas, thinking blocks entre modelos e qualquer código que altere mensagens anteriores.
+
+<Note>A disponibilidade e o preço do BetterToken podem mudar. Consulte a <a href={"https://bettertoken.ai/pricing"}>model plaza</a> antes de configurar o modelo.</Note>
+
+## Fontes oficiais
+
+- [Anúncio do Claude Fable 5.1](https://www.anthropic.com/claude/fable)
+- [Visão geral do modelo](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Guia de prompting](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Guia de migração](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -61085,35 +61265,65 @@ b64_json = result["data"][0]["b64_json"]
 
 Source: https://docs.bettertoken.ai/ja/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 が BetterToken で利用可能になりました。Model ID は claude-fable-5-1 です。ID のコピー、クライアント設定、最初のリクエスト確認方法を説明します。
+Description: Claude Fable 5.1 が BetterToken で claude-fable-5-1 として利用可能です。100 万トークンのコンテキスト、適応型思考、長時間のエージェント作業に対応します。
 
 更新日：2026 年 9 月 2 日
 
-BetterToken で **Claude Fable 5.1** が利用可能になりました。正確な Model ID は `claude-fable-5-1` です。現在の提供状況と価格を<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>で確認し、対応クライアントにこの ID を設定してください。
+BetterToken で **Claude Fable 5.1** が利用可能になりました。正確な Model ID は `claude-fable-5-1` です。Anthropic は、高度な推論と長時間のエージェント作業向けモデルとして位置づけており、複雑なコーディング、複数段階の調査、文書中心のワークフローに適しています。現在の提供状況と BetterToken の価格は<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>で確認してください。
 
-## 提供情報
+## 更新のポイント
 
-- **モデル**：Claude Fable 5.1
-- **Model ID**：`claude-fable-5-1`
-- **提供状況と価格**：モデル広場の最新情報を確認
+- **長時間のエージェント作業**：多数の手順、ツール、アプリケーションをまたぐ複雑なタスク向け
+- **コーディングと知識作業**：大規模なコード変更、コードレビュー、調査、文書、表計算、スライド、グラフ、図表に対応
+- **大きなコンテキストと出力**：Anthropic の仕様では `100 万トークン`のコンテキストと最大 `128K トークン`の出力
+- **適応型思考**：常時有効で、Claude API のデフォルト effort は `high`
+- **キャッシュ読み取りコストの低下**：Anthropic では Claude Fable 5 の 4 分の 1。BetterToken の価格は異なる場合があるため、モデル広場を確認
 
-## Claude Fable 5.1 を設定する
+## 設定の推奨事項
+
+- 高度な推論や長時間タスクには Fable 5.1 を検討してください。Anthropic は、多くの用途ではまず Claude Opus 5 を使い、独自評価で必要性を確認してから Fable 5.1 に移ることを推奨しています。
+- 本番トラフィックを切り替える前に、実際のタスクで品質、レイテンシ、トークン使用量を比較してください。
+- Claude Fable 5 から移行する場合、会話履歴は追記のみとしてください。Fable 5.1 は強制ツール呼び出しを拒否します。以前のモデルは Fable 5.1 の thinking blocks を読めず、過去のターンを編集するとそれらの blocks は無効になります。
+- 表示名や他のプラットフォーム用 ID ではなく、BetterToken の正確な Model ID `claude-fable-5-1` を使用してください。
+
+## クイックスタート
 
 1. BetterToken API Key を作成するか、既存 Key の **Setup** を開きます。
-2. モデル広場から `claude-fable-5-1` をコピーします。
+2. モデル広場で `claude-fable-5-1` が利用可能か確認します。
 3. クライアントの設定ガイドを開き、BetterToken API Key、必要な Base URL、正確な Model ID を入力します。
-4. モデル一覧が自動更新されない場合はクライアントを再起動します。
-5. 短いテストリクエストを送信し、Dashboard で確認します。
+4. モデル一覧が更新されない場合はクライアントを再起動します。
+5. 短いテストリクエストを送り、Dashboard で確認します。
 
 - [Claude Code の設定](/ja/ai-tools/claude-code)
 - [Claude Desktop の設定](/ja/faq/claude-desktop-bettertoken-api)
 - [モデル選択ガイド](/ja/faq/model-calling/model-selection-guide)
 
-## Model not found を解決する
+## よくある質問
 
-Model ID が正確に `claude-fable-5-1` であること、BetterToken API Key がモデルを利用できること、Base URL がクライアントガイドと一致することを確認してください。クライアントを再起動して再度テストします。
+### Claude Fable 5.1 はどのような場合に適していますか？
 
-<Note>提供状況と価格は<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>の最新情報を確認してください。</Note>
+高度な推論、長時間動作するコーディングエージェント、複数段階の調査、複雑な文書作業に適しています。通常のタスクでは、まず Claude Opus 5 や他の利用可能なモデルと比較してください。
+
+### BetterToken では 100 万トークンのコンテキストをすべて使えますか？
+
+Anthropic の公式仕様は `100 万トークン`です。実際の上限はクライアントやリクエスト設定にも左右されるため、非常に大きなプロンプトを送る前にモデル広場とクライアント文書を確認してください。
+
+### Model not found を解決するには？
+
+Model ID が正確に `claude-fable-5-1` であること、BetterToken API Key にアクセス権があること、Base URL がクライアントガイドと一致することを確認してください。再起動後に再試行します。
+
+### Claude Fable 5 から直接切り替えられますか？
+
+まず Model ID を変更して既存の評価を実行してください。従来のプロンプトは通常そのまま使えますが、強制ツール呼び出し、モデル間の thinking blocks、過去の会話ターンを書き換えるコードを確認してください。
+
+<Note>提供状況と BetterToken の価格は変更される場合があります。設定前に<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>を確認してください。</Note>
+
+## 公式情報
+
+- [Claude Fable 5.1 の発表](https://www.anthropic.com/claude/fable)
+- [モデル概要](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [プロンプトガイド](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [移行ガイド](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -70328,23 +70538,32 @@ L’endpoint ne renvoie pas de `task_id`, et il n’existe pas d’endpoint dist
 
 Source: https://docs.bettertoken.ai/fr/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 est disponible sur BetterToken avec le Model ID claude-fable-5-1. Découvrez comment copier l’ID, configurer votre client et vérifier la première requête.
+Description: Claude Fable 5.1 est disponible sur BetterToken sous l’ID claude-fable-5-1, avec un contexte d’un million de tokens, une réflexion adaptative et des tâches agentiques longues.
 
 Mise à jour : 2 septembre 2026
 
-BetterToken prend désormais en charge **Claude Fable 5.1** avec le Model ID exact `claude-fable-5-1`. Consultez sa disponibilité et son prix actuels dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>, puis utilisez cet ID dans un client compatible.
+BetterToken prend désormais en charge **Claude Fable 5.1** avec le Model ID exact `claude-fable-5-1`. Anthropic le destine au raisonnement exigeant et au travail agentique de longue durée, notamment au développement complexe, à la recherche en plusieurs étapes et aux flux riches en documents. Consultez la disponibilité et le prix BetterToken dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-## Informations disponibles
+## Points forts
 
-- **Modèle** : Claude Fable 5.1
-- **Model ID** : `claude-fable-5-1`
-- **Disponibilité et prix** : consultez les informations en temps réel dans la model plaza
+- **Travail agentique de longue durée** : conçu pour des tâches complexes couvrant de nombreuses étapes, outils et applications
+- **Développement et travail intellectuel** : adapté aux modifications importantes de code, à la revue, à la recherche, aux documents, feuilles de calcul, présentations, graphiques et diagrammes
+- **Contexte et sortie étendus** : Anthropic indique un contexte de `1 million de tokens` et une sortie maximale de `128K tokens`
+- **Réflexion adaptative** : toujours active, avec un effort `high` par défaut dans l’API Claude
+- **Lecture du cache moins chère** : chez Anthropic, elle coûte quatre fois moins que pour Claude Fable 5 ; le prix BetterToken peut différer, consultez donc la model plaza
 
-## Configurer Claude Fable 5.1
+## Conseils de configuration
+
+- Utilisez Fable 5.1 pour le raisonnement exigeant ou les tâches longues. Anthropic recommande Claude Opus 5 pour la plupart des usages, puis Fable 5.1 lorsque vos évaluations le justifient.
+- Avant de basculer le trafic de production, testez une tâche représentative et comparez la qualité, la latence et l’utilisation des tokens.
+- Lors d’une migration depuis Claude Fable 5, conservez un historique uniquement complété. Fable 5.1 refuse l’appel forcé d’outils ; les anciens modèles ne peuvent pas lire ses thinking blocks et la modification des tours précédents invalide ces blocs.
+- Utilisez toujours le Model ID BetterToken exact `claude-fable-5-1`, et non le nom affiché ou l’ID d’une autre plateforme.
+
+## Démarrage rapide
 
 1. Créez une BetterToken API Key ou ouvrez la fenêtre **Setup** d’une Key existante.
-2. Copiez `claude-fable-5-1` depuis la model plaza.
-3. Ouvrez le guide de votre client et saisissez la BetterToken API Key, la Base URL requise et le Model ID exact.
+2. Vérifiez dans la model plaza que `claude-fable-5-1` est disponible.
+3. Ouvrez le guide du client et saisissez la BetterToken API Key, la Base URL requise et le Model ID exact.
 4. Redémarrez le client si la liste des modèles ne se met pas à jour automatiquement.
 5. Envoyez une courte requête de test et vérifiez-la dans le Dashboard.
 
@@ -70352,11 +70571,32 @@ BetterToken prend désormais en charge **Claude Fable 5.1** avec le Model ID exa
 - [Configuration de Claude Desktop](/fr/faq/claude-desktop-bettertoken-api)
 - [Guide de sélection des modèles](/fr/faq/model-calling/model-selection-guide)
 
-## Corriger Model not found
+## Questions fréquentes
 
-Vérifiez que le Model ID est exactement `claude-fable-5-1`, que la BetterToken API Key permet d’utiliser le modèle et que la Base URL correspond au guide du client. Redémarrez le client et testez à nouveau.
+### Quand utiliser Claude Fable 5.1 ?
 
-<Note>Consultez la disponibilité et le prix actuels dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.</Note>
+Choisissez-le pour le raisonnement exigeant, les agents de développement longue durée, la recherche en plusieurs étapes ou les travaux documentaires complexes. Pour les tâches courantes, comparez-le d’abord à Claude Opus 5 et aux autres modèles disponibles.
+
+### BetterToken fournit-il tout le contexte d’un million de tokens ?
+
+Anthropic spécifie un contexte de `1 million de tokens`. La limite utilisable peut aussi dépendre du client et des paramètres de la requête. Consultez la model plaza et la documentation du client avant d’envoyer de très grands prompts.
+
+### Comment corriger Model not found ?
+
+Vérifiez que le Model ID est exactement `claude-fable-5-1`, que la BetterToken API Key autorise l’accès et que la Base URL correspond au guide du client. Redémarrez le client et testez à nouveau.
+
+### Puis-je remplacer directement Claude Fable 5 par Fable 5.1 ?
+
+Commencez par modifier le Model ID et exécutez vos évaluations. Les prompts existants restent généralement utiles, mais vérifiez l’appel forcé d’outils, les thinking blocks entre modèles et tout code modifiant les anciens tours de conversation.
+
+<Note>La disponibilité et le prix BetterToken peuvent changer. Consultez la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> avant la configuration.</Note>
+
+## Sources officielles
+
+- [Annonce de Claude Fable 5.1](https://www.anthropic.com/claude/fable)
+- [Présentation du modèle](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Guide de prompting](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Guide de migration](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -79574,22 +79814,31 @@ Der Endpunkt gibt keine `task_id` zurück; es gibt keinen separaten Endpunkt fü
 
 Source: https://docs.bettertoken.ai/de/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1 ist bei BetterToken mit der Model ID claude-fable-5-1 verfügbar. Erfahre, wie du die ID kopierst, den Client konfigurierst und die erste Anfrage prüfst.
+Description: Claude Fable 5.1 ist bei BetterToken als claude-fable-5-1 verfügbar: 1 Million Token Kontext, adaptives Denken und lang laufende agentische Aufgaben.
 
 Aktualisiert: 2. September 2026
 
-BetterToken unterstützt jetzt **Claude Fable 5.1** mit der exakten Model ID `claude-fable-5-1`. Prüfe die aktuelle Verfügbarkeit und den Preis in der <a href={"https://bettertoken.ai/pricing"}>model plaza</a> und verwende diese ID in einem unterstützten Client.
+BetterToken unterstützt jetzt **Claude Fable 5.1** mit der exakten Model ID `claude-fable-5-1`. Anthropic positioniert das Modell für anspruchsvolles Schlussfolgern und langfristige agentische Arbeit, darunter komplexe Programmierung, mehrstufige Recherche und dokumentintensive Abläufe. Aktuelle Verfügbarkeit und BetterToken-Preise findest du in der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-## Verfügbare Informationen
+## Highlights
 
-- **Modell**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **Verfügbarkeit und Preis**: aktuelle Informationen in der model plaza
+- **Lang laufende agentische Arbeit**: für komplexe Aufgaben mit vielen Schritten, Werkzeugen und Anwendungen entwickelt
+- **Programmierung und Wissensarbeit**: geeignet für große Codeänderungen, Reviews, Recherche sowie Dokumente, Tabellen, Präsentationen, Diagramme und Schaubilder
+- **Großer Kontext und Output**: Anthropic nennt `1 Million Token` Kontext und bis zu `128K Token` Ausgabe
+- **Adaptives Denken**: immer aktiv, mit `high` als Standardwert für effort in der Claude API
+- **Günstigere Cache-Lesezugriffe**: Anthropic berechnet ein Viertel des Preises von Claude Fable 5; BetterToken-Preise können abweichen, daher gilt die model plaza
 
-## Claude Fable 5.1 konfigurieren
+## Konfigurationsempfehlungen
+
+- Nutze Fable 5.1 für anspruchsvolles Schlussfolgern oder lange Aufgaben. Anthropic empfiehlt für die meisten Workloads zunächst Claude Opus 5 und einen Wechsel, wenn eigene Evaluierungen Fable 5.1 rechtfertigen.
+- Teste vor der Umstellung von Produktionstraffic eine repräsentative Aufgabe und vergleiche Qualität, Latenz und Tokenverbrauch.
+- Halte beim Umstieg von Claude Fable 5 den Gesprächsverlauf append-only. Fable 5.1 lehnt erzwungene Werkzeugaufrufe ab; frühere Modelle können seine thinking blocks nicht lesen, und Änderungen an früheren Nachrichten machen diese Blöcke ungültig.
+- Verwende immer die exakte BetterToken Model ID `claude-fable-5-1`, nicht den Anzeigenamen oder eine plattformspezifische ID.
+
+## Schnellstart
 
 1. Erstelle eine BetterToken API Key oder öffne den **Setup**-Dialog einer vorhandenen Key.
-2. Kopiere `claude-fable-5-1` aus der model plaza.
+2. Prüfe in der model plaza, ob `claude-fable-5-1` verfügbar ist.
 3. Öffne die Anleitung für deinen Client und trage BetterToken API Key, erforderliche Base URL und exakte Model ID ein.
 4. Starte den Client neu, wenn die Modellliste nicht automatisch aktualisiert wird.
 5. Sende eine kurze Testanfrage und prüfe sie im Dashboard.
@@ -79598,11 +79847,32 @@ BetterToken unterstützt jetzt **Claude Fable 5.1** mit der exakten Model ID `cl
 - [Claude Desktop einrichten](/de/faq/claude-desktop-bettertoken-api)
 - [Anleitung zur Modellauswahl](/de/faq/model-calling/model-selection-guide)
 
-## Model not found beheben
+## Häufige Fragen
 
-Prüfe, ob die Model ID exakt `claude-fable-5-1` lautet, die BetterToken API Key auf das Modell zugreifen kann und die Base URL zur Client-Anleitung passt. Starte den Client neu und teste erneut.
+### Wann sollte ich Claude Fable 5.1 verwenden?
 
-<Note>Prüfe aktuelle Verfügbarkeit und Preise in der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.</Note>
+Nutze es für anspruchsvolles Schlussfolgern, lang laufende Coding-Agenten, mehrstufige Recherche oder komplexe Dokumentarbeit. Vergleiche es bei Routineaufgaben zuerst mit Claude Opus 5 und anderen verfügbaren Modellen.
+
+### Bietet BetterToken den vollständigen Kontext von 1 Million Token?
+
+Anthropic gibt einen Kontext von `1 Million Token` an. Das nutzbare Limit kann zusätzlich vom Client und den Anfrageeinstellungen abhängen. Prüfe vor sehr großen Prompts die model plaza und die Client-Dokumentation.
+
+### Wie behebe ich Model not found?
+
+Prüfe, ob die Model ID exakt `claude-fable-5-1` lautet, die BetterToken API Key Zugriff hat und die Base URL zur Client-Anleitung passt. Starte den Client neu und teste erneut.
+
+### Kann ich Claude Fable 5 direkt durch Fable 5.1 ersetzen?
+
+Ändere zuerst die Model ID und führe deine Evaluierungen aus. Bestehende Prompts bleiben meist brauchbar, aber prüfe erzwungene Werkzeugaufrufe, modellübergreifende thinking blocks und Code, der frühere Gesprächsrunden verändert.
+
+<Note>Verfügbarkeit und BetterToken-Preise können sich ändern. Prüfe vor der Konfiguration die <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.</Note>
+
+## Offizielle Quellen
+
+- [Ankündigung zu Claude Fable 5.1](https://www.anthropic.com/claude/fable)
+- [Modellübersicht](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Prompting-Leitfaden](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [Migrationsleitfaden](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 
@@ -88814,35 +89084,65 @@ endpoint는 `task_id`를 반환하지 않으며 별도의 status query 또는 re
 
 Source: https://docs.bettertoken.ai/ko/model-updates/claude-fable-5-1
 
-Description: Claude Fable 5.1을 BetterToken에서 사용할 수 있습니다. Model ID는 claude-fable-5-1입니다. ID 복사, 클라이언트 설정, 첫 요청 확인 방법을 안내합니다.
+Description: Claude Fable 5.1을 BetterToken에서 claude-fable-5-1로 사용할 수 있습니다. 100만 토큰 컨텍스트, 적응형 사고, 장시간 에이전트 작업을 지원합니다.
 
 업데이트: 2026년 9월 2일
 
-BetterToken에서 **Claude Fable 5.1**을 사용할 수 있습니다. 정확한 Model ID는 `claude-fable-5-1`입니다. <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 현재 제공 상태와 가격을 확인한 뒤 지원되는 클라이언트에 이 ID를 입력하세요.
+BetterToken에서 **Claude Fable 5.1**을 사용할 수 있습니다. 정확한 Model ID는 `claude-fable-5-1`입니다. Anthropic은 이 모델을 고난도 추론과 장시간 에이전트 작업용으로 소개하며, 복잡한 코딩, 다단계 연구, 문서 중심 워크플로에 적합하다고 설명합니다. 현재 제공 상태와 BetterToken 가격은 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 확인하세요.
 
-## 제공 정보
+## 업데이트 주요 내용
 
-- **모델**: Claude Fable 5.1
-- **Model ID**: `claude-fable-5-1`
-- **제공 상태 및 가격**: 모델 광장의 실시간 정보 확인
+- **장시간 에이전트 작업**: 여러 단계, 도구, 애플리케이션을 거치는 복잡한 작업에 맞게 설계
+- **코딩과 지식 작업**: 대규모 코드 변경, 코드 리뷰, 연구, 문서, 스프레드시트, 슬라이드, 차트와 다이어그램에 적합
+- **대규모 컨텍스트와 출력**: Anthropic 공식 사양은 `100만 토큰` 컨텍스트와 최대 `128K 토큰` 출력
+- **적응형 사고**: 항상 활성화되며 Claude API의 기본 effort는 `high`
+- **낮아진 캐시 읽기 비용**: Anthropic 기준 Claude Fable 5의 4분의 1이며, BetterToken 가격은 다를 수 있으므로 모델 광장을 확인
 
-## Claude Fable 5.1 설정하기
+## 설정 권장 사항
+
+- 고난도 추론이나 장시간 작업에는 Fable 5.1을 고려하세요. Anthropic은 대부분의 워크로드에서 먼저 Claude Opus 5를 사용하고 자체 평가 결과에 따라 Fable 5.1로 전환할 것을 권장합니다.
+- 프로덕션 트래픽을 전환하기 전에 실제 작업으로 품질, 지연 시간, 토큰 사용량을 비교하세요.
+- Claude Fable 5에서 이전할 때 대화 기록은 추가만 하세요. Fable 5.1은 강제 도구 호출을 거부합니다. 이전 모델은 Fable 5.1의 thinking blocks를 읽을 수 없고, 앞선 대화 턴을 수정하면 해당 blocks가 무효화됩니다.
+- 표시 이름이나 다른 플랫폼용 ID가 아닌 정확한 BetterToken Model ID `claude-fable-5-1`을 사용하세요.
+
+## 빠른 시작
 
 1. BetterToken API Key를 만들거나 기존 Key의 **Setup** 창을 엽니다.
-2. 모델 광장에서 `claude-fable-5-1`을 복사합니다.
+2. 모델 광장에서 `claude-fable-5-1`의 제공 상태를 확인합니다.
 3. 클라이언트 설정 문서를 열고 BetterToken API Key, 필요한 Base URL, 정확한 Model ID를 입력합니다.
-4. 모델 목록이 자동으로 갱신되지 않으면 클라이언트를 다시 시작합니다.
+4. 모델 목록이 갱신되지 않으면 클라이언트를 다시 시작합니다.
 5. 짧은 테스트 요청을 보내고 Dashboard에서 확인합니다.
 
 - [Claude Code 설정](/ko/ai-tools/claude-code)
 - [Claude Desktop 설정](/ko/faq/claude-desktop-bettertoken-api)
 - [모델 선택 가이드](/ko/faq/model-calling/model-selection-guide)
 
-## Model not found 해결하기
+## 자주 묻는 질문
 
-Model ID가 정확히 `claude-fable-5-1`인지, BetterToken API Key가 모델에 접근할 수 있는지, Base URL이 클라이언트 문서와 일치하는지 확인하세요. 클라이언트를 다시 시작한 뒤 재시험합니다.
+### Claude Fable 5.1은 언제 사용해야 하나요?
 
-<Note>현재 제공 상태와 가격은 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 확인하세요.</Note>
+고난도 추론, 장시간 코딩 에이전트, 다단계 연구 또는 복잡한 문서 작업에 사용하세요. 일상적인 작업에서는 먼저 Claude Opus 5 및 다른 제공 모델과 비교하는 것이 좋습니다.
+
+### BetterToken에서 100만 토큰 컨텍스트를 모두 사용할 수 있나요?
+
+Anthropic 공식 사양은 `100만 토큰` 컨텍스트입니다. 실제 사용 한도는 클라이언트와 요청 설정의 영향도 받을 수 있습니다. 매우 큰 프롬프트를 보내기 전에 모델 광장과 클라이언트 문서를 확인하세요.
+
+### Model not found 오류는 어떻게 해결하나요?
+
+Model ID가 정확히 `claude-fable-5-1`인지, BetterToken API Key에 접근 권한이 있는지, Base URL이 클라이언트 문서와 일치하는지 확인하세요. 클라이언트를 다시 시작한 뒤 재시험합니다.
+
+### Claude Fable 5에서 바로 전환할 수 있나요?
+
+먼저 Model ID를 변경하고 기존 평가를 실행하세요. 기존 프롬프트는 일반적으로 계속 사용할 수 있지만 강제 도구 호출, 모델 간 thinking blocks, 이전 대화 턴을 수정하는 코드를 점검해야 합니다.
+
+<Note>제공 상태와 BetterToken 가격은 변경될 수 있습니다. 설정 전에 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>을 확인하세요.</Note>
+
+## 공식 출처
+
+- [Claude Fable 5.1 발표](https://www.anthropic.com/claude/fable)
+- [모델 개요](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [프롬프트 가이드](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [마이그레이션 가이드](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
 
 ---
 

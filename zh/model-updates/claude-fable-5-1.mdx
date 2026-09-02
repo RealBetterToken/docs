@@ -1,23 +1,32 @@
 ---
 title: "Claude Fable 5.1 上架"
-description: "Claude Fable 5.1 已在 BetterToken 上架，模型 ID 为 claude-fable-5-1。了解如何复制 Model ID、配置客户端并验证首次请求。"
+description: "Claude Fable 5.1 已在 BetterToken 上架，模型 ID 为 claude-fable-5-1，支持 100 万上下文、自适应思考和长周期 Agent 任务。"
 tag: "NEW"
 ---
 
 更新日期：2026-09-02
 
-BetterToken 已上架 **Claude Fable 5.1**，准确的模型 ID 是 `claude-fable-5-1`。请先在<a href={"{{model-plaza-url}}"}>模型广场</a>查看当前可用状态和价格，再在支持的客户端中使用这个 ID。
+BetterToken 已上架 **Claude Fable 5.1**，准确的模型 ID 是 `claude-fable-5-1`。Anthropic 将其定位为面向高强度推理和长周期 Agent 任务的模型，适用于复杂编程、多步骤研究和文档密集型工作。当前可用状态和 BetterToken 价格请以<a href={"{{model-plaza-url}}"}>模型广场</a>为准。
 
-## 本次上架信息
+## 更新亮点
 
-- **模型**：Claude Fable 5.1
-- **模型 ID**：`claude-fable-5-1`
-- **可用状态和价格**：以模型广场实时信息为准
+- **长周期 Agent 任务**：适合需要多个步骤、工具和应用协作的复杂工作
+- **编程和知识工作**：面向大型代码修改、代码审查、研究，以及文档、表格、幻灯片、图表和示意图分析
+- **大上下文和输出**：Anthropic 官方规格为 `100 万 token` 上下文，最高输出 `128K token`
+- **自适应思考**：始终开启，Claude API 的默认 effort 为 `high`
+- **缓存读取成本降低**：Anthropic 官方缓存读取价格为 Claude Fable 5 的四分之一；BetterToken 价格可能不同，请查看模型广场实时价格
 
-## 配置 Claude Fable 5.1
+## 配置建议
+
+- 高强度推理或长周期任务可选择 Fable 5.1。Anthropic 建议大多数任务先从 Claude Opus 5 开始，再根据自己的评测结果决定是否使用 Fable 5.1。
+- 切换生产流量前，先用真实任务比较输出质量、延迟和 token 消耗。
+- 从 Claude Fable 5 迁移时，请保持对话历史只追加、不修改。Fable 5.1 不支持强制工具调用；早期模型无法读取它生成的 thinking blocks，修改前面的对话也会让这些 blocks 失效。
+- 始终填写 BetterToken 的准确模型 ID `claude-fable-5-1`，不要使用展示名称或其他平台的模型 ID。
+
+## 快速开始
 
 1. 创建 BetterToken API Key，或打开现有 Key 的 **Setup** 弹窗。
-2. 从模型广场复制 `claude-fable-5-1`。
+2. 在模型广场确认 `claude-fable-5-1` 当前可用。
 3. 打开对应客户端的接入文档，填写 BetterToken API Key、要求的 Base URL 和准确模型 ID。
 4. 如果客户端没有自动刷新模型列表，请完全重启客户端。
 5. 发送一个简短测试请求，并在 Dashboard 中确认请求记录。
@@ -28,10 +37,31 @@ BetterToken 已上架 **Claude Fable 5.1**，准确的模型 ID 是 `claude-fabl
 - [Claude Desktop 接入](/zh/faq/claude-desktop-bettertoken-api)
 - [模型选择指南](/zh/faq/model-calling/model-selection-guide)
 
-## 解决 Model not found
+## 常见问题
+
+### 哪些任务适合 Claude Fable 5.1？
+
+它适合高强度推理、长时间运行的编程 Agent、多步骤研究和复杂文档工作。常规任务建议先与 Claude Opus 5 及其他可用模型比较，再决定是否切换。
+
+### BetterToken 是否支持完整的 100 万上下文？
+
+Anthropic 官方规格为 `100 万 token` 上下文。实际可用长度还可能受到客户端和请求设置限制，发送超长提示词前请同时查看模型广场和客户端文档。
+
+### 如何解决 Model not found？
 
 确认模型 ID 完整填写为 `claude-fable-5-1`，BetterToken API Key 可以访问该模型，并且 Base URL 与当前客户端接入文档一致。完成后重启客户端并重新测试。
 
+### 可以直接从 Claude Fable 5 切换到 5.1 吗？
+
+可以先替换模型 ID，再运行现有评测。原有提示词通常仍可使用，但需要检查强制工具调用、跨模型 thinking blocks，以及会修改历史对话内容的客户端逻辑。
+
 <Note>
-  模型可用状态和价格可能变化。配置前请查看<a href={"{{model-plaza-url}}"}>模型广场</a>的实时信息。
+  模型可用状态和 BetterToken 价格可能变化。配置前请查看<a href={"{{model-plaza-url}}"}>模型广场</a>的实时信息。
 </Note>
+
+## 官方来源
+
+- [Claude Fable 5.1 官方发布](https://www.anthropic.com/claude/fable)
+- [Claude Fable 5.1 模型概览](https://platform.claude.com/docs/en/models/fable-5-1/overview)
+- [Claude Fable 5.1 提示词指南](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1)
+- [迁移指南](https://platform.claude.com/docs/en/models/fable-5-1/migration-guide)
