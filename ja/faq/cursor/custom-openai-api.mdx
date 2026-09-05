@@ -8,6 +8,8 @@ description: "BetterToken API Key、Override OpenAI Base URL、GPT モデル ID 
 
 BetterToken を Cursor の Custom OpenAI API として接続するには、BetterToken API Key を入力し、Override OpenAI Base URL を有効にして `{{openai-base-url}}` を設定します。次に、モデル広場から現在の GPT モデル ID を追加します。API Key、Base URL、モデル ID はすべて同じプロバイダーに属している必要があります。
 
+BetterToken の公開 Base URL は `https://bettertoken.ai/v1` です。
+
 ## この情報が役立つ場面
 
 - Cursor でサードパーティの OpenAI 互換プロバイダーを使用したいとき
@@ -33,7 +35,24 @@ BetterToken を Cursor の Custom OpenAI API として接続するには、Bette
 4. プロバイダーがサポートするモデル ID を追加または選択します。
 5. 保存し、簡単なリクエストで確認します。
 
+## トラブルシューティング
+
+### 401 Unauthorized
+
+BetterToken API Key に余分な空白がなく、Cursor が `https://bettertoken.ai/v1` を使用していることを確認してください。あるプロバイダーの API Key と別のプロバイダーの Base URL を混在させないでください。Key を再生成または無効化した場合は、Cursor で置き換えて再試行します。
+
+### Model Not Found または 404
+
+画面の表示名ではなく、BetterToken Model Plaza に表示される正確な API Model ID を使用してください。モデルが OpenAI 互換エンドポイントで利用でき、Base URL が `/v1` で終わることを確認します。
+
+### プライベートネットワークへのアクセスは禁止されています
+
+Cursor は `localhost`、`127.0.0.1`、プライベート LAN アドレス、その他の非公開エンドポイントを拒否する場合があります。BetterToken では公開 HTTPS Base URL `https://bettertoken.ai/v1` を維持してください。ローカルプロキシを使う場合は、Cursor の現在のローカルネットワーク制限に従ってください。
+
 ## よくある間違い
+
+- **401 Unauthorized:** 有効な BetterToken API Key を使用し、余分な空白を削除します。
+- **404 Not Found:** 完全なリクエストパスではなく、`https://bettertoken.ai/v1` を Base URL として使用します。
 
 - あるプロバイダーの API Key と別のプロバイダーの Base URL を使用すること。
 - OpenAI 互換設定に Claude モデル名を入力すること。
@@ -49,6 +68,7 @@ Claude Code の `{{anthropic-base-url}}` を Cursor の OpenAI 互換設定に�
 
 ## 関連ドキュメント
 
+- [Cursor の完全な設定ガイド](/ja/ai-tools/cursor)
 - [Cursor Rules、AGENTS.md、.cursorignore](/ja/faq/cursor/rules-agents-cursorignore)
 - [Cursor で MCP を設定する方法](/ja/faq/cursor/mcp)
 - [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)

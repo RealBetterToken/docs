@@ -8,6 +8,8 @@ description: "BetterToken API Key, Override OpenAI Base URL और GPT Model ID 
 
 Cursor में BetterToken को Custom OpenAI API के रूप में जोड़ने के लिए BetterToken API Key दर्ज करें, Override OpenAI Base URL सक्षम करें और इसे `{{openai-base-url}}` पर सेट करें। फिर model plaza से current GPT Model ID जोड़ें। API Key, Base URL और Model ID सभी एक ही provider से संबंधित होने चाहिए।
 
+BetterToken का public Base URL `https://bettertoken.ai/v1` है।
+
 ## यह कब महत्वपूर्ण है
 
 - आप चाहते हैं कि Cursor third-party OpenAI-compatible provider उपयोग करे
@@ -33,7 +35,24 @@ Cursor में BetterToken को Custom OpenAI API के रूप में
 4. provider समर्थित Model ID जोड़ें या चुनें।
 5. सहेजें और सरल request से सत्यापित करें।
 
+## समस्या निवारण
+
+### 401 Unauthorized
+
+पुष्टि करें कि BetterToken API Key बिना अतिरिक्त spaces के कॉपी की गई है और Cursor `https://bettertoken.ai/v1` उपयोग कर रहा है। एक provider की API Key को दूसरे provider की Base URL के साथ न मिलाएं। Key regenerate या revoke होने पर उसे Cursor में बदलकर फिर test करें।
+
+### Model Not Found या 404
+
+BetterToken Model Plaza में दिखाया गया exact API Model ID उपयोग करें, interface का display name नहीं। पुष्टि करें कि model OpenAI-compatible endpoint पर उपलब्ध है और Base URL `/v1` पर समाप्त होती है।
+
+### निजी नेटवर्क तक पहुंच प्रतिबंधित है
+
+Cursor `localhost`, `127.0.0.1`, private LAN address या अन्य non-public endpoint को अस्वीकार कर सकता है। BetterToken के साथ public HTTPS Base URL `https://bettertoken.ai/v1` रखें। Local proxy के लिए Cursor की current local-network restrictions का पालन करें।
+
 ## सामान्य गलतियां
+
+- **401 Unauthorized:** सक्रिय BetterToken API Key उपयोग करें और अतिरिक्त spaces हटाएं।
+- **404 Not Found:** Base URL के रूप में `https://bettertoken.ai/v1` उपयोग करें, पूरा request path नहीं।
 
 - एक provider की API Key और दूसरे की Base URL उपयोग करना।
 - OpenAI-compatible configuration में Claude model name डालना।
@@ -49,6 +68,7 @@ Claude Code `{{anthropic-base-url}}` को Cursor OpenAI-compatible configurati
 
 ## संबंधित दस्तावेज
 
+- [पूरी Cursor सेटअप गाइड](/hi/ai-tools/cursor)
 - [Cursor Rules, AGENTS.md और .cursorignore](/hi/faq/cursor/rules-agents-cursorignore)
 - [Cursor में MCP कैसे कॉन्फ़िगर करें](/hi/faq/cursor/mcp)
 - [OpenAI-compatible API बनाम Anthropic-compatible API](/hi/faq/concepts/openai-compatible-vs-anthropic-compatible)

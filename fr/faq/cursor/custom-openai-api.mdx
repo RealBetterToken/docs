@@ -8,6 +8,8 @@ description: "Configurez une API OpenAI personnalisée dans Cursor avec une Bett
 
 Pour connecter BetterToken comme API OpenAI personnalisée dans Cursor, saisissez une BetterToken API Key, activez Override OpenAI Base URL et définissez-la sur `{{openai-base-url}}`. Ajoutez ensuite un GPT Model ID actuel depuis la model plaza. L’API Key, la Base URL et le Model ID doivent tous appartenir au même fournisseur.
 
+La Base URL publique de BetterToken est `https://bettertoken.ai/v1`.
+
 ## Quand cela importe
 
 - Vous voulez que Cursor utilise un fournisseur tiers compatible OpenAI
@@ -33,7 +35,24 @@ Pour connecter BetterToken comme API OpenAI personnalisée dans Cursor, saisisse
 4. Ajoutez ou sélectionnez un Model ID pris en charge par le fournisseur.
 5. Enregistrez et vérifiez avec une requête simple.
 
+## Dépannage
+
+### 401 Unauthorized
+
+Vérifiez que la BetterToken API Key a été copiée sans espace superflu et que Cursor utilise `https://bettertoken.ai/v1`. Ne combinez pas l’API Key d’un fournisseur avec la Base URL d’un autre. Si la clé a été régénérée ou révoquée, remplacez-la dans Cursor et testez à nouveau.
+
+### Model Not Found ou 404
+
+Utilisez le Model ID exact affiché dans BetterToken Model Plaza, et non le nom visible dans l’interface. Vérifiez que le modèle est disponible via l’endpoint compatible OpenAI et que la Base URL se termine par `/v1`.
+
+### Corriger l’accès interdit aux réseaux privés
+
+Cursor peut refuser `localhost`, `127.0.0.1`, les adresses de réseau local privé ou d’autres endpoints non publics. Avec BetterToken, conservez la Base URL HTTPS publique `https://bettertoken.ai/v1`. Pour un proxy local, respectez les restrictions réseau locales actuelles de Cursor.
+
 ## Erreurs fréquentes
+
+- **401 Unauthorized :** utilisez une BetterToken API Key active et supprimez les espaces superflus.
+- **404 Not Found :** utilisez `https://bettertoken.ai/v1` comme Base URL, pas un chemin de requête complet.
 
 - Utiliser l’API Key d’un fournisseur et la Base URL d’un autre.
 - Placer un nom de modèle Claude dans une configuration compatible OpenAI.
@@ -49,6 +68,7 @@ Ne placez pas l’adresse Claude Code `{{anthropic-base-url}}` dans la configura
 
 ## Documentation associée
 
+- [Guide complet de configuration de Cursor](/fr/ai-tools/cursor)
 - [Cursor Rules, AGENTS.md et .cursorignore](/fr/faq/cursor/rules-agents-cursorignore)
 - [Comment configurer MCP dans Cursor](/fr/faq/cursor/mcp)
 - [API compatible OpenAI et API compatible Anthropic : différences](/fr/faq/concepts/openai-compatible-vs-anthropic-compatible)

@@ -8,6 +8,8 @@ description: "Configure uma API OpenAI personalizada no Cursor com uma BetterTok
 
 Para conectar a BetterToken como uma API OpenAI personalizada no Cursor, insira uma BetterToken API Key, ative **Override OpenAI Base URL** e defina o valor como `{{openai-base-url}}`. Depois, adicione um ID de modelo GPT atual da model plaza. A API Key, a Base URL e o ID de modelo devem pertencer ao mesmo provedor.
 
+A Base URL pública da BetterToken é `https://bettertoken.ai/v1`.
+
 ## Quando isso é importante
 
 - Você quer usar no Cursor um provedor de terceiros compatível com OpenAI
@@ -33,7 +35,24 @@ Para conectar a BetterToken como uma API OpenAI personalizada no Cursor, insira 
 4. Adicione ou selecione um ID de modelo aceito pelo provedor.
 5. Salve e teste com uma solicitação simples.
 
+## Solução de problemas
+
+### 401 Unauthorized
+
+Confirme que a BetterToken API Key foi copiada sem espaços extras e que o Cursor usa `https://bettertoken.ai/v1`. Não combine a API Key de um provedor com a Base URL de outro. Se a chave foi regenerada ou revogada, substitua-a no Cursor e teste novamente.
+
+### Model Not Found ou 404
+
+Use o Model ID exato exibido na BetterToken Model Plaza, não o nome mostrado na interface. Confirme que o modelo está disponível pelo endpoint compatível com OpenAI e que a Base URL termina em `/v1`.
+
+### Corrigir o acesso proibido a redes privadas
+
+O Cursor pode rejeitar `localhost`, `127.0.0.1`, endereços de LAN privada ou outros endpoints não públicos. Com a BetterToken, mantenha a Base URL HTTPS pública `https://bettertoken.ai/v1`. Para um proxy local, siga as restrições atuais de rede local do Cursor.
+
 ## Erros comuns
+
+- **401 Unauthorized:** use uma BetterToken API Key ativa e remova espaços extras.
+- **404 Not Found:** use `https://bettertoken.ai/v1` como Base URL, não um caminho completo de solicitação.
 
 - Usar uma API Key de um provedor e a Base URL de outro.
 - Colocar o nome de um modelo Claude em uma configuração compatível com OpenAI.
@@ -49,6 +68,7 @@ Não use a URL `{{anthropic-base-url}}` do Claude Code na configuração compat�
 
 ## Documentos relacionados
 
+- [Guia completo de configuração do Cursor](/pt-br/ai-tools/cursor)
 - [Cursor Rules, AGENTS.md e .cursorignore](/pt-br/faq/cursor/rules-agents-cursorignore)
 - [Como configurar o MCP no Cursor](/pt-br/faq/cursor/mcp)
 - [API compatível com OpenAI versus API compatível com Anthropic](/pt-br/faq/concepts/openai-compatible-vs-anthropic-compatible)
