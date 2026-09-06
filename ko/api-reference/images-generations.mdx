@@ -20,6 +20,12 @@ text-to-image endpoint는 `application/json` request body를 사용합니다. pr
   API keys를 frontend browser code, Git repositories, tickets, screenshots 또는 logs에 넣지 마세요. server-side proxy calls에서는 API keys를 server environment variables 또는 secret manager에만 저장하세요.
 </Warning>
 
+## 알맞은 workflow 선택
+
+- **텍스트로 이미지를 생성하고 결과 저장:** 이 페이지를 계속 사용하세요. `curl` 예제로 시작한 다음 **이미지 저장**에서 `data[0].b64_json`을 decode하세요.
+- **기존 이미지 편집:** 하나 이상의 source file을 `multipart/form-data`로 보내는 [Image to image](/ko/api-reference/images-edits)를 사용하세요.
+- **모델과 parameters를 선택하고 budget 추정:** 현재 Model ID와 가격은 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 확인하고 request parameters는 아래 **권장 값**을 참고하세요. 전체 request-response 흐름은 [영문 GPT Image 2 첫 요청 문서](https://bettertoken.ai/en/blog/gpt-image-2-first-api-request/)에서 확인할 수 있습니다.
+
 ## curl 빠른 시작
 
 `{{openai-base-url}}`을 Base URL로 사용하고 `{{images-generations-url}}`로 request를 보내세요.

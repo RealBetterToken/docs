@@ -20,6 +20,12 @@ openapi: "api-reference/openapi.json POST /v1/images/generations"
   API Key をフロントエンドのブラウザーコード、Git リポジトリ、チケット、スクリーンショット、ログに含めないでください。サーバー側のプロキシ呼び出しでは、API Key はサーバーの環境変数またはシークレットマネージャーにのみ保存してください。
 </Warning>
 
+## 目的に合うフローを選ぶ
+
+- **テキストから画像を生成して保存する：**このページを使用します。`curl` の例から始め、続いて **画像を保存する** で `data[0].b64_json` をデコードします。
+- **既存の画像を編集する：**[Image to image](/ja/api-reference/images-edits)を使用します。1 つ以上の元画像を `multipart/form-data` として送信します。
+- **モデルとパラメータを選び、予算を見積もる：**現在の Model ID と価格は<a href={"{{model-plaza-url}}"}>モデル広場</a>で確認し、リクエストパラメータは下の **推奨値** を参照してください。リクエストとレスポンスの全体像は[英語の GPT Image 2 初回リクエスト記事](https://bettertoken.ai/en/blog/gpt-image-2-first-api-request/)で確認できます。
+
 ## curl でのクイックスタート
 
 Base URL として `{{openai-base-url}}` を使用し、`{{images-generations-url}}` にリクエストを送信します。
