@@ -12,6 +12,10 @@ Vous pouvez ajouter un fichier local `custom-models.json` pour que Codex reconna
   Utilisez le fichier `custom-models.json` complet fourni sur cette page. Si vous modifiez le fichier manuellement, conservez les entrées et champs de modèles existants et ne modifiez que la configuration du modèle dont vous avez besoin.
 </Note>
 
+<Warning>
+  Cette page ajoute uniquement un catalogue de modèles local. Si `[model_providers.{{codex-provider-id}}]` fonctionne déjà, conservez ce fournisseur et ses champs d’authentification ; ajoutez seulement `model_catalog_json` et les sélections de modèles. L’exemple complet ci-dessous utilise `env_key = "BETTERTOKEN_API_KEY"` avec `requires_openai_auth = false`. Définissez cette variable d’environnement avec les étapes manuelles du [guide de configuration Codex](/fr/ai-tools/codex) habituel avant de redémarrer Codex.
+</Warning>
+
 ## Étapes de configuration
 
 <Steps>
@@ -87,6 +91,7 @@ Vous pouvez ajouter un fichier local `custom-models.json` pour que Codex reconna
     [model_providers.{{codex-provider-id}}]
     name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
     request_max_retries = 4
@@ -122,5 +127,6 @@ Si `gpt-5.5` ne fonctionne toujours pas, vérifiez ces éléments dans l’ordre
 3. `base_url` est `{{openai-base-url}}`
 4. `wire_api` est `responses`
 5. `model_provider` correspond à l’ID de fournisseur dans `[model_providers.{{codex-provider-id}}]`
+6. `env_key` pointe vers `BETTERTOKEN_API_KEY` et cette variable est accessible au processus qui démarre Codex
 
 Si votre version de Codex prend déjà `gpt-5.5` en charge nativement, supprimez `model_catalog_json` et revenez au [guide de configuration Codex](/fr/ai-tools/codex) habituel.

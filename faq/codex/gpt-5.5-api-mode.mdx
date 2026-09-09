@@ -12,6 +12,10 @@ description: "Временно включите GPT-5.5 в Codex custom API mode
   Используйте полный `custom-models.json`, предоставленный на этой странице. Если вы редактируете файл вручную, сохраните существующие model entries и fields, меняя только нужную model configuration.
 </Note>
 
+<Warning>
+  Эта страница добавляет только локальный model catalog. Если `[model_providers.{{codex-provider-id}}]` уже работает, сохраните этот provider и его поля аутентификации; добавьте только `model_catalog_json` и настройки выбора модели. Полный пример ниже использует `env_key = "BETTERTOKEN_API_KEY"` вместе с `requires_openai_auth = false`. Перед перезапуском Codex задайте эту переменную окружения по шагам ручной настройки в обычной [инструкции Codex](/ai-tools/codex).
+</Warning>
+
 ## Шаги настройки
 
 <Steps>
@@ -87,6 +91,7 @@ description: "Временно включите GPT-5.5 в Codex custom API mode
     [model_providers.{{codex-provider-id}}]
     name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
     request_max_retries = 4
@@ -122,5 +127,6 @@ description: "Временно включите GPT-5.5 в Codex custom API mode
 3. `base_url` равен `{{openai-base-url}}`
 4. `wire_api` равен `responses`
 5. `model_provider` совпадает с provider id в `[model_providers.{{codex-provider-id}}]`
+6. `env_key` указывает на `BETTERTOKEN_API_KEY`, и эта переменная доступна процессу, который запускает Codex
 
 Если ваша версия Codex уже поддерживает `gpt-5.5` нативно, удалите `model_catalog_json` и вернитесь к обычной [инструкции Codex](/ai-tools/codex).

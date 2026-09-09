@@ -12,6 +12,10 @@ local `custom-models.json` file을 추가하여 Codex가 `gpt-5.5`를 인식하�
   이 페이지에서 제공하는 전체 `custom-models.json`을 사용하세요. file을 수동 편집한다면 existing model entries와 fields를 유지하고 필요한 model configuration만 변경하세요.
 </Note>
 
+<Warning>
+  이 페이지는 local model catalog만 추가합니다. `[model_providers.{{codex-provider-id}}]`가 이미 작동한다면 해당 provider와 authentication fields를 유지하고 `model_catalog_json`과 model selections만 추가하세요. 아래 전체 예시는 `env_key = "BETTERTOKEN_API_KEY"`와 `requires_openai_auth = false`를 사용합니다. Codex를 다시 시작하기 전에 일반 [Codex 설정 가이드](/ko/ai-tools/codex)의 수동 설정 단계에 따라 이 environment variable을 설정하세요.
+</Warning>
+
 ## 설정 단계
 
 <Steps>
@@ -87,6 +91,7 @@ local `custom-models.json` file을 추가하여 Codex가 `gpt-5.5`를 인식하�
     [model_providers.{{codex-provider-id}}]
     name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
     request_max_retries = 4
@@ -122,5 +127,6 @@ local `custom-models.json` file을 추가하여 Codex가 `gpt-5.5`를 인식하�
 3. `base_url`이 `{{openai-base-url}}`임
 4. `wire_api`가 `responses`임
 5. `model_provider`가 `[model_providers.{{codex-provider-id}}]`의 provider id와 일치함
+6. `env_key`가 `BETTERTOKEN_API_KEY`를 가리키고 Codex를 시작하는 process에서 해당 variable을 사용할 수 있음
 
 Codex version이 이미 `gpt-5.5`를 native로 지원한다면 `model_catalog_json`을 제거하고 일반 [Codex 설정 가이드](/ko/ai-tools/codex)로 돌아가세요.

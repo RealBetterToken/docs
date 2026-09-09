@@ -12,6 +12,10 @@ description: "ローカルモデルカタログを使用して、Codex のカス
   このページで提供する完全な `custom-models.json` を使用してください。手動でファイルを編集する場合は、既存のモデルエントリと項目を維持し、必要なモデル設定だけを変更してください。
 </Note>
 
+<Warning>
+  このページで追加するのはローカルモデルカタログだけです。`[model_providers.{{codex-provider-id}}]` がすでに動作している場合は、そのプロバイダーと認証フィールドを維持し、`model_catalog_json` とモデル選択だけを追加してください。以下の完全な例では、`env_key = "BETTERTOKEN_API_KEY"` と `requires_openai_auth = false` を使用します。Codex を再起動する前に、通常の [Codex 設定ガイド](/ja/ai-tools/codex) の手動設定手順に従ってこの環境変数を設定してください。
+</Warning>
+
 ## 設定手順
 
 <Steps>
@@ -87,6 +91,7 @@ description: "ローカルモデルカタログを使用して、Codex のカス
     [model_providers.{{codex-provider-id}}]
     name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
     request_max_retries = 4
@@ -122,5 +127,6 @@ description: "ローカルモデルカタログを使用して、Codex のカス
 3. `base_url` が `{{openai-base-url}}` である
 4. `wire_api` が `responses` である
 5. `model_provider` が `[model_providers.{{codex-provider-id}}]` 内のプロバイダー ID と一致する
+6. `env_key` が `BETTERTOKEN_API_KEY` を指し、Codex を起動するプロセスからその変数を参照できる
 
 お使いの Codex バージョンがすでに `gpt-5.5` をネイティブにサポートしている場合は、`model_catalog_json` を削除し、通常の [Codex 設定ガイド](/ja/ai-tools/codex) に戻ってください。

@@ -5,13 +5,13 @@ description: "Configure a Codex CLI/App custom provider with config.toml, BETTER
 icon: "code"
 ---
 
-Codex CLI and Codex App connect to BetterToken through OpenAI Responses. The configuration file is `~/.codex/config.toml`, and the API Key is supplied through `BETTERTOKEN_API_KEY`.
+Codex CLI and Codex App connect to BetterToken through OpenAI Responses. Automatic setup uses Codex API-key login. Manual setup keeps the credential in `BETTERTOKEN_API_KEY`.
 
 ## Key settings
 
 | Field | Value |
 | --- | --- |
-| API Key | `BETTERTOKEN_API_KEY` environment variable |
+| API Key | Automatic: Codex API-key login; manual: `BETTERTOKEN_API_KEY` |
 | Base URL | `{{openai-base-url}}` |
 | Model | `YOUR_MODEL_ID` |
 
@@ -29,7 +29,11 @@ npm install -g @openai/codex
 
 ## Command-line setup
 
-The BetterToken Automatic setup script writes the Codex provider configuration. It requires Node.js and prompts for the API Key or Model ID when they are not passed as arguments.
+The BetterToken Automatic setup script writes the Codex provider configuration and stores the BetterToken API Key in `~/.codex/auth.json`. It sets `requires_openai_auth = true`, so Codex uses API-key login. It requires Node.js and prompts for the API Key or Model ID when they are not passed as arguments.
+
+<Warning>
+  Automatic setup switches Codex from official ChatGPT login to API-key login. To keep the official login, skip the script and use the manual provider setup below.
+</Warning>
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -44,7 +48,7 @@ The BetterToken Automatic setup script writes the Codex provider configuration. 
   </Tab>
 </Tabs>
 
-After it finishes, open `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows), confirm that `model`, `review_model`, and the BetterToken provider were written correctly, and fully restart Codex.
+After it finishes, open `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows). Confirm that `model`, `review_model`, the BetterToken provider, and `requires_openai_auth = true` were written correctly. Then follow the restart steps under **Verify the connection**.
 
 ## Manual setup
 
@@ -65,11 +69,20 @@ GPT, Kimi, and GLM use the same `config.toml` structure. Only replace `YOUR_MODE
     [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
     $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
     ```
+
+    The first command persists the variable for future processes. The second makes it available in the current PowerShell session before you start Codex CLI.
+  </Tab>
+  <Tab title="Codex App">
+    ```dotenv
+    BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    Save this line in `~/.codex/.env`, or `%USERPROFILE%\.codex\.env` on Windows. If you use a custom `CODEX_HOME`, save `.env` in that directory. Fully quit and reopen Codex App after changing the file.
   </Tab>
 </Tabs>
 
 <Warning>
-  Do not put a BetterToken API Key in `~/.codex/auth.json`. That file is for the official Codex login; a custom provider should read the environment variable through `env_key`.
+  For this manual method, do not put the BetterToken API Key in `~/.codex/auth.json`. Keep the official login there and let the custom provider read `BETTERTOKEN_API_KEY` through `env_key`. The automatic method above is a separate API-key login mode.
 </Warning>
 
 ### Configure config.toml
@@ -98,13 +111,20 @@ supports_websockets = false
 
 ## Verify the connection
 
-Open a new terminal and run:
+<Tabs>
+  <Tab title="Codex CLI">
+    Stop the current Codex process. Open a new terminal and run:
 
-```bash
-codex
-```
+    ```bash
+    codex
+    ```
 
-Send a short task. A streamed response without login, `401`, or model errors confirms the setup.
+    Send a short task. A streamed response without login, `401`, or model errors confirms the setup.
+  </Tab>
+  <Tab title="Codex App">
+    Fully quit Codex App, reopen it, and create a new task. Send a short task. A streamed response without login, `401`, or model errors confirms the setup.
+  </Tab>
+</Tabs>
 
 ## Switch models
 
@@ -114,11 +134,11 @@ Change `model` and, optionally, `review_model`. Save the file, stop the current 
 
 | Error | Fix |
 | --- | --- |
-| `401` or an OpenAI sign-in prompt | Check `BETTERTOKEN_API_KEY` and confirm `requires_openai_auth = false`. |
+| `401` or an OpenAI sign-in prompt | Automatic: confirm setup completed and `requires_openai_auth = true`. Manual: check `BETTERTOKEN_API_KEY`, `env_key`, and `requires_openai_auth = false`. |
 | Provider not found | Make `model_provider = "custom"` match `[model_providers.custom]`. |
 | API mode error | Keep `wire_api = "responses"`; do not switch to Chat Completions. |
 | Model not found | Replace `YOUR_MODEL_ID` with a current complete ID from Setup or the model plaza. |
-| Configuration not applied | Open a new terminal, verify the environment variable, and fully restart Codex. |
+| Configuration not applied | For CLI, open a new terminal. For Codex App, fully quit and reopen it, then create a new task. In manual mode, also verify the active process can read `BETTERTOKEN_API_KEY`. |
 
 ## Advanced setup
 

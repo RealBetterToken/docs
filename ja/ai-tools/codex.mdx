@@ -5,13 +5,13 @@ description: "config.toml、BETTERTOKEN_API_KEY、Responses の Base URL、現�
 icon: "code"
 ---
 
-Codex CLI と Codex App は、OpenAI Responses を使って BetterToken に接続します。設定ファイルは `~/.codex/config.toml` で、API Key は `BETTERTOKEN_API_KEY` から渡します。
+Codex CLI と Codex App は、OpenAI Responses を使って BetterToken に接続します。自動設定では Codex の API Key ログインを使用します。手動設定では認証情報を `BETTERTOKEN_API_KEY` に保持します。
 
 ## 主要設定
 
 | フィールド | 値 |
 | --- | --- |
-| API Key | 環境変数 `BETTERTOKEN_API_KEY` |
+| API Key | 自動設定：Codex の API Key ログイン、手動設定：`BETTERTOKEN_API_KEY` |
 | Base URL | `{{openai-base-url}}` |
 | Model | `YOUR_MODEL_ID` |
 
@@ -29,7 +29,11 @@ npm install -g @openai/codex
 
 ## コマンドラインでの設定
 
-BetterToken の自動設定スクリプトは、Codex のプロバイダー設定を書き込みます。Node.js が必要です。API Key または Model ID を引数で渡さなかった場合は、実行時に入力します。
+BetterToken の自動設定スクリプトは、Codex のプロバイダー設定を書き込み、BetterToken API Key を `~/.codex/auth.json` に保存します。`requires_openai_auth = true` を設定し、Codex の API Key ログインを使用します。Node.js が必要です。API Key または Model ID を引数で渡さなかった場合は、実行時に入力します。
+
+<Warning>
+  自動設定を実行すると、ChatGPT の公式ログインから Codex の API Key ログインに切り替わります。公式ログインを維持する場合は、スクリプトを使わず、以下の手動プロバイダー設定を使用してください。
+</Warning>
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -44,7 +48,7 @@ BetterToken の自動設定スクリプトは、Codex のプロバイダー設�
   </Tab>
 </Tabs>
 
-スクリプトが完了したら、`~/.codex/config.toml`（Windows では `%USERPROFILE%\.codex\config.toml`）を開き、`model`、`review_model`、BetterToken プロバイダーが正しく書き込まれていることを確認して、Codex を完全に再起動します。
+スクリプトが完了したら、`~/.codex/config.toml`（Windows では `%USERPROFILE%\.codex\config.toml`）を開き、`model`、`review_model`、BetterToken プロバイダー、`requires_openai_auth = true` が正しく書き込まれていることを確認します。その後、**接続の確認**にある再起動手順を実行してください。
 
 ## 手動設定
 
@@ -65,11 +69,20 @@ GPT、Kimi、GLM は同じ `config.toml` 構造を使用します。`YOUR_MODEL_
     [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
     $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
     ```
+
+    1 つ目のコマンドは、今後起動するプロセス用に変数を保存します。2 つ目のコマンドは、Codex CLI を起動する前に現在の PowerShell セッションで変数を利用できるようにします。
+  </Tab>
+  <Tab title="Codex App">
+    ```dotenv
+    BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    この行を `~/.codex/.env` に保存します。Windows では `%USERPROFILE%\.codex\.env` を使用します。独自の `CODEX_HOME` を使用している場合は、そのディレクトリに `.env` を保存します。ファイルを変更した後、Codex App を完全に終了してから再度開いてください。
   </Tab>
 </Tabs>
 
 <Warning>
-  BetterToken API Key を `~/.codex/auth.json` に保存しないでください。このファイルは Codex の公式ログイン用です。カスタムプロバイダーは `env_key` を通じて環境変数を読み込みます。
+  この手動設定では、BetterToken API Key を `~/.codex/auth.json` に保存しないでください。そこには公式ログインを維持し、カスタムプロバイダーが `env_key` を通じて `BETTERTOKEN_API_KEY` を読み取るようにします。上の自動設定は、別の API Key ログインモードです。
 </Warning>
 
 ### config.toml を設定する
@@ -98,13 +111,20 @@ supports_websockets = false
 
 ## 接続の確認
 
-新しいターミナルを開いて実行します。
+<Tabs>
+  <Tab title="Codex CLI">
+    現在の Codex プロセスを停止します。新しいターミナルを開いて実行します。
 
-```bash
-codex
-```
+    ```bash
+    codex
+    ```
 
-短いタスクを送信します。ログイン、`401`、モデルに関するエラーがなく、ストリーミング応答が返れば設定は完了です。
+    短いタスクを送信します。ログイン、`401`、モデルに関するエラーがなく、ストリーミング応答が返れば設定は完了です。
+  </Tab>
+  <Tab title="Codex App">
+    Codex App を完全に終了し、再度開いて新しいタスクを作成します。短いタスクを送信します。ログイン、`401`、モデルに関するエラーがなく、ストリーミング応答が返れば設定は完了です。
+  </Tab>
+</Tabs>
 
 ## モデルの切り替え
 
@@ -114,11 +134,11 @@ codex
 
 | エラー | 対処方法 |
 | --- | --- |
-| `401` または OpenAI のサインイン画面が表示される | `BETTERTOKEN_API_KEY` を確認し、`requires_openai_auth = false` が設定されていることを確認します。 |
+| `401` または OpenAI のサインイン画面が表示される | 自動設定：スクリプトが完了し、`requires_openai_auth = true` が設定されていることを確認します。手動設定：`BETTERTOKEN_API_KEY`、`env_key`、`requires_openai_auth = false` を確認します。 |
 | プロバイダーが見つからない | `model_provider = "custom"` と `[model_providers.custom]` を一致させます。 |
 | API モードのエラー | `wire_api = "responses"` を維持し、Chat Completions に変更しないでください。 |
 | モデルが見つからない | `YOUR_MODEL_ID` を、Setup またはモデル一覧にある現在の完全な ID に置き換えます。 |
-| 設定が反映されない | 新しいターミナルを開き、環境変数を確認して、Codex を完全に再起動します。 |
+| 設定が反映されない | CLI では新しいターミナルを開きます。Codex App では完全に終了して再度開き、新しいタスクを作成します。手動設定では、実行中のプロセスが `BETTERTOKEN_API_KEY` を読み取れることも確認します。 |
 
 ## 高度な設定
 

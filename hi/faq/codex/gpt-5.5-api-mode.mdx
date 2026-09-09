@@ -12,6 +12,10 @@ description: "local model catalog के साथ Codex custom API mode मे�
   इस पेज पर दिया पूरा `custom-models.json` उपयोग करें। file को manually संपादित करने पर मौजूदा model entries और fields रखें, और केवल आवश्यक model configuration बदलें।
 </Note>
 
+<Warning>
+  यह पेज केवल local model catalog जोड़ता है। यदि `[model_providers.{{codex-provider-id}}]` पहले से काम करता है, तो उस provider और उसके authentication fields को रखें; केवल `model_catalog_json` और model selections जोड़ें। नीचे दिया पूरा उदाहरण `env_key = "BETTERTOKEN_API_KEY"` के साथ `requires_openai_auth = false` उपयोग करता है। Codex को restart करने से पहले सामान्य [Codex सेटअप गाइड](/hi/ai-tools/codex) के manual steps से यह environment variable सेट करें।
+</Warning>
+
 ## सेटअप चरण
 
 <Steps>
@@ -87,6 +91,7 @@ description: "local model catalog के साथ Codex custom API mode मे�
     [model_providers.{{codex-provider-id}}]
     name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
     request_max_retries = 4
@@ -122,5 +127,6 @@ description: "local model catalog के साथ Codex custom API mode मे�
 3. `base_url`, `{{openai-base-url}}` है
 4. `wire_api`, `responses` है
 5. `model_provider`, `[model_providers.{{codex-provider-id}}]` में provider id से मेल खाता है
+6. `env_key`, `BETTERTOKEN_API_KEY` की ओर संकेत करता है और Codex शुरू करने वाले process को यह variable उपलब्ध है
 
 यदि आपका Codex version `gpt-5.5` को पहले से natively समर्थित करता है, तो `model_catalog_json` हटाएं और सामान्य [Codex सेटअप गाइड](/hi/ai-tools/codex) पर लौटें।

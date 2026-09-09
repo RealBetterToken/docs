@@ -12,6 +12,10 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
   请使用页面提供的完整 `custom-models.json`。如果你要手动调整文件，请保留里面已有的模型条目和字段，只修改需要调整的模型配置。
 </Note>
 
+<Warning>
+  本页只用于添加本地模型目录。如果 `[model_providers.{{codex-provider-id}}]` 已经可以正常工作，请保留该 provider 及其认证字段，只添加 `model_catalog_json` 和模型选择配置。下方完整示例使用 `env_key = "BETTERTOKEN_API_KEY"` 与 `requires_openai_auth = false`。重启 Codex 前，请按常规 [Codex 接入文档](/zh/ai-tools/codex) 中的手动配置步骤设置该环境变量。
+</Warning>
+
 ## 配置步骤
 
 <Steps>
@@ -87,6 +91,7 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
     [model_providers.{{codex-provider-id}}]
     name = "{{codex-provider-name}}"
     base_url = "{{openai-base-url}}"
+    env_key = "BETTERTOKEN_API_KEY"
     wire_api = "responses"
     requires_openai_auth = false
     request_max_retries = 4
@@ -122,5 +127,6 @@ description: "在 Codex 自定义 API 模式中临时启用 GPT-5.5 的本地模
 3. `base_url` 是否为 `{{openai-base-url}}`
 4. `wire_api` 是否为 `responses`
 5. `model_provider` 是否与 `[model_providers.{{codex-provider-id}}]` 中的 provider id 保持一致
+6. `env_key` 是否指向 `BETTERTOKEN_API_KEY`，且启动 Codex 的进程可以读取该变量
 
 如果你的 Codex 已经内置支持 `gpt-5.5`，可以删除 `model_catalog_json`，改回常规 [Codex 接入文档](/zh/ai-tools/codex) 中的配置方式。

@@ -5,13 +5,13 @@ description: "配置 Codex CLI/App 的 custom provider、config.toml、BETTERTOK
 icon: "code"
 ---
 
-Codex CLI 和 Codex App 通过 OpenAI Responses 接入 BetterToken。配置文件是 `~/.codex/config.toml`，API Key 通过 `BETTERTOKEN_API_KEY` 环境变量提供。
+Codex CLI 和 Codex App 通过 OpenAI Responses 接入 BetterToken。一键配置使用 Codex API Key 登录；手动配置则通过 `BETTERTOKEN_API_KEY` 提供密钥。
 
 ## 重点信息
 
 | 字段 | 填写内容 |
 | --- | --- |
-| API Key | 环境变量 `BETTERTOKEN_API_KEY` |
+| API Key | 一键配置：Codex API Key 登录；手动配置：`BETTERTOKEN_API_KEY` |
 | Base URL | `{{openai-base-url}}` |
 | Model | `YOUR_MODEL_ID` |
 
@@ -29,7 +29,11 @@ npm install -g @openai/codex
 
 ## 命令行配置
 
-BetterToken Automatic setup 脚本会写入 Codex provider 配置。脚本需要 Node.js；如果没有通过参数提供 API Key 或 Model ID，运行时会交互式提示输入。
+BetterToken Automatic setup 脚本会写入 Codex provider 配置，并把 BetterToken API Key 保存到 `~/.codex/auth.json`。脚本会设置 `requires_openai_auth = true`，让 Codex 使用 API Key 登录。脚本需要 Node.js；如果没有通过参数提供 API Key 或 Model ID，运行时会交互式提示输入。
+
+<Warning>
+  一键配置会把 Codex 从 ChatGPT 官方登录切换为 API Key 登录。需要保留官方登录时，请不要运行该脚本，改用下方的手动 provider 配置。
+</Warning>
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -44,7 +48,7 @@ BetterToken Automatic setup 脚本会写入 Codex provider 配置。脚本需要
   </Tab>
 </Tabs>
 
-运行后打开 `~/.codex/config.toml`（Windows 为 `%USERPROFILE%\.codex\config.toml`），确认 `model`、`review_model` 和 BetterToken provider 已正确写入，然后完全重启 Codex。
+运行后打开 `~/.codex/config.toml`（Windows 为 `%USERPROFILE%\.codex\config.toml`），确认 `model`、`review_model`、BetterToken provider 和 `requires_openai_auth = true` 已正确写入，再按 **验证连接** 中的步骤重启。
 
 ## 手动配置
 
@@ -65,11 +69,20 @@ GPT、Kimi 和 GLM 使用同一份 `config.toml` 结构，只需要把 `YOUR_MOD
     [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
     $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
     ```
+
+    第一条命令让环境变量对以后启动的进程长期生效。第二条命令让当前 PowerShell 会话在启动 Codex CLI 前立即读取该变量。
+  </Tab>
+  <Tab title="Codex App">
+    ```dotenv
+    BETTERTOKEN_API_KEY="YOUR_API_KEY"
+    ```
+
+    把这一行保存到 `~/.codex/.env`，Windows 路径为 `%USERPROFILE%\.codex\.env`。如果使用自定义 `CODEX_HOME`，请把 `.env` 保存到对应目录。修改后完全退出并重新打开 Codex App。
   </Tab>
 </Tabs>
 
 <Warning>
-  不要把 BetterToken API Key 写入 `~/.codex/auth.json`。该文件用于 Codex 官方登录；自定义 provider 应通过 `env_key` 读取环境变量。
+  手动配置时，不要把 BetterToken API Key 写入 `~/.codex/auth.json`。请在该文件中保留官方登录，让自定义 provider 通过 `env_key` 读取 `BETTERTOKEN_API_KEY`。上方一键配置使用的是另一种 API Key 登录模式。
 </Warning>
 
 ### 配置 config.toml
@@ -98,13 +111,20 @@ supports_websockets = false
 
 ## 验证连接
 
-打开新终端并运行：
+<Tabs>
+  <Tab title="Codex CLI">
+    结束当前 Codex 进程，打开新终端并运行：
 
-```bash
-codex
-```
+    ```bash
+    codex
+    ```
 
-发送一条简短任务。能正常流式返回内容，且没有登录、`401` 或模型不存在错误，即表示配置成功。
+    发送一条简短任务。能正常流式返回内容，且没有登录、`401` 或模型不存在错误，即表示配置成功。
+  </Tab>
+  <Tab title="Codex App">
+    完全退出 Codex App，重新打开后新建任务。发送一条简短任务。能正常流式返回内容，且没有登录、`401` 或模型不存在错误，即表示配置成功。
+  </Tab>
+</Tabs>
 
 ## 切换模型
 
@@ -114,11 +134,11 @@ codex
 
 | 错误 | 处理方式 |
 | --- | --- |
-| `401` 或要求 OpenAI 登录 | 检查 `BETTERTOKEN_API_KEY`，并确认 `requires_openai_auth = false`。 |
+| `401` 或要求 OpenAI 登录 | 一键配置：确认脚本已完成并写入 `requires_openai_auth = true`。手动配置：检查 `BETTERTOKEN_API_KEY`、`env_key` 和 `requires_openai_auth = false`。 |
 | 找不到 provider | 确认 `model_provider = "custom"` 与 `[model_providers.custom]` 完全一致。 |
 | API mode 错误 | 保留 `wire_api = "responses"`，不要改成 Chat Completions。 |
 | 找不到模型 | 用 Setup 弹窗或模型广场中的完整 ID 替换 `YOUR_MODEL_ID`。 |
-| 配置未生效 | 打开新终端，确认环境变量存在，并完全重启 Codex。 |
+| 配置未生效 | CLI 请打开新终端；Codex App 请完全退出并重新打开，再新建任务。手动配置还需确认当前进程可以读取 `BETTERTOKEN_API_KEY`。 |
 
 ## 进阶配置
 
