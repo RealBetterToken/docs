@@ -18,12 +18,13 @@ BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **
 | --- | --- |
 | 제공업체 | **DeepSeek** |
 | Model ID | `deepseek-v4.1-flash-expires-on-0910` |
-| Base URL | `{{openai-base-url}}` |
-| 엔드포인트 | `POST /v1/chat/completions` |
-| 프로토콜 | OpenAI 호환 Chat Completions |
+| OpenAI Base URL | `{{openai-base-url}}` |
+| OpenAI Chat Completions | `POST /v1/chat/completions` |
+| Anthropic Base URL | `{{anthropic-base-url}}` |
+| Anthropic Messages | `POST /v1/messages` |
 | BetterToken 상태 | 기간 한정 테스트, 2026년 9월 10일 만료 예정 |
 
-이 모델은 OpenAI 호환 Chat Completions를 사용합니다. 이 프로토콜을 지원하는 외부 도구에서 아래 설정을 사용하세요.
+클라이언트에 맞게 OpenAI Chat Completions 또는 Anthropic Messages를 선택하세요. 두 프로토콜은 같은 BetterToken API Key와 Model ID를 사용합니다.
 
 ## 사용 권장 사항
 
@@ -41,7 +42,7 @@ BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **
 1. <a href={"{{register-url}}"}>BetterToken API Key를 생성</a>하거나 기존 Key의 **Setup**을 엽니다.
 2. 모델 광장에서 `deepseek-v4.1-flash-expires-on-0910`을 아직 사용할 수 있는지 확인합니다.
 3. **DeepSeek 제공업체**를 선택합니다.
-4. Base URL을 `{{openai-base-url}}`로 설정하고 정확한 임시 Model ID를 사용합니다.
+4. 위 표에서 프로토콜에 맞는 Base URL을 선택하고 전체 Model ID를 입력합니다.
 5. 긴 평가를 시작하기 전에 작은 요청을 먼저 보냅니다.
 
 ```bash
@@ -79,7 +80,7 @@ curl "{{chat-completions-url}}" \
 
 ### Claude Code 또는 Anthropic Messages API와 함께 사용할 수 있나요?
 
-이 모델은 현재 BetterToken에서 Chat Completions를 지원합니다. 호환되는 외부 도구에서 `{{openai-base-url}}`을 사용하세요. 이 모델은 Claude Code와 Anthropic Messages API를 지원하지 않습니다.
+지원합니다. Claude Code 또는 Anthropic Messages에서는 Base URL `{{anthropic-base-url}}`과 Model ID `deepseek-v4.1-flash-expires-on-0910`을 사용하세요. Messages를 직접 호출할 때는 `POST /v1/messages`를 사용하고 `x-api-key` 헤더에 BetterToken API Key를 전달하세요.
 
 ### 현재 가격은 어디에서 확인할 수 있나요?
 
@@ -88,3 +89,4 @@ curl "{{chat-completions-url}}" \
 ## 관련 문서
 
 - [BetterToken Chat Completions API 레퍼런스](/ko/api-reference/chat-completions)
+- [Anthropic Messages API 레퍼런스](/ko/api-reference/messages)

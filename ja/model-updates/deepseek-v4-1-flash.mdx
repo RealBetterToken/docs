@@ -18,12 +18,13 @@ BetterToken では、正確な Model ID `deepseek-v4.1-flash-expires-on-0910` �
 | --- | --- |
 | プロバイダー | **DeepSeek** |
 | Model ID | `deepseek-v4.1-flash-expires-on-0910` |
-| Base URL | `{{openai-base-url}}` |
-| エンドポイント | `POST /v1/chat/completions` |
-| プロトコル | OpenAI 互換 Chat Completions |
+| OpenAI Base URL | `{{openai-base-url}}` |
+| OpenAI Chat Completions | `POST /v1/chat/completions` |
+| Anthropic Base URL | `{{anthropic-base-url}}` |
+| Anthropic Messages | `POST /v1/messages` |
 | BetterToken の状態 | 期間限定テスト、2026 年 9 月 10 日に期限切れ予定 |
 
-このモデルは OpenAI 互換 Chat Completions を使用します。このプロトコルに対応する外部ツールでは、以下の設定を使用してください。
+クライアントに合わせて OpenAI Chat Completions または Anthropic Messages を選択してください。両方のプロトコルで同じ BetterToken API Key と Model ID を使用します。
 
 ## 使用のヒント
 
@@ -41,7 +42,7 @@ BetterToken では、正確な Model ID `deepseek-v4.1-flash-expires-on-0910` �
 1. <a href={"{{register-url}}"}>BetterToken API Key を作成</a>するか、既存の Key の **Setup** を開きます。
 2. `deepseek-v4.1-flash-expires-on-0910` がまだ利用可能かモデル広場で確認します。
 3. **DeepSeek プロバイダー**を選択します。
-4. Base URL を `{{openai-base-url}}` に設定し、正確な一時 Model ID を使用します。
+4. 上の表からプロトコルに対応する Base URL を選び、完全な Model ID を入力します。
 5. 長い評価を始める前に、小さなリクエストを送信します。
 
 ```bash
@@ -79,7 +80,7 @@ curl "{{chat-completions-url}}" \
 
 ### Claude Code や Anthropic Messages API で使用できますか？
 
-このモデルは現在 BetterToken で Chat Completions に対応しています。互換性のある外部ツールで `{{openai-base-url}}` を使用してください。このモデルは Claude Code と Anthropic Messages API には対応していません。
+はい。Claude Code または Anthropic Messages では Base URL `{{anthropic-base-url}}` と Model ID `deepseek-v4.1-flash-expires-on-0910` を使用してください。Messages を直接呼び出す場合は `POST /v1/messages` を使用し、`x-api-key` ヘッダーに BetterToken API Key を指定します。
 
 ### 現在の料金はどこで確認できますか？
 
@@ -88,3 +89,4 @@ curl "{{chat-completions-url}}" \
 ## 関連ドキュメント
 
 - [BetterToken Chat Completions API リファレンス](/ja/api-reference/chat-completions)
+- [Anthropic Messages API リファレンス](/ja/api-reference/messages)

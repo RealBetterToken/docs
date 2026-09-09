@@ -18,12 +18,13 @@ BetterToken 现已提供 **DeepSeek V4.1 Flash** 限时测试，准确的模型 
 | --- | --- |
 | 提供商 | **DeepSeek** |
 | Model ID | `deepseek-v4.1-flash-expires-on-0910` |
-| Base URL | `{{openai-base-url}}` |
-| 接口 | `POST /v1/chat/completions` |
-| 协议 | OpenAI 兼容 Chat Completions |
+| OpenAI Base URL | `{{openai-base-url}}` |
+| OpenAI Chat Completions | `POST /v1/chat/completions` |
+| Anthropic Base URL | `{{anthropic-base-url}}` |
+| Anthropic Messages | `POST /v1/messages` |
 | BetterToken 状态 | 限时测试；计划于 2026 年 9 月 10 日到期 |
 
-该模型通过 OpenAI 兼容 Chat Completions 接入。使用支持此协议的外部工具时，请按下方配置填写。
+根据客户端选择 OpenAI Chat Completions 或 Anthropic Messages。两种协议使用相同的 BetterToken API Key 和 Model ID。
 
 ## 使用建议
 
@@ -41,7 +42,7 @@ BetterToken 现已提供 **DeepSeek V4.1 Flash** 限时测试，准确的模型 
 1. <a href={"{{register-url}}"}>创建 BetterToken API Key</a>，或打开现有 Key 的 **Setup** 弹窗。
 2. 在模型广场确认 `deepseek-v4.1-flash-expires-on-0910` 仍然可用。
 3. 选择 **DeepSeek 提供商**。
-4. 将 Base URL 设置为 `{{openai-base-url}}`，并填写完整的临时 Model ID。
+4. 按上表选择对应协议的 Base URL，并填写完整 Model ID。
 5. 先发送一个小型请求，再开始较长的评估任务。
 
 ```bash
@@ -79,7 +80,7 @@ curl "{{chat-completions-url}}" \
 
 ### 可以将它用于 Claude Code 或 Anthropic Messages API 吗？
 
-该模型目前在 BetterToken 上支持 Chat Completions。请在兼容的外部工具中使用 `{{openai-base-url}}`。该模型暂不支持 Claude Code 或 Anthropic Messages API。
+支持。Claude Code 或 Anthropic Messages 使用 Base URL `{{anthropic-base-url}}`，Model ID 填写 `deepseek-v4.1-flash-expires-on-0910`。直接调用 Messages 时，使用 `POST /v1/messages`，并在 `x-api-key` 请求头中传入 BetterToken API Key。
 
 ### 在哪里查看当前价格？
 
@@ -88,3 +89,4 @@ curl "{{chat-completions-url}}" \
 ## 相关文档
 
 - [BetterToken Chat Completions API 参考](/zh/api-reference/chat-completions)
+- [Anthropic Messages API 参考](/zh/api-reference/messages)

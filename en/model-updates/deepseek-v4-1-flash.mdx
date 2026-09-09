@@ -18,12 +18,13 @@ BetterToken now provides limited test access to **DeepSeek V4.1 Flash** through 
 | --- | --- |
 | Provider | **DeepSeek** |
 | Model ID | `deepseek-v4.1-flash-expires-on-0910` |
-| Base URL | `{{openai-base-url}}` |
-| Endpoint | `POST /v1/chat/completions` |
-| Protocol | OpenAI-compatible Chat Completions |
+| OpenAI Base URL | `{{openai-base-url}}` |
+| OpenAI Chat Completions | `POST /v1/chat/completions` |
+| Anthropic Base URL | `{{anthropic-base-url}}` |
+| Anthropic Messages | `POST /v1/messages` |
 | BetterToken status | Limited test; scheduled to expire on September 10, 2026 |
 
-This model uses OpenAI-compatible Chat Completions. Use the configuration below in an external tool that supports this protocol.
+Choose OpenAI Chat Completions or Anthropic Messages to match your client. Both protocols use the same BetterToken API Key and Model ID.
 
 ## Usage suggestions
 
@@ -41,7 +42,7 @@ Run several representative prompts instead of relying on one result. Keep the cl
 1. <a href={"{{register-url}}"}>Create a BetterToken API Key</a> or open **Setup** for an existing key.
 2. Confirm that `deepseek-v4.1-flash-expires-on-0910` is still available in the model plaza.
 3. Select the **DeepSeek provider**.
-4. Set the Base URL to `{{openai-base-url}}` and use the exact temporary Model ID.
+4. Set the Base URL for your protocol using the table above, and enter the complete Model ID.
 5. Send a small request before running a longer evaluation.
 
 ```bash
@@ -79,7 +80,7 @@ You can send requests while the entry is available, but you should not make it t
 
 ### Can I use it with Claude Code or the Anthropic Messages API?
 
-This model currently supports Chat Completions on BetterToken. Use `{{openai-base-url}}` in a compatible external tool. Claude Code and the Anthropic Messages API are not supported for this model.
+Yes. For Claude Code or Anthropic Messages, use Base URL `{{anthropic-base-url}}` and Model ID `deepseek-v4.1-flash-expires-on-0910`. Direct Messages requests use `POST /v1/messages` with your BetterToken API Key in `x-api-key`.
 
 ### Where can I find the current price?
 
@@ -88,3 +89,4 @@ Check the live <a href={"{{model-plaza-url}}"}>model plaza</a>. Temporary-model 
 ## Related documentation
 
 - [BetterToken Chat Completions API reference](/en/api-reference/chat-completions)
+- [Anthropic Messages API reference](/en/api-reference/messages)

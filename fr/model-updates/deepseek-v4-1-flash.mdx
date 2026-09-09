@@ -18,12 +18,13 @@ BetterToken propose desormais un acces de test limite a **DeepSeek V4.1 Flash** 
 | --- | --- |
 | Fournisseur | **DeepSeek** |
 | Model ID | `deepseek-v4.1-flash-expires-on-0910` |
-| Base URL | `{{openai-base-url}}` |
-| Endpoint | `POST /v1/chat/completions` |
-| Protocole | Chat Completions compatible OpenAI |
+| OpenAI Base URL | `{{openai-base-url}}` |
+| OpenAI Chat Completions | `POST /v1/chat/completions` |
+| Anthropic Base URL | `{{anthropic-base-url}}` |
+| Anthropic Messages | `POST /v1/messages` |
 | Statut BetterToken | Test limite ; expiration prevue le 10 septembre 2026 |
 
-Ce modèle utilise Chat Completions compatible OpenAI. Dans un outil externe prenant en charge ce protocole, utilisez les paramètres ci-dessous.
+Choisissez OpenAI Chat Completions ou Anthropic Messages selon votre client. Les deux protocoles utilisent la même BetterToken API Key et le même Model ID.
 
 ## Conseils d’utilisation
 
@@ -41,7 +42,7 @@ Executez plusieurs prompts representatifs au lieu de vous fier a un seul resulta
 1. <a href={"{{register-url}}"}>Creez une BetterToken API Key</a> ou ouvrez **Setup** pour une cle existante.
 2. Verifiez dans la model plaza que `deepseek-v4.1-flash-expires-on-0910` est toujours disponible.
 3. Selectionnez le **fournisseur DeepSeek**.
-4. Definissez la Base URL sur `{{openai-base-url}}` et utilisez le Model ID temporaire exact.
+4. Utilisez la Base URL de votre protocole dans le tableau ci-dessus et le Model ID complet.
 5. Envoyez une petite requete avant de lancer une evaluation plus longue.
 
 ```bash
@@ -79,7 +80,7 @@ Vous pouvez envoyer des requetes tant que l'entree est disponible, mais n'en fai
 
 ### Puis-je l'utiliser avec Claude Code ou Anthropic Messages API ?
 
-Ce modèle prend actuellement en charge Chat Completions sur BetterToken. Utilisez `{{openai-base-url}}` dans un outil externe compatible. Claude Code et Anthropic Messages API ne sont pas pris en charge pour ce modèle.
+Oui. Pour Claude Code ou Anthropic Messages, utilisez la Base URL `{{anthropic-base-url}}` et le Model ID `deepseek-v4.1-flash-expires-on-0910`. Les requêtes Messages directes utilisent `POST /v1/messages` avec votre BetterToken API Key dans `x-api-key`.
 
 ### Ou trouver le tarif actuel ?
 
@@ -88,3 +89,4 @@ Consultez la <a href={"{{model-plaza-url}}"}>model plaza</a> en direct. La dispo
 ## Documentation associée
 
 - [Reference BetterToken Chat Completions API](/fr/api-reference/chat-completions)
+- [Référence Anthropic Messages API](/fr/api-reference/messages)

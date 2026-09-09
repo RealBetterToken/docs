@@ -18,12 +18,13 @@ BetterToken открыл ограниченный тест **DeepSeek V4.1 Flash
 | --- | --- |
 | Провайдер | **DeepSeek** |
 | Model ID | `deepseek-v4.1-flash-expires-on-0910` |
-| Base URL | `{{openai-base-url}}` |
-| Эндпоинт | `POST /v1/chat/completions` |
-| Протокол | OpenAI-совместимый Chat Completions |
+| OpenAI Base URL | `{{openai-base-url}}` |
+| OpenAI Chat Completions | `POST /v1/chat/completions` |
+| Anthropic Base URL | `{{anthropic-base-url}}` |
+| Anthropic Messages | `POST /v1/messages` |
 | Статус BetterToken | Ограниченный тест; отключение запланировано на 10 сентября 2026 года |
 
-Модель доступна через OpenAI-совместимый Chat Completions. Во внешних инструментах с поддержкой этого протокола используйте настройки ниже.
+Выберите OpenAI Chat Completions или Anthropic Messages в зависимости от клиента. Оба протокола используют один BetterToken API Key и Model ID.
 
 ## Рекомендации по использованию
 
@@ -41,7 +42,7 @@ BetterToken открыл ограниченный тест **DeepSeek V4.1 Flash
 1. <a href={"{{register-url}}"}>Создайте BetterToken API Key</a> или откройте окно **Setup** для существующего ключа.
 2. Убедитесь в model plaza, что `deepseek-v4.1-flash-expires-on-0910` всё ещё доступен.
 3. Выберите **провайдера DeepSeek**.
-4. Укажите Base URL `{{openai-base-url}}` и точный временный Model ID.
+4. Укажите Base URL нужного протокола из таблицы выше и полный Model ID.
 5. Сначала отправьте небольшой запрос, затем переходите к длительной оценке.
 
 ```bash
@@ -79,7 +80,7 @@ curl "{{chat-completions-url}}" \
 
 ### Можно ли использовать модель с Claude Code или Anthropic Messages API?
 
-Сейчас модель поддерживает Chat Completions в BetterToken. Используйте `{{openai-base-url}}` в совместимом внешнем инструменте. Claude Code и Anthropic Messages API для этой модели не поддерживаются.
+Да. Для Claude Code или Anthropic Messages используйте Base URL `{{anthropic-base-url}}` и Model ID `deepseek-v4.1-flash-expires-on-0910`. Прямые запросы Messages используют `POST /v1/messages` и BetterToken API Key в заголовке `x-api-key`.
 
 ### Где посмотреть актуальную цену?
 
@@ -88,3 +89,4 @@ curl "{{chat-completions-url}}" \
 ## Связанная документация
 
 - [Справочник BetterToken Chat Completions API](/api-reference/chat-completions)
+- [Справочник Anthropic Messages API](/api-reference/messages)
