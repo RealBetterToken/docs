@@ -1,0 +1,90 @@
+---
+title: "La prueba limitada de DeepSeek V4.1 Flash ya está disponible"
+description: "Prueba DeepSeek V4.1 Flash en BetterToken con el Model ID temporal deepseek-v4.1-flash-expires-on-0910 antes de su caducidad prevista el 2026-09-10."
+tag: "LIMITADO"
+---
+
+Actualizado: 9 de septiembre de 2026
+
+BetterToken ofrece acceso de prueba limitado a **DeepSeek V4.1 Flash** mediante el Model ID exacto `deepseek-v4.1-flash-expires-on-0910`. Está previsto que esta entrada temporal caduque el **10 de septiembre de 2026**. Úsala para evaluar el modelo, no como configuración permanente de producción. Antes de enviar una solicitud, consulta el acceso y el precio actuales en la <a href={"{{model-plaza-url}}"}>model plaza</a>.
+
+<Warning>
+  El Model ID temporal incluye su fecha de caducidad. Puede dejar de funcionar después del 10 de septiembre de 2026 y no se sustituirá automáticamente por un futuro ID estable. Prepara un modelo alternativo estable.
+</Warning>
+
+## Qué está disponible ahora
+
+| Ajuste | Valor |
+| --- | --- |
+| Proveedor | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `{{openai-base-url}}` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protocolo | Chat Completions compatible con OpenAI |
+| Estado en BetterToken | Prueba limitada; caducidad prevista para el 10 de septiembre de 2026 |
+
+Este modelo utiliza Chat Completions compatible con OpenAI. Usa la configuración siguiente en una herramienta externa que admita este protocolo.
+
+## Recomendaciones de uso
+
+Utiliza el periodo de prueba para comparar DeepSeek V4.1 Flash con la entrada estable de DeepSeek V4 Flash en tareas relevantes para tu flujo de trabajo:
+
+- **Cambios de código**: asigna a ambos modelos la misma tarea de repositorio y compara la corrección, la calidad de las modificaciones y el seguimiento necesario
+- **Flujos de agentes**: mide la fiabilidad con la que cada modelo sigue instrucciones de varios pasos y utiliza las herramientas del cliente
+- **Calidad del razonamiento**: compara tareas difíciles de depuración, planificación y análisis con el mismo prompt y los mismos criterios
+- **Latencia y coste**: registra el tiempo hasta el primer token, la duración total, el uso de tokens y el precio actual de BetterToken
+
+Ejecuta varios prompts representativos en lugar de confiar en un único resultado. Mantén iguales el cliente, el prompt del sistema, las definiciones de herramientas y los ajustes de muestreo para realizar una comparación justa.
+
+## Inicio rápido
+
+1. <a href={"{{register-url}}"}>Crea una BetterToken API Key</a> o abre **Setup** para una clave existente.
+2. Confirma en la model plaza que `deepseek-v4.1-flash-expires-on-0910` sigue disponible.
+3. Selecciona el **proveedor DeepSeek**.
+4. Establece la Base URL en `{{openai-base-url}}` y usa el Model ID temporal exacto.
+5. Envía una solicitud pequeña antes de iniciar una evaluación más larga.
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+Una respuesta correcta devuelve el contenido del modelo en `choices[0].message.content`. Consulta ejemplos de SDK y el formato completo en la [referencia de Chat Completions API](/es/api-reference/chat-completions).
+
+## Preparación para la caducidad
+
+Antes del 10 de septiembre de 2026:
+
+1. Busca todas las configuraciones que contengan `deepseek-v4.1-flash-expires-on-0910`.
+2. Guarda los resultados de evaluación que necesites.
+3. Sustituye el ID temporal por `deepseek-v4-flash-0731` u otro Model ID disponible.
+4. Ejecuta una prueba rápida después del cambio.
+5. Consulta en la model plaza si existe una nueva entrada estable de V4.1. No adivines su Model ID.
+
+## Preguntas frecuentes
+
+### ¿Puedo usar este Model ID en producción?
+
+Puedes enviar solicitudes mientras la entrada esté disponible, pero no debe ser el único modelo de una configuración de producción duradera. La caducidad prevista puede hacer que las solicitudes fallen al terminar la prueba.
+
+### ¿Puedo usarlo con Claude Code o Anthropic Messages API?
+
+Este modelo admite actualmente Chat Completions en BetterToken. Usa `{{openai-base-url}}` en una herramienta externa compatible. Claude Code y Anthropic Messages API no están disponibles para este modelo.
+
+### ¿Dónde puedo consultar el precio actual?
+
+Consulta la <a href={"{{model-plaza-url}}"}>model plaza</a> en tiempo real. La disponibilidad y el precio del modelo temporal pueden cambiar durante la prueba.
+
+## Documentación relacionada
+
+- [Referencia de BetterToken Chat Completions API](/es/api-reference/chat-completions)

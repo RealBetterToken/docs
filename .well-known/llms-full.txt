@@ -5340,6 +5340,99 @@ Endpoint не возвращает `task_id`; отдельного status query 
 
 ---
 
+## Ограниченный тест DeepSeek V4.1 Flash доступен
+
+Source: https://docs.bettertoken.ai/model-updates/deepseek-v4-1-flash
+
+Description: Протестируйте DeepSeek V4.1 Flash в BetterToken с временным Model ID deepseek-v4.1-flash-expires-on-0910 до запланированного отключения 2026-09-10.
+
+Обновлено: 9 сентября 2026 года
+
+BetterToken открыл ограниченный тест **DeepSeek V4.1 Flash** с точным Model ID `deepseek-v4.1-flash-expires-on-0910`. Эту временную запись планируется отключить **10 сентября 2026 года**. Используйте её для оценки модели, а не как постоянную производственную конфигурацию. Перед запросом проверьте текущую доступность и цену в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  Дата отключения указана прямо во временном Model ID. После 10 сентября 2026 года он может перестать работать и не будет автоматически заменён будущим стабильным ID. Заранее подготовьте стабильную резервную модель.
+</Warning>
+
+## Что доступно сейчас
+
+| Параметр | Значение |
+| --- | --- |
+| Провайдер | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| Эндпоинт | `POST /v1/chat/completions` |
+| Протокол | OpenAI-совместимый Chat Completions |
+| Статус BetterToken | Ограниченный тест; отключение запланировано на 10 сентября 2026 года |
+
+Модель доступна через OpenAI-совместимый Chat Completions. Во внешних инструментах с поддержкой этого протокола используйте настройки ниже.
+
+## Рекомендации по использованию
+
+Используйте тестовый период, чтобы сравнить DeepSeek V4.1 Flash со стабильной записью DeepSeek V4 Flash на задачах из вашего рабочего процесса:
+
+- **Изменение кода**: дайте обеим моделям одну задачу по репозиторию и сравните корректность, качество правок и число необходимых уточнений
+- **Агентные процессы**: измерьте, насколько надёжно каждая модель выполняет многошаговые инструкции и использует инструменты клиента
+- **Качество рассуждений**: сравните сложную отладку, планирование и анализ с одинаковыми запросами и критериями
+- **Задержка и стоимость**: запишите время до первого токена, полное время ответа, расход токенов и актуальную цену BetterToken
+
+Выполните несколько репрезентативных запросов, а не делайте вывод по одному ответу. Для честного сравнения не меняйте клиент, системный запрос, описания инструментов и параметры сэмплирования.
+
+## Быстрый старт
+
+1. <a href={"https://bettertoken.ai/register"}>Создайте BetterToken API Key</a> или откройте окно **Setup** для существующего ключа.
+2. Убедитесь в model plaza, что `deepseek-v4.1-flash-expires-on-0910` всё ещё доступен.
+3. Выберите **провайдера DeepSeek**.
+4. Укажите Base URL `https://bettertoken.ai/v1` и точный временный Model ID.
+5. Сначала отправьте небольшой запрос, затем переходите к длительной оценке.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+Успешный ответ содержит результат модели в `choices[0].message.content`. Примеры для SDK и полный формат запроса приведены в [справочнике Chat Completions API](/api-reference/chat-completions).
+
+## Подготовка к отключению
+
+До 10 сентября 2026 года:
+
+1. Найдите все конфигурации с `deepseek-v4.1-flash-expires-on-0910`.
+2. Сохраните нужные результаты оценки.
+3. Замените временный ID на `deepseek-v4-flash-0731` или другой доступный Model ID.
+4. После замены выполните быструю проверку.
+5. Проверьте в model plaza, появилась ли новая стабильная запись V4.1. Не угадывайте её Model ID.
+
+## Частые вопросы
+
+### Можно ли использовать этот Model ID в производственной среде?
+
+Пока запись доступна, запросы отправлять можно. Однако не делайте её единственной моделью в долгосрочной производственной конфигурации. После окончания теста запросы могут перестать выполняться.
+
+### Можно ли использовать модель с Claude Code или Anthropic Messages API?
+
+Сейчас модель поддерживает Chat Completions в BetterToken. Используйте `https://bettertoken.ai/v1` в совместимом внешнем инструменте. Claude Code и Anthropic Messages API для этой модели не поддерживаются.
+
+### Где посмотреть актуальную цену?
+
+Проверьте <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Доступность и цена временной модели могут меняться во время теста.
+
+## Связанная документация
+
+- [Справочник BetterToken Chat Completions API](/api-reference/chat-completions)
+
+---
+
 ## GPT-6 Astra доступен
 
 Source: https://docs.bettertoken.ai/model-updates/gpt-6-astra
@@ -14729,6 +14822,99 @@ The endpoint does not return a `task_id`, and there is no separate status query 
 
 - [Text to image](/en/api-reference/images-generations)
 - [GPT Image 2 is live](/en/model-updates/gpt-image-2)
+
+---
+
+## DeepSeek V4.1 Flash limited test is live
+
+Source: https://docs.bettertoken.ai/en/model-updates/deepseek-v4-1-flash
+
+Description: Test DeepSeek V4.1 Flash on BetterToken with the temporary Model ID deepseek-v4.1-flash-expires-on-0910 before its scheduled 2026-09-10 expiration.
+
+Updated: September 9, 2026
+
+BetterToken now provides limited test access to **DeepSeek V4.1 Flash** through the exact Model ID `deepseek-v4.1-flash-expires-on-0910`. This temporary entry is scheduled to expire on **September 10, 2026**. Use it to evaluate the model, not as a permanent production configuration. Check current access and pricing in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before sending a request.
+
+<Warning>
+  The temporary Model ID includes its expiration date. It may stop working after September 10, 2026, and it is not automatically replaced by a future stable ID. Keep a stable fallback model ready.
+</Warning>
+
+## What is available now
+
+| Setting | Value |
+| --- | --- |
+| Provider | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protocol | OpenAI-compatible Chat Completions |
+| BetterToken status | Limited test; scheduled to expire on September 10, 2026 |
+
+This model uses OpenAI-compatible Chat Completions. Use the configuration below in an external tool that supports this protocol.
+
+## Usage suggestions
+
+Use the test window to compare DeepSeek V4.1 Flash with the stable DeepSeek V4 Flash entry on tasks that matter to your workflow:
+
+- **Coding changes**: give both models the same repository task and compare correctness, edit quality, and the amount of follow-up required
+- **Agent workflows**: measure how reliably each model follows multistep instructions and uses the tools your client provides
+- **Reasoning quality**: compare difficult debugging, planning, and analysis tasks with the same prompt and evaluation criteria
+- **Latency and cost**: record time to first token, total completion time, token usage, and the live BetterToken price
+
+Run several representative prompts instead of relying on one result. Keep the client, system prompt, tool definitions, and sampling settings the same for a fair comparison.
+
+## Quick start
+
+1. <a href={"https://bettertoken.ai/register"}>Create a BetterToken API Key</a> or open **Setup** for an existing key.
+2. Confirm that `deepseek-v4.1-flash-expires-on-0910` is still available in the model plaza.
+3. Select the **DeepSeek provider**.
+4. Set the Base URL to `https://bettertoken.ai/v1` and use the exact temporary Model ID.
+5. Send a small request before running a longer evaluation.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+A successful response returns model output under `choices[0].message.content`. For SDK examples and the complete request format, see the [Chat Completions API reference](/en/api-reference/chat-completions).
+
+## Prepare for expiration
+
+Before September 10, 2026:
+
+1. Find every configuration that contains `deepseek-v4.1-flash-expires-on-0910`.
+2. Save the evaluation results you need.
+3. Replace the temporary ID with `deepseek-v4-flash-0731` or another currently available Model ID.
+4. Run a smoke test after the change.
+5. Check the model plaza for any new stable V4.1 entry. Do not guess its Model ID.
+
+## Frequently asked questions
+
+### Can I use this Model ID in production?
+
+You can send requests while the entry is available, but you should not make it the only model in a long-lived production configuration. Its scheduled expiration can cause requests to fail after the test ends.
+
+### Can I use it with Claude Code or the Anthropic Messages API?
+
+This model currently supports Chat Completions on BetterToken. Use `https://bettertoken.ai/v1` in a compatible external tool. Claude Code and the Anthropic Messages API are not supported for this model.
+
+### Where can I find the current price?
+
+Check the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Temporary-model availability and pricing can change during the test.
+
+## Related documentation
+
+- [BetterToken Chat Completions API reference](/en/api-reference/chat-completions)
 
 ---
 
@@ -24302,6 +24488,99 @@ b64_json = result["data"][0]["b64_json"]
 
 ---
 
+## DeepSeek V4.1 Flash 限时测试版已上线
+
+Source: https://docs.bettertoken.ai/zh/model-updates/deepseek-v4-1-flash
+
+Description: 通过 BetterToken 测试 DeepSeek V4.1 Flash，临时模型 ID deepseek-v4.1-flash-expires-on-0910 计划于 2026-09-10 到期。
+
+更新日期：2026 年 9 月 9 日
+
+BetterToken 现已提供 **DeepSeek V4.1 Flash** 限时测试，准确的模型 ID 是 `deepseek-v4.1-flash-expires-on-0910`。该临时条目计划于 **2026 年 9 月 10 日**到期。请将它用于模型评估，不要作为永久生产配置。发送请求前，请在实时<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认访问权限和价格。
+
+<Warning>
+  临时模型 ID 中包含到期日期。2026 年 9 月 10 日后它可能停止工作，也不会自动替换为未来的稳定版 ID。请提前准备稳定的备用模型。
+</Warning>
+
+## 当前可用配置
+
+| 设置项 | 值 |
+| --- | --- |
+| 提供商 | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| 接口 | `POST /v1/chat/completions` |
+| 协议 | OpenAI 兼容 Chat Completions |
+| BetterToken 状态 | 限时测试；计划于 2026 年 9 月 10 日到期 |
+
+该模型通过 OpenAI 兼容 Chat Completions 接入。使用支持此协议的外部工具时，请按下方配置填写。
+
+## 使用建议
+
+在测试期内，用与你实际工作流相关的任务对比 DeepSeek V4.1 Flash 和稳定版 DeepSeek V4 Flash：
+
+- **代码修改**：向两个模型提交同一个仓库任务，对比正确性、修改质量和需要追加沟通的次数
+- **Agent 工作流**：衡量每个模型遵循多步骤指令和使用客户端工具的稳定性
+- **推理质量**：使用相同提示词和评估标准，对比高难度调试、规划和分析任务
+- **延迟与成本**：记录首 token 延迟、总生成时间、token 用量和 BetterToken 实时价格
+
+请运行多组有代表性的提示词，不要根据一次结果下结论。保持客户端、系统提示词、工具定义和采样参数一致，才能公平对比。
+
+## 快速开始
+
+1. <a href={"https://bettertoken.ai/register"}>创建 BetterToken API Key</a>，或打开现有 Key 的 **Setup** 弹窗。
+2. 在模型广场确认 `deepseek-v4.1-flash-expires-on-0910` 仍然可用。
+3. 选择 **DeepSeek 提供商**。
+4. 将 Base URL 设置为 `https://bettertoken.ai/v1`，并填写完整的临时 Model ID。
+5. 先发送一个小型请求，再开始较长的评估任务。
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+请求成功时，模型输出位于 `choices[0].message.content`。SDK 示例和完整请求格式请参阅 [Chat Completions API 参考](/zh/api-reference/chat-completions)。
+
+## 为到期做好准备
+
+请在 2026 年 9 月 10 日前完成以下操作：
+
+1. 找出所有包含 `deepseek-v4.1-flash-expires-on-0910` 的配置。
+2. 保存需要保留的评估结果。
+3. 将临时 ID 替换为 `deepseek-v4-flash-0731` 或其他当前可用的 Model ID。
+4. 修改后运行冒烟测试。
+5. 在模型广场查看是否有新的稳定版 V4.1 条目。不要猜测它的 Model ID。
+
+## 常见问题
+
+### 可以在生产环境中使用这个 Model ID 吗？
+
+条目可用期间可以发送请求，但不应将它设为长期生产配置中的唯一模型。测试结束后，计划到期可能导致请求失败。
+
+### 可以将它用于 Claude Code 或 Anthropic Messages API 吗？
+
+该模型目前在 BetterToken 上支持 Chat Completions。请在兼容的外部工具中使用 `https://bettertoken.ai/v1`。该模型暂不支持 Claude Code 或 Anthropic Messages API。
+
+### 在哪里查看当前价格？
+
+请查看实时<a href={"https://bettertoken.ai/pricing"}>模型广场</a>。测试期间，临时模型的可用性和价格都可能变化。
+
+## 相关文档
+
+- [BetterToken Chat Completions API 参考](/zh/api-reference/chat-completions)
+
+---
+
 ## GPT-6 Astra 已上线
 
 Source: https://docs.bettertoken.ai/zh/model-updates/gpt-6-astra
@@ -33676,6 +33955,99 @@ endpoint `task_id` नहीं लौटाता, और कोई अलग s
 
 ---
 
+## DeepSeek V4.1 Flash का सीमित टेस्ट उपलब्ध है
+
+Source: https://docs.bettertoken.ai/hi/model-updates/deepseek-v4-1-flash
+
+Description: BetterToken पर DeepSeek V4.1 Flash को अस्थायी Model ID deepseek-v4.1-flash-expires-on-0910 के साथ निर्धारित 2026-09-10 समाप्ति से पहले टेस्ट करें।
+
+अपडेट: 9 सितंबर 2026
+
+BetterToken अब सटीक Model ID `deepseek-v4.1-flash-expires-on-0910` के माध्यम से **DeepSeek V4.1 Flash** का सीमित टेस्ट एक्सेस देता है। यह अस्थायी एंट्री **10 सितंबर 2026** को समाप्त होने वाली है। इसे स्थायी प्रोडक्शन कॉन्फ़िगरेशन के रूप में नहीं, बल्कि मॉडल का मूल्यांकन करने के लिए इस्तेमाल करें। अनुरोध भेजने से पहले <a href={"https://bettertoken.ai/pricing"}>model plaza</a> में मौजूदा उपलब्धता और कीमत देखें।
+
+<Warning>
+  अस्थायी Model ID में उसकी समाप्ति तिथि शामिल है। यह 10 सितंबर 2026 के बाद काम करना बंद कर सकता है और भविष्य के स्थिर ID से अपने आप नहीं बदलेगा। एक स्थिर वैकल्पिक मॉडल तैयार रखें।
+</Warning>
+
+## अभी क्या उपलब्ध है
+
+| सेटिंग | मान |
+| --- | --- |
+| प्रोवाइडर | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| एंडपॉइंट | `POST /v1/chat/completions` |
+| प्रोटोकॉल | OpenAI-संगत Chat Completions |
+| BetterToken स्थिति | सीमित टेस्ट; 10 सितंबर 2026 को समाप्त होना निर्धारित |
+
+यह मॉडल OpenAI-संगत Chat Completions का उपयोग करता है। इस प्रोटोकॉल का समर्थन करने वाले बाहरी टूल में नीचे दी गई सेटिंग इस्तेमाल करें।
+
+## उपयोग के सुझाव
+
+टेस्ट अवधि में अपने वर्कफ़्लो के लिए महत्वपूर्ण कार्यों पर DeepSeek V4.1 Flash की तुलना स्थिर DeepSeek V4 Flash एंट्री से करें:
+
+- **कोड में बदलाव**: दोनों मॉडलों को एक ही रिपॉज़िटरी कार्य दें और शुद्धता, बदलाव की गुणवत्ता तथा आवश्यक फ़ॉलो-अप की तुलना करें
+- **Agent वर्कफ़्लो**: मापें कि हर मॉडल कई चरणों वाले निर्देशों का पालन और क्लाइंट के टूल का उपयोग कितनी विश्वसनीयता से करता है
+- **रीज़निंग गुणवत्ता**: एक ही प्रॉम्प्ट और मूल्यांकन मानदंड के साथ कठिन डीबगिंग, योजना और विश्लेषण कार्यों की तुलना करें
+- **लेटेंसी और लागत**: पहले token तक का समय, पूरा होने का समय, token उपयोग और BetterToken की लाइव कीमत दर्ज करें
+
+एक परिणाम पर निर्भर रहने के बजाय कई प्रतिनिधि प्रॉम्प्ट चलाएं। निष्पक्ष तुलना के लिए क्लाइंट, सिस्टम प्रॉम्प्ट, टूल परिभाषाएं और सैंपलिंग सेटिंग एक जैसी रखें।
+
+## जल्दी शुरू करें
+
+1. <a href={"https://bettertoken.ai/register"}>BetterToken API Key बनाएं</a> या मौजूदा Key के लिए **Setup** खोलें।
+2. model plaza में पुष्टि करें कि `deepseek-v4.1-flash-expires-on-0910` अभी भी उपलब्ध है।
+3. **DeepSeek प्रोवाइडर** चुनें।
+4. Base URL को `https://bettertoken.ai/v1` पर सेट करें और सटीक अस्थायी Model ID इस्तेमाल करें।
+5. लंबा मूल्यांकन शुरू करने से पहले एक छोटा अनुरोध भेजें।
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+सफल प्रतिक्रिया में मॉडल आउटपुट `choices[0].message.content` में मिलता है। SDK उदाहरण और पूरा अनुरोध प्रारूप [Chat Completions API संदर्भ](/hi/api-reference/chat-completions) में देखें।
+
+## समाप्ति के लिए तैयारी करें
+
+10 सितंबर 2026 से पहले:
+
+1. `deepseek-v4.1-flash-expires-on-0910` वाली हर कॉन्फ़िगरेशन खोजें।
+2. ज़रूरी मूल्यांकन परिणाम सुरक्षित करें।
+3. अस्थायी ID को `deepseek-v4-flash-0731` या किसी अन्य वर्तमान में उपलब्ध Model ID से बदलें।
+4. बदलाव के बाद स्मोक टेस्ट चलाएं।
+5. model plaza में नई स्थिर V4.1 एंट्री देखें। उसके Model ID का अनुमान न लगाएं।
+
+## अक्सर पूछे जाने वाले प्रश्न
+
+### क्या मैं इस Model ID को प्रोडक्शन में इस्तेमाल कर सकता हूं?
+
+एंट्री उपलब्ध रहने तक आप अनुरोध भेज सकते हैं, लेकिन इसे लंबे समय की प्रोडक्शन कॉन्फ़िगरेशन में एकमात्र मॉडल न बनाएं। टेस्ट समाप्त होने के बाद निर्धारित समाप्ति के कारण अनुरोध विफल हो सकते हैं।
+
+### क्या इसे Claude Code या Anthropic Messages API के साथ इस्तेमाल किया जा सकता है?
+
+यह मॉडल अभी BetterToken पर Chat Completions का समर्थन करता है। संगत बाहरी टूल में `https://bettertoken.ai/v1` इस्तेमाल करें। इस मॉडल के लिए Claude Code और Anthropic Messages API समर्थित नहीं हैं।
+
+### मौजूदा कीमत कहां मिलेगी?
+
+लाइव <a href={"https://bettertoken.ai/pricing"}>model plaza</a> देखें। टेस्ट के दौरान अस्थायी मॉडल की उपलब्धता और कीमत बदल सकती है।
+
+## संबंधित दस्तावेज़
+
+- [BetterToken Chat Completions API संदर्भ](/hi/api-reference/chat-completions)
+
+---
+
 ## GPT-6 Astra उपलब्ध है
 
 Source: https://docs.bettertoken.ai/hi/model-updates/gpt-6-astra
@@ -43042,6 +43414,99 @@ El endpoint no devuelve un `task_id`, y no existe un endpoint separado para cons
 
 ---
 
+## La prueba limitada de DeepSeek V4.1 Flash ya está disponible
+
+Source: https://docs.bettertoken.ai/es/model-updates/deepseek-v4-1-flash
+
+Description: Prueba DeepSeek V4.1 Flash en BetterToken con el Model ID temporal deepseek-v4.1-flash-expires-on-0910 antes de su caducidad prevista el 2026-09-10.
+
+Actualizado: 9 de septiembre de 2026
+
+BetterToken ofrece acceso de prueba limitado a **DeepSeek V4.1 Flash** mediante el Model ID exacto `deepseek-v4.1-flash-expires-on-0910`. Está previsto que esta entrada temporal caduque el **10 de septiembre de 2026**. Úsala para evaluar el modelo, no como configuración permanente de producción. Antes de enviar una solicitud, consulta el acceso y el precio actuales en la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  El Model ID temporal incluye su fecha de caducidad. Puede dejar de funcionar después del 10 de septiembre de 2026 y no se sustituirá automáticamente por un futuro ID estable. Prepara un modelo alternativo estable.
+</Warning>
+
+## Qué está disponible ahora
+
+| Ajuste | Valor |
+| --- | --- |
+| Proveedor | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protocolo | Chat Completions compatible con OpenAI |
+| Estado en BetterToken | Prueba limitada; caducidad prevista para el 10 de septiembre de 2026 |
+
+Este modelo utiliza Chat Completions compatible con OpenAI. Usa la configuración siguiente en una herramienta externa que admita este protocolo.
+
+## Recomendaciones de uso
+
+Utiliza el periodo de prueba para comparar DeepSeek V4.1 Flash con la entrada estable de DeepSeek V4 Flash en tareas relevantes para tu flujo de trabajo:
+
+- **Cambios de código**: asigna a ambos modelos la misma tarea de repositorio y compara la corrección, la calidad de las modificaciones y el seguimiento necesario
+- **Flujos de agentes**: mide la fiabilidad con la que cada modelo sigue instrucciones de varios pasos y utiliza las herramientas del cliente
+- **Calidad del razonamiento**: compara tareas difíciles de depuración, planificación y análisis con el mismo prompt y los mismos criterios
+- **Latencia y coste**: registra el tiempo hasta el primer token, la duración total, el uso de tokens y el precio actual de BetterToken
+
+Ejecuta varios prompts representativos en lugar de confiar en un único resultado. Mantén iguales el cliente, el prompt del sistema, las definiciones de herramientas y los ajustes de muestreo para realizar una comparación justa.
+
+## Inicio rápido
+
+1. <a href={"https://bettertoken.ai/register"}>Crea una BetterToken API Key</a> o abre **Setup** para una clave existente.
+2. Confirma en la model plaza que `deepseek-v4.1-flash-expires-on-0910` sigue disponible.
+3. Selecciona el **proveedor DeepSeek**.
+4. Establece la Base URL en `https://bettertoken.ai/v1` y usa el Model ID temporal exacto.
+5. Envía una solicitud pequeña antes de iniciar una evaluación más larga.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+Una respuesta correcta devuelve el contenido del modelo en `choices[0].message.content`. Consulta ejemplos de SDK y el formato completo en la [referencia de Chat Completions API](/es/api-reference/chat-completions).
+
+## Preparación para la caducidad
+
+Antes del 10 de septiembre de 2026:
+
+1. Busca todas las configuraciones que contengan `deepseek-v4.1-flash-expires-on-0910`.
+2. Guarda los resultados de evaluación que necesites.
+3. Sustituye el ID temporal por `deepseek-v4-flash-0731` u otro Model ID disponible.
+4. Ejecuta una prueba rápida después del cambio.
+5. Consulta en la model plaza si existe una nueva entrada estable de V4.1. No adivines su Model ID.
+
+## Preguntas frecuentes
+
+### ¿Puedo usar este Model ID en producción?
+
+Puedes enviar solicitudes mientras la entrada esté disponible, pero no debe ser el único modelo de una configuración de producción duradera. La caducidad prevista puede hacer que las solicitudes fallen al terminar la prueba.
+
+### ¿Puedo usarlo con Claude Code o Anthropic Messages API?
+
+Este modelo admite actualmente Chat Completions en BetterToken. Usa `https://bettertoken.ai/v1` en una herramienta externa compatible. Claude Code y Anthropic Messages API no están disponibles para este modelo.
+
+### ¿Dónde puedo consultar el precio actual?
+
+Consulta la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> en tiempo real. La disponibilidad y el precio del modelo temporal pueden cambiar durante la prueba.
+
+## Documentación relacionada
+
+- [Referencia de BetterToken Chat Completions API](/es/api-reference/chat-completions)
+
+---
+
 ## GPT-6 Astra ya está disponible
 
 Source: https://docs.bettertoken.ai/es/model-updates/gpt-6-astra
@@ -52394,6 +52859,99 @@ O endpoint não retorna `task_id`, nem há endpoint separado para consultar stat
 
 - [Texto para imagem](/pt-br/api-reference/images-generations)
 - [GPT Image 2 já está disponível](/pt-br/model-updates/gpt-image-2)
+
+---
+
+## O teste limitado do DeepSeek V4.1 Flash está disponível
+
+Source: https://docs.bettertoken.ai/pt-br/model-updates/deepseek-v4-1-flash
+
+Description: Teste o DeepSeek V4.1 Flash no BetterToken com o Model ID temporário deepseek-v4.1-flash-expires-on-0910 antes da expiração programada para 2026-09-10.
+
+Atualizado em: 9 de setembro de 2026
+
+O BetterToken agora oferece acesso de teste limitado ao **DeepSeek V4.1 Flash** com o Model ID exato `deepseek-v4.1-flash-expires-on-0910`. Essa entrada temporária está programada para expirar em **10 de setembro de 2026**. Use-a para avaliar o modelo, não como configuração permanente de produção. Antes de enviar uma solicitação, verifique o acesso e o preço atuais na <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  O Model ID temporário inclui a data de expiração. Ele pode parar de funcionar depois de 10 de setembro de 2026 e não será substituído automaticamente por um futuro ID estável. Mantenha um modelo estável de reserva.
+</Warning>
+
+## O que está disponível agora
+
+| Configuração | Valor |
+| --- | --- |
+| Provedor | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protocolo | Chat Completions compatível com OpenAI |
+| Status no BetterToken | Teste limitado; expiração programada para 10 de setembro de 2026 |
+
+Este modelo usa Chat Completions compatível com OpenAI. Use as configurações abaixo em uma ferramenta externa que aceite esse protocolo.
+
+## Sugestões de uso
+
+Use o período de teste para comparar o DeepSeek V4.1 Flash com a entrada estável do DeepSeek V4 Flash em tarefas importantes para seu fluxo de trabalho:
+
+- **Alterações de código**: atribua a mesma tarefa de repositório aos dois modelos e compare correção, qualidade das edições e acompanhamento necessário
+- **Fluxos com agentes**: meça a confiabilidade com que cada modelo segue instruções de várias etapas e usa as ferramentas fornecidas pelo cliente
+- **Qualidade do raciocínio**: compare tarefas difíceis de depuração, planejamento e análise com o mesmo prompt e os mesmos critérios
+- **Latência e custo**: registre o tempo até o primeiro token, a duração total, o uso de tokens e o preço atual do BetterToken
+
+Execute vários prompts representativos em vez de confiar em um único resultado. Mantenha o mesmo cliente, prompt do sistema, definições de ferramentas e configurações de amostragem para uma comparação justa.
+
+## Início rápido
+
+1. <a href={"https://bettertoken.ai/register"}>Crie uma BetterToken API Key</a> ou abra **Setup** para uma chave existente.
+2. Confirme na model plaza se `deepseek-v4.1-flash-expires-on-0910` ainda está disponível.
+3. Selecione o **provedor DeepSeek**.
+4. Defina a Base URL como `https://bettertoken.ai/v1` e use o Model ID temporário exato.
+5. Envie uma solicitação pequena antes de iniciar uma avaliação mais longa.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+Uma resposta bem-sucedida retorna a saída do modelo em `choices[0].message.content`. Para exemplos com SDK e o formato completo da solicitação, consulte a [referência da Chat Completions API](/pt-br/api-reference/chat-completions).
+
+## Prepare-se para a expiração
+
+Antes de 10 de setembro de 2026:
+
+1. Encontre todas as configurações que contêm `deepseek-v4.1-flash-expires-on-0910`.
+2. Salve os resultados da avaliação de que precisa.
+3. Substitua o ID temporário por `deepseek-v4-flash-0731` ou outro Model ID disponível no momento.
+4. Execute um teste rápido depois da alteração.
+5. Verifique na model plaza se há uma nova entrada estável V4.1. Não tente adivinhar o Model ID.
+
+## Perguntas frequentes
+
+### Posso usar esse Model ID em produção?
+
+Você pode enviar solicitações enquanto a entrada estiver disponível, mas ela não deve ser o único modelo em uma configuração de produção duradoura. A expiração programada pode fazer com que as solicitações falhem após o fim do teste.
+
+### Posso usá-lo com Claude Code ou Anthropic Messages API?
+
+Este modelo aceita atualmente Chat Completions no BetterToken. Use `https://bettertoken.ai/v1` em uma ferramenta externa compatível. Claude Code e Anthropic Messages API não são compatíveis com este modelo.
+
+### Onde encontro o preço atual?
+
+Consulte a <a href={"https://bettertoken.ai/pricing"}>model plaza</a> em tempo real. A disponibilidade e o preço do modelo temporário podem mudar durante o teste.
+
+## Documentação relacionada
+
+- [Referência da BetterToken Chat Completions API](/pt-br/api-reference/chat-completions)
 
 ---
 
@@ -61751,6 +62309,99 @@ b64_json = result["data"][0]["b64_json"]
 
 ---
 
+## DeepSeek V4.1 Flash の期間限定テストを開始
+
+Source: https://docs.bettertoken.ai/ja/model-updates/deepseek-v4-1-flash
+
+Description: BetterToken で DeepSeek V4.1 Flash を一時的な Model ID deepseek-v4.1-flash-expires-on-0910 を使って、予定された 2026-09-10 の期限までテストできます。
+
+更新日：2026 年 9 月 9 日
+
+BetterToken では、正確な Model ID `deepseek-v4.1-flash-expires-on-0910` を使って **DeepSeek V4.1 Flash** を期間限定でテストできるようになりました。この一時的なエントリは **2026 年 9 月 10 日**に期限切れとなる予定です。恒久的な本番設定ではなく、モデルの評価に使用してください。リクエストを送る前に、<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>で現在のアクセス状況と料金を確認してください。
+
+<Warning>
+  一時的な Model ID には有効期限が含まれています。2026 年 9 月 10 日以降は動作しなくなる可能性があり、将来の安定版 ID に自動で置き換わることもありません。安定した代替モデルを用意してください。
+</Warning>
+
+## 現在利用できる設定
+
+| 設定 | 値 |
+| --- | --- |
+| プロバイダー | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| エンドポイント | `POST /v1/chat/completions` |
+| プロトコル | OpenAI 互換 Chat Completions |
+| BetterToken の状態 | 期間限定テスト、2026 年 9 月 10 日に期限切れ予定 |
+
+このモデルは OpenAI 互換 Chat Completions を使用します。このプロトコルに対応する外部ツールでは、以下の設定を使用してください。
+
+## 使用のヒント
+
+テスト期間中に、実際のワークフローで重要なタスクを使って DeepSeek V4.1 Flash と安定版 DeepSeek V4 Flash を比較してください。
+
+- **コード変更**：両方のモデルに同じリポジトリタスクを与え、正確性、編集品質、追加の指示が必要な回数を比較する
+- **Agent ワークフロー**：各モデルが複数手順の指示に従い、クライアントのツールを利用する信頼性を測る
+- **推論品質**：同じプロンプトと評価基準で、難しいデバッグ、計画、分析タスクを比較する
+- **レイテンシとコスト**：最初の token までの時間、完了までの時間、token 使用量、BetterToken の現在料金を記録する
+
+一度の結果だけに頼らず、代表的なプロンプトを複数実行してください。公平に比較するため、クライアント、システムプロンプト、ツール定義、サンプリング設定を同じにします。
+
+## クイックスタート
+
+1. <a href={"https://bettertoken.ai/register"}>BetterToken API Key を作成</a>するか、既存の Key の **Setup** を開きます。
+2. `deepseek-v4.1-flash-expires-on-0910` がまだ利用可能かモデル広場で確認します。
+3. **DeepSeek プロバイダー**を選択します。
+4. Base URL を `https://bettertoken.ai/v1` に設定し、正確な一時 Model ID を使用します。
+5. 長い評価を始める前に、小さなリクエストを送信します。
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+成功したレスポンスでは、モデルの出力が `choices[0].message.content` に返されます。SDK の例と完全なリクエスト形式は、[Chat Completions API リファレンス](/ja/api-reference/chat-completions)を参照してください。
+
+## 有効期限への準備
+
+2026 年 9 月 10 日までに、次の作業を行ってください。
+
+1. `deepseek-v4.1-flash-expires-on-0910` を含むすべての設定を見つけます。
+2. 必要な評価結果を保存します。
+3. 一時 ID を `deepseek-v4-flash-0731` または現在利用可能な別の Model ID に置き換えます。
+4. 変更後にスモークテストを実行します。
+5. 新しい安定版 V4.1 エントリがあるかモデル広場で確認します。Model ID を推測しないでください。
+
+## よくある質問
+
+### この Model ID を本番環境で使用できますか？
+
+エントリが利用できる間はリクエストを送信できますが、長期運用する本番設定の唯一のモデルにはしないでください。予定された期限を過ぎると、リクエストが失敗する可能性があります。
+
+### Claude Code や Anthropic Messages API で使用できますか？
+
+このモデルは現在 BetterToken で Chat Completions に対応しています。互換性のある外部ツールで `https://bettertoken.ai/v1` を使用してください。このモデルは Claude Code と Anthropic Messages API には対応していません。
+
+### 現在の料金はどこで確認できますか？
+
+リアルタイムの<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>を確認してください。テスト中は一時モデルの提供状況と料金が変更される場合があります。
+
+## 関連ドキュメント
+
+- [BetterToken Chat Completions API リファレンス](/ja/api-reference/chat-completions)
+
+---
+
 ## GPT-6 Astra が利用可能になりました
 
 Source: https://docs.bettertoken.ai/ja/model-updates/gpt-6-astra
@@ -71099,6 +71750,99 @@ L’endpoint ne renvoie pas de `task_id`, et il n’existe pas d’endpoint dist
 
 - [Texte à image](/fr/api-reference/images-generations)
 - [GPT Image 2 est disponible](/fr/model-updates/gpt-image-2)
+
+---
+
+## Le test limite de DeepSeek V4.1 Flash est disponible
+
+Source: https://docs.bettertoken.ai/fr/model-updates/deepseek-v4-1-flash
+
+Description: Testez DeepSeek V4.1 Flash sur BetterToken avec le Model ID temporaire deepseek-v4.1-flash-expires-on-0910 avant son expiration prevue le 2026-09-10.
+
+Mis a jour le 9 septembre 2026
+
+BetterToken propose desormais un acces de test limite a **DeepSeek V4.1 Flash** avec le Model ID exact `deepseek-v4.1-flash-expires-on-0910`. Cette entree temporaire doit expirer le **10 septembre 2026**. Utilisez-la pour evaluer le modele, pas comme configuration de production permanente. Avant toute requete, verifiez l'acces et le tarif actuels dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  Le Model ID temporaire contient sa date d'expiration. Il peut cesser de fonctionner apres le 10 septembre 2026 et ne sera pas automatiquement remplace par un futur ID stable. Preparez un modele de secours stable.
+</Warning>
+
+## Ce qui est disponible maintenant
+
+| Parametre | Valeur |
+| --- | --- |
+| Fournisseur | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protocole | Chat Completions compatible OpenAI |
+| Statut BetterToken | Test limite ; expiration prevue le 10 septembre 2026 |
+
+Ce modèle utilise Chat Completions compatible OpenAI. Dans un outil externe prenant en charge ce protocole, utilisez les paramètres ci-dessous.
+
+## Conseils d’utilisation
+
+Profitez de la periode de test pour comparer DeepSeek V4.1 Flash a l'entree stable DeepSeek V4 Flash sur des taches propres a votre flux de travail :
+
+- **Modifications de code** : confiez la meme tache de depot aux deux modeles et comparez l'exactitude, la qualite des modifications et le suivi necessaire
+- **Flux agentiques** : mesurez la fiabilite avec laquelle chaque modele suit des instructions en plusieurs etapes et utilise les outils du client
+- **Qualite du raisonnement** : comparez des taches difficiles de debogage, de planification et d'analyse avec le meme prompt et les memes criteres
+- **Latence et cout** : relevez le delai avant le premier token, la duree totale, l'utilisation des tokens et le tarif BetterToken en vigueur
+
+Executez plusieurs prompts representatifs au lieu de vous fier a un seul resultat. Conservez le meme client, prompt systeme, definition d'outils et parametres d'echantillonnage pour une comparaison equitable.
+
+## Demarrage rapide
+
+1. <a href={"https://bettertoken.ai/register"}>Creez une BetterToken API Key</a> ou ouvrez **Setup** pour une cle existante.
+2. Verifiez dans la model plaza que `deepseek-v4.1-flash-expires-on-0910` est toujours disponible.
+3. Selectionnez le **fournisseur DeepSeek**.
+4. Definissez la Base URL sur `https://bettertoken.ai/v1` et utilisez le Model ID temporaire exact.
+5. Envoyez une petite requete avant de lancer une evaluation plus longue.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+Une reponse reussie renvoie la sortie du modele dans `choices[0].message.content`. Pour les exemples de SDK et le format complet, consultez la [reference Chat Completions API](/fr/api-reference/chat-completions).
+
+## Preparation a l'expiration
+
+Avant le 10 septembre 2026 :
+
+1. Recherchez toutes les configurations contenant `deepseek-v4.1-flash-expires-on-0910`.
+2. Conservez les resultats d'evaluation necessaires.
+3. Remplacez l'ID temporaire par `deepseek-v4-flash-0731` ou un autre Model ID disponible.
+4. Executez un test rapide apres le changement.
+5. Verifiez dans la model plaza si une nouvelle entree stable V4.1 existe. Ne devinez pas son Model ID.
+
+## Questions frequentes
+
+### Puis-je utiliser ce Model ID en production ?
+
+Vous pouvez envoyer des requetes tant que l'entree est disponible, mais n'en faites pas l'unique modele d'une configuration de production durable. Son expiration programmee peut provoquer l'echec des requetes apres la fin du test.
+
+### Puis-je l'utiliser avec Claude Code ou Anthropic Messages API ?
+
+Ce modèle prend actuellement en charge Chat Completions sur BetterToken. Utilisez `https://bettertoken.ai/v1` dans un outil externe compatible. Claude Code et Anthropic Messages API ne sont pas pris en charge pour ce modèle.
+
+### Ou trouver le tarif actuel ?
+
+Consultez la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> en direct. La disponibilite et le tarif du modele temporaire peuvent changer pendant le test.
+
+## Documentation associée
+
+- [Reference BetterToken Chat Completions API](/fr/api-reference/chat-completions)
 
 ---
 
@@ -80456,6 +81200,99 @@ Der Endpunkt gibt keine `task_id` zurück; es gibt keinen separaten Endpunkt fü
 
 ---
 
+## Der begrenzte Test von DeepSeek V4.1 Flash ist verfügbar
+
+Source: https://docs.bettertoken.ai/de/model-updates/deepseek-v4-1-flash
+
+Description: Testen Sie DeepSeek V4.1 Flash auf BetterToken mit der temporären Model ID deepseek-v4.1-flash-expires-on-0910 vor dem geplanten Ablauf am 2026-09-10.
+
+Aktualisiert: 9. September 2026
+
+BetterToken bietet jetzt einen begrenzten Testzugang zu **DeepSeek V4.1 Flash** mit der exakten Model ID `deepseek-v4.1-flash-expires-on-0910`. Dieser temporäre Eintrag soll am **10. September 2026** ablaufen. Verwenden Sie ihn zur Bewertung des Modells und nicht als dauerhafte Produktionskonfiguration. Prüfen Sie vor einer Anfrage den aktuellen Zugang und Preis in der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+
+<Warning>
+  Die temporäre Model ID enthält das Ablaufdatum. Sie kann nach dem 10. September 2026 nicht mehr funktionieren und wird nicht automatisch durch eine spätere stabile ID ersetzt. Halten Sie ein stabiles Ersatzmodell bereit.
+</Warning>
+
+## Was jetzt verfügbar ist
+
+| Einstellung | Wert |
+| --- | --- |
+| Provider | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protokoll | OpenAI-kompatible Chat Completions |
+| BetterToken-Status | Begrenzter Test; Ablauf am 10. September 2026 vorgesehen |
+
+Dieses Modell verwendet OpenAI-kompatible Chat Completions. Nutzen Sie die folgenden Einstellungen in externen Tools, die dieses Protokoll unterstützen.
+
+## Nutzungshinweise
+
+Vergleichen Sie während des Testzeitraums DeepSeek V4.1 Flash mit dem stabilen DeepSeek-V4-Flash-Eintrag anhand von Aufgaben aus Ihrem eigenen Workflow:
+
+- **Codeänderungen**: Geben Sie beiden Modellen dieselbe Repository-Aufgabe und vergleichen Sie Korrektheit, Qualität der Änderungen und notwendigen Nachbesserungsaufwand
+- **Agenten-Workflows**: Messen Sie, wie zuverlässig jedes Modell mehrstufige Anweisungen befolgt und die Tools Ihres Clients verwendet
+- **Qualität der Schlussfolgerungen**: Vergleichen Sie schwierige Debugging-, Planungs- und Analyseaufgaben mit demselben Prompt und denselben Kriterien
+- **Latenz und Kosten**: Erfassen Sie die Zeit bis zum ersten Token, die Gesamtdauer, den Tokenverbrauch und den aktuellen BetterToken-Preis
+
+Führen Sie mehrere repräsentative Prompts aus, statt sich auf ein einzelnes Ergebnis zu verlassen. Verwenden Sie für einen fairen Vergleich denselben Client, System-Prompt, dieselben Tool-Definitionen und Sampling-Einstellungen.
+
+## Schnellstart
+
+1. <a href={"https://bettertoken.ai/register"}>Erstellen Sie einen BetterToken API Key</a> oder öffnen Sie **Setup** für einen vorhandenen Schlüssel.
+2. Prüfen Sie in der model plaza, ob `deepseek-v4.1-flash-expires-on-0910` noch verfügbar ist.
+3. Wählen Sie den **Provider DeepSeek**.
+4. Setzen Sie die Base URL auf `https://bettertoken.ai/v1` und verwenden Sie die exakte temporäre Model ID.
+5. Senden Sie eine kleine Anfrage, bevor Sie eine längere Bewertung starten.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+Eine erfolgreiche Antwort enthält die Modellausgabe unter `choices[0].message.content`. SDK-Beispiele und das vollständige Anfrageformat finden Sie in der [Chat Completions API-Referenz](/de/api-reference/chat-completions).
+
+## Auf den Ablauf vorbereiten
+
+Vor dem 10. September 2026:
+
+1. Suchen Sie alle Konfigurationen, die `deepseek-v4.1-flash-expires-on-0910` enthalten.
+2. Speichern Sie die benötigten Bewertungsergebnisse.
+3. Ersetzen Sie die temporäre ID durch `deepseek-v4-flash-0731` oder eine andere aktuell verfügbare Model ID.
+4. Führen Sie nach der Änderung einen kurzen Funktionstest aus.
+5. Prüfen Sie die model plaza auf einen neuen stabilen V4.1-Eintrag. Raten Sie die Model ID nicht.
+
+## Häufige Fragen
+
+### Kann ich diese Model ID in der Produktion verwenden?
+
+Sie können Anfragen senden, solange der Eintrag verfügbar ist. Er sollte jedoch nicht das einzige Modell in einer langfristigen Produktionskonfiguration sein. Nach dem geplanten Ablauf können Anfragen fehlschlagen.
+
+### Kann ich es mit Claude Code oder der Anthropic Messages API verwenden?
+
+Dieses Modell unterstützt derzeit Chat Completions auf BetterToken. Verwenden Sie `https://bettertoken.ai/v1` in einem kompatiblen externen Tool. Claude Code und die Anthropic Messages API werden für dieses Modell nicht unterstützt.
+
+### Wo finde ich den aktuellen Preis?
+
+Prüfen Sie die aktuelle <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Verfügbarkeit und Preis des temporären Modells können sich während des Tests ändern.
+
+## Weiterführende Dokumentation
+
+- [BetterToken Chat Completions API-Referenz](/de/api-reference/chat-completions)
+
+---
+
 ## GPT-6 Astra ist verfügbar
 
 Source: https://docs.bettertoken.ai/de/model-updates/gpt-6-astra
@@ -89801,6 +90638,99 @@ endpoint는 `task_id`를 반환하지 않으며 별도의 status query 또는 re
 
 - [텍스트를 이미지로 변환](/ko/api-reference/images-generations)
 - [GPT Image 2 출시](/ko/model-updates/gpt-image-2)
+
+---
+
+## DeepSeek V4.1 Flash 기간 한정 테스트 제공
+
+Source: https://docs.bettertoken.ai/ko/model-updates/deepseek-v4-1-flash
+
+Description: BetterToken에서 DeepSeek V4.1 Flash를 임시 Model ID deepseek-v4.1-flash-expires-on-0910으로 예정된 2026-09-10 만료 전까지 테스트하세요.
+
+업데이트: 2026년 9월 9일
+
+BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **DeepSeek V4.1 Flash** 기간 한정 테스트를 제공합니다. 이 임시 항목은 **2026년 9월 10일**에 만료될 예정입니다. 영구적인 프로덕션 설정이 아니라 모델 평가에 사용하세요. 요청을 보내기 전에 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 현재 접근 가능 여부와 가격을 확인하세요.
+
+<Warning>
+  임시 Model ID에는 만료일이 포함되어 있습니다. 2026년 9월 10일 이후 작동이 중단될 수 있으며, 향후 안정 버전 ID로 자동 교체되지 않습니다. 안정적인 대체 모델을 준비하세요.
+</Warning>
+
+## 현재 사용할 수 있는 설정
+
+| 설정 | 값 |
+| --- | --- |
+| 제공업체 | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `https://bettertoken.ai/v1` |
+| 엔드포인트 | `POST /v1/chat/completions` |
+| 프로토콜 | OpenAI 호환 Chat Completions |
+| BetterToken 상태 | 기간 한정 테스트, 2026년 9월 10일 만료 예정 |
+
+이 모델은 OpenAI 호환 Chat Completions를 사용합니다. 이 프로토콜을 지원하는 외부 도구에서 아래 설정을 사용하세요.
+
+## 사용 권장 사항
+
+테스트 기간에 실제 워크플로에 중요한 작업으로 DeepSeek V4.1 Flash와 안정 버전 DeepSeek V4 Flash 항목을 비교하세요.
+
+- **코드 변경**: 두 모델에 같은 저장소 작업을 주고 정확성, 수정 품질, 추가 지시가 필요한 정도를 비교합니다
+- **Agent 워크플로**: 각 모델이 여러 단계의 지시를 따르고 클라이언트 도구를 사용하는 안정성을 측정합니다
+- **추론 품질**: 같은 프롬프트와 평가 기준으로 어려운 디버깅, 계획, 분석 작업을 비교합니다
+- **지연 시간과 비용**: 첫 token까지의 시간, 전체 완료 시간, token 사용량, 현재 BetterToken 가격을 기록합니다
+
+한 번의 결과에 의존하지 말고 대표적인 프롬프트를 여러 개 실행하세요. 공정한 비교를 위해 클라이언트, 시스템 프롬프트, 도구 정의, 샘플링 설정을 동일하게 유지하세요.
+
+## 빠른 시작
+
+1. <a href={"https://bettertoken.ai/register"}>BetterToken API Key를 생성</a>하거나 기존 Key의 **Setup**을 엽니다.
+2. 모델 광장에서 `deepseek-v4.1-flash-expires-on-0910`을 아직 사용할 수 있는지 확인합니다.
+3. **DeepSeek 제공업체**를 선택합니다.
+4. Base URL을 `https://bettertoken.ai/v1`로 설정하고 정확한 임시 Model ID를 사용합니다.
+5. 긴 평가를 시작하기 전에 작은 요청을 먼저 보냅니다.
+
+```bash
+curl "https://bettertoken.ai/v1/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+성공한 응답에서는 모델 출력이 `choices[0].message.content`에 반환됩니다. SDK 예제와 전체 요청 형식은 [Chat Completions API 레퍼런스](/ko/api-reference/chat-completions)를 참조하세요.
+
+## 만료에 대비하기
+
+2026년 9월 10일 전에 다음 작업을 완료하세요.
+
+1. `deepseek-v4.1-flash-expires-on-0910`이 포함된 모든 설정을 찾습니다.
+2. 필요한 평가 결과를 저장합니다.
+3. 임시 ID를 `deepseek-v4-flash-0731` 또는 현재 사용할 수 있는 다른 Model ID로 교체합니다.
+4. 변경 후 스모크 테스트를 실행합니다.
+5. 모델 광장에 새로운 안정 버전 V4.1 항목이 있는지 확인합니다. Model ID를 추측하지 마세요.
+
+## 자주 묻는 질문
+
+### 이 Model ID를 프로덕션에서 사용할 수 있나요?
+
+항목을 사용할 수 있는 동안 요청을 보낼 수 있지만, 장기 프로덕션 설정의 유일한 모델로 두어서는 안 됩니다. 예정된 만료 후에는 요청이 실패할 수 있습니다.
+
+### Claude Code 또는 Anthropic Messages API와 함께 사용할 수 있나요?
+
+이 모델은 현재 BetterToken에서 Chat Completions를 지원합니다. 호환되는 외부 도구에서 `https://bettertoken.ai/v1`을 사용하세요. 이 모델은 Claude Code와 Anthropic Messages API를 지원하지 않습니다.
+
+### 현재 가격은 어디에서 확인할 수 있나요?
+
+실시간 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>을 확인하세요. 테스트 중에는 임시 모델의 제공 여부와 가격이 변경될 수 있습니다.
+
+## 관련 문서
+
+- [BetterToken Chat Completions API 레퍼런스](/ko/api-reference/chat-completions)
 
 ---
 

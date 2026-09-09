@@ -1,0 +1,90 @@
+---
+title: "DeepSeek V4.1 Flash 限时测试版已上线"
+description: "通过 BetterToken 测试 DeepSeek V4.1 Flash，临时模型 ID deepseek-v4.1-flash-expires-on-0910 计划于 2026-09-10 到期。"
+tag: "限时"
+---
+
+更新日期：2026 年 9 月 9 日
+
+BetterToken 现已提供 **DeepSeek V4.1 Flash** 限时测试，准确的模型 ID 是 `deepseek-v4.1-flash-expires-on-0910`。该临时条目计划于 **2026 年 9 月 10 日**到期。请将它用于模型评估，不要作为永久生产配置。发送请求前，请在实时<a href={"{{model-plaza-url}}"}>模型广场</a>确认访问权限和价格。
+
+<Warning>
+  临时模型 ID 中包含到期日期。2026 年 9 月 10 日后它可能停止工作，也不会自动替换为未来的稳定版 ID。请提前准备稳定的备用模型。
+</Warning>
+
+## 当前可用配置
+
+| 设置项 | 值 |
+| --- | --- |
+| 提供商 | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `{{openai-base-url}}` |
+| 接口 | `POST /v1/chat/completions` |
+| 协议 | OpenAI 兼容 Chat Completions |
+| BetterToken 状态 | 限时测试；计划于 2026 年 9 月 10 日到期 |
+
+该模型通过 OpenAI 兼容 Chat Completions 接入。使用支持此协议的外部工具时，请按下方配置填写。
+
+## 使用建议
+
+在测试期内，用与你实际工作流相关的任务对比 DeepSeek V4.1 Flash 和稳定版 DeepSeek V4 Flash：
+
+- **代码修改**：向两个模型提交同一个仓库任务，对比正确性、修改质量和需要追加沟通的次数
+- **Agent 工作流**：衡量每个模型遵循多步骤指令和使用客户端工具的稳定性
+- **推理质量**：使用相同提示词和评估标准，对比高难度调试、规划和分析任务
+- **延迟与成本**：记录首 token 延迟、总生成时间、token 用量和 BetterToken 实时价格
+
+请运行多组有代表性的提示词，不要根据一次结果下结论。保持客户端、系统提示词、工具定义和采样参数一致，才能公平对比。
+
+## 快速开始
+
+1. <a href={"{{register-url}}"}>创建 BetterToken API Key</a>，或打开现有 Key 的 **Setup** 弹窗。
+2. 在模型广场确认 `deepseek-v4.1-flash-expires-on-0910` 仍然可用。
+3. 选择 **DeepSeek 提供商**。
+4. 将 Base URL 设置为 `{{openai-base-url}}`，并填写完整的临时 Model ID。
+5. 先发送一个小型请求，再开始较长的评估任务。
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+请求成功时，模型输出位于 `choices[0].message.content`。SDK 示例和完整请求格式请参阅 [Chat Completions API 参考](/zh/api-reference/chat-completions)。
+
+## 为到期做好准备
+
+请在 2026 年 9 月 10 日前完成以下操作：
+
+1. 找出所有包含 `deepseek-v4.1-flash-expires-on-0910` 的配置。
+2. 保存需要保留的评估结果。
+3. 将临时 ID 替换为 `deepseek-v4-flash-0731` 或其他当前可用的 Model ID。
+4. 修改后运行冒烟测试。
+5. 在模型广场查看是否有新的稳定版 V4.1 条目。不要猜测它的 Model ID。
+
+## 常见问题
+
+### 可以在生产环境中使用这个 Model ID 吗？
+
+条目可用期间可以发送请求，但不应将它设为长期生产配置中的唯一模型。测试结束后，计划到期可能导致请求失败。
+
+### 可以将它用于 Claude Code 或 Anthropic Messages API 吗？
+
+该模型目前在 BetterToken 上支持 Chat Completions。请在兼容的外部工具中使用 `{{openai-base-url}}`。该模型暂不支持 Claude Code 或 Anthropic Messages API。
+
+### 在哪里查看当前价格？
+
+请查看实时<a href={"{{model-plaza-url}}"}>模型广场</a>。测试期间，临时模型的可用性和价格都可能变化。
+
+## 相关文档
+
+- [BetterToken Chat Completions API 参考](/zh/api-reference/chat-completions)

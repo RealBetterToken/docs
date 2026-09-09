@@ -1,0 +1,90 @@
+---
+title: "DeepSeek V4.1 Flash limited test is live"
+description: "Test DeepSeek V4.1 Flash on BetterToken with the temporary Model ID deepseek-v4.1-flash-expires-on-0910 before its scheduled 2026-09-10 expiration."
+tag: "LIMITED"
+---
+
+Updated: September 9, 2026
+
+BetterToken now provides limited test access to **DeepSeek V4.1 Flash** through the exact Model ID `deepseek-v4.1-flash-expires-on-0910`. This temporary entry is scheduled to expire on **September 10, 2026**. Use it to evaluate the model, not as a permanent production configuration. Check current access and pricing in the <a href={"{{model-plaza-url}}"}>model plaza</a> before sending a request.
+
+<Warning>
+  The temporary Model ID includes its expiration date. It may stop working after September 10, 2026, and it is not automatically replaced by a future stable ID. Keep a stable fallback model ready.
+</Warning>
+
+## What is available now
+
+| Setting | Value |
+| --- | --- |
+| Provider | **DeepSeek** |
+| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Base URL | `{{openai-base-url}}` |
+| Endpoint | `POST /v1/chat/completions` |
+| Protocol | OpenAI-compatible Chat Completions |
+| BetterToken status | Limited test; scheduled to expire on September 10, 2026 |
+
+This model uses OpenAI-compatible Chat Completions. Use the configuration below in an external tool that supports this protocol.
+
+## Usage suggestions
+
+Use the test window to compare DeepSeek V4.1 Flash with the stable DeepSeek V4 Flash entry on tasks that matter to your workflow:
+
+- **Coding changes**: give both models the same repository task and compare correctness, edit quality, and the amount of follow-up required
+- **Agent workflows**: measure how reliably each model follows multistep instructions and uses the tools your client provides
+- **Reasoning quality**: compare difficult debugging, planning, and analysis tasks with the same prompt and evaluation criteria
+- **Latency and cost**: record time to first token, total completion time, token usage, and the live BetterToken price
+
+Run several representative prompts instead of relying on one result. Keep the client, system prompt, tool definitions, and sampling settings the same for a fair comparison.
+
+## Quick start
+
+1. <a href={"{{register-url}}"}>Create a BetterToken API Key</a> or open **Setup** for an existing key.
+2. Confirm that `deepseek-v4.1-flash-expires-on-0910` is still available in the model plaza.
+3. Select the **DeepSeek provider**.
+4. Set the Base URL to `{{openai-base-url}}` and use the exact temporary Model ID.
+5. Send a small request before running a longer evaluation.
+
+```bash
+curl "{{chat-completions-url}}" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Explain the likely cause of this failing test and propose the smallest fix."
+      }
+    ]
+  }'
+```
+
+A successful response returns model output under `choices[0].message.content`. For SDK examples and the complete request format, see the [Chat Completions API reference](/en/api-reference/chat-completions).
+
+## Prepare for expiration
+
+Before September 10, 2026:
+
+1. Find every configuration that contains `deepseek-v4.1-flash-expires-on-0910`.
+2. Save the evaluation results you need.
+3. Replace the temporary ID with `deepseek-v4-flash-0731` or another currently available Model ID.
+4. Run a smoke test after the change.
+5. Check the model plaza for any new stable V4.1 entry. Do not guess its Model ID.
+
+## Frequently asked questions
+
+### Can I use this Model ID in production?
+
+You can send requests while the entry is available, but you should not make it the only model in a long-lived production configuration. Its scheduled expiration can cause requests to fail after the test ends.
+
+### Can I use it with Claude Code or the Anthropic Messages API?
+
+This model currently supports Chat Completions on BetterToken. Use `{{openai-base-url}}` in a compatible external tool. Claude Code and the Anthropic Messages API are not supported for this model.
+
+### Where can I find the current price?
+
+Check the live <a href={"{{model-plaza-url}}"}>model plaza</a>. Temporary-model availability and pricing can change during the test.
+
+## Related documentation
+
+- [BetterToken Chat Completions API reference](/en/api-reference/chat-completions)
