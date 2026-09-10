@@ -21,6 +21,9 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.4.0
@@ -35,6 +38,53 @@ jobs:
           BETTERTOKEN_SEO_CHECK_ATTEMPTS: "24"
           BETTERTOKEN_SEO_ALLOW_ACCESS_DENIED: "1"
         run: node scripts/check-bettertoken-live-seo.mjs
+
+      - name: Write verified Docs page receipt
+        continue-on-error: true
+        env:
+          RECEIPT_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 24); do
+            conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${RECEIPT_SHA}/check-runs" --jq '.check_runs[] | select(.name == "Mintlify Deployment") | .conclusion' | head -n1 || true)"
+            if [ "$conclusion" = success ]; then break; fi
+            if [ "$conclusion" = failure ] || [ "$conclusion" = cancelled ]; then
+              echo "Mintlify Deployment check ended: $conclusion" >&2
+              exit 1
+            fi
+            sleep 15
+          done
+          test "${conclusion:-}" = success
+          changed="$(git diff-tree --no-commit-id --name-only -r "$RECEIPT_SHA" || true)"
+          routes="$(printf '%s\n' "$changed" | grep -E '\.mdx$' || true)"
+          if printf '%s\n' "$changed" | grep -Eq '^(docs\.json|scripts/|custom\.css|llmeasy-metrica-spa\.js\.template)'; then
+            routes="$(node --input-type=module - <<'NODE'
+            import { readFileSync } from 'node:fs';
+            const xml = readFileSync('sitemap.xml', 'utf8');
+            for (const match of xml.matchAll(/<loc>https:\/\/docs\.bettertoken\.ai([^<]*)<\/loc>/g)) {
+              const route = match[1].replace(/^\//, '').replace(/\/$/, '') || 'index';
+              process.stdout.write(`${route}.mdx\n`);
+            }
+            NODE
+            )"
+          fi
+          test -n "$routes" || exit 0
+          args=()
+          while IFS= read -r route; do args+=(--route "$route"); done <<< "$routes"
+          node scripts/write-seo-page-receipt.mjs \
+            --output "$RUNNER_TEMP/seo-page-receipt.json" \
+            --source-revision "$RECEIPT_SHA" \
+            --release-id "${GITHUB_RUN_ID}-${RECEIPT_SHA}" \
+            "${args[@]}"
+
+      - name: Upload verified Docs page receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-page-receipt-${{ github.event.workflow_run.head_sha || github.sha }}
+          path: ${{ runner.temp }}/seo-page-receipt.json
+          if-no-files-found: ignore
 
       - name: Submit BetterToken sitemap to Google Search Console
         env:
