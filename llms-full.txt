@@ -7468,9 +7468,9 @@ Description: Разберите review_model, model_reasoning_effort, /review, /
 
 ## Короткий ответ
 
-`review_model` — модель, которую Codex использует для code review workflows. `model_reasoning_effort` управляет reasoning strength для моделей, поддерживающих Responses API.
+`review_model` задаёт модель для `/review`; если поле не задано, Codex использует модель текущей сессии. `model_reasoning_effort` регулирует усилие рассуждения у моделей, которые поддерживают этот параметр через Responses API.
 
-Оба поля могут влиять на качество, скорость и usage cost. Более высокий reasoning подходит для сложных задач, но может потреблять больше.
+Большее усилие может помочь в сложной работе, но не гарантирует правильный ответ или меньшую общую стоимость. Это не настройка температуры или длины ответа.
 
 ## Связь полей
 
@@ -7482,7 +7482,21 @@ Description: Разберите review_model, model_reasoning_effort, /review, /
 | `/model` | Вход для смены модели или reasoning в сессии |
 | `/review` | Запуск review текущих изменений |
 
-## Рекомендуемая конфигурация
+## Выбор усилия под задачу
+
+Используйте эти значения как отправную точку и оценивайте результат по критериям приёмки:
+
+| Задача | Начальная настройка | Что проверить |
+| --- | --- | --- |
+| Небольшая правка с чёткими границами или краткое объяснение | `low`, если поддерживается | Правильность и время ответа. |
+| Обычная функция или ошибка с понятным воспроизведением | `medium`, если поддерживается | Тесты, полноту и лишние изменения. |
+| Сложная диагностика, изменение нескольких модулей или подробное ревью | `high`; при необходимости попробуйте доступный уровень выше | Пропущенные ограничения, ложные замечания и полное время до пригодного результата. |
+
+Доступные уровни зависят от модели, версии Codex и провайдера. Перед использованием `xhigh` или `max` проверьте варианты в `/model` и справочник выбранной модели. Поддержка уровня одной моделью не означает поддержку другой. Более высокое усилие может увеличить число токенов рассуждения и задержку; на итоговую стоимость также влияют повторы, размер контекста, вызовы инструментов и тарифы.
+
+## Пример конфигурации
+
+Задайте постоянные значения в `config.toml` внутри `CODEX_HOME` или в `~/.codex/config.toml`, если переменная не задана. Разместите эти ключи на верхнем уровне, перед таблицами TOML, и сохраните настройки провайдера и аутентификации:
 
 ```toml
 model = "gpt-6-astra"
@@ -7490,7 +7504,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Для небольших быстрых правок можно снизить reasoning effort. Для cross-file refactors, сложного debugging или long-context tasks лучше подходит более высокий reasoning effort.
+## Файл конфигурации и настройки сессии
+
+При запуске параметры CLI и переопределения `-c` имеют приоритет над настройками доверенного проекта, выбранного профиля и пользовательскими значениями. В текущих версиях Codex `--profile NAME` загружает `NAME.config.toml` из `CODEX_HOME`. Старые версии использовали другой формат профилей.
+
+Чтобы изменить только усилие для одного запуска:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+В сессии используйте `/model` для выбора текущей модели и доступного уровня усилия. Правка файла не гарантирует немедленное изменение работающей сессии; проверяйте сохранённые значения в новой сессии. Режим Plan может использовать `plan_mode_reasoning_effort` или собственную предустановку, поэтому проверяйте его отдельно.
+
+## Проверка действующих настроек
+
+1. Выполните `codex --version`, затем откройте новую сессию из нужного каталога проекта.
+2. В `/model` проверьте выбранное усилие, а в `/status` модель и параметры сессии. Если они отличаются от файла, проверьте параметры запуска, профиль, настройки проекта и `/debug-config`, если команда доступна.
+3. Сравните одну типичную задачу на двух поддерживаемых уровнях в отдельных сессиях. Проверьте diff, тесты, время выполнения и записи использования BetterToken. Выберите настройку, которая обеспечивает нужное качество; меньшее усилие не гарантирует меньшую общую стоимость.
 
 ## Частые ошибки
 
@@ -7518,6 +7548,8 @@ model_reasoning_effort = "high"
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Приоритет конфигурации Codex](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Расширенная конфигурация Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -7550,7 +7582,31 @@ Description: Разберите роль AGENTS.md в Codex CLI, hierarchy ин�
 - Generic prompts, не связанные с репозиторием
 - Outdated commands и paths
 
+## Область действия и приоритет
+
+Codex формирует начальную цепочку инструкций при запуске. Каталог запуска влияет на набор файлов:
+
+1. Сначала загружаются глобальные правила из `CODEX_HOME`, по умолчанию `~/.codex`: первый непустой `AGENTS.override.md`, иначе `AGENTS.md`.
+2. Затем проверяются каталоги от корня проекта, обычно корня Git, до текущего рабочего каталога. Если корень проекта не найден, для правил проекта проверяется только текущий каталог.
+3. В каждом каталоге проекта используется не более одного непустого файла: сначала `AGENTS.override.md`, затем `AGENTS.md`, затем имена из `project_doc_fallback_filenames`.
+
+При конфликте более конкретные правила в конце цепочки имеют приоритет; остальные родительские правила продолжают действовать. Файл override заменяет обычный файл в том же каталоге, а не все инструкции родителей.
+
+### Пример каталогов
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Допустим, глобальные правила требуют `npm test`, файл репозитория требует проверки линтером, а override для payments заменяет тестовую команду на `make test-payments`. При запуске из `repo/services/payments` Codex загружает глобальный файл, файл репозитория и override для payments. Проверка линтером сохраняется, используется команда тестов payments, а обычный файл payments пропускается. Соседний файл search не входит в эту начальную цепочку.
+
 ## Рекомендуемая структура
+
+Сохраните шаблон кратким и замените команды на реально существующие в вашем репозитории. Укажите, когда действует правило и как проверить результат.
 
 ```md
 # Project instructions
@@ -7567,6 +7623,19 @@ Description: Разберите роль AGENTS.md в Codex CLI, hierarchy ин�
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Проверка пропущенных и конфликтующих правил
+
+После изменения инструкций запустите новую сессию в нужном каталоге и попросите Codex перечислить загруженные источники и применимые команды:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Проверьте рабочий каталог и `CODEX_HOME`. Запуск из корня репозитория не загружает заранее правила всех вложенных каталогов.
+- Проверьте точное имя файла, наличие содержимого и `AGENTS.override.md` на том же уровне. Резервное имя должно быть указано в `project_doc_fallback_filenames`.
+- При обрезании длинных инструкций проверьте `project_doc_max_bytes`. Удалите повторы и поместите важные правила в начало.
+- При конфликте определите оба исходных файла и область действия каждого правила. Опишите узкое исключение в нужном каталоге вместо копирования противоречащих правил повсюду. Файлы инструкций не изменяют права песочницы.
 
 ## Частые ошибки
 
@@ -7594,6 +7663,7 @@ Description: Разберите роль AGENTS.md в Codex CLI, hierarchy ин�
 - [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
 - [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Расширенная конфигурация Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -16837,9 +16907,9 @@ Description: Understand review_model, model_reasoning_effort, /review, /model, a
 
 ## Short answer
 
-`review_model` is the model Codex uses for code review workflows. `model_reasoning_effort` controls reasoning strength for models that support the Responses API.
+`review_model` selects the model for `/review`; when unset, Codex uses the current session model. `model_reasoning_effort` adjusts the reasoning effort of models that support it through the Responses API.
 
-Both fields can affect quality, speed, and usage cost. Higher reasoning settings are better for complex tasks, but they can consume more.
+More effort can help with difficult work, but does not guarantee a correct answer or a lower total cost. It is not a temperature or response-length setting.
 
 ## Field relationships
 
@@ -16851,7 +16921,21 @@ Both fields can affect quality, speed, and usage cost. Higher reasoning settings
 | `/model` | In-session entry point for model or reasoning changes |
 | `/review` | Entry point for asking Codex to review current changes |
 
-## Recommended config
+## Choose effort for the task
+
+Use these as starting points, then judge the result against the task's acceptance criteria:
+
+| Task | Starting point | What to check |
+| --- | --- | --- |
+| A small, well-defined edit or a short explanation | `low`, when supported | Correctness and response time. |
+| A routine feature or a bug with a clear reproduction | `medium`, when supported | Tests, completeness, and unnecessary changes. |
+| A difficult diagnosis, cross-module change, or detailed review | `high`; try a higher supported level if needed | Missed constraints, false findings, and total time to a usable result. |
+
+Available levels depend on the model, Codex version, and provider. Check the choices in `/model` and the selected model's reference before using levels such as `xhigh` or `max`. Support for one model does not imply support for another. Higher effort can increase reasoning tokens and latency; retries, context size, tool calls, and pricing also affect the total bill.
+
+## Configuration example
+
+Set persistent defaults in `config.toml` under `CODEX_HOME`, or `~/.codex/config.toml` when it is unset. Keep these keys at the top level, before any TOML tables, and retain your provider and authentication configuration:
 
 ```toml
 model = "gpt-6-astra"
@@ -16859,7 +16943,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-For small quick edits, you can lower reasoning effort. For cross-file refactors, difficult debugging, or long-context tasks, higher reasoning effort is more appropriate.
+## File defaults and session settings
+
+At startup, CLI flags and `-c` overrides take precedence over trusted project configuration, the selected profile, and user defaults. In current Codex versions, `--profile NAME` loads `NAME.config.toml` from `CODEX_HOME`. Older versions used a different profile format.
+
+For one launch, override only the effort:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+During a session, use `/model` to select the active model and an available effort level. Editing the file does not guarantee that a running session changes immediately; start a new session to check saved defaults. Plan mode can use `plan_mode_reasoning_effort` or its own preset, so verify it separately.
+
+## Verify the effective setting
+
+1. Run `codex --version`, then start a new session from the intended project directory.
+2. Use `/model` to check the selected effort and `/status` to confirm the active model and session configuration. If values differ from the file, inspect `/debug-config` when available, plus launch flags, the selected profile, and project configuration.
+3. Compare the same representative task at two supported levels in separate sessions. Review the diff, tests, completion time, and BetterToken usage records. Keep the setting that meets your quality target; lower effort is not a guarantee of lower total cost.
 
 ## Common mistakes
 
@@ -16887,6 +16987,8 @@ Copy model IDs from the **GPT provider** so the current provider can recognize t
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex configuration precedence](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -16919,7 +17021,31 @@ It is for stable project rules, not one-time tasks. Put one-time requirements in
 - Generic prompts unrelated to the repository
 - Outdated commands and paths
 
+## Scope and precedence
+
+Codex builds its initial instruction chain when a run starts. The launch directory matters:
+
+1. It first reads global guidance from `CODEX_HOME`, which defaults to `~/.codex`: the first non-empty `AGENTS.override.md` or, otherwise, `AGENTS.md`.
+2. It then checks each directory from the project root, usually the Git root, down to the current working directory. Without a project root, it checks only the current directory for project guidance.
+3. In each project directory it uses at most one non-empty file: `AGENTS.override.md` first, then `AGENTS.md`, then names configured in `project_doc_fallback_filenames`.
+
+More specific guidance later in the chain takes precedence where instructions conflict; unrelated parent rules still apply. An override replaces the ordinary file at the same directory level, not every instruction from its parents.
+
+### A directory example
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Suppose global guidance says to use `npm test`, the repository file requires linting, and the payments override replaces the test command with `make test-payments`. When you launch from `repo/services/payments`, Codex loads the global file, the repository file, and the payments override. It keeps the lint rule, uses the payments test command, and skips the ordinary payments file. The sibling search file is outside that startup chain.
+
 ## Suggested structure
+
+Keep the template below short and replace its commands with commands that actually exist in your repository. A rule should say when it applies and how to check the result.
 
 ```md
 # Project instructions
@@ -16936,6 +17062,19 @@ It is for stable project rules, not one-time tasks. Put one-time requirements in
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Check missing or conflicting rules
+
+After changing instructions, start a new session in the target directory and ask Codex to list its loaded sources and applicable commands:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Check the working directory and `CODEX_HOME`. Starting from the repository root does not preload every nested directory's instructions.
+- Check the exact filename, non-empty contents, and any `AGENTS.override.md` at the same level. A fallback filename must appear in `project_doc_fallback_filenames`.
+- Inspect `project_doc_max_bytes` if long instructions are truncated. Shorten duplicated guidance and keep essential rules near the start.
+- For a conflict, identify both source files and the directory each rule governs. Put a narrow exception in the relevant directory instead of copying contradictory rules everywhere. Instruction files do not change sandbox permissions.
 
 ## Common mistakes
 
@@ -16963,6 +17102,7 @@ Use both to reduce configuration confusion and collaboration cost.
 - [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
 - [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Codex advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -26384,9 +26524,9 @@ Description: 解释 Codex CLI 中 review_model、model_reasoning_effort、/revie
 
 ## 简短答案
 
-`review_model` 是 Codex 在代码审查场景中使用的模型。`model_reasoning_effort` 控制支持 Responses API 的模型使用多少推理强度。
+`review_model` 指定 `/review` 使用的模型；未设置时，Codex 使用当前会话模型。`model_reasoning_effort` 调整通过 Responses API 调用、且支持该设置的模型投入的推理力度。
 
-这两个字段会影响质量、速度和用量成本。一般来说，更强的推理设置更适合复杂任务，但也可能带来更高消耗。
+增加力度可能有助于处理困难任务，但不保证答案正确或总成本更低。它不是温度或回答长度设置。
 
 ## 字段关系
 
@@ -26398,7 +26538,21 @@ Description: 解释 Codex CLI 中 review_model、model_reasoning_effort、/revie
 | `/model` | 会话中切换模型或推理设置的入口 |
 | `/review` | 让 Codex 对当前改动做代码审查的入口 |
 
-## 推荐配置
+## 按任务选择推理力度
+
+以下设置可作为起点，再按任务验收标准判断结果：
+
+| 任务 | 起始设置 | 检查重点 |
+| --- | --- | --- |
+| 范围明确的小改动或简短解释 | 模型支持时使用 `low` | 正确性和响应时间。 |
+| 常规功能开发或有明确复现步骤的 Bug | 模型支持时使用 `medium` | 测试、完整性和多余改动。 |
+| 困难排障、跨模块修改或深入审查 | 先用 `high`，必要时尝试更高的可用档位 | 遗漏的约束、误报，以及得到可用结果的总耗时。 |
+
+可选档位取决于模型、Codex 版本和提供商。使用 `xhigh`、`max` 等档位前，先查看 `/model` 的选项和所选模型的官方说明。一个模型支持某档位，不代表其他模型也支持。更高力度可能增加推理 token 和延迟；重试、上下文大小、工具调用和计费方式也会影响总费用。
+
+## 配置示例
+
+在 `CODEX_HOME` 目录下的 `config.toml` 设置长期默认值；未设置该变量时，使用 `~/.codex/config.toml`。将这些键放在所有 TOML 表之前的顶层，并保留已有的提供商和认证配置：
 
 ```toml
 model = "gpt-6-astra"
@@ -26406,7 +26560,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-如果你的任务更偏快速小修，可以降低推理强度。如果任务涉及跨文件重构、复杂排障或长上下文，较高推理强度更合适。
+## 配置文件与会话设置
+
+启动时，CLI 参数和 `-c` 覆盖项优先于受信任项目的配置、选中的 profile 和用户默认配置。当前 Codex 的 `--profile NAME` 会读取 `CODEX_HOME` 下的 `NAME.config.toml`；旧版本使用过不同的 profile 格式。
+
+只为本次启动调整力度，可以运行：
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+会话中用 `/model` 选择当前模型及可用的推理档位。编辑文件不保证正在运行的会话立即更新；检查已保存的默认值时，请新建会话。Plan 模式可能使用 `plan_mode_reasoning_effort` 或自己的预设，需要单独核对。
+
+## 验证实际生效的设置
+
+1. 运行 `codex --version`，再从目标项目目录启动新会话。
+2. 用 `/model` 检查所选力度，用 `/status` 确认当前模型和会话配置。若与文件不同，检查启动参数、选中的 profile、项目配置，以及当前版本可用时的 `/debug-config`。
+3. 在两个独立会话中，用同一代表性任务比较两个受支持的档位。检查 diff、测试、完成时间和 BetterToken 用量记录，选择满足质量目标的设置；降低力度不保证总成本下降。
 
 ## 常见误区
 
@@ -26434,6 +26604,8 @@ model_reasoning_effort = "high"
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex 配置优先级](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex 高级配置](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -26466,7 +26638,31 @@ Description: 解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入的
 - 与仓库无关的通用提示词
 - 已经过期的命令和路径
 
+## 作用范围与优先级
+
+Codex 在每次运行开始时建立初始指令链，启动目录会影响加载范围：
+
+1. 先读取 `CODEX_HOME` 下的全局规则，该目录默认为 `~/.codex`；优先采用非空的 `AGENTS.override.md`，否则读取 `AGENTS.md`。
+2. 再从项目根目录（通常是 Git 根目录）逐级检查到当前工作目录。找不到项目根目录时，项目规则只检查当前目录。
+3. 项目中的每个目录最多采用一个非空文件，顺序为 `AGENTS.override.md`、`AGENTS.md`，然后是 `project_doc_fallback_filenames` 中配置的名称。
+
+发生冲突时，指令链中靠后、范围更具体的规则优先；不冲突的上层规则继续适用。同目录的 override 文件替代该目录的普通文件，不会清空所有上层规则。
+
+### 目录示例
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+假设全局规则要求运行 `npm test`，仓库规则要求 lint，而 payments 的 override 将测试命令改为 `make test-payments`。从 `repo/services/payments` 启动时，Codex 会加载全局文件、仓库文件和 payments 的 override，保留 lint 要求，使用 payments 测试命令，并跳过该目录的普通文件。旁边 search 目录的规则不在这条启动加载链中。
+
 ## 推荐结构
+
+下面的模板保持简短即可，请把命令替换为仓库里真实存在的命令。每条规则应说明何时适用，以及如何检查结果。
 
 ```md
 # Project instructions
@@ -26483,6 +26679,19 @@ Description: 解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入的
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## 规则未生效或冲突时怎么检查
+
+修改规则后，从目标目录启动新会话，让 Codex 列出已加载的规则来源和适用命令：
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- 检查工作目录和 `CODEX_HOME`。从仓库根目录启动，不会预加载所有子目录的规则。
+- 检查文件名是否准确、内容是否为空，以及同级是否存在 `AGENTS.override.md`。使用备用文件名时，需将其加入 `project_doc_fallback_filenames`。
+- 长指令被截断时，检查 `project_doc_max_bytes`。删除重复说明，并把关键规则放在前面。
+- 出现冲突时，确认两条规则分别来自哪个文件、适用于哪个目录。在相关目录写清局部例外，避免到处复制相互矛盾的规则。指令文件不会改变沙箱权限。
 
 ## 常见误区
 
@@ -26510,6 +26719,7 @@ Description: 解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入的
 - [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
 - [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Codex 高级配置](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -35705,9 +35915,9 @@ Description: review_model, model_reasoning_effort, /review और /model सम�
 
 ## संक्षिप्त उत्तर
 
-`review_model`, वह model है जिसे Codex code review workflows के लिए उपयोग करता है। `model_reasoning_effort`, Responses API समर्थित models के लिए reasoning strength नियंत्रित करता है।
+`review_model`, `/review` के लिए मॉडल चुनता है। इसे सेट न करने पर Codex मौजूदा सेशन का मॉडल इस्तेमाल करता है। `model_reasoning_effort` उन मॉडलों का तर्क-प्रयास बदलता है जो Responses API में यह सेटिंग स्वीकार करते हैं।
 
-दोनों fields quality, speed और usage cost को प्रभावित कर सकते हैं। उच्च reasoning settings complex tasks के लिए बेहतर हैं, लेकिन वे अधिक उपयोग कर सकते हैं।
+अधिक प्रयास कठिन काम में मदद कर सकता है, लेकिन सही उत्तर या कम कुल खर्च की गारंटी नहीं देता। यह तापमान या उत्तर की लंबाई की सेटिंग नहीं है।
 
 ## Field संबंध
 
@@ -35719,7 +35929,21 @@ Description: review_model, model_reasoning_effort, /review और /model सम�
 | `/model` | model या reasoning बदलाव के लिए in-session entry point |
 | `/review` | Codex से current changes review कराने का entry point |
 
-## अनुशंसित config
+## काम के अनुसार तर्क-प्रयास चुनें
+
+इन स्तरों से शुरुआत करें और काम के स्वीकृति मानदंडों के अनुसार परिणाम जाँचें:
+
+| काम | शुरुआती सेटिंग | क्या जाँचें |
+| --- | --- | --- |
+| छोटा, स्पष्ट बदलाव या संक्षिप्त व्याख्या | समर्थित होने पर `low` | सटीकता और उत्तर का समय। |
+| सामान्य फ़ीचर या स्पष्ट पुनरुत्पादन वाला बग | समर्थित होने पर `medium` | टेस्ट, पूर्णता और अनावश्यक बदलाव। |
+| कठिन जाँच, कई मॉड्यूल में बदलाव या विस्तृत समीक्षा | पहले `high`; ज़रूरत हो तो समर्थित ऊँचा स्तर | छूटी हुई शर्तें, गलत निष्कर्ष और उपयोगी परिणाम तक का कुल समय। |
+
+उपलब्ध स्तर मॉडल, Codex संस्करण और प्रदाता पर निर्भर करते हैं। `xhigh` या `max` इस्तेमाल करने से पहले `/model` के विकल्प और मॉडल का आधिकारिक संदर्भ देखें। एक मॉडल का समर्थन दूसरे पर लागू नहीं होता। अधिक प्रयास से तर्क टोकन और देरी बढ़ सकती है; पुनः प्रयास, कॉन्टेक्स्ट आकार, टूल कॉल और दरें भी कुल खर्च को प्रभावित करती हैं।
+
+## कॉन्फ़िगरेशन उदाहरण
+
+स्थायी डिफ़ॉल्ट `CODEX_HOME` के `config.toml` में सेट करें। यह वेरिएबल न हो तो `~/.codex/config.toml` इस्तेमाल करें। इन कुंजियों को सभी TOML टेबल से पहले शीर्ष स्तर पर रखें और प्रदाता व प्रमाणीकरण सेटिंग बनाए रखें:
 
 ```toml
 model = "gpt-6-astra"
@@ -35727,7 +35951,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-छोटे त्वरित edits के लिए reasoning effort कम कर सकते हैं। cross-file refactors, कठिन debugging या long-context tasks के लिए उच्च reasoning effort अधिक उपयुक्त है।
+## फ़ाइल डिफ़ॉल्ट और सेशन सेटिंग
+
+शुरुआत में CLI आर्ग्युमेंट और `-c` सेटिंग को भरोसेमंद प्रोजेक्ट कॉन्फ़िगरेशन, चुने गए प्रोफ़ाइल और यूज़र डिफ़ॉल्ट से अधिक प्राथमिकता मिलती है। मौजूदा Codex में `--profile NAME`, `CODEX_HOME` से `NAME.config.toml` पढ़ता है। पुराने संस्करणों का प्रोफ़ाइल फ़ॉर्मैट अलग था।
+
+सिर्फ़ इस बार के लॉन्च के लिए तर्क-प्रयास बदलें:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+सेशन में `/model` से सक्रिय मॉडल और उपलब्ध प्रयास स्तर चुनें। फ़ाइल बदलने से चल रहे सेशन के तुरंत बदलने की गारंटी नहीं है; सेव किए डिफ़ॉल्ट जाँचने के लिए नया सेशन खोलें। Plan मोड `plan_mode_reasoning_effort` या अपना प्रीसेट इस्तेमाल कर सकता है, इसलिए उसे अलग जाँचें।
+
+## लागू सेटिंग जाँचें
+
+1. `codex --version` चलाएँ और फिर सही प्रोजेक्ट डायरेक्टरी से नया सेशन शुरू करें।
+2. `/model` में चुना गया प्रयास और `/status` में सक्रिय मॉडल व सेशन सेटिंग जाँचें। फ़ाइल से अंतर हो तो लॉन्च आर्ग्युमेंट, प्रोफ़ाइल, प्रोजेक्ट कॉन्फ़िगरेशन और उपलब्ध होने पर `/debug-config` देखें।
+3. अलग सेशन में एक ही प्रतिनिधि काम को दो समर्थित स्तरों पर करके तुलना करें। diff, टेस्ट, समय और BetterToken उपयोग रिकॉर्ड देखें। गुणवत्ता का लक्ष्य पूरा करने वाली सेटिंग रखें; कम प्रयास से कम कुल खर्च की गारंटी नहीं है।
 
 ## सामान्य गलतियां
 
@@ -35755,6 +35995,8 @@ model_reasoning_effort = "high"
 - [Codex configuration संदर्भ](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex कॉन्फ़िगरेशन प्राथमिकता](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex उन्नत कॉन्फ़िगरेशन](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -35787,7 +36029,31 @@ Description: जानें कि Codex CLI में AGENTS.md क्या �
 - repository से असंबंधित generic prompts
 - पुराने commands और paths
 
+## दायरा और प्राथमिकता
+
+Codex हर रन की शुरुआत में निर्देशों की शुरुआती श्रृंखला बनाता है। लॉन्च डायरेक्टरी मायने रखती है:
+
+1. पहले `CODEX_HOME` से वैश्विक नियम पढ़ता है, जिसका डिफ़ॉल्ट `~/.codex` है: पहला गैर-खाली `AGENTS.override.md`, अन्यथा `AGENTS.md`।
+2. फिर प्रोजेक्ट रूट, आम तौर पर Git रूट, से मौजूदा कार्य डायरेक्टरी तक हर डायरेक्टरी जाँचता है। प्रोजेक्ट रूट न मिले तो प्रोजेक्ट नियमों के लिए सिर्फ़ मौजूदा डायरेक्टरी जाँचता है।
+3. प्रोजेक्ट की हर डायरेक्टरी में अधिकतम एक गैर-खाली फ़ाइल इस्तेमाल होती है: पहले `AGENTS.override.md`, फिर `AGENTS.md`, फिर `project_doc_fallback_filenames` में दिए नाम।
+
+टकराव में श्रृंखला के बाद वाले, अधिक विशिष्ट नियम को प्राथमिकता मिलती है; अन्य ऊपर के नियम लागू रहते हैं। override उसी डायरेक्टरी की सामान्य फ़ाइल को बदलता है, ऊपर की सभी निर्देश फ़ाइलों को नहीं।
+
+### डायरेक्टरी का उदाहरण
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+मान लें कि वैश्विक नियम `npm test` कहता है, रिपॉज़िटरी फ़ाइल lint माँगती है और payments override टेस्ट कमांड को `make test-payments` से बदलता है। `repo/services/payments` से शुरू करने पर Codex वैश्विक फ़ाइल, रिपॉज़िटरी फ़ाइल और payments override पढ़ता है। lint का नियम बना रहता है, payments टेस्ट चलता है और उसी डायरेक्टरी की सामान्य फ़ाइल छोड़ी जाती है। पास के search की फ़ाइल इस शुरुआती श्रृंखला में नहीं आती।
+
 ## सुझाई गई संरचना
+
+नीचे का टेम्पलेट छोटा रखें और कमांड को अपने रिपॉज़िटरी में मौजूद असली कमांड से बदलें। हर नियम में लिखें कि वह कब लागू होता है और परिणाम कैसे जाँचना है।
 
 ```md
 # Project instructions
@@ -35804,6 +36070,19 @@ Description: जानें कि Codex CLI में AGENTS.md क्या �
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## गायब या टकराते नियम जाँचें
+
+निर्देश बदलने के बाद लक्षित डायरेक्टरी में नया सेशन खोलें और Codex से पढ़े गए स्रोत व लागू कमांड बताने को कहें:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- कार्य डायरेक्टरी और `CODEX_HOME` जाँचें। रिपॉज़िटरी रूट से शुरू करने पर हर उपडायरेक्टरी के निर्देश पहले से नहीं पढ़े जाते।
+- फ़ाइल का सही नाम, गैर-खाली सामग्री और उसी स्तर का `AGENTS.override.md` जाँचें। वैकल्पिक नाम `project_doc_fallback_filenames` में होना चाहिए।
+- लंबे निर्देश कटें तो `project_doc_max_bytes` जाँचें। दोहराव हटाएँ और ज़रूरी नियम शुरुआत में रखें।
+- टकराव में दोनों स्रोत फ़ाइलें और हर नियम का दायरा पहचानें। विरोधी नियम हर जगह कॉपी करने के बजाय सही डायरेक्टरी में सीमित अपवाद लिखें। निर्देश फ़ाइलें sandbox अनुमतियाँ नहीं बदलतीं।
 
 ## सामान्य गलतियां
 
@@ -35831,6 +36110,7 @@ configuration की उलझन और collaboration cost घटाने क�
 - [Codex AGENTS.md गाइड](https://developers.openai.com/codex/guides/agents-md)
 - [Codex के सर्वोत्तम तरीके](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex चर्चाएं](https://github.com/openai/codex/discussions)
+- [Codex उन्नत कॉन्फ़िगरेशन](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -45046,9 +45326,9 @@ Description: Comprende review_model, model_reasoning_effort, /review, /model y c
 
 ## Respuesta breve
 
-`review_model` es el modelo que Codex utiliza en los flujos de revisión de código. `model_reasoning_effort` controla el nivel de razonamiento de los modelos compatibles con la Responses API.
+`review_model` selecciona el modelo para `/review`; si no se configura, Codex usa el modelo de la sesión actual. `model_reasoning_effort` ajusta el esfuerzo de razonamiento de los modelos que lo admiten mediante la Responses API.
 
-Ambos campos pueden afectar a la calidad, la velocidad y el coste de uso. Los niveles de razonamiento altos son adecuados para tareas complejas, pero pueden consumir más.
+Un mayor esfuerzo puede ayudar con tareas difíciles, pero no garantiza una respuesta correcta ni un menor coste total. No es un ajuste de temperatura ni de longitud de respuesta.
 
 ## Relación entre los campos
 
@@ -45060,7 +45340,21 @@ Ambos campos pueden afectar a la calidad, la velocidad y el coste de uso. Los ni
 | `/model` | Punto de entrada durante la sesión para cambiar el modelo o el razonamiento |
 | `/review` | Punto de entrada para pedir a Codex que revise los cambios actuales |
 
-## Configuración recomendada
+## Elige el esfuerzo según la tarea
+
+Usa estos niveles como punto de partida y evalúa el resultado según los criterios de aceptación:
+
+| Tarea | Punto de partida | Qué comprobar |
+| --- | --- | --- |
+| Cambio pequeño y bien definido o explicación breve | `low`, si se admite | Corrección y tiempo de respuesta. |
+| Función habitual o error con reproducción clara | `medium`, si se admite | Pruebas, integridad y cambios innecesarios. |
+| Diagnóstico difícil, cambio entre módulos o revisión detallada | `high`; prueba un nivel superior compatible si hace falta | Restricciones omitidas, falsos hallazgos y tiempo total hasta obtener un resultado útil. |
+
+Los niveles disponibles dependen del modelo, la versión de Codex y el proveedor. Consulta `/model` y la referencia del modelo antes de usar niveles como `xhigh` o `max`. Que un modelo admita un nivel no implica que otro lo admita. Más esfuerzo puede aumentar los tokens de razonamiento y la latencia; los reintentos, el contexto, las llamadas a herramientas y las tarifas también afectan al coste total.
+
+## Ejemplo de configuración
+
+Define valores predeterminados persistentes en `config.toml` dentro de `CODEX_HOME`, o en `~/.codex/config.toml` si no está definido. Coloca estas claves en el nivel superior, antes de las tablas TOML, y conserva la configuración del proveedor y la autenticación:
 
 ```toml
 model = "gpt-6-astra"
@@ -45068,7 +45362,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Para cambios pequeños y rápidos, puedes reducir el nivel de razonamiento. Para refactorizaciones entre archivos, depuración difícil o tareas con mucho contexto, resulta más adecuado un nivel mayor.
+## Valores del archivo y ajustes de sesión
+
+Al iniciar, los argumentos de CLI y las opciones `-c` tienen prioridad sobre la configuración del proyecto de confianza, el perfil seleccionado y los valores del usuario. En las versiones actuales, `--profile NAME` carga `NAME.config.toml` desde `CODEX_HOME`. Las versiones antiguas usaban otro formato de perfil.
+
+Para cambiar solo el esfuerzo en un inicio:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+Durante la sesión, usa `/model` para seleccionar el modelo activo y un nivel disponible. Editar el archivo no garantiza que una sesión abierta cambie de inmediato; inicia otra sesión para comprobar los valores guardados. El modo Plan puede usar `plan_mode_reasoning_effort` o su propio ajuste preestablecido, así que compruébalo por separado.
+
+## Comprueba el ajuste efectivo
+
+1. Ejecuta `codex --version` e inicia una sesión nueva desde el directorio del proyecto previsto.
+2. Usa `/model` para comprobar el esfuerzo seleccionado y `/status` para confirmar el modelo y la configuración de la sesión. Si difieren del archivo, revisa los argumentos de inicio, el perfil, la configuración del proyecto y `/debug-config`, si está disponible.
+3. Compara la misma tarea representativa con dos niveles compatibles en sesiones separadas. Revisa el diff, las pruebas, el tiempo y los registros de uso de BetterToken. Elige el ajuste que cumpla tu objetivo de calidad; menos esfuerzo no garantiza un menor coste total.
 
 ## Errores habituales
 
@@ -45096,6 +45406,8 @@ Copia los Model ID del **proveedor GPT** para que el proveedor actual pueda reco
 - [Referencia de configuración de Codex](https://developers.openai.com/codex/config-reference)
 - [Ejemplo de configuración de Codex](https://developers.openai.com/codex/config-sample)
 - [Comandos slash de Codex CLI](https://developers.openai.com/codex/cli/slash-commands)
+- [Prioridad de la configuración de Codex](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Configuración avanzada de Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -45128,7 +45440,31 @@ Está destinado a reglas estables del proyecto, no a tareas puntuales. Incluye l
 - Prompts genéricos sin relación con el repositorio
 - Comandos y rutas obsoletos
 
+## Alcance y prioridad
+
+Codex construye la cadena inicial de instrucciones al comenzar cada ejecución. El directorio de inicio importa:
+
+1. Primero lee las reglas globales de `CODEX_HOME`, cuyo valor predeterminado es `~/.codex`: el primer `AGENTS.override.md` no vacío o, en su defecto, `AGENTS.md`.
+2. Después comprueba cada directorio desde la raíz del proyecto, normalmente la raíz de Git, hasta el directorio de trabajo actual. Sin raíz de proyecto, solo revisa el directorio actual para las reglas del proyecto.
+3. En cada directorio del proyecto usa como máximo un archivo no vacío: primero `AGENTS.override.md`, después `AGENTS.md` y luego los nombres de `project_doc_fallback_filenames`.
+
+Si hay conflictos, las reglas más específicas que aparecen después en la cadena tienen prioridad; las demás reglas superiores siguen vigentes. Un archivo override sustituye al archivo normal de su mismo directorio, no a todas las instrucciones de los directorios superiores.
+
+### Ejemplo de directorios
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Supón que las reglas globales piden `npm test`, el archivo del repositorio exige lint y el override de payments sustituye la prueba por `make test-payments`. Al iniciar desde `repo/services/payments`, Codex carga el archivo global, el del repositorio y el override de payments. Conserva la regla de lint, usa la prueba de payments y omite el archivo normal de ese directorio. El archivo vecino de search queda fuera de esta cadena inicial.
+
 ## Estructura recomendada
+
+Mantén breve la siguiente plantilla y sustituye los comandos por los que realmente existan en tu repositorio. Cada regla debe indicar cuándo se aplica y cómo comprobar el resultado.
 
 ```md
 # Project instructions
@@ -45145,6 +45481,19 @@ Está destinado a reglas estables del proyecto, no a tareas puntuales. Incluye l
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Comprueba reglas ausentes o en conflicto
+
+Tras cambiar las instrucciones, inicia otra sesión en el directorio objetivo y pide a Codex que enumere las fuentes cargadas y los comandos aplicables:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Comprueba el directorio de trabajo y `CODEX_HOME`. Iniciar desde la raíz no precarga las instrucciones de todos los subdirectorios.
+- Comprueba el nombre exacto, que el archivo tenga contenido y si existe `AGENTS.override.md` en el mismo nivel. Un nombre alternativo debe figurar en `project_doc_fallback_filenames`.
+- Si se truncan instrucciones largas, revisa `project_doc_max_bytes`. Elimina duplicados y coloca las reglas esenciales al principio.
+- Ante un conflicto, identifica los dos archivos de origen y el directorio al que se aplica cada regla. Escribe una excepción concreta en el directorio correspondiente en lugar de copiar reglas contradictorias por todas partes. Los archivos de instrucciones no cambian los permisos del sandbox.
 
 ## Errores habituales
 
@@ -45172,6 +45521,7 @@ Utiliza ambos para reducir la confusión de configuración y el coste de colabor
 - [Guía de AGENTS.md para Codex](https://developers.openai.com/codex/guides/agents-md)
 - [Prácticas recomendadas de Codex](https://developers.openai.com/codex/learn/best-practices)
 - [Debates sobre OpenAI Codex](https://github.com/openai/codex/discussions)
+- [Configuración avanzada de Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -54374,9 +54724,9 @@ Description: Entenda review_model, model_reasoning_effort, /review, /model e com
 
 ## Resposta curta
 
-`review_model` é o modelo usado pelo Codex nos fluxos de revisão de código. `model_reasoning_effort` controla a intensidade do raciocínio nos modelos compatíveis com a Responses API.
+`review_model` escolhe o modelo de `/review`; quando não está definido, o Codex usa o modelo da sessão atual. `model_reasoning_effort` ajusta o esforço de raciocínio dos modelos que aceitam essa opção pela Responses API.
 
-Os dois campos podem afetar qualidade, velocidade e custo de uso. Níveis mais altos de raciocínio são melhores para tarefas complexas, mas podem consumir mais recursos.
+Mais esforço pode ajudar em tarefas difíceis, mas não garante uma resposta correta nem um custo total menor. Não é um ajuste de temperatura ou de comprimento da resposta.
 
 ## Relação entre os campos
 
@@ -54388,7 +54738,21 @@ Os dois campos podem afetar qualidade, velocidade e custo de uso. Níveis mais a
 | `/model` | Comando da sessão para alterar o modelo ou o raciocínio |
 | `/review` | Comando para pedir ao Codex que revise as alterações atuais |
 
-## Configuração recomendada
+## Escolha o esforço conforme a tarefa
+
+Use estes níveis como ponto de partida e avalie o resultado pelos critérios de aceitação:
+
+| Tarefa | Ponto de partida | O que verificar |
+| --- | --- | --- |
+| Alteração pequena e bem definida ou explicação breve | `low`, quando aceito | Correção e tempo de resposta. |
+| Funcionalidade comum ou bug com reprodução clara | `medium`, quando aceito | Testes, completude e alterações desnecessárias. |
+| Diagnóstico difícil, alteração entre módulos ou revisão detalhada | `high`; tente um nível superior compatível se necessário | Restrições esquecidas, falsos apontamentos e tempo total até um resultado útil. |
+
+Os níveis disponíveis dependem do modelo, da versão do Codex e do provedor. Confira `/model` e a referência do modelo antes de usar níveis como `xhigh` ou `max`. O suporte de um modelo não implica o de outro. Mais esforço pode aumentar os tokens de raciocínio e a latência; novas tentativas, contexto, chamadas de ferramentas e tarifas também afetam o custo total.
+
+## Exemplo de configuração
+
+Defina padrões persistentes em `config.toml` dentro de `CODEX_HOME`, ou em `~/.codex/config.toml` quando a variável não estiver definida. Coloque estas chaves no nível superior, antes das tabelas TOML, e mantenha as configurações do provedor e da autenticação:
 
 ```toml
 model = "gpt-6-astra"
@@ -54396,7 +54760,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Para edições pequenas e rápidas, você pode reduzir o esforço de raciocínio. Em refatorações entre arquivos, depurações difíceis ou tarefas com contexto extenso, um esforço maior é mais adequado.
+## Padrões do arquivo e ajustes da sessão
+
+Na inicialização, argumentos de CLI e opções `-c` têm prioridade sobre a configuração do projeto confiável, o perfil selecionado e os padrões do usuário. Nas versões atuais, `--profile NAME` carrega `NAME.config.toml` de `CODEX_HOME`. Versões antigas usavam outro formato de perfil.
+
+Para alterar apenas o esforço em uma inicialização:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+Durante a sessão, use `/model` para selecionar o modelo ativo e um nível disponível. Editar o arquivo não garante que uma sessão em andamento mude imediatamente; abra uma nova sessão para conferir os padrões salvos. O modo Plan pode usar `plan_mode_reasoning_effort` ou sua própria predefinição, então verifique-o separadamente.
+
+## Verifique o ajuste efetivo
+
+1. Execute `codex --version` e inicie uma nova sessão no diretório do projeto desejado.
+2. Confira o esforço selecionado em `/model` e o modelo ativo e a configuração em `/status`. Se houver diferença em relação ao arquivo, verifique argumentos de inicialização, perfil, configuração do projeto e `/debug-config`, quando disponível.
+3. Compare a mesma tarefa representativa em dois níveis compatíveis, em sessões separadas. Confira diff, testes, duração e registros de uso da BetterToken. Escolha o ajuste que atenda à qualidade necessária; menos esforço não garante menor custo total.
 
 ## Erros comuns
 
@@ -54424,6 +54804,8 @@ Copie os IDs de modelo do **provedor GPT** para que o provedor atual consiga rec
 - [Referência de configuração do Codex](https://developers.openai.com/codex/config-reference)
 - [Exemplo de configuração do Codex](https://developers.openai.com/codex/config-sample)
 - [Comandos com barra do Codex CLI](https://developers.openai.com/codex/cli/slash-commands)
+- [Prioridade da configuração do Codex](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Configuração avançada do Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -54456,7 +54838,31 @@ Use-o para regras estáveis do projeto, não para tarefas pontuais. Coloque requ
 - Prompts genéricos sem relação com o repositório
 - Comandos e caminhos desatualizados
 
+## Escopo e prioridade
+
+O Codex monta a cadeia inicial de instruções no começo de cada execução. O diretório de inicialização importa:
+
+1. Primeiro, lê as regras globais de `CODEX_HOME`, cujo padrão é `~/.codex`: o primeiro `AGENTS.override.md` não vazio ou, caso contrário, `AGENTS.md`.
+2. Depois, verifica cada diretório desde a raiz do projeto, geralmente a raiz do Git, até o diretório de trabalho atual. Sem uma raiz de projeto, verifica apenas o diretório atual para as regras do projeto.
+3. Em cada diretório do projeto, usa no máximo um arquivo não vazio: primeiro `AGENTS.override.md`, depois `AGENTS.md` e então os nomes de `project_doc_fallback_filenames`.
+
+Em conflitos, as regras mais específicas carregadas depois têm prioridade; as demais regras superiores continuam valendo. Um arquivo override substitui o arquivo comum do mesmo diretório, não todas as instruções dos diretórios superiores.
+
+### Exemplo de diretórios
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Suponha que as regras globais peçam `npm test`, o arquivo do repositório exija lint e o override de payments troque o teste por `make test-payments`. Ao iniciar em `repo/services/payments`, o Codex carrega o arquivo global, o do repositório e o override de payments. Mantém o lint, usa o teste de payments e ignora o arquivo comum desse diretório. O arquivo vizinho de search fica fora dessa cadeia inicial.
+
 ## Estrutura sugerida
+
+Mantenha o modelo abaixo curto e substitua os comandos pelos que realmente existem no repositório. Cada regra deve indicar quando se aplica e como verificar o resultado.
 
 ```md
 # Project instructions
@@ -54473,6 +54879,19 @@ Use-o para regras estáveis do projeto, não para tarefas pontuais. Coloque requ
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Verifique regras ausentes ou conflitantes
+
+Após alterar as instruções, abra uma nova sessão no diretório de destino e peça ao Codex para listar as fontes carregadas e os comandos aplicáveis:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Confira o diretório de trabalho e `CODEX_HOME`. Iniciar na raiz não carrega previamente as regras de todos os subdiretórios.
+- Confira o nome exato, o conteúdo não vazio e a existência de `AGENTS.override.md` no mesmo nível. Um nome alternativo deve estar em `project_doc_fallback_filenames`.
+- Se instruções longas forem truncadas, confira `project_doc_max_bytes`. Remova repetições e coloque as regras essenciais no início.
+- Em caso de conflito, identifique os dois arquivos e o diretório de aplicação de cada regra. Defina uma exceção específica no diretório relevante em vez de copiar regras contraditórias por toda parte. Arquivos de instruções não alteram as permissões do sandbox.
 
 ## Erros comuns
 
@@ -54500,6 +54919,7 @@ Use os dois para reduzir a confusão de configuração e o custo de colaboraçã
 - [Guia do AGENTS.md no Codex](https://developers.openai.com/codex/guides/agents-md)
 - [Práticas recomendadas do Codex](https://developers.openai.com/codex/learn/best-practices)
 - [Discussões do OpenAI Codex](https://github.com/openai/codex/discussions)
+- [Configuração avançada do Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -63701,9 +64121,9 @@ Description: review_model、model_reasoning_effort、/review、/model と、こ�
 
 ## 短い答え
 
-`review_model` は、Codex がコードレビューのワークフローで使用するモデルです。`model_reasoning_effort` は、Responses API をサポートするモデルの推論強度を制御します。
+`review_model` は `/review` で使うモデルを指定します。未設定の場合、Codex は現在のセッションのモデルを使います。`model_reasoning_effort` は、Responses API 経由でこの設定に対応するモデルの推論強度を調整します。
 
-どちらの項目も品質、速度、使用コストに影響します。高い推論設定は複雑なタスクに適していますが、消費量が増える場合があります。
+強度を上げると難しい作業に役立つ場合がありますが、正解や総コストの低下を保証するものではありません。温度や回答の長さを変える設定でもありません。
 
 ## 項目の関係
 
@@ -63715,7 +64135,21 @@ Description: review_model、model_reasoning_effort、/review、/model と、こ�
 | `/model` | セッション内でモデルまたは推論を変更する入口 |
 | `/review` | 現在の変更を Codex にレビュー依頼する入口 |
 
-## 推奨設定
+## タスクに合わせて推論強度を選ぶ
+
+次の設定を出発点にして、タスクの受け入れ条件に照らして結果を確認してください。
+
+| タスク | 最初に試す設定 | 確認する点 |
+| --- | --- | --- |
+| 範囲が明確な小さな修正や短い説明 | 対応していれば `low` | 正確さと応答時間。 |
+| 通常の機能開発や再現手順が明確な不具合 | 対応していれば `medium` | テスト、漏れ、不要な変更。 |
+| 難しい原因調査、複数モジュールの変更、詳細なレビュー | まず `high`、必要なら対応する上位レベル | 見落とした制約、誤った指摘、使える結果までの総所要時間。 |
+
+選べるレベルはモデル、Codex のバージョン、プロバイダーによって異なります。`xhigh` や `max` を使う前に、`/model` の選択肢とモデルの公式リファレンスを確認してください。あるモデルの対応が別のモデルにも当てはまるとは限りません。強度を上げると推論トークンや遅延が増える場合があり、再試行、コンテキスト量、ツール呼び出し、料金体系も総額に影響します。
+
+## 設定例
+
+継続して使う既定値は `CODEX_HOME` 内の `config.toml` に設定します。未設定の場合は `~/.codex/config.toml` を使います。キーはすべての TOML テーブルより前のトップレベルに置き、プロバイダーと認証の設定は保持してください。
 
 ```toml
 model = "gpt-6-astra"
@@ -63723,7 +64157,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-小さく短時間で済む編集では、推論強度を下げられます。複数ファイルにまたがるリファクタリング、難しいデバッグ、長いコンテキストを使うタスクには、より高い推論強度が適しています。
+## ファイルの既定値とセッション設定
+
+起動時は CLI 引数と `-c` の指定が、信頼済みプロジェクトの設定、選択したプロファイル、ユーザーの既定値より優先されます。現在の Codex では `--profile NAME` が `CODEX_HOME` 内の `NAME.config.toml` を読み込みます。旧バージョンでは別のプロファイル形式が使われていました。
+
+今回の起動だけ推論強度を変えるには、次を実行します。
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+セッション中は `/model` で現在のモデルと対応する推論強度を選びます。ファイルを編集しても実行中のセッションが直ちに変わるとは限りません。保存した既定値は新しいセッションで確認してください。Plan モードは `plan_mode_reasoning_effort` または独自のプリセットを使う場合があるため、別途確認します。
+
+## 有効な設定を確認する
+
+1. `codex --version` を実行し、対象プロジェクトのディレクトリから新しいセッションを開始します。
+2. `/model` で選択した強度を、`/status` で現在のモデルとセッション設定を確認します。ファイルと異なる場合は起動引数、プロファイル、プロジェクト設定、および利用可能なら `/debug-config` を確認してください。
+3. 同じ代表的なタスクを、別々のセッションで対応する 2 段階の強度で比較します。diff、テスト、所要時間、BetterToken の使用量記録を確認し、必要な品質を満たす設定を選んでください。強度を下げても総コストが下がるとは限りません。
 
 ## よくある間違い
 
@@ -63751,6 +64201,8 @@ model_reasoning_effort = "high"
 - [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)
 - [Codex サンプル設定](https://developers.openai.com/codex/config-sample)
 - [Codex CLI スラッシュコマンド](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex 設定の優先順位](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex の詳細設定](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -63783,7 +64235,31 @@ Description: Codex CLI における AGENTS.md の役割、指示の優先順位�
 - リポジトリと関係のない汎用プロンプト
 - 古くなったコマンドとパス
 
+## 適用範囲と優先順位
+
+Codex は実行開始時に初期の指示チェーンを構築します。起動ディレクトリが読み込み範囲に影響します。
+
+1. 最初に `CODEX_HOME` のグローバルルールを読みます。既定の場所は `~/.codex` で、空でない `AGENTS.override.md` を優先し、なければ `AGENTS.md` を使います。
+2. 次にプロジェクトルート（通常は Git ルート）から現在の作業ディレクトリまで順に調べます。プロジェクトルートが見つからない場合、プロジェクトのルールは現在のディレクトリだけを確認します。
+3. プロジェクト内の各階層では空でないファイルを最大 1 つ使います。優先順は `AGENTS.override.md`、`AGENTS.md`、`project_doc_fallback_filenames` に設定した名前です。
+
+競合する場合は、後から読み込まれる具体的な範囲のルールが優先されます。競合しない親のルールは引き続き適用されます。override は同じディレクトリの通常ファイルを置き換えますが、親の指示をすべて削除するものではありません。
+
+### ディレクトリの例
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+グローバルルールが `npm test`、リポジトリのルールが lint を要求し、payments の override がテストコマンドを `make test-payments` に置き換えるとします。`repo/services/payments` から起動すると、グローバルファイル、リポジトリのファイル、payments の override が読み込まれます。lint は維持され、payments のテストを使い、その階層の通常ファイルはスキップします。隣の search のルールはこの初期チェーンに含まれません。
+
 ## 推奨構成
+
+以下のテンプレートは短く保ち、コマンドをリポジトリに実在するものに置き換えてください。ルールには適用条件と結果の確認方法を書きます。
 
 ```md
 # Project instructions
@@ -63800,6 +64276,19 @@ Description: Codex CLI における AGENTS.md の役割、指示の優先順位�
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## 未適用や競合を確認する
+
+指示を変更したら、対象ディレクトリで新しいセッションを開始し、読み込んだ指示の出典と適用コマンドを Codex に確認します。
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- 作業ディレクトリと `CODEX_HOME` を確認します。リポジトリルートから起動しても、すべての子ディレクトリの指示を事前に読むわけではありません。
+- 正確なファイル名、空でない内容、同じ階層の `AGENTS.override.md` を確認します。代替名は `project_doc_fallback_filenames` への登録が必要です。
+- 長い指示が切り詰められる場合は `project_doc_max_bytes` を確認します。重複を減らし、重要なルールを先頭に置いてください。
+- 競合時は両方の出典ファイルと適用ディレクトリを特定します。矛盾するルールを各所にコピーするのではなく、該当ディレクトリに限定した例外を書きます。指示ファイルでサンドボックス権限は変更できません。
 
 ## よくある間違い
 
@@ -63827,6 +64316,7 @@ Description: Codex CLI における AGENTS.md の役割、指示の優先順位�
 - [Codex AGENTS.md ガイド](https://developers.openai.com/codex/guides/agents-md)
 - [Codex ベストプラクティス](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex ディスカッション](https://github.com/openai/codex/discussions)
+- [Codex の詳細設定](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -73027,9 +73517,9 @@ Description: Comprenez review_model, model_reasoning_effort, /review, /model et 
 
 ## Réponse courte
 
-`review_model` est le modèle que Codex utilise pour les flux de revue de code. `model_reasoning_effort` contrôle la puissance de raisonnement des modèles qui prennent en charge la Responses API.
+`review_model` choisit le modèle de `/review` ; sans ce paramètre, Codex utilise le modèle de la session active. `model_reasoning_effort` règle l’effort de raisonnement des modèles qui le prennent en charge via la Responses API.
 
-Ces deux champs peuvent influer sur la qualité, la vitesse et le coût d’utilisation. Des paramètres de raisonnement plus élevés conviennent mieux aux tâches complexes, mais ils peuvent consommer davantage.
+Un effort plus élevé peut aider pour les tâches difficiles, mais ne garantit ni une réponse correcte ni un coût total inférieur. Ce n’est pas un réglage de température ou de longueur de réponse.
 
 ## Relations entre les champs
 
@@ -73041,7 +73531,21 @@ Ces deux champs peuvent influer sur la qualité, la vitesse et le coût d’util
 | `/model` | Point d’entrée dans la session pour modifier le modèle ou le raisonnement |
 | `/review` | Point d’entrée pour demander à Codex de revoir les modifications actuelles |
 
-## Configuration recommandée
+## Choisir l’effort selon la tâche
+
+Utilisez ces niveaux comme point de départ, puis évaluez le résultat selon les critères d’acceptation :
+
+| Tâche | Point de départ | Points à vérifier |
+| --- | --- | --- |
+| Petite modification bien définie ou explication courte | `low`, si pris en charge | Exactitude et délai de réponse. |
+| Fonction courante ou bug clairement reproductible | `medium`, si pris en charge | Tests, exhaustivité et modifications inutiles. |
+| Diagnostic difficile, modification entre modules ou revue approfondie | `high` ; essayez un niveau supérieur disponible si nécessaire | Contraintes oubliées, faux signalements et délai total avant un résultat exploitable. |
+
+Les niveaux disponibles dépendent du modèle, de la version de Codex et du fournisseur. Consultez `/model` et la référence du modèle avant d’utiliser `xhigh` ou `max`. La prise en charge par un modèle ne vaut pas pour un autre. Un effort plus élevé peut augmenter les tokens de raisonnement et la latence ; les nouvelles tentatives, le contexte, les appels d’outils et les tarifs influencent aussi le coût total.
+
+## Exemple de configuration
+
+Définissez les valeurs persistantes dans `config.toml` sous `CODEX_HOME`, ou dans `~/.codex/config.toml` si la variable n’est pas définie. Placez ces clés au niveau supérieur, avant les tables TOML, et conservez la configuration du fournisseur et de l’authentification :
 
 ```toml
 model = "gpt-6-astra"
@@ -73049,7 +73553,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Pour de petites modifications rapides, vous pouvez réduire l’effort de raisonnement. Pour les refactorisations sur plusieurs fichiers, le débogage difficile ou les tâches à contexte long, un effort de raisonnement plus élevé est préférable.
+## Valeurs du fichier et réglages de session
+
+Au démarrage, les arguments CLI et les options `-c` priment sur la configuration du projet approuvé, le profil choisi et les valeurs utilisateur. Dans les versions actuelles, `--profile NAME` charge `NAME.config.toml` depuis `CODEX_HOME`. Les anciennes versions utilisaient un autre format de profil.
+
+Pour modifier uniquement l’effort lors d’un lancement :
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+Dans une session, utilisez `/model` pour sélectionner le modèle actif et un niveau disponible. Modifier le fichier ne garantit pas la mise à jour immédiate d’une session en cours ; démarrez une nouvelle session pour vérifier les valeurs enregistrées. Le mode Plan peut utiliser `plan_mode_reasoning_effort` ou son propre préréglage : vérifiez-le séparément.
+
+## Vérifier le réglage effectif
+
+1. Exécutez `codex --version`, puis démarrez une nouvelle session depuis le répertoire du projet visé.
+2. Vérifiez l’effort sélectionné avec `/model` et le modèle actif ainsi que la configuration avec `/status`. En cas d’écart avec le fichier, examinez les arguments de lancement, le profil, la configuration du projet et `/debug-config` si disponible.
+3. Comparez une même tâche représentative à deux niveaux pris en charge, dans des sessions distinctes. Examinez le diff, les tests, la durée et les relevés d’utilisation BetterToken. Gardez le réglage qui atteint votre objectif de qualité ; un effort réduit ne garantit pas un coût total inférieur.
 
 ## Erreurs fréquentes
 
@@ -73077,6 +73597,8 @@ Copiez les Model ID depuis le **fournisseur GPT** afin que le fournisseur actuel
 - [Référence de configuration Codex](https://developers.openai.com/codex/config-reference)
 - [Exemple de configuration Codex](https://developers.openai.com/codex/config-sample)
 - [Commandes slash de Codex CLI](https://developers.openai.com/codex/cli/slash-commands)
+- [Priorité de la configuration Codex](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Configuration avancée de Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -73109,7 +73631,31 @@ Il est destiné aux règles stables du projet, et non aux tâches ponctuelles. I
 - Des consignes génériques sans lien avec le dépôt
 - Des commandes et chemins obsolètes
 
+## Portée et priorité
+
+Codex construit sa chaîne initiale d’instructions au début de chaque exécution. Le répertoire de lancement compte :
+
+1. Il lit d’abord les règles globales dans `CODEX_HOME`, qui vaut par défaut `~/.codex` : le premier `AGENTS.override.md` non vide ou, à défaut, `AGENTS.md`.
+2. Il parcourt ensuite chaque répertoire depuis la racine du projet, généralement celle de Git, jusqu’au répertoire de travail actuel. Sans racine de projet, il ne vérifie que le répertoire actuel pour les règles du projet.
+3. Dans chaque répertoire du projet, il utilise au plus un fichier non vide : `AGENTS.override.md`, puis `AGENTS.md`, puis les noms de `project_doc_fallback_filenames`.
+
+En cas de conflit, les règles plus spécifiques chargées ensuite sont prioritaires ; les autres règles parentes restent valables. Un fichier override remplace le fichier ordinaire du même répertoire, pas toutes les instructions parentes.
+
+### Exemple de répertoires
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Supposons que les règles globales demandent `npm test`, que le fichier du dépôt exige le lint et que l’override de payments remplace la commande de test par `make test-payments`. Depuis `repo/services/payments`, Codex charge le fichier global, celui du dépôt et l’override de payments. Il conserve le lint, utilise le test de payments et ignore le fichier ordinaire de ce répertoire. Le fichier voisin de search ne fait pas partie de cette chaîne initiale.
+
 ## Structure suggérée
+
+Gardez le modèle ci-dessous court et remplacez les commandes par celles qui existent réellement dans votre dépôt. Une règle doit préciser quand elle s’applique et comment vérifier le résultat.
 
 ```md
 # Project instructions
@@ -73126,6 +73672,19 @@ Il est destiné aux règles stables du projet, et non aux tâches ponctuelles. I
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Vérifier les règles absentes ou contradictoires
+
+Après une modification, démarrez une nouvelle session dans le répertoire cible et demandez à Codex de lister les sources chargées et les commandes applicables :
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Vérifiez le répertoire de travail et `CODEX_HOME`. Un lancement à la racine ne précharge pas les instructions de tous les sous-répertoires.
+- Vérifiez le nom exact, le contenu non vide et la présence éventuelle d’un `AGENTS.override.md` au même niveau. Un nom alternatif doit figurer dans `project_doc_fallback_filenames`.
+- En cas de troncature, vérifiez `project_doc_max_bytes`. Supprimez les répétitions et placez les règles essentielles au début.
+- Pour un conflit, identifiez les deux fichiers sources et la portée de chaque règle. Définissez une exception ciblée dans le répertoire concerné plutôt que de recopier des règles contradictoires partout. Les fichiers d’instructions ne changent pas les permissions du sandbox.
 
 ## Erreurs fréquentes
 
@@ -73153,6 +73712,7 @@ Utilisez les deux pour réduire la confusion de configuration et le coût de col
 - [Guide Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
 - [Bonnes pratiques Codex](https://developers.openai.com/codex/learn/best-practices)
 - [Discussions OpenAI Codex](https://github.com/openai/codex/discussions)
+- [Configuration avancée de Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -82354,9 +82914,9 @@ Description: Verstehe review_model, model_reasoning_effort, /review, /model und 
 
 ## Kurzantwort
 
-`review_model` ist das Modell, das Codex für Code-Review-Workflows verwendet. `model_reasoning_effort` steuert die Reasoning-Stärke für Modelle, die die Responses API unterstützen.
+`review_model` legt das Modell für `/review` fest; ohne diesen Wert verwendet Codex das aktuelle Sitzungsmodell. `model_reasoning_effort` steuert den Denkaufwand bei Modellen, die diese Einstellung über die Responses API unterstützen.
 
-Beide Felder können Qualität, Geschwindigkeit und Nutzungskosten beeinflussen. Höhere Reasoning-Einstellungen eignen sich besser für komplexe Aufgaben, können aber mehr verbrauchen.
+Mehr Aufwand kann bei schwierigen Aufgaben helfen, garantiert aber weder korrekte Antworten noch niedrigere Gesamtkosten. Die Einstellung regelt weder Temperatur noch Antwortlänge.
 
 ## Beziehungen der Felder
 
@@ -82368,7 +82928,21 @@ Beide Felder können Qualität, Geschwindigkeit und Nutzungskosten beeinflussen.
 | `/model` | Einstiegspunkt innerhalb der Sitzung für Modell- oder Reasoning-Änderungen |
 | `/review` | Einstiegspunkt, um Codex um ein Review aktueller Änderungen zu bitten |
 
-## Empfohlene Konfiguration
+## Denkaufwand nach Aufgabe wählen
+
+Verwende diese Werte als Ausgangspunkt und prüfe das Ergebnis anhand der Abnahmekriterien:
+
+| Aufgabe | Ausgangspunkt | Prüfpunkte |
+| --- | --- | --- |
+| Kleine, klar definierte Änderung oder kurze Erklärung | `low`, sofern unterstützt | Korrektheit und Antwortzeit. |
+| Übliche Funktion oder Fehler mit klarer Reproduktion | `medium`, sofern unterstützt | Tests, Vollständigkeit und unnötige Änderungen. |
+| Schwierige Diagnose, modulübergreifende Änderung oder gründliches Review | `high`; bei Bedarf eine höhere unterstützte Stufe | Übersehene Anforderungen, falsche Befunde und Gesamtzeit bis zum nutzbaren Ergebnis. |
+
+Verfügbare Stufen hängen vom Modell, der Codex-Version und dem Provider ab. Prüfe die Auswahl unter `/model` und die Modellreferenz, bevor du etwa `xhigh` oder `max` verwendest. Die Unterstützung durch ein Modell gilt nicht automatisch für andere. Höherer Aufwand kann mehr Reasoning-Tokens und längere Wartezeiten verursachen; Wiederholungen, Kontextgröße, Werkzeugaufrufe und Tarife beeinflussen ebenfalls die Gesamtkosten.
+
+## Konfigurationsbeispiel
+
+Lege dauerhafte Standardwerte in `config.toml` unter `CODEX_HOME` fest, oder in `~/.codex/config.toml`, wenn die Variable nicht gesetzt ist. Platziere diese Schlüssel auf der obersten Ebene vor allen TOML-Tabellen und behalte Provider- und Authentifizierungseinstellungen bei:
 
 ```toml
 model = "gpt-6-astra"
@@ -82376,7 +82950,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Für kleine schnelle Änderungen kannst du den Reasoning-Aufwand senken. Für dateiübergreifende Refaktorierungen, schwieriges Debugging oder Aufgaben mit langem Kontext ist ein höherer Reasoning-Aufwand angemessener.
+## Dateivorgaben und Sitzungseinstellungen
+
+Beim Start haben CLI-Argumente und `-c`-Überschreibungen Vorrang vor der Konfiguration vertrauenswürdiger Projekte, dem ausgewählten Profil und Benutzervorgaben. Aktuelle Codex-Versionen laden mit `--profile NAME` die Datei `NAME.config.toml` aus `CODEX_HOME`. Ältere Versionen verwendeten ein anderes Profilformat.
+
+Überschreibe für einen einzelnen Start nur den Denkaufwand:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+Wähle während einer Sitzung mit `/model` das aktive Modell und eine verfügbare Stufe. Eine Dateiänderung aktualisiert eine laufende Sitzung nicht unbedingt sofort; prüfe gespeicherte Vorgaben in einer neuen Sitzung. Der Plan-Modus kann `plan_mode_reasoning_effort` oder eine eigene Voreinstellung verwenden und sollte separat geprüft werden.
+
+## Wirksame Einstellung prüfen
+
+1. Führe `codex --version` aus und starte dann eine neue Sitzung im gewünschten Projektverzeichnis.
+2. Prüfe die ausgewählte Stufe mit `/model` und das aktive Modell sowie die Sitzungskonfiguration mit `/status`. Bei Abweichungen prüfe Startargumente, Profil, Projektkonfiguration und, sofern verfügbar, `/debug-config`.
+3. Vergleiche dieselbe repräsentative Aufgabe in getrennten Sitzungen auf zwei unterstützten Stufen. Prüfe Diff, Tests, Dauer und BetterToken-Nutzungsdaten. Wähle die Einstellung, die dein Qualitätsziel erfüllt; weniger Denkaufwand garantiert keine niedrigeren Gesamtkosten.
 
 ## Häufige Fehler
 
@@ -82404,6 +82994,8 @@ Kopiere Model IDs vom **GPT-Provider**, damit der aktuelle Provider sie erkennen
 - [Codex-Konfigurationsreferenz](https://developers.openai.com/codex/config-reference)
 - [Beispielkonfiguration für Codex](https://developers.openai.com/codex/config-sample)
 - [Codex-CLI-Slash-Befehle](https://developers.openai.com/codex/cli/slash-commands)
+- [Priorität der Codex-Konfiguration](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Erweiterte Codex-Konfiguration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -82436,7 +83028,31 @@ Sie ist für stabile Projektregeln und nicht für einmalige Aufgaben gedacht. Le
 - Allgemeine Prompts ohne Bezug zum Repository
 - Überholte Befehle und Pfade
 
+## Geltungsbereich und Priorität
+
+Codex erstellt die anfängliche Anweisungskette beim Start eines Laufs. Das Startverzeichnis ist dabei entscheidend:
+
+1. Zuerst liest Codex globale Regeln aus `CODEX_HOME`, standardmäßig `~/.codex`: die erste nicht leere `AGENTS.override.md`, andernfalls `AGENTS.md`.
+2. Anschließend prüft es jedes Verzeichnis von der Projektwurzel, üblicherweise der Git-Wurzel, bis zum aktuellen Arbeitsverzeichnis. Ohne Projektwurzel prüft es für Projektregeln nur das aktuelle Verzeichnis.
+3. Pro Projektverzeichnis wird höchstens eine nicht leere Datei verwendet: zuerst `AGENTS.override.md`, dann `AGENTS.md`, danach Namen aus `project_doc_fallback_filenames`.
+
+Bei Konflikten haben die später geladenen, spezifischeren Regeln Vorrang; andere übergeordnete Regeln gelten weiter. Eine Override-Datei ersetzt die normale Datei derselben Verzeichnisebene, nicht sämtliche Regeln der übergeordneten Verzeichnisse.
+
+### Ein Verzeichnisbeispiel
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Angenommen, die globalen Regeln verlangen `npm test`, die Repository-Datei verlangt Linting und das Payments-Override ersetzt den Testbefehl durch `make test-payments`. Beim Start aus `repo/services/payments` lädt Codex die globale Datei, die Repository-Datei und das Payments-Override. Die Lint-Regel bleibt bestehen, der Payments-Testbefehl gilt und die normale Payments-Datei wird übersprungen. Die benachbarte Search-Datei gehört nicht zu dieser Startkette.
+
 ## Vorgeschlagene Struktur
+
+Halte die folgende Vorlage kurz und ersetze die Befehle durch solche, die tatsächlich in deinem Repository existieren. Eine Regel sollte ihren Geltungsfall und die Prüfung des Ergebnisses nennen.
 
 ```md
 # Project instructions
@@ -82453,6 +83069,19 @@ Sie ist für stabile Projektregeln und nicht für einmalige Aufgaben gedacht. Le
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Fehlende oder widersprüchliche Regeln prüfen
+
+Starte nach Änderungen eine neue Sitzung im Zielverzeichnis und bitte Codex, die geladenen Quellen und geltenden Befehle aufzulisten:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Prüfe Arbeitsverzeichnis und `CODEX_HOME`. Ein Start aus der Repository-Wurzel lädt nicht vorab alle Regeln der Unterverzeichnisse.
+- Prüfe exakten Dateinamen, nicht leeren Inhalt und eine mögliche `AGENTS.override.md` auf derselben Ebene. Ein alternativer Dateiname muss in `project_doc_fallback_filenames` stehen.
+- Prüfe bei gekürzten langen Anweisungen `project_doc_max_bytes`. Entferne Wiederholungen und stelle wichtige Regeln an den Anfang.
+- Ermittle bei Konflikten beide Quelldateien und ihren jeweiligen Geltungsbereich. Formuliere eine gezielte Ausnahme im passenden Verzeichnis, statt widersprüchliche Regeln überall zu kopieren. Anweisungsdateien ändern keine Sandbox-Berechtigungen.
 
 ## Häufige Fehler
 
@@ -82480,6 +83109,7 @@ Verwende beides, um Konfigurationsverwirrung und Zusammenarbeitskosten zu reduzi
 - [Codex-AGENTS.md-Anleitung](https://developers.openai.com/codex/guides/agents-md)
 - [Bewährte Vorgehensweisen für Codex](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI-Codex-Diskussionen](https://github.com/openai/codex/discussions)
+- [Erweiterte Codex-Konfiguration](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -91676,9 +92306,9 @@ Description: Codex CLI에서 review_model, model_reasoning_effort, /review, /mod
 
 ## 짧은 답변
 
-`review_model`은 Codex가 code review workflows에 사용하는 model입니다. `model_reasoning_effort`는 Responses API를 지원하는 models의 reasoning strength를 제어합니다.
+`review_model`은 `/review`에 사용할 모델을 지정합니다. 설정하지 않으면 Codex는 현재 세션 모델을 사용합니다. `model_reasoning_effort`는 Responses API에서 이 설정을 지원하는 모델의 추론 강도를 조정합니다.
 
-두 fields 모두 quality, speed 및 usage cost에 영향을 줄 수 있습니다. 높은 reasoning settings는 complex tasks에 더 적합하지만 더 많이 consume할 수 있습니다.
+강도를 높이면 어려운 작업에 도움이 될 수 있지만, 정답이나 더 낮은 총비용을 보장하지는 않습니다. 온도나 답변 길이 설정도 아닙니다.
 
 ## Field 관계
 
@@ -91690,7 +92320,21 @@ Description: Codex CLI에서 review_model, model_reasoning_effort, /review, /mod
 | `/model` | model 또는 reasoning changes의 in-session entry point |
 | `/review` | Codex에게 current changes를 review하도록 요청하는 entry point |
 
-## 권장 config
+## 작업에 맞는 추론 강도 선택
+
+다음 설정을 시작점으로 삼고 작업의 완료 기준에 따라 결과를 평가하세요.
+
+| 작업 | 시작 설정 | 확인할 내용 |
+| --- | --- | --- |
+| 범위가 명확한 작은 수정이나 짧은 설명 | 지원하는 경우 `low` | 정확성과 응답 시간. |
+| 일반적인 기능 개발이나 재현 방법이 명확한 버그 | 지원하는 경우 `medium` | 테스트, 누락, 불필요한 변경. |
+| 어려운 원인 분석, 여러 모듈 변경, 상세 검토 | 먼저 `high`, 필요하면 지원하는 상위 단계 | 놓친 제약, 잘못된 지적, 사용 가능한 결과까지의 총시간. |
+
+선택 가능한 단계는 모델, Codex 버전, 제공업체에 따라 달라집니다. `xhigh`나 `max`를 쓰기 전에 `/model`의 선택지와 해당 모델의 공식 문서를 확인하세요. 한 모델의 지원 여부가 다른 모델에도 적용되지는 않습니다. 강도를 높이면 추론 토큰과 지연 시간이 늘 수 있으며, 재시도, 컨텍스트 크기, 도구 호출, 요금 방식도 총비용에 영향을 줍니다.
+
+## 설정 예시
+
+지속적으로 사용할 기본값은 `CODEX_HOME`의 `config.toml`에 설정하세요. 변수가 없으면 `~/.codex/config.toml`을 사용합니다. 이 키는 모든 TOML 테이블 앞의 최상위에 두고 제공업체와 인증 설정은 유지하세요.
 
 ```toml
 model = "gpt-6-astra"
@@ -91698,7 +92342,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-작고 빠른 edits에는 reasoning effort를 낮출 수 있습니다. cross-file refactors, difficult debugging 또는 long-context tasks에는 높은 reasoning effort가 더 적합합니다.
+## 파일 기본값과 세션 설정
+
+시작할 때 CLI 인수와 `-c` 설정이 신뢰한 프로젝트 설정, 선택한 프로필, 사용자 기본값보다 우선합니다. 현재 Codex의 `--profile NAME`은 `CODEX_HOME`에서 `NAME.config.toml`을 읽습니다. 이전 버전은 다른 프로필 형식을 사용했습니다.
+
+이번 실행에서만 추론 강도를 바꾸려면 다음을 실행하세요.
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+세션 중에는 `/model`로 현재 모델과 지원되는 추론 단계를 선택하세요. 파일을 수정해도 실행 중인 세션이 즉시 바뀐다고 보장할 수 없습니다. 저장된 기본값은 새 세션에서 확인하세요. Plan 모드는 `plan_mode_reasoning_effort`나 자체 기본 설정을 쓸 수 있으므로 별도로 확인해야 합니다.
+
+## 실제 적용된 설정 확인
+
+1. `codex --version`을 실행한 뒤 대상 프로젝트 디렉터리에서 새 세션을 시작하세요.
+2. `/model`로 선택한 강도를, `/status`로 현재 모델과 세션 설정을 확인하세요. 파일과 다르면 시작 인수, 선택한 프로필, 프로젝트 설정, 그리고 지원되는 경우 `/debug-config`를 확인하세요.
+3. 별도 세션에서 동일한 대표 작업을 지원되는 두 단계로 비교하세요. diff, 테스트, 완료 시간, BetterToken 사용량 기록을 확인하고 품질 목표를 충족하는 설정을 선택하세요. 강도를 낮춰도 총비용이 줄어든다는 보장은 없습니다.
 
 ## 일반적인 실수
 
@@ -91726,6 +92386,8 @@ current provider가 인식하도록 **GPT provider**에서 model IDs를 복사�
 - [Codex configuration 참고 자료](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex 설정 우선순위](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex 고급 설정](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 
@@ -91758,7 +92420,31 @@ one-time tasks가 아니라 stable project rules를 위한 것입니다. one-tim
 - repository와 무관한 generic prompts
 - outdated commands 및 paths
 
+## 적용 범위와 우선순위
+
+Codex는 실행을 시작할 때 초기 지침 목록을 구성합니다. 시작 디렉터리가 로드 범위에 영향을 줍니다.
+
+1. 먼저 `CODEX_HOME`의 전역 규칙을 읽습니다. 기본 경로는 `~/.codex`이며 비어 있지 않은 `AGENTS.override.md`를 우선 사용하고, 없으면 `AGENTS.md`를 읽습니다.
+2. 이어서 프로젝트 루트(일반적으로 Git 루트)부터 현재 작업 디렉터리까지 각 디렉터리를 확인합니다. 프로젝트 루트가 없으면 프로젝트 규칙은 현재 디렉터리만 확인합니다.
+3. 프로젝트 내 각 디렉터리에서 비어 있지 않은 파일을 최대 하나 사용합니다. 순서는 `AGENTS.override.md`, `AGENTS.md`, `project_doc_fallback_filenames`에 설정한 이름입니다.
+
+충돌하면 나중에 로드된 더 구체적인 범위의 규칙이 우선하며, 충돌하지 않는 상위 규칙은 계속 적용됩니다. override 파일은 같은 디렉터리의 일반 파일을 대체할 뿐, 상위 지침 전체를 없애지는 않습니다.
+
+### 디렉터리 예시
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+전역 규칙이 `npm test`, 저장소 규칙이 lint를 요구하고 payments의 override가 테스트 명령을 `make test-payments`로 바꾼다고 가정하세요. `repo/services/payments`에서 시작하면 전역 파일, 저장소 파일, payments override를 읽습니다. lint 요구사항은 유지하고 payments 테스트를 사용하며 같은 디렉터리의 일반 파일은 건너뜁니다. 이웃 search 파일은 이 초기 로드 목록에 포함되지 않습니다.
+
 ## 권장 구조
+
+아래 템플릿은 짧게 유지하고 명령은 저장소에 실제로 있는 것으로 바꾸세요. 각 규칙에는 적용 조건과 결과 확인 방법을 적으세요.
 
 ```md
 # Project instructions
@@ -91775,6 +92461,19 @@ one-time tasks가 아니라 stable project rules를 위한 것입니다. one-tim
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## 누락되거나 충돌하는 규칙 확인
+
+지침을 바꾼 후 대상 디렉터리에서 새 세션을 시작하고 Codex에 로드한 출처와 적용 명령을 나열하도록 요청하세요.
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- 작업 디렉터리와 `CODEX_HOME`을 확인하세요. 저장소 루트에서 시작해도 모든 하위 디렉터리 지침을 미리 읽지는 않습니다.
+- 정확한 파일명, 비어 있지 않은 내용, 같은 단계의 `AGENTS.override.md`를 확인하세요. 대체 파일명은 `project_doc_fallback_filenames`에 등록해야 합니다.
+- 긴 지침이 잘리면 `project_doc_max_bytes`를 확인하세요. 중복을 줄이고 필수 규칙을 앞부분에 두세요.
+- 충돌할 때는 두 출처 파일과 각 규칙의 적용 디렉터리를 확인하세요. 모순되는 규칙을 여러 곳에 복사하지 말고 해당 디렉터리에 한정된 예외를 적으세요. 지침 파일은 샌드박스 권한을 바꾸지 않습니다.
 
 ## 일반적인 실수
 
@@ -91802,6 +92501,7 @@ team이 BetterToken으로 model routing을 unify한다면 `AGENTS.md`는 여전�
 - [Codex AGENTS.md 가이드](https://developers.openai.com/codex/guides/agents-md)
 - [Codex 권장 사항](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Codex 고급 설정](https://learn.chatgpt.com/docs/config-file/config-advanced)
 
 ---
 

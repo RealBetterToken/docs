@@ -6,9 +6,9 @@ description: "Comprende review_model, model_reasoning_effort, /review, /model y 
 
 ## Respuesta breve
 
-`review_model` es el modelo que Codex utiliza en los flujos de revisión de código. `model_reasoning_effort` controla el nivel de razonamiento de los modelos compatibles con la Responses API.
+`review_model` selecciona el modelo para `/review`; si no se configura, Codex usa el modelo de la sesión actual. `model_reasoning_effort` ajusta el esfuerzo de razonamiento de los modelos que lo admiten mediante la Responses API.
 
-Ambos campos pueden afectar a la calidad, la velocidad y el coste de uso. Los niveles de razonamiento altos son adecuados para tareas complejas, pero pueden consumir más.
+Un mayor esfuerzo puede ayudar con tareas difíciles, pero no garantiza una respuesta correcta ni un menor coste total. No es un ajuste de temperatura ni de longitud de respuesta.
 
 ## Relación entre los campos
 
@@ -20,7 +20,21 @@ Ambos campos pueden afectar a la calidad, la velocidad y el coste de uso. Los ni
 | `/model` | Punto de entrada durante la sesión para cambiar el modelo o el razonamiento |
 | `/review` | Punto de entrada para pedir a Codex que revise los cambios actuales |
 
-## Configuración recomendada
+## Elige el esfuerzo según la tarea
+
+Usa estos niveles como punto de partida y evalúa el resultado según los criterios de aceptación:
+
+| Tarea | Punto de partida | Qué comprobar |
+| --- | --- | --- |
+| Cambio pequeño y bien definido o explicación breve | `low`, si se admite | Corrección y tiempo de respuesta. |
+| Función habitual o error con reproducción clara | `medium`, si se admite | Pruebas, integridad y cambios innecesarios. |
+| Diagnóstico difícil, cambio entre módulos o revisión detallada | `high`; prueba un nivel superior compatible si hace falta | Restricciones omitidas, falsos hallazgos y tiempo total hasta obtener un resultado útil. |
+
+Los niveles disponibles dependen del modelo, la versión de Codex y el proveedor. Consulta `/model` y la referencia del modelo antes de usar niveles como `xhigh` o `max`. Que un modelo admita un nivel no implica que otro lo admita. Más esfuerzo puede aumentar los tokens de razonamiento y la latencia; los reintentos, el contexto, las llamadas a herramientas y las tarifas también afectan al coste total.
+
+## Ejemplo de configuración
+
+Define valores predeterminados persistentes en `config.toml` dentro de `CODEX_HOME`, o en `~/.codex/config.toml` si no está definido. Coloca estas claves en el nivel superior, antes de las tablas TOML, y conserva la configuración del proveedor y la autenticación:
 
 ```toml
 model = "gpt-6-astra"
@@ -28,7 +42,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Para cambios pequeños y rápidos, puedes reducir el nivel de razonamiento. Para refactorizaciones entre archivos, depuración difícil o tareas con mucho contexto, resulta más adecuado un nivel mayor.
+## Valores del archivo y ajustes de sesión
+
+Al iniciar, los argumentos de CLI y las opciones `-c` tienen prioridad sobre la configuración del proyecto de confianza, el perfil seleccionado y los valores del usuario. En las versiones actuales, `--profile NAME` carga `NAME.config.toml` desde `CODEX_HOME`. Las versiones antiguas usaban otro formato de perfil.
+
+Para cambiar solo el esfuerzo en un inicio:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+Durante la sesión, usa `/model` para seleccionar el modelo activo y un nivel disponible. Editar el archivo no garantiza que una sesión abierta cambie de inmediato; inicia otra sesión para comprobar los valores guardados. El modo Plan puede usar `plan_mode_reasoning_effort` o su propio ajuste preestablecido, así que compruébalo por separado.
+
+## Comprueba el ajuste efectivo
+
+1. Ejecuta `codex --version` e inicia una sesión nueva desde el directorio del proyecto previsto.
+2. Usa `/model` para comprobar el esfuerzo seleccionado y `/status` para confirmar el modelo y la configuración de la sesión. Si difieren del archivo, revisa los argumentos de inicio, el perfil, la configuración del proyecto y `/debug-config`, si está disponible.
+3. Compara la misma tarea representativa con dos niveles compatibles en sesiones separadas. Revisa el diff, las pruebas, el tiempo y los registros de uso de BetterToken. Elige el ajuste que cumpla tu objetivo de calidad; menos esfuerzo no garantiza un menor coste total.
 
 ## Errores habituales
 
@@ -56,3 +86,5 @@ Copia los Model ID del **proveedor GPT** para que el proveedor actual pueda reco
 - [Referencia de configuración de Codex](https://developers.openai.com/codex/config-reference)
 - [Ejemplo de configuración de Codex](https://developers.openai.com/codex/config-sample)
 - [Comandos slash de Codex CLI](https://developers.openai.com/codex/cli/slash-commands)
+- [Prioridad de la configuración de Codex](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Configuración avanzada de Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)

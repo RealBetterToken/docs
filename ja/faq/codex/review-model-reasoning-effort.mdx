@@ -6,9 +6,9 @@ description: "review_model、model_reasoning_effort、/review、/model と、こ
 
 ## 短い答え
 
-`review_model` は、Codex がコードレビューのワークフローで使用するモデルです。`model_reasoning_effort` は、Responses API をサポートするモデルの推論強度を制御します。
+`review_model` は `/review` で使うモデルを指定します。未設定の場合、Codex は現在のセッションのモデルを使います。`model_reasoning_effort` は、Responses API 経由でこの設定に対応するモデルの推論強度を調整します。
 
-どちらの項目も品質、速度、使用コストに影響します。高い推論設定は複雑なタスクに適していますが、消費量が増える場合があります。
+強度を上げると難しい作業に役立つ場合がありますが、正解や総コストの低下を保証するものではありません。温度や回答の長さを変える設定でもありません。
 
 ## 項目の関係
 
@@ -20,7 +20,21 @@ description: "review_model、model_reasoning_effort、/review、/model と、こ
 | `/model` | セッション内でモデルまたは推論を変更する入口 |
 | `/review` | 現在の変更を Codex にレビュー依頼する入口 |
 
-## 推奨設定
+## タスクに合わせて推論強度を選ぶ
+
+次の設定を出発点にして、タスクの受け入れ条件に照らして結果を確認してください。
+
+| タスク | 最初に試す設定 | 確認する点 |
+| --- | --- | --- |
+| 範囲が明確な小さな修正や短い説明 | 対応していれば `low` | 正確さと応答時間。 |
+| 通常の機能開発や再現手順が明確な不具合 | 対応していれば `medium` | テスト、漏れ、不要な変更。 |
+| 難しい原因調査、複数モジュールの変更、詳細なレビュー | まず `high`、必要なら対応する上位レベル | 見落とした制約、誤った指摘、使える結果までの総所要時間。 |
+
+選べるレベルはモデル、Codex のバージョン、プロバイダーによって異なります。`xhigh` や `max` を使う前に、`/model` の選択肢とモデルの公式リファレンスを確認してください。あるモデルの対応が別のモデルにも当てはまるとは限りません。強度を上げると推論トークンや遅延が増える場合があり、再試行、コンテキスト量、ツール呼び出し、料金体系も総額に影響します。
+
+## 設定例
+
+継続して使う既定値は `CODEX_HOME` 内の `config.toml` に設定します。未設定の場合は `~/.codex/config.toml` を使います。キーはすべての TOML テーブルより前のトップレベルに置き、プロバイダーと認証の設定は保持してください。
 
 ```toml
 model = "gpt-6-astra"
@@ -28,7 +42,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-小さく短時間で済む編集では、推論強度を下げられます。複数ファイルにまたがるリファクタリング、難しいデバッグ、長いコンテキストを使うタスクには、より高い推論強度が適しています。
+## ファイルの既定値とセッション設定
+
+起動時は CLI 引数と `-c` の指定が、信頼済みプロジェクトの設定、選択したプロファイル、ユーザーの既定値より優先されます。現在の Codex では `--profile NAME` が `CODEX_HOME` 内の `NAME.config.toml` を読み込みます。旧バージョンでは別のプロファイル形式が使われていました。
+
+今回の起動だけ推論強度を変えるには、次を実行します。
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+セッション中は `/model` で現在のモデルと対応する推論強度を選びます。ファイルを編集しても実行中のセッションが直ちに変わるとは限りません。保存した既定値は新しいセッションで確認してください。Plan モードは `plan_mode_reasoning_effort` または独自のプリセットを使う場合があるため、別途確認します。
+
+## 有効な設定を確認する
+
+1. `codex --version` を実行し、対象プロジェクトのディレクトリから新しいセッションを開始します。
+2. `/model` で選択した強度を、`/status` で現在のモデルとセッション設定を確認します。ファイルと異なる場合は起動引数、プロファイル、プロジェクト設定、および利用可能なら `/debug-config` を確認してください。
+3. 同じ代表的なタスクを、別々のセッションで対応する 2 段階の強度で比較します。diff、テスト、所要時間、BetterToken の使用量記録を確認し、必要な品質を満たす設定を選んでください。強度を下げても総コストが下がるとは限りません。
 
 ## よくある間違い
 
@@ -56,3 +86,5 @@ model_reasoning_effort = "high"
 - [Codex 設定リファレンス](https://developers.openai.com/codex/config-reference)
 - [Codex サンプル設定](https://developers.openai.com/codex/config-sample)
 - [Codex CLI スラッシュコマンド](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex 設定の優先順位](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex の詳細設定](https://learn.chatgpt.com/docs/config-file/config-advanced)

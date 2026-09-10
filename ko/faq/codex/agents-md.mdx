@@ -27,7 +27,31 @@ one-time tasks가 아니라 stable project rules를 위한 것입니다. one-tim
 - repository와 무관한 generic prompts
 - outdated commands 및 paths
 
+## 적용 범위와 우선순위
+
+Codex는 실행을 시작할 때 초기 지침 목록을 구성합니다. 시작 디렉터리가 로드 범위에 영향을 줍니다.
+
+1. 먼저 `CODEX_HOME`의 전역 규칙을 읽습니다. 기본 경로는 `~/.codex`이며 비어 있지 않은 `AGENTS.override.md`를 우선 사용하고, 없으면 `AGENTS.md`를 읽습니다.
+2. 이어서 프로젝트 루트(일반적으로 Git 루트)부터 현재 작업 디렉터리까지 각 디렉터리를 확인합니다. 프로젝트 루트가 없으면 프로젝트 규칙은 현재 디렉터리만 확인합니다.
+3. 프로젝트 내 각 디렉터리에서 비어 있지 않은 파일을 최대 하나 사용합니다. 순서는 `AGENTS.override.md`, `AGENTS.md`, `project_doc_fallback_filenames`에 설정한 이름입니다.
+
+충돌하면 나중에 로드된 더 구체적인 범위의 규칙이 우선하며, 충돌하지 않는 상위 규칙은 계속 적용됩니다. override 파일은 같은 디렉터리의 일반 파일을 대체할 뿐, 상위 지침 전체를 없애지는 않습니다.
+
+### 디렉터리 예시
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+전역 규칙이 `npm test`, 저장소 규칙이 lint를 요구하고 payments의 override가 테스트 명령을 `make test-payments`로 바꾼다고 가정하세요. `repo/services/payments`에서 시작하면 전역 파일, 저장소 파일, payments override를 읽습니다. lint 요구사항은 유지하고 payments 테스트를 사용하며 같은 디렉터리의 일반 파일은 건너뜁니다. 이웃 search 파일은 이 초기 로드 목록에 포함되지 않습니다.
+
 ## 권장 구조
+
+아래 템플릿은 짧게 유지하고 명령은 저장소에 실제로 있는 것으로 바꾸세요. 각 규칙에는 적용 조건과 결과 확인 방법을 적으세요.
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ one-time tasks가 아니라 stable project rules를 위한 것입니다. one-tim
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## 누락되거나 충돌하는 규칙 확인
+
+지침을 바꾼 후 대상 디렉터리에서 새 세션을 시작하고 Codex에 로드한 출처와 적용 명령을 나열하도록 요청하세요.
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- 작업 디렉터리와 `CODEX_HOME`을 확인하세요. 저장소 루트에서 시작해도 모든 하위 디렉터리 지침을 미리 읽지는 않습니다.
+- 정확한 파일명, 비어 있지 않은 내용, 같은 단계의 `AGENTS.override.md`를 확인하세요. 대체 파일명은 `project_doc_fallback_filenames`에 등록해야 합니다.
+- 긴 지침이 잘리면 `project_doc_max_bytes`를 확인하세요. 중복을 줄이고 필수 규칙을 앞부분에 두세요.
+- 충돌할 때는 두 출처 파일과 각 규칙의 적용 디렉터리를 확인하세요. 모순되는 규칙을 여러 곳에 복사하지 말고 해당 디렉터리에 한정된 예외를 적으세요. 지침 파일은 샌드박스 권한을 바꾸지 않습니다.
 
 ## 일반적인 실수
 
@@ -71,3 +108,4 @@ team이 BetterToken으로 model routing을 unify한다면 `AGENTS.md`는 여전�
 - [Codex AGENTS.md 가이드](https://developers.openai.com/codex/guides/agents-md)
 - [Codex 권장 사항](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Codex 고급 설정](https://learn.chatgpt.com/docs/config-file/config-advanced)

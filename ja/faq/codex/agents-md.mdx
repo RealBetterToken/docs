@@ -27,7 +27,31 @@ description: "Codex CLI における AGENTS.md の役割、指示の優先順位
 - リポジトリと関係のない汎用プロンプト
 - 古くなったコマンドとパス
 
+## 適用範囲と優先順位
+
+Codex は実行開始時に初期の指示チェーンを構築します。起動ディレクトリが読み込み範囲に影響します。
+
+1. 最初に `CODEX_HOME` のグローバルルールを読みます。既定の場所は `~/.codex` で、空でない `AGENTS.override.md` を優先し、なければ `AGENTS.md` を使います。
+2. 次にプロジェクトルート（通常は Git ルート）から現在の作業ディレクトリまで順に調べます。プロジェクトルートが見つからない場合、プロジェクトのルールは現在のディレクトリだけを確認します。
+3. プロジェクト内の各階層では空でないファイルを最大 1 つ使います。優先順は `AGENTS.override.md`、`AGENTS.md`、`project_doc_fallback_filenames` に設定した名前です。
+
+競合する場合は、後から読み込まれる具体的な範囲のルールが優先されます。競合しない親のルールは引き続き適用されます。override は同じディレクトリの通常ファイルを置き換えますが、親の指示をすべて削除するものではありません。
+
+### ディレクトリの例
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+グローバルルールが `npm test`、リポジトリのルールが lint を要求し、payments の override がテストコマンドを `make test-payments` に置き換えるとします。`repo/services/payments` から起動すると、グローバルファイル、リポジトリのファイル、payments の override が読み込まれます。lint は維持され、payments のテストを使い、その階層の通常ファイルはスキップします。隣の search のルールはこの初期チェーンに含まれません。
+
 ## 推奨構成
+
+以下のテンプレートは短く保ち、コマンドをリポジトリに実在するものに置き換えてください。ルールには適用条件と結果の確認方法を書きます。
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ description: "Codex CLI における AGENTS.md の役割、指示の優先順位
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## 未適用や競合を確認する
+
+指示を変更したら、対象ディレクトリで新しいセッションを開始し、読み込んだ指示の出典と適用コマンドを Codex に確認します。
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- 作業ディレクトリと `CODEX_HOME` を確認します。リポジトリルートから起動しても、すべての子ディレクトリの指示を事前に読むわけではありません。
+- 正確なファイル名、空でない内容、同じ階層の `AGENTS.override.md` を確認します。代替名は `project_doc_fallback_filenames` への登録が必要です。
+- 長い指示が切り詰められる場合は `project_doc_max_bytes` を確認します。重複を減らし、重要なルールを先頭に置いてください。
+- 競合時は両方の出典ファイルと適用ディレクトリを特定します。矛盾するルールを各所にコピーするのではなく、該当ディレクトリに限定した例外を書きます。指示ファイルでサンドボックス権限は変更できません。
 
 ## よくある間違い
 
@@ -71,3 +108,4 @@ description: "Codex CLI における AGENTS.md の役割、指示の優先順位
 - [Codex AGENTS.md ガイド](https://developers.openai.com/codex/guides/agents-md)
 - [Codex ベストプラクティス](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex ディスカッション](https://github.com/openai/codex/discussions)
+- [Codex の詳細設定](https://learn.chatgpt.com/docs/config-file/config-advanced)

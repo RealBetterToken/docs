@@ -6,9 +6,9 @@ description: "解释 Codex CLI 中 review_model、model_reasoning_effort、/revi
 
 ## 简短答案
 
-`review_model` 是 Codex 在代码审查场景中使用的模型。`model_reasoning_effort` 控制支持 Responses API 的模型使用多少推理强度。
+`review_model` 指定 `/review` 使用的模型；未设置时，Codex 使用当前会话模型。`model_reasoning_effort` 调整通过 Responses API 调用、且支持该设置的模型投入的推理力度。
 
-这两个字段会影响质量、速度和用量成本。一般来说，更强的推理设置更适合复杂任务，但也可能带来更高消耗。
+增加力度可能有助于处理困难任务，但不保证答案正确或总成本更低。它不是温度或回答长度设置。
 
 ## 字段关系
 
@@ -20,7 +20,21 @@ description: "解释 Codex CLI 中 review_model、model_reasoning_effort、/revi
 | `/model` | 会话中切换模型或推理设置的入口 |
 | `/review` | 让 Codex 对当前改动做代码审查的入口 |
 
-## 推荐配置
+## 按任务选择推理力度
+
+以下设置可作为起点，再按任务验收标准判断结果：
+
+| 任务 | 起始设置 | 检查重点 |
+| --- | --- | --- |
+| 范围明确的小改动或简短解释 | 模型支持时使用 `low` | 正确性和响应时间。 |
+| 常规功能开发或有明确复现步骤的 Bug | 模型支持时使用 `medium` | 测试、完整性和多余改动。 |
+| 困难排障、跨模块修改或深入审查 | 先用 `high`，必要时尝试更高的可用档位 | 遗漏的约束、误报，以及得到可用结果的总耗时。 |
+
+可选档位取决于模型、Codex 版本和提供商。使用 `xhigh`、`max` 等档位前，先查看 `/model` 的选项和所选模型的官方说明。一个模型支持某档位，不代表其他模型也支持。更高力度可能增加推理 token 和延迟；重试、上下文大小、工具调用和计费方式也会影响总费用。
+
+## 配置示例
+
+在 `CODEX_HOME` 目录下的 `config.toml` 设置长期默认值；未设置该变量时，使用 `~/.codex/config.toml`。将这些键放在所有 TOML 表之前的顶层，并保留已有的提供商和认证配置：
 
 ```toml
 model = "gpt-6-astra"
@@ -28,7 +42,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-如果你的任务更偏快速小修，可以降低推理强度。如果任务涉及跨文件重构、复杂排障或长上下文，较高推理强度更合适。
+## 配置文件与会话设置
+
+启动时，CLI 参数和 `-c` 覆盖项优先于受信任项目的配置、选中的 profile 和用户默认配置。当前 Codex 的 `--profile NAME` 会读取 `CODEX_HOME` 下的 `NAME.config.toml`；旧版本使用过不同的 profile 格式。
+
+只为本次启动调整力度，可以运行：
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+会话中用 `/model` 选择当前模型及可用的推理档位。编辑文件不保证正在运行的会话立即更新；检查已保存的默认值时，请新建会话。Plan 模式可能使用 `plan_mode_reasoning_effort` 或自己的预设，需要单独核对。
+
+## 验证实际生效的设置
+
+1. 运行 `codex --version`，再从目标项目目录启动新会话。
+2. 用 `/model` 检查所选力度，用 `/status` 确认当前模型和会话配置。若与文件不同，检查启动参数、选中的 profile、项目配置，以及当前版本可用时的 `/debug-config`。
+3. 在两个独立会话中，用同一代表性任务比较两个受支持的档位。检查 diff、测试、完成时间和 BetterToken 用量记录，选择满足质量目标的设置；降低力度不保证总成本下降。
 
 ## 常见误区
 
@@ -56,3 +86,5 @@ model_reasoning_effort = "high"
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex 配置优先级](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex 高级配置](https://learn.chatgpt.com/docs/config-file/config-advanced)

@@ -27,7 +27,31 @@ description: "解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入�
 - 与仓库无关的通用提示词
 - 已经过期的命令和路径
 
+## 作用范围与优先级
+
+Codex 在每次运行开始时建立初始指令链，启动目录会影响加载范围：
+
+1. 先读取 `CODEX_HOME` 下的全局规则，该目录默认为 `~/.codex`；优先采用非空的 `AGENTS.override.md`，否则读取 `AGENTS.md`。
+2. 再从项目根目录（通常是 Git 根目录）逐级检查到当前工作目录。找不到项目根目录时，项目规则只检查当前目录。
+3. 项目中的每个目录最多采用一个非空文件，顺序为 `AGENTS.override.md`、`AGENTS.md`，然后是 `project_doc_fallback_filenames` 中配置的名称。
+
+发生冲突时，指令链中靠后、范围更具体的规则优先；不冲突的上层规则继续适用。同目录的 override 文件替代该目录的普通文件，不会清空所有上层规则。
+
+### 目录示例
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+假设全局规则要求运行 `npm test`，仓库规则要求 lint，而 payments 的 override 将测试命令改为 `make test-payments`。从 `repo/services/payments` 启动时，Codex 会加载全局文件、仓库文件和 payments 的 override，保留 lint 要求，使用 payments 测试命令，并跳过该目录的普通文件。旁边 search 目录的规则不在这条启动加载链中。
+
 ## 推荐结构
+
+下面的模板保持简短即可，请把命令替换为仓库里真实存在的命令。每条规则应说明何时适用，以及如何检查结果。
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ description: "解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入�
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## 规则未生效或冲突时怎么检查
+
+修改规则后，从目标目录启动新会话，让 Codex 列出已加载的规则来源和适用命令：
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- 检查工作目录和 `CODEX_HOME`。从仓库根目录启动，不会预加载所有子目录的规则。
+- 检查文件名是否准确、内容是否为空，以及同级是否存在 `AGENTS.override.md`。使用备用文件名时，需将其加入 `project_doc_fallback_filenames`。
+- 长指令被截断时，检查 `project_doc_max_bytes`。删除重复说明，并把关键规则放在前面。
+- 出现冲突时，确认两条规则分别来自哪个文件、适用于哪个目录。在相关目录写清局部例外，避免到处复制相互矛盾的规则。指令文件不会改变沙箱权限。
 
 ## 常见误区
 
@@ -71,3 +108,4 @@ description: "解释 Codex CLI 中 AGENTS.md 的作用、层级、适合写入�
 - [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
 - [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Codex 高级配置](https://learn.chatgpt.com/docs/config-file/config-advanced)

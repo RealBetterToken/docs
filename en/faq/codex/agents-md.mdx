@@ -27,7 +27,31 @@ It is for stable project rules, not one-time tasks. Put one-time requirements in
 - Generic prompts unrelated to the repository
 - Outdated commands and paths
 
+## Scope and precedence
+
+Codex builds its initial instruction chain when a run starts. The launch directory matters:
+
+1. It first reads global guidance from `CODEX_HOME`, which defaults to `~/.codex`: the first non-empty `AGENTS.override.md` or, otherwise, `AGENTS.md`.
+2. It then checks each directory from the project root, usually the Git root, down to the current working directory. Without a project root, it checks only the current directory for project guidance.
+3. In each project directory it uses at most one non-empty file: `AGENTS.override.md` first, then `AGENTS.md`, then names configured in `project_doc_fallback_filenames`.
+
+More specific guidance later in the chain takes precedence where instructions conflict; unrelated parent rules still apply. An override replaces the ordinary file at the same directory level, not every instruction from its parents.
+
+### A directory example
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Suppose global guidance says to use `npm test`, the repository file requires linting, and the payments override replaces the test command with `make test-payments`. When you launch from `repo/services/payments`, Codex loads the global file, the repository file, and the payments override. It keeps the lint rule, uses the payments test command, and skips the ordinary payments file. The sibling search file is outside that startup chain.
+
 ## Suggested structure
+
+Keep the template below short and replace its commands with commands that actually exist in your repository. A rule should say when it applies and how to check the result.
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ It is for stable project rules, not one-time tasks. Put one-time requirements in
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Check missing or conflicting rules
+
+After changing instructions, start a new session in the target directory and ask Codex to list its loaded sources and applicable commands:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Check the working directory and `CODEX_HOME`. Starting from the repository root does not preload every nested directory's instructions.
+- Check the exact filename, non-empty contents, and any `AGENTS.override.md` at the same level. A fallback filename must appear in `project_doc_fallback_filenames`.
+- Inspect `project_doc_max_bytes` if long instructions are truncated. Shorten duplicated guidance and keep essential rules near the start.
+- For a conflict, identify both source files and the directory each rule governs. Put a narrow exception in the relevant directory instead of copying contradictory rules everywhere. Instruction files do not change sandbox permissions.
 
 ## Common mistakes
 
@@ -71,3 +108,4 @@ Use both to reduce configuration confusion and collaboration cost.
 - [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
 - [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Codex advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)

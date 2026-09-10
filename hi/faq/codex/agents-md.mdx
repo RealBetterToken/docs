@@ -27,7 +27,31 @@ description: "जानें कि Codex CLI में AGENTS.md क्या 
 - repository से असंबंधित generic prompts
 - पुराने commands और paths
 
+## दायरा और प्राथमिकता
+
+Codex हर रन की शुरुआत में निर्देशों की शुरुआती श्रृंखला बनाता है। लॉन्च डायरेक्टरी मायने रखती है:
+
+1. पहले `CODEX_HOME` से वैश्विक नियम पढ़ता है, जिसका डिफ़ॉल्ट `~/.codex` है: पहला गैर-खाली `AGENTS.override.md`, अन्यथा `AGENTS.md`।
+2. फिर प्रोजेक्ट रूट, आम तौर पर Git रूट, से मौजूदा कार्य डायरेक्टरी तक हर डायरेक्टरी जाँचता है। प्रोजेक्ट रूट न मिले तो प्रोजेक्ट नियमों के लिए सिर्फ़ मौजूदा डायरेक्टरी जाँचता है।
+3. प्रोजेक्ट की हर डायरेक्टरी में अधिकतम एक गैर-खाली फ़ाइल इस्तेमाल होती है: पहले `AGENTS.override.md`, फिर `AGENTS.md`, फिर `project_doc_fallback_filenames` में दिए नाम।
+
+टकराव में श्रृंखला के बाद वाले, अधिक विशिष्ट नियम को प्राथमिकता मिलती है; अन्य ऊपर के नियम लागू रहते हैं। override उसी डायरेक्टरी की सामान्य फ़ाइल को बदलता है, ऊपर की सभी निर्देश फ़ाइलों को नहीं।
+
+### डायरेक्टरी का उदाहरण
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+मान लें कि वैश्विक नियम `npm test` कहता है, रिपॉज़िटरी फ़ाइल lint माँगती है और payments override टेस्ट कमांड को `make test-payments` से बदलता है। `repo/services/payments` से शुरू करने पर Codex वैश्विक फ़ाइल, रिपॉज़िटरी फ़ाइल और payments override पढ़ता है। lint का नियम बना रहता है, payments टेस्ट चलता है और उसी डायरेक्टरी की सामान्य फ़ाइल छोड़ी जाती है। पास के search की फ़ाइल इस शुरुआती श्रृंखला में नहीं आती।
+
 ## सुझाई गई संरचना
+
+नीचे का टेम्पलेट छोटा रखें और कमांड को अपने रिपॉज़िटरी में मौजूद असली कमांड से बदलें। हर नियम में लिखें कि वह कब लागू होता है और परिणाम कैसे जाँचना है।
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ description: "जानें कि Codex CLI में AGENTS.md क्या 
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## गायब या टकराते नियम जाँचें
+
+निर्देश बदलने के बाद लक्षित डायरेक्टरी में नया सेशन खोलें और Codex से पढ़े गए स्रोत व लागू कमांड बताने को कहें:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- कार्य डायरेक्टरी और `CODEX_HOME` जाँचें। रिपॉज़िटरी रूट से शुरू करने पर हर उपडायरेक्टरी के निर्देश पहले से नहीं पढ़े जाते।
+- फ़ाइल का सही नाम, गैर-खाली सामग्री और उसी स्तर का `AGENTS.override.md` जाँचें। वैकल्पिक नाम `project_doc_fallback_filenames` में होना चाहिए।
+- लंबे निर्देश कटें तो `project_doc_max_bytes` जाँचें। दोहराव हटाएँ और ज़रूरी नियम शुरुआत में रखें।
+- टकराव में दोनों स्रोत फ़ाइलें और हर नियम का दायरा पहचानें। विरोधी नियम हर जगह कॉपी करने के बजाय सही डायरेक्टरी में सीमित अपवाद लिखें। निर्देश फ़ाइलें sandbox अनुमतियाँ नहीं बदलतीं।
 
 ## सामान्य गलतियां
 
@@ -71,3 +108,4 @@ configuration की उलझन और collaboration cost घटाने क�
 - [Codex AGENTS.md गाइड](https://developers.openai.com/codex/guides/agents-md)
 - [Codex के सर्वोत्तम तरीके](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex चर्चाएं](https://github.com/openai/codex/discussions)
+- [Codex उन्नत कॉन्फ़िगरेशन](https://learn.chatgpt.com/docs/config-file/config-advanced)

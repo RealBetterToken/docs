@@ -27,7 +27,31 @@ Está destinado a reglas estables del proyecto, no a tareas puntuales. Incluye l
 - Prompts genéricos sin relación con el repositorio
 - Comandos y rutas obsoletos
 
+## Alcance y prioridad
+
+Codex construye la cadena inicial de instrucciones al comenzar cada ejecución. El directorio de inicio importa:
+
+1. Primero lee las reglas globales de `CODEX_HOME`, cuyo valor predeterminado es `~/.codex`: el primer `AGENTS.override.md` no vacío o, en su defecto, `AGENTS.md`.
+2. Después comprueba cada directorio desde la raíz del proyecto, normalmente la raíz de Git, hasta el directorio de trabajo actual. Sin raíz de proyecto, solo revisa el directorio actual para las reglas del proyecto.
+3. En cada directorio del proyecto usa como máximo un archivo no vacío: primero `AGENTS.override.md`, después `AGENTS.md` y luego los nombres de `project_doc_fallback_filenames`.
+
+Si hay conflictos, las reglas más específicas que aparecen después en la cadena tienen prioridad; las demás reglas superiores siguen vigentes. Un archivo override sustituye al archivo normal de su mismo directorio, no a todas las instrucciones de los directorios superiores.
+
+### Ejemplo de directorios
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Supón que las reglas globales piden `npm test`, el archivo del repositorio exige lint y el override de payments sustituye la prueba por `make test-payments`. Al iniciar desde `repo/services/payments`, Codex carga el archivo global, el del repositorio y el override de payments. Conserva la regla de lint, usa la prueba de payments y omite el archivo normal de ese directorio. El archivo vecino de search queda fuera de esta cadena inicial.
+
 ## Estructura recomendada
+
+Mantén breve la siguiente plantilla y sustituye los comandos por los que realmente existan en tu repositorio. Cada regla debe indicar cuándo se aplica y cómo comprobar el resultado.
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ Está destinado a reglas estables del proyecto, no a tareas puntuales. Incluye l
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Comprueba reglas ausentes o en conflicto
+
+Tras cambiar las instrucciones, inicia otra sesión en el directorio objetivo y pide a Codex que enumere las fuentes cargadas y los comandos aplicables:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Comprueba el directorio de trabajo y `CODEX_HOME`. Iniciar desde la raíz no precarga las instrucciones de todos los subdirectorios.
+- Comprueba el nombre exacto, que el archivo tenga contenido y si existe `AGENTS.override.md` en el mismo nivel. Un nombre alternativo debe figurar en `project_doc_fallback_filenames`.
+- Si se truncan instrucciones largas, revisa `project_doc_max_bytes`. Elimina duplicados y coloca las reglas esenciales al principio.
+- Ante un conflicto, identifica los dos archivos de origen y el directorio al que se aplica cada regla. Escribe una excepción concreta en el directorio correspondiente en lugar de copiar reglas contradictorias por todas partes. Los archivos de instrucciones no cambian los permisos del sandbox.
 
 ## Errores habituales
 
@@ -71,3 +108,4 @@ Utiliza ambos para reducir la confusión de configuración y el coste de colabor
 - [Guía de AGENTS.md para Codex](https://developers.openai.com/codex/guides/agents-md)
 - [Prácticas recomendadas de Codex](https://developers.openai.com/codex/learn/best-practices)
 - [Debates sobre OpenAI Codex](https://github.com/openai/codex/discussions)
+- [Configuración avanzada de Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)

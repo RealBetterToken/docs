@@ -6,9 +6,9 @@ description: "Entenda review_model, model_reasoning_effort, /review, /model e co
 
 ## Resposta curta
 
-`review_model` é o modelo usado pelo Codex nos fluxos de revisão de código. `model_reasoning_effort` controla a intensidade do raciocínio nos modelos compatíveis com a Responses API.
+`review_model` escolhe o modelo de `/review`; quando não está definido, o Codex usa o modelo da sessão atual. `model_reasoning_effort` ajusta o esforço de raciocínio dos modelos que aceitam essa opção pela Responses API.
 
-Os dois campos podem afetar qualidade, velocidade e custo de uso. Níveis mais altos de raciocínio são melhores para tarefas complexas, mas podem consumir mais recursos.
+Mais esforço pode ajudar em tarefas difíceis, mas não garante uma resposta correta nem um custo total menor. Não é um ajuste de temperatura ou de comprimento da resposta.
 
 ## Relação entre os campos
 
@@ -20,7 +20,21 @@ Os dois campos podem afetar qualidade, velocidade e custo de uso. Níveis mais a
 | `/model` | Comando da sessão para alterar o modelo ou o raciocínio |
 | `/review` | Comando para pedir ao Codex que revise as alterações atuais |
 
-## Configuração recomendada
+## Escolha o esforço conforme a tarefa
+
+Use estes níveis como ponto de partida e avalie o resultado pelos critérios de aceitação:
+
+| Tarefa | Ponto de partida | O que verificar |
+| --- | --- | --- |
+| Alteração pequena e bem definida ou explicação breve | `low`, quando aceito | Correção e tempo de resposta. |
+| Funcionalidade comum ou bug com reprodução clara | `medium`, quando aceito | Testes, completude e alterações desnecessárias. |
+| Diagnóstico difícil, alteração entre módulos ou revisão detalhada | `high`; tente um nível superior compatível se necessário | Restrições esquecidas, falsos apontamentos e tempo total até um resultado útil. |
+
+Os níveis disponíveis dependem do modelo, da versão do Codex e do provedor. Confira `/model` e a referência do modelo antes de usar níveis como `xhigh` ou `max`. O suporte de um modelo não implica o de outro. Mais esforço pode aumentar os tokens de raciocínio e a latência; novas tentativas, contexto, chamadas de ferramentas e tarifas também afetam o custo total.
+
+## Exemplo de configuração
+
+Defina padrões persistentes em `config.toml` dentro de `CODEX_HOME`, ou em `~/.codex/config.toml` quando a variável não estiver definida. Coloque estas chaves no nível superior, antes das tabelas TOML, e mantenha as configurações do provedor e da autenticação:
 
 ```toml
 model = "gpt-6-astra"
@@ -28,7 +42,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-Para edições pequenas e rápidas, você pode reduzir o esforço de raciocínio. Em refatorações entre arquivos, depurações difíceis ou tarefas com contexto extenso, um esforço maior é mais adequado.
+## Padrões do arquivo e ajustes da sessão
+
+Na inicialização, argumentos de CLI e opções `-c` têm prioridade sobre a configuração do projeto confiável, o perfil selecionado e os padrões do usuário. Nas versões atuais, `--profile NAME` carrega `NAME.config.toml` de `CODEX_HOME`. Versões antigas usavam outro formato de perfil.
+
+Para alterar apenas o esforço em uma inicialização:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+Durante a sessão, use `/model` para selecionar o modelo ativo e um nível disponível. Editar o arquivo não garante que uma sessão em andamento mude imediatamente; abra uma nova sessão para conferir os padrões salvos. O modo Plan pode usar `plan_mode_reasoning_effort` ou sua própria predefinição, então verifique-o separadamente.
+
+## Verifique o ajuste efetivo
+
+1. Execute `codex --version` e inicie uma nova sessão no diretório do projeto desejado.
+2. Confira o esforço selecionado em `/model` e o modelo ativo e a configuração em `/status`. Se houver diferença em relação ao arquivo, verifique argumentos de inicialização, perfil, configuração do projeto e `/debug-config`, quando disponível.
+3. Compare a mesma tarefa representativa em dois níveis compatíveis, em sessões separadas. Confira diff, testes, duração e registros de uso da BetterToken. Escolha o ajuste que atenda à qualidade necessária; menos esforço não garante menor custo total.
 
 ## Erros comuns
 
@@ -56,3 +86,5 @@ Copie os IDs de modelo do **provedor GPT** para que o provedor atual consiga rec
 - [Referência de configuração do Codex](https://developers.openai.com/codex/config-reference)
 - [Exemplo de configuração do Codex](https://developers.openai.com/codex/config-sample)
 - [Comandos com barra do Codex CLI](https://developers.openai.com/codex/cli/slash-commands)
+- [Prioridade da configuração do Codex](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Configuração avançada do Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)

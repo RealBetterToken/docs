@@ -27,7 +27,31 @@ description: "Разберите роль AGENTS.md в Codex CLI, hierarchy ин
 - Generic prompts, не связанные с репозиторием
 - Outdated commands и paths
 
+## Область действия и приоритет
+
+Codex формирует начальную цепочку инструкций при запуске. Каталог запуска влияет на набор файлов:
+
+1. Сначала загружаются глобальные правила из `CODEX_HOME`, по умолчанию `~/.codex`: первый непустой `AGENTS.override.md`, иначе `AGENTS.md`.
+2. Затем проверяются каталоги от корня проекта, обычно корня Git, до текущего рабочего каталога. Если корень проекта не найден, для правил проекта проверяется только текущий каталог.
+3. В каждом каталоге проекта используется не более одного непустого файла: сначала `AGENTS.override.md`, затем `AGENTS.md`, затем имена из `project_doc_fallback_filenames`.
+
+При конфликте более конкретные правила в конце цепочки имеют приоритет; остальные родительские правила продолжают действовать. Файл override заменяет обычный файл в том же каталоге, а не все инструкции родителей.
+
+### Пример каталогов
+
+```text
+~/.codex/AGENTS.md
+repo/AGENTS.md
+repo/services/payments/AGENTS.override.md
+repo/services/payments/AGENTS.md
+repo/services/search/AGENTS.md
+```
+
+Допустим, глобальные правила требуют `npm test`, файл репозитория требует проверки линтером, а override для payments заменяет тестовую команду на `make test-payments`. При запуске из `repo/services/payments` Codex загружает глобальный файл, файл репозитория и override для payments. Проверка линтером сохраняется, используется команда тестов payments, а обычный файл payments пропускается. Соседний файл search не входит в эту начальную цепочку.
+
 ## Рекомендуемая структура
+
+Сохраните шаблон кратким и замените команды на реально существующие в вашем репозитории. Укажите, когда действует правило и как проверить результат.
 
 ```md
 # Project instructions
@@ -44,6 +68,19 @@ description: "Разберите роль AGENTS.md в Codex CLI, hierarchy ин
 - Do not edit files outside this repository.
 - Do not commit secrets.
 ```
+
+## Проверка пропущенных и конфликтующих правил
+
+После изменения инструкций запустите новую сессию в нужном каталоге и попросите Codex перечислить загруженные источники и применимые команды:
+
+```bash
+codex -C /path/to/repo/services/payments "List the instruction files you loaded and the test command that applies here. Do not edit files."
+```
+
+- Проверьте рабочий каталог и `CODEX_HOME`. Запуск из корня репозитория не загружает заранее правила всех вложенных каталогов.
+- Проверьте точное имя файла, наличие содержимого и `AGENTS.override.md` на том же уровне. Резервное имя должно быть указано в `project_doc_fallback_filenames`.
+- При обрезании длинных инструкций проверьте `project_doc_max_bytes`. Удалите повторы и поместите важные правила в начало.
+- При конфликте определите оба исходных файла и область действия каждого правила. Опишите узкое исключение в нужном каталоге вместо копирования противоречащих правил повсюду. Файлы инструкций не изменяют права песочницы.
 
 ## Частые ошибки
 
@@ -71,3 +108,4 @@ description: "Разберите роль AGENTS.md в Codex CLI, hierarchy ин
 - [Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md)
 - [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
 - [OpenAI Codex discussions](https://github.com/openai/codex/discussions)
+- [Расширенная конфигурация Codex](https://learn.chatgpt.com/docs/config-file/config-advanced)

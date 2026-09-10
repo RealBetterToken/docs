@@ -6,9 +6,9 @@ description: "Understand review_model, model_reasoning_effort, /review, /model, 
 
 ## Short answer
 
-`review_model` is the model Codex uses for code review workflows. `model_reasoning_effort` controls reasoning strength for models that support the Responses API.
+`review_model` selects the model for `/review`; when unset, Codex uses the current session model. `model_reasoning_effort` adjusts the reasoning effort of models that support it through the Responses API.
 
-Both fields can affect quality, speed, and usage cost. Higher reasoning settings are better for complex tasks, but they can consume more.
+More effort can help with difficult work, but does not guarantee a correct answer or a lower total cost. It is not a temperature or response-length setting.
 
 ## Field relationships
 
@@ -20,7 +20,21 @@ Both fields can affect quality, speed, and usage cost. Higher reasoning settings
 | `/model` | In-session entry point for model or reasoning changes |
 | `/review` | Entry point for asking Codex to review current changes |
 
-## Recommended config
+## Choose effort for the task
+
+Use these as starting points, then judge the result against the task's acceptance criteria:
+
+| Task | Starting point | What to check |
+| --- | --- | --- |
+| A small, well-defined edit or a short explanation | `low`, when supported | Correctness and response time. |
+| A routine feature or a bug with a clear reproduction | `medium`, when supported | Tests, completeness, and unnecessary changes. |
+| A difficult diagnosis, cross-module change, or detailed review | `high`; try a higher supported level if needed | Missed constraints, false findings, and total time to a usable result. |
+
+Available levels depend on the model, Codex version, and provider. Check the choices in `/model` and the selected model's reference before using levels such as `xhigh` or `max`. Support for one model does not imply support for another. Higher effort can increase reasoning tokens and latency; retries, context size, tool calls, and pricing also affect the total bill.
+
+## Configuration example
+
+Set persistent defaults in `config.toml` under `CODEX_HOME`, or `~/.codex/config.toml` when it is unset. Keep these keys at the top level, before any TOML tables, and retain your provider and authentication configuration:
 
 ```toml
 model = "gpt-6-astra"
@@ -28,7 +42,23 @@ review_model = "gpt-6-astra"
 model_reasoning_effort = "high"
 ```
 
-For small quick edits, you can lower reasoning effort. For cross-file refactors, difficult debugging, or long-context tasks, higher reasoning effort is more appropriate.
+## File defaults and session settings
+
+At startup, CLI flags and `-c` overrides take precedence over trusted project configuration, the selected profile, and user defaults. In current Codex versions, `--profile NAME` loads `NAME.config.toml` from `CODEX_HOME`. Older versions used a different profile format.
+
+For one launch, override only the effort:
+
+```bash
+codex -c 'model_reasoning_effort="medium"'
+```
+
+During a session, use `/model` to select the active model and an available effort level. Editing the file does not guarantee that a running session changes immediately; start a new session to check saved defaults. Plan mode can use `plan_mode_reasoning_effort` or its own preset, so verify it separately.
+
+## Verify the effective setting
+
+1. Run `codex --version`, then start a new session from the intended project directory.
+2. Use `/model` to check the selected effort and `/status` to confirm the active model and session configuration. If values differ from the file, inspect `/debug-config` when available, plus launch flags, the selected profile, and project configuration.
+3. Compare the same representative task at two supported levels in separate sessions. Review the diff, tests, completion time, and BetterToken usage records. Keep the setting that meets your quality target; lower effort is not a guarantee of lower total cost.
 
 ## Common mistakes
 
@@ -56,3 +86,5 @@ Copy model IDs from the **GPT provider** so the current provider can recognize t
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
 - [Codex sample config](https://developers.openai.com/codex/config-sample)
 - [Codex CLI slash commands](https://developers.openai.com/codex/cli/slash-commands)
+- [Codex configuration precedence](https://learn.chatgpt.com/docs/config-file/config-basic)
+- [Codex advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
