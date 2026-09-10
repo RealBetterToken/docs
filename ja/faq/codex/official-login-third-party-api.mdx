@@ -4,6 +4,10 @@ sidebarTitle: "ログインと履歴を維持する"
 description: "CC Switch でサードパーティ API またはカスタムモデルを使用しながら、公式 Codex ログイン、プラグイン、Remote Control、統合セッション履歴を維持します。"
 ---
 
+<Note>
+  CLI/App で API Key のファイル認証を使う場合は、[Codex 設定ガイド](/ja/ai-tools/codex)を参照してください。このページは公式ログインを維持する別の方法です。そのログイン情報を API Key の JSON で置き換えないでください。
+</Note>
+
 公式 Codex ログインを失わずに、サードパーティ API またはカスタムモデルを使用できます。CC Switch の 2 つの Codex App Enhancements を有効にすると、公式プラグイン、Remote Control、統合セッション履歴を維持できます。
 
 ## 始める前に
@@ -66,6 +70,10 @@ CC Switch で **Settings → General → Codex App Enhancements** を開き、�
 
 ## 手動設定
 
+独自の `CODEX_HOME` を設定している場合は、そのディレクトリの `config.toml` と `auth.json` を編集してください。それ以外は macOS / Linux では `~/.codex`、Windows では `%USERPROFILE%\.codex` を使用します。CLI と App は同じディレクトリを使用する必要があります。WSL のユーザーディレクトリは別です。
+
+編集前に Codex を完全に終了し、両方のファイルを非公開の場所にバックアップしてください。ファイルがなければ作成します。既存の設定を置き換え、キーやテーブルを重複して追加しないでください。無関係な設定は残します。
+
 手動設定は、ローカルの Codex ファイル編集に慣れている上級ユーザー向けです。ほとんどのユーザーは、まず CC Switch を使用してください。
 
 <Steps>
@@ -80,11 +88,9 @@ CC Switch で **Settings → General → Codex App Enhancements** を開き、�
 
     ```toml
     model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
+    model = "gpt-6-astra"
+    review_model = "gpt-6-astra"
     model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
     windows_wsl_setup_acknowledged = true
 
     [model_providers]

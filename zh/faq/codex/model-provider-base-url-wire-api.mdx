@@ -32,54 +32,64 @@ description: "解释 Codex CLI custom provider 的 model_provider、Base URL、w
 | `model` | 默认主模型 ID |
 | `review_model` | `/review` 等代码审查场景使用的模型 |
 
+## 确认路径并备份
+
+如果设置了自定义 `CODEX_HOME`，请编辑该目录中的 `config.toml` 和 `auth.json`。否则，macOS / Linux 使用 `~/.codex`，Windows 使用 `%USERPROFILE%\.codex`。CLI 与 App 必须使用同一目录。WSL 有独立的用户目录。
+
+修改前完全退出 Codex，将两个文件备份到私密位置。文件不存在时可创建。替换已有设置，不要重复追加键或表；保留无关配置。
+
+<Warning>
+  此配置会从 ChatGPT 登录切换为 API Key 认证，不保留官方账号访问状态。妥善保护 `auth.json` 及其备份，不要提交到代码仓库或分享。
+</Warning>
+
 ## 推荐配置方式
 
-保持 provider id 一致：
+### 编辑 config.toml
+
+将 `model_provider`、`model` 和 `cli_auth_credentials_store` 放在所有 TOML 表之前的顶层，不要放在 profile 中。选中的提供商 ID 必须与表名一致。使用本页文件认证时，移除该提供商下的 `env_key` 和 `experimental_bearer_token`。
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
 ```
 
-这表示：Codex 使用名为 `custom` 的 provider，把模型请求发送到 `{{openai-base-url}}`，并按 Responses API 形态通信。
+示例使用 GPT-6 Astra（`gpt-6-astra`）。切换模型时，从<a href={"{{model-plaza-url}}"}>模型广场</a>复制完整 ID 并替换 `model`。GPT、Kimi 和 GLM 使用相同的文件认证结构；自动配置适用于 GPT。
 
-API Key 不应直接写进 `config.toml`。先在运行 Codex 的终端设置：
+### 编辑 auth.json
+
+`auth.json` 与 `config.toml` 位于同一目录。如果找不到 `auth.json`，请在该目录中新建这个文件。将文件内容设为以下 JSON，把 `YOUR_API_KEY` 替换为你的 BetterToken API Key，然后保存。
+
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
+
+## 重启并验证
+
+保存两个文件后，在终端直接启动新的 Codex CLI 会话：
 
 ```bash
-export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+codex
 ```
 
-Windows PowerShell 使用：
+完全退出 Codex App，包括后台进程，然后重新打开并新建本地任务。在实际使用的每个客户端发送简短提示词，确认能够正常返回。
 
-```powershell
-$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-```
+## 故障排查
 
-## 如何确认配置生效
-
-1. 确认 `model_provider = "custom"` 与 `[model_providers.custom]` 完全一致。
-2. 确认 Base URL 为 `{{openai-base-url}}`，其中包含 `/v1`。
-3. 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 提供商**中当前可用的 Model ID。
-4. 完全退出 Codex，在已设置环境变量的新终端中重新启动。
-5. 发送一个小型代码解释任务，确认能收到完整响应。
-
-## 常见错误与解决方法
-
-| 现象 | 原因 | 处理方法 |
-| --- | --- | --- |
-| Provider 未找到 | provider id 与配置段名称不一致 | 两处都使用 `custom` |
-| 启动时提示缺少 API Key | `env_key` 指向的环境变量不存在 | 设置 `MODEL_PROVIDER_API_KEY` 后重新打开终端 |
-| `401` 或 `403` | API Key 无效或混用了 OpenAI 官方认证 | 重新复制 Key，并确认 `requires_openai_auth = false` |
-| `404` | Base URL 缺少 `/v1` 或填入 Anthropic endpoint | 使用 `{{openai-base-url}}` |
-| Model not found | 使用了展示名、下线模型或非 GPT 提供商模型 | 从模型广场重新复制当前 Model ID |
-| Responses 协议错误 | `wire_api` 缺失或值不正确 | 设置 `wire_api = "responses"` |
+出现 `401`、`403` 或登录提示时，检查实际使用的目录、`auth.json` 中的 Key、`auth_mode = apikey`、`cli_auth_credentials_store = file` 和 `requires_openai_auth = true`。提供商或模型报错时，检查提供商 ID 是否一致、`{{openai-base-url}}`、`wire_api = responses` 及模型是否可用。配置未生效时，检查覆盖设置，并确认 CLI 与 App 使用相同的 `CODEX_HOME`。
 
 ## Related docs
 

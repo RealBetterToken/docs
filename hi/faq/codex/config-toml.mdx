@@ -1,126 +1,69 @@
 ---
 title: "Codex config.toml: custom provider, Base URL और API Key"
 sidebarTitle: "config.toml"
-description: "custom provider के लिए Codex config.toml कॉन्फ़िगर करें: model_provider, Base URL, API Key env_key और wire_api responses सेट करें, तथा 401, 404 या model errors ठीक करें।"
+description: "config.toml, auth.json, BetterToken API Key और Responses Base URL से Codex CLI और Codex App सेट करें।"
 ---
 
-## सीधा उत्तर
+स्थानीय कार्यों के लिए Codex CLI और Codex App एक ही `config.toml` और `auth.json` इस्तेमाल करते हैं। यह सेटअप OpenAI Responses के ज़रिए BetterToken API Key उपयोग करता है।
 
-Codex CLI में custom provider उपयोग करने के लिए user-level `~/.codex/config.toml` संपादित करें। `model_provider = "custom"` सेट करें, `[model_providers.custom]` परिभाषित करें, Base URL के रूप में `{{openai-base-url}}` उपयोग करें और `wire_api = "responses"` सेट करें। BetterToken API Key को `env_key` से पढ़ें और **GPT provider** से Model ID copy करें।
+## फ़ाइलें खोजें और बैकअप लें
 
-## सही config file खोजें
+यदि आपने अपना `CODEX_HOME` सेट किया है, तो उसी डायरेक्टरी में `config.toml` और `auth.json` संपादित करें। अन्यथा macOS / Linux पर `~/.codex` या Windows पर `%USERPROFILE%\.codex` उपयोग करें। CLI और App को एक ही डायरेक्टरी इस्तेमाल करनी चाहिए। WSL की उपयोगकर्ता डायरेक्टरी अलग होती है।
 
-| Environment | user-level config |
-| --- | --- |
-| macOS / Linux | `~/.codex/config.toml` |
-| Windows | `%USERPROFILE%\.codex\config.toml` |
-| Windows + WSL | WSL के अंदर `~/.codex/config.toml` |
-
-VS Code Codex extension में gear icon क्लिक करें और **Codex Settings → Open config.toml** चुनें। CLI और IDE extension समान config layers साझा करते हैं।
+संपादन से पहले Codex पूरी तरह बंद करें। दोनों फ़ाइलों का बैकअप निजी स्थान पर रखें। जो फ़ाइल मौजूद नहीं है उसे बनाएँ। मौजूदा सेटिंग बदलें; कुंजियाँ या टेबल दोबारा न जोड़ें। असंबंधित सेटिंग बनाए रखें।
 
 <Warning>
-  provider और authentication settings user-level `~/.codex/config.toml` में होते हैं। project `.codex/config.toml` files में project overrides हो सकते हैं, लेकिन Codex वहां `model_provider` और `model_providers` को अनदेखा करता है। project instructions को `AGENTS.md` में रखें।
+  यह सेटअप ChatGPT लॉगिन से API Key प्रमाणीकरण पर स्विच करता है। आधिकारिक खाते का एक्सेस बना नहीं रहता। `auth.json` और उसके बैकअप सुरक्षित रखें; उन्हें साझा या रिपॉज़िटरी में कमिट न करें।
 </Warning>
 
 ## न्यूनतम कार्यशील configuration
 
-<Steps>
-  <Step title="API Key environment variable सेट करें">
-    macOS, Linux या WSL:
+### config.toml संपादित करें
 
-    ```bash
-    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-    ```
-
-    Windows PowerShell:
-
-    ```powershell
-    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
-    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
-    ```
-
-    `YOUR_API_KEY` को अपने BetterToken API Key से बदलें। लगातार उपयोग के लिए इसे project repository में नहीं, सुरक्षित operating-system environment में रखें।
-  </Step>
-  <Step title="config.toml संपादित करें">
-    ```toml
-    model_provider = "custom"
-    model = "gpt-5.5"
-
-    [model_providers.custom]
-    name = "{{codex-provider-name}}"
-    base_url = "{{openai-base-url}}"
-    env_key = "MODEL_PROVIDER_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    ```
-
-    `model` एक उदाहरण है। <a href={"{{model-plaza-url}}"}>model plaza</a> में **GPT provider** से वर्तमान में उपलब्ध Model ID copy करें।
-  </Step>
-  <Step title="रीस्टार्ट करें और जांचें">
-    Codex को पूरी तरह बंद करें, नया terminal खोलें और चलाएं:
-
-    ```bash
-    codex
-    ```
-
-    सरल prompt भेजें। सामान्य response पुष्टि करता है कि provider, authentication और Model ID सक्रिय हैं।
-  </Step>
-</Steps>
-
-## अनुशंसित पूर्ण configuration
-
-जब आपको review model और अधिक लंबा stream timeout चाहिए, तब यह version उपयोग करें:
+`model_provider`, `model` और `cli_auth_credentials_store` को सभी TOML टेबल से पहले शीर्ष स्तर पर रखें, प्रोफ़ाइल के अंदर नहीं। चुने गए प्रदाता का ID उसकी टेबल के नाम से मेल खाना चाहिए। इस फ़ाइल-आधारित प्रमाणीकरण के लिए चुने गए प्रदाता से `env_key` और `experimental_bearer_token` हटाएँ।
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
-review_model = "gpt-5.4"
-model_reasoning_effort = "high"
-model_context_window = 1000000
-model_auto_compact_token_limit = 900000
-windows_wsl_setup_acknowledged = true
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
-name = "{{codex-provider-name}}"
+[model_providers.bettertoken]
+name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
 request_max_retries = 4
 stream_max_retries = 8
 stream_idle_timeout_ms = 300000
 supports_websockets = false
 ```
 
-मौजूदा top-level fields और `[model_providers.custom]` content को merge करें। एक ही TOML table दो बार declare न करें।
+इस उदाहरण में GPT-6 Astra (`gpt-6-astra`) उपयोग होता है। दूसरे मॉडल के लिए <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से पूरा ID कॉपी करके `model` बदलें। GPT, Kimi और GLM एक ही फ़ाइल-आधारित प्रमाणीकरण संरचना इस्तेमाल करते हैं; स्वचालित सेटअप GPT के लिए उपलब्ध है।
 
-## fields एक साथ कैसे काम करते हैं
+### auth.json संपादित करें
 
-| Field | उद्देश्य | BetterToken value |
-| --- | --- | --- |
-| `model_provider` | provider ID चुनता है | `"custom"` |
-| `[model_providers.custom]` | उस provider को परिभाषित करता है | `model_provider` से मेल होना चाहिए |
-| `base_url` | model request endpoint | `{{openai-base-url}}` |
-| `env_key` | API Key वाली environment variable का नाम | `MODEL_PROVIDER_API_KEY` |
-| `wire_api` | provider protocol | `"responses"` |
-| `requires_openai_auth` | official OpenAI authentication उपयोग करता है | सामान्य third-party API setup के लिए `false` |
-| `model` | default Model ID | वर्तमान GPT provider ID |
+`auth.json` और `config.toml` एक ही डायरेक्टरी में होते हैं। अगर `auth.json` नहीं है, तो उसी डायरेक्टरी में यह फ़ाइल बनाएँ। फ़ाइल की सामग्री के रूप में निम्न JSON लिखें, `YOUR_API_KEY` की जगह अपनी BetterToken API Key डालें और फ़ाइल सेव करें।
 
-<Note>
-  third-party API उपयोग करते हुए official Codex App login, plugins और Remote Control बनाए रखने के लिए, इस सामान्य authentication example के बजाय समर्पित [official login और unified session setup](/hi/faq/codex/official-login-third-party-api) उपयोग करें।
-</Note>
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
-## सामान्य त्रुटियां
+## पुनः शुरू करके जाँचें
 
-| लक्षण | कारण | समाधान |
-| --- | --- | --- |
-| provider नहीं मिला | `model_provider`, table name से मेल नहीं खाता | दोनों जगह `custom` उपयोग करें |
-| startup पर API Key नहीं मिला | environment variable अनुपस्थित है या terminal ने उसे reload नहीं किया | `MODEL_PROVIDER_API_KEY` सेट करें और नया terminal खोलें |
-| `401` या `403` | गलत Key या mixed authentication methods | Key फिर copy करें; `env_key` नाम aligned रखें और `requires_openai_auth = false` रखें |
-| `404` | Base URL में `/v1` नहीं है या गलत protocol है | `{{openai-base-url}}` उपयोग करें |
-| model नहीं मिला | Model ID उपलब्ध नहीं है या GPT provider में नहीं है | model plaza से current ID copy करें |
-| बदलाव लागू नहीं होते | गलत config layer, path या WSL environment | Codex चलाने वाले environment में user config संपादित करें, फिर Codex रीस्टार्ट करें |
-| TOML parse error | duplicate table, quote या nesting error | duplicate `[model_providers.custom]` tables हटाएं और string quotes जांचें |
+दोनों फ़ाइलें सहेजें। टर्मिनल में नया Codex CLI सत्र सीधे शुरू करें:
+
+```bash
+codex
+```
+
+पृष्ठभूमि प्रक्रियाओं सहित Codex App पूरी तरह बंद करें। फिर खोलें और नया स्थानीय कार्य बनाएँ। अपने इस्तेमाल के हर क्लाइंट में छोटा प्रॉम्प्ट भेजें। सामान्य उत्तर उस क्लाइंट का कनेक्शन सत्यापित करता है।
+
+## समस्या निवारण
+
+`401`, `403` या लॉगिन अनुरोध आने पर सक्रिय डायरेक्टरी, `auth.json` की Key, `auth_mode = apikey`, `cli_auth_credentials_store = file` और `requires_openai_auth = true` जाँचें। प्रदाता या मॉडल की त्रुटि होने पर प्रदाता ID का मिलान, `{{openai-base-url}}`, `wire_api = responses` और मॉडल की उपलब्धता जाँचें। बदलाव लागू न हों तो कॉन्फ़िगरेशन ओवरराइड जाँचें और सुनिश्चित करें कि CLI और App एक ही `CODEX_HOME` इस्तेमाल कर रहे हैं।
 
 ## संबंधित दस्तावेज
 

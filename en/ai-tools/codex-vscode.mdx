@@ -13,7 +13,7 @@ The Codex VS Code Extension shares `~/.codex/config.toml` with Codex CLI/App. Us
 | --- | --- |
 | API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
 | Base URL | `{{openai-base-url}}` |
-| Model | `YOUR_MODEL_ID` |
+| Model | `gpt-6-astra` |
 
 ## Prerequisites
 
@@ -28,17 +28,19 @@ Install the extension from the VS Code Marketplace, then restart VS Code.
 
 ## Manual setup
 
+If you use a custom `CODEX_HOME`, edit `config.toml` in that directory. Otherwise use `~/.codex/config.toml` on macOS / Linux or `%USERPROFILE%\.codex\config.toml` on Windows.
+
+Fully quit Codex, then back up the existing `config.toml` and `auth.json`. Update the existing provider settings instead of adding a duplicate provider table.
+
 ### Configure the Extension
 
 Edit `~/.codex/config.toml`:
 
 ```toml
-model_provider = "custom"
-model = "YOUR_MODEL_ID"
-review_model = "YOUR_MODEL_ID"
-model_reasoning_effort = "high"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
 wire_api = "responses"
@@ -48,22 +50,9 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 Save the file, run **Developer: Reload Window** in VS Code, and reopen the Codex panel.
 
-<Note>
-  `requires_openai_auth = true` preserves the official login. `experimental_bearer_token` authenticates BetterToken model requests. Do not write the BetterToken API Key to `auth.json`.
-</Note>
-
-### Do not combine CLI/App and Extension authentication
-
-| Scenario | Authentication fields |
-| --- | --- |
-| Codex CLI/App custom provider only | `env_key = "BETTERTOKEN_API_KEY"` and `requires_openai_auth = false` |
-| Extension with official login | `requires_openai_auth = true` and `experimental_bearer_token = "YOUR_API_KEY"` |
-
-Both alternatives use `[model_providers.custom]`. Keep only one table in a TOML file.
-
 ## Verify the connection
 
-Create a new Extension session and send a short task. A response from `YOUR_MODEL_ID` while plugins and Remote Control remain available confirms the setup.
+Create a new Extension session and send a short task. A response from `gpt-6-astra` while plugins and Remote Control remain available confirms the setup.
 
 ## Switch models
 
@@ -75,8 +64,8 @@ Change `model` and, optionally, `review_model`, then run **Developer: Reload Win
 | --- | --- |
 | Extension asks you to sign in again | Restore the official login and keep `requires_openai_auth = true`. |
 | `401` or `403` | Copy `experimental_bearer_token` again; do not overwrite `auth.json`. |
-| Duplicate table | Remove the other `[model_providers.custom]` table and keep one authentication mode. |
-| Model not found | Replace `YOUR_MODEL_ID` with a current complete Model ID. |
+| Duplicate table | Remove the other `[model_providers.bettertoken]` table and keep one authentication mode. |
+| Model not found | Replace `gpt-6-astra` with a current complete Model ID. |
 | Configuration not applied | Save the file and run **Developer: Reload Window**. |
 
 ## Advanced setup
@@ -114,6 +103,6 @@ Change `model` and, optionally, `review_model`, then run **Developer: Reload Win
 
 ## Technical details
 
-<Accordion title="Why Extension authentication differs from CLI/App">
-  The Extension uses the official login for some Codex product features, so this setup keeps `requires_openai_auth = true`. A pure CLI/App custom provider uses an environment variable and `requires_openai_auth = false`. Both send OpenAI Responses requests through `{{openai-base-url}}`.
+<Accordion title="Responses protocol">
+  The Extension sends model requests to `{{openai-base-url}}` through OpenAI Responses.
 </Accordion>

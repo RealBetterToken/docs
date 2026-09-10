@@ -4,6 +4,10 @@ sidebarTitle: "保留登录态和会话"
 description: "通过 CC Switch 使用第三方 API 或自定义模型，同时保留 Codex 官方登录态、插件、Remote Control 和统一会话历史。"
 ---
 
+<Note>
+  CLI/App 的 API Key 文件认证请参阅 [Codex 配置指南](/zh/ai-tools/codex)。本页是保留官方登录的独立方案，不要用 API Key JSON 替换该方案的登录凭据。
+</Note>
+
 使用第三方 API 或自定义模型时，你仍可以保留 Codex 的官方登录态，并继续使用官方插件、Remote Control 等功能。通过 CC Switch 打开两个 Codex 应用增强开关即可。
 
 ## 开始前准备
@@ -66,6 +70,10 @@ description: "通过 CC Switch 使用第三方 API 或自定义模型，同时�
 
 ## 手动配置
 
+如果设置了自定义 `CODEX_HOME`，请编辑该目录中的 `config.toml` 和 `auth.json`。否则，macOS / Linux 使用 `~/.codex`，Windows 使用 `%USERPROFILE%\.codex`。CLI 与 App 必须使用同一目录。WSL 有独立的用户目录。
+
+修改前完全退出 Codex，将两个文件备份到私密位置。文件不存在时可创建。替换已有设置，不要重复追加键或表；保留无关配置。
+
 手动配置适合熟悉 Codex 本地文件的高级用户。大多数用户优先使用 CC Switch。
 
 <Steps>
@@ -80,11 +88,9 @@ description: "通过 CC Switch 使用第三方 API 或自定义模型，同时�
 
     ```toml
     model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
+    model = "gpt-6-astra"
+    review_model = "gpt-6-astra"
     model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
     windows_wsl_setup_acknowledged = true
 
     [model_providers]

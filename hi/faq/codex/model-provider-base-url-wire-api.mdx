@@ -32,54 +32,64 @@ description: "model_provider, Base URL, wire_api, API Key और Model ID से
 | `model` | default main model ID |
 | `review_model` | `/review` जैसे code review flows के लिए उपयोग model |
 
+## फ़ाइलें खोजें और बैकअप लें
+
+यदि आपने अपना `CODEX_HOME` सेट किया है, तो उसी डायरेक्टरी में `config.toml` और `auth.json` संपादित करें। अन्यथा macOS / Linux पर `~/.codex` या Windows पर `%USERPROFILE%\.codex` उपयोग करें। CLI और App को एक ही डायरेक्टरी इस्तेमाल करनी चाहिए। WSL की उपयोगकर्ता डायरेक्टरी अलग होती है।
+
+संपादन से पहले Codex पूरी तरह बंद करें। दोनों फ़ाइलों का बैकअप निजी स्थान पर रखें। जो फ़ाइल मौजूद नहीं है उसे बनाएँ। मौजूदा सेटिंग बदलें; कुंजियाँ या टेबल दोबारा न जोड़ें। असंबंधित सेटिंग बनाए रखें।
+
+<Warning>
+  यह सेटअप ChatGPT लॉगिन से API Key प्रमाणीकरण पर स्विच करता है। आधिकारिक खाते का एक्सेस बना नहीं रहता। `auth.json` और उसके बैकअप सुरक्षित रखें; उन्हें साझा या रिपॉज़िटरी में कमिट न करें।
+</Warning>
+
 ## अनुशंसित pattern
 
-provider id को consistent रखें:
+### config.toml संपादित करें
+
+`model_provider`, `model` और `cli_auth_credentials_store` को सभी TOML टेबल से पहले शीर्ष स्तर पर रखें, प्रोफ़ाइल के अंदर नहीं। चुने गए प्रदाता का ID उसकी टेबल के नाम से मेल खाना चाहिए। इस फ़ाइल-आधारित प्रमाणीकरण के लिए चुने गए प्रदाता से `env_key` और `experimental_bearer_token` हटाएँ।
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
 ```
 
-इसका अर्थ है कि Codex `custom` नाम के provider का उपयोग करता है, model requests को `{{openai-base-url}}` पर भेजता है और Responses API shape से संवाद करता है।
+इस उदाहरण में GPT-6 Astra (`gpt-6-astra`) उपयोग होता है। दूसरे मॉडल के लिए <a href={"{{model-plaza-url}}"}>मॉडल प्लाज़ा</a> से पूरा ID कॉपी करके `model` बदलें। GPT, Kimi और GLM एक ही फ़ाइल-आधारित प्रमाणीकरण संरचना इस्तेमाल करते हैं; स्वचालित सेटअप GPT के लिए उपलब्ध है।
 
-API Key को सीधे `config.toml` में न रखें। इसे Codex launch करने वाले terminal में सेट करें:
+### auth.json संपादित करें
+
+`auth.json` और `config.toml` एक ही डायरेक्टरी में होते हैं। अगर `auth.json` नहीं है, तो उसी डायरेक्टरी में यह फ़ाइल बनाएँ। फ़ाइल की सामग्री के रूप में निम्न JSON लिखें, `YOUR_API_KEY` की जगह अपनी BetterToken API Key डालें और फ़ाइल सेव करें।
+
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
+
+## पुनः शुरू करके जाँचें
+
+दोनों फ़ाइलें सहेजें। टर्मिनल में नया Codex CLI सत्र सीधे शुरू करें:
 
 ```bash
-export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+codex
 ```
 
-Windows PowerShell में:
-
-```powershell
-$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-```
-
-## setup सत्यापित करें
-
-1. पुष्टि करें कि `model_provider = "custom"`, `[model_providers.custom]` से बिल्कुल मेल खाता है।
-2. पुष्टि करें कि Base URL `{{openai-base-url}}` है, जिसमें `/v1` शामिल है।
-3. <a href={"{{model-plaza-url}}"}>model plaza</a> में **GPT provider** से current Model ID copy करें।
-4. Codex को पूरी तरह बंद करें और उस नए terminal से फिर launch करें जिसमें environment variable सेट है।
-5. छोटा code-explanation task भेजें और पुष्टि करें कि Codex पूरा response लौटाता है।
+पृष्ठभूमि प्रक्रियाओं सहित Codex App पूरी तरह बंद करें। फिर खोलें और नया स्थानीय कार्य बनाएँ। अपने इस्तेमाल के हर क्लाइंट में छोटा प्रॉम्प्ट भेजें। सामान्य उत्तर उस क्लाइंट का कनेक्शन सत्यापित करता है।
 
 ## समस्या निवारण
 
-| लक्षण | कारण | समाधान |
-| --- | --- | --- |
-| provider नहीं मिला | provider id और configuration table मेल नहीं खाते | दोनों जगह `custom` उपयोग करें |
-| startup पर API Key नहीं मिला | `env_key` द्वारा नामित variable उपलब्ध नहीं है | `MODEL_PROVIDER_API_KEY` सेट करें, फिर नया terminal खोलें |
-| `401` या `403` | अमान्य API Key या mixed OpenAI authentication | Key फिर copy करें और `requires_openai_auth = false` सेट करें |
-| `404` | Base URL में `/v1` नहीं है या Anthropic endpoint की ओर है | `{{openai-base-url}}` उपयोग करें |
-| model नहीं मिला | value display name, retired model या non-GPT model है | model plaza से current Model ID copy करें |
-| Responses protocol error | `wire_api` अनुपस्थित या गलत है | `wire_api = "responses"` सेट करें |
+`401`, `403` या लॉगिन अनुरोध आने पर सक्रिय डायरेक्टरी, `auth.json` की Key, `auth_mode = apikey`, `cli_auth_credentials_store = file` और `requires_openai_auth = true` जाँचें। प्रदाता या मॉडल की त्रुटि होने पर प्रदाता ID का मिलान, `{{openai-base-url}}`, `wire_api = responses` और मॉडल की उपलब्धता जाँचें। बदलाव लागू न हों तो कॉन्फ़िगरेशन ओवरराइड जाँचें और सुनिश्चित करें कि CLI और App एक ही `CODEX_HOME` इस्तेमाल कर रहे हैं।
 
 ## संबंधित दस्तावेज
 

@@ -1,126 +1,71 @@
 ---
-title: "Pourquoi Codex ne peut-il pas utiliser GPT-5.5 en mode API ?"
-sidebarTitle: "Utiliser GPT-5.5 en mode API Codex"
-description: "Activez temporairement GPT-5.5 dans le mode API personnalisé de Codex avec un catalogue de modèles local."
+title: "Comment configurer GPT-6 Astra en mode API dans Codex ?"
+sidebarTitle: "GPT-6 Astra en mode API"
+description: "Utilisez GPT-6 Astra dans Codex CLI et Codex App avec une BetterToken API Key et l’authentification par fichiers."
 ---
 
-Au 24 avril 2026, certaines versions de Codex peuvent ne pas permettre de sélectionner directement `gpt-5.5` avec un fournisseur API personnalisé. Il s’agit d’une limitation du catalogue de modèles local de Codex. Cela ne signifie pas que le point de terminaison BetterToken `{{openai-base-url}}` est indisponible.
+Codex CLI et Codex App partagent `config.toml` et `auth.json` pour les tâches locales. Cette configuration utilise une BetterToken API Key via OpenAI Responses.
 
-Vous pouvez ajouter un fichier local `custom-models.json` pour que Codex reconnaisse `gpt-5.5`, puis y faire référence depuis `~/.codex/config.toml`. Si une version ultérieure de Codex prend `gpt-5.5` en charge nativement, privilégiez la configuration Codex intégrée.
+Mettez Codex à jour avant d’utiliser `gpt-6-astra`.
 
-<Note>
-  Utilisez le fichier `custom-models.json` complet fourni sur cette page. Si vous modifiez le fichier manuellement, conservez les entrées et champs de modèles existants et ne modifiez que la configuration du modèle dont vous avez besoin.
-</Note>
+## Localisez les fichiers et sauvegardez-les
 
-## Étapes de configuration
+Si vous avez défini un `CODEX_HOME` personnalisé, modifiez `config.toml` et `auth.json` dans ce répertoire. Sinon, utilisez `~/.codex` sur macOS / Linux ou `%USERPROFILE%\.codex` sur Windows. CLI et App doivent utiliser le même répertoire. WSL possède son propre répertoire utilisateur.
 
-<Steps>
-  <Step title="Préparer le fichier de configuration de modèle personnalisé">
-    Le chemin de configuration du modèle personnalisé est `~/.codex/custom-models.json`.
+Quittez complètement Codex avant toute modification. Sauvegardez les deux fichiers dans un emplacement privé. Créez les fichiers manquants. Remplacez les paramètres existants sans dupliquer les clés ni les tables ; conservez les autres paramètres.
 
-    <Tabs>
-      <Tab title="Télécharger le fichier JSON">
-        Téléchargez le catalogue complet de modèles :
+<Warning>
+  Cette configuration remplace la connexion ChatGPT par l’authentification avec une API Key. Elle ne conserve pas l’accès au compte officiel. Protégez `auth.json` et ses sauvegardes ; ne les partagez pas et ne les ajoutez pas au dépôt.
+</Warning>
 
-        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">Télécharger custom-models.json</a>
+## Modifiez config.toml
 
-        Placez le fichier téléchargé dans le répertoire de configuration Codex et nommez-le `custom-models.json`.
+Placez `model_provider`, `model` et `cli_auth_credentials_store` au niveau racine, avant toutes les tables TOML, et non dans un profil. L’ID du fournisseur doit correspondre au nom de sa table. Pour cette authentification par fichiers, retirez `env_key` et `experimental_bearer_token` du fournisseur sélectionné.
 
-| Système | Chemin cible |
-        |--------|-------------|
-        | macOS / Linux | `~/.codex/custom-models.json` |
-        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+```toml
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-        Le fichier téléchargé est le catalogue complet de modèles. L’étape suivante y fait référence depuis la configuration Codex.
-      </Tab>
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
 
-      <Tab title="Modifier le JSON manuellement">
-        Si vous avez déjà `~/.codex/custom-models.json`, modifiez le fichier existant. Ne conservez pas uniquement une entrée `gpt-5.5`.
+L’exemple utilise GPT-6 Astra (`gpt-6-astra`). Pour un autre modèle, copiez son ID complet depuis la <a href={"{{model-plaza-url}}"}>model plaza</a> et remplacez `model`. GPT, Kimi et GLM utilisent la même structure d’authentification par fichiers ; la configuration automatique est disponible pour GPT.
 
-        Lors de la modification manuelle, vérifiez que le tableau `models` contient une entrée `gpt-5.5` et conservez les autres configurations de modèles. Si vous ne connaissez pas bien JSON, utilisez l’option de téléchargement.
+## Modifiez auth.json
 
-        L’entrée `gpt-5.5` doit inclure des champs essentiels semblables à ceux-ci :
+`auth.json` se trouve dans le même répertoire que `config.toml`. Si `auth.json` n’existe pas, créez ce fichier dans ce répertoire. Utilisez le JSON suivant comme contenu du fichier, remplacez `YOUR_API_KEY` par votre BetterToken API Key, puis enregistrez le fichier.
 
-        ```json
-        {
-          "slug": "gpt-5.5",
-          "display_name": "gpt-5.5",
-          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
-          "base_instructions": "...",
-          "model_messages": {
-            "instructions_template": "...",
-            "instructions_variables": {
-              "personality_default": "",
-              "personality_friendly": "...",
-              "personality_pragmatic": "..."
-            }
-          },
-          "supports_reasoning_summaries": true,
-          "support_verbosity": true,
-          "context_window": 272000
-        }
-        ```
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
-        <Note>
-          Le bloc de code ci-dessus montre uniquement la structure essentielle d’une entrée de modèle. Utilisez le fichier téléchargé ou votre catalogue complet de modèles existant comme source de référence.
-        </Note>
-      </Tab>
-    </Tabs>
-  </Step>
+## Redémarrez et vérifiez
 
-  <Step title="Référencer le fichier JSON dans la configuration Codex">
-    Ouvrez le fichier de configuration Codex `~/.codex/config.toml`, puis ajoutez ou fusionnez la configuration suivante.
+Enregistrez les deux fichiers. Lancez une nouvelle session Codex CLI directement dans le terminal :
 
-    Exemple macOS / Linux :
+```bash
+codex
+```
 
-    ```toml
-    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-    model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
-    model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
-    windows_wsl_setup_acknowledged = true
-
-    [model_providers]
-    [model_providers.{{codex-provider-id}}]
-    name = "{{codex-provider-name}}"
-    base_url = "{{openai-base-url}}"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 8
-    stream_idle_timeout_ms = 300000
-    supports_websockets = false
-    ```
-
-    Exemple Windows :
-
-    ```toml
-    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
-    ```
-
-    `model_catalog_json` doit être un chemin absolu local. Dans les chaînes TOML entre guillemets doubles sous Windows, écrivez `\` sous la forme `\\`.
-  </Step>
-
-  <Step title="Redémarrer Codex">
-    Après avoir modifié le fichier de configuration, arrêtez le processus Codex actuel et démarrez-le dans une nouvelle session de terminal :
-
-    ```bash
-    codex
-    ```
-  </Step>
-</Steps>
+Quittez complètement Codex App, y compris les processus en arrière-plan. Rouvrez l’application et créez une nouvelle tâche locale. Envoyez une courte consigne dans chaque client utilisé. Une réponse normale vérifie la connexion de ce client.
 
 ## Dépannage
 
-Si `gpt-5.5` ne fonctionne toujours pas, vérifiez ces éléments dans l’ordre :
+En cas de `401`, `403` ou de demande de connexion, vérifiez le répertoire actif, la Key dans `auth.json`, `auth_mode = apikey`, `cli_auth_credentials_store = file` et `requires_openai_auth = true`. Pour une erreur de fournisseur ou de modèle, vérifiez l’ID du fournisseur, `{{openai-base-url}}`, `wire_api = responses` et la disponibilité du modèle. Si les changements ne s’appliquent pas, vérifiez les paramètres prioritaires et assurez-vous que CLI et App utilisent le même `CODEX_HOME`.
 
-1. `model_catalog_json` utilise un chemin absolu local
-2. `custom-models.json` conserve le catalogue complet de modèles
-3. `base_url` est `{{openai-base-url}}`
-4. `wire_api` est `responses`
-5. `model_provider` correspond à l’ID de fournisseur dans `[model_providers.{{codex-provider-id}}]`
+## Guides associés
 
-Si votre version de Codex prend déjà `gpt-5.5` en charge nativement, supprimez `model_catalog_json` et revenez au [guide de configuration Codex](/fr/ai-tools/codex) habituel.
+- [Guide de configuration Codex CLI/App](/fr/ai-tools/codex)
+- [Référence officielle d’authentification](https://developers.openai.com/codex/auth)

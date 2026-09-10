@@ -4,6 +4,10 @@ sidebarTitle: "Anmeldung und Verlauf behalten"
 description: "Verwende CC Switch mit einer Drittanbieter-API oder einem eigenen Modell und behalte offizielle Codex-Anmeldung, Plugins, Remote Control und einen einheitlichen Sitzungsverlauf."
 ---
 
+<Note>
+  Für die API-Key-Dateiauthentifizierung in CLI/App folge der [Codex-Anleitung](/de/ai-tools/codex). Diese Seite beschreibt eine separate Alternative zum Erhalten der offiziellen Anmeldung; ersetze deren Anmeldedaten nicht durch das API-Key-JSON.
+</Note>
+
 Du kannst eine Drittanbieter-API oder ein eigenes Modell verwenden, ohne deine offizielle Codex-Anmeldung zu verlieren. Aktiviere zwei Codex App Enhancements in CC Switch, um offizielle Plugins, Remote Control und einen einheitlichen Sitzungsverlauf beizubehalten.
 
 ## Bevor du beginnst
@@ -66,6 +70,10 @@ Bestätige nach dem Neustart Folgendes:
 
 ## Manuelle Einrichtung
 
+Wenn du ein eigenes `CODEX_HOME` festgelegt hast, bearbeite dort `config.toml` und `auth.json`. Andernfalls nutze `~/.codex` unter macOS / Linux oder `%USERPROFILE%\.codex` unter Windows. CLI und App müssen dasselbe Verzeichnis nutzen. WSL hat ein eigenes Benutzerverzeichnis.
+
+Beende Codex vor dem Bearbeiten vollständig. Sichere beide Dateien an einem privaten Ort. Lege fehlende Dateien an. Ersetze bestehende Einstellungen, ohne Schlüssel oder Tabellen zu duplizieren; behalte andere Einstellungen bei.
+
 Die manuelle Einrichtung ist für fortgeschrittene Nutzer gedacht, die lokale Codex-Dateien sicher bearbeiten können. Die meisten Nutzer sollten zuerst CC Switch verwenden.
 
 <Steps>
@@ -80,11 +88,9 @@ Die manuelle Einrichtung ist für fortgeschrittene Nutzer gedacht, die lokale Co
 
     ```toml
     model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
+    model = "gpt-6-astra"
+    review_model = "gpt-6-astra"
     model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
     windows_wsl_setup_acknowledged = true
 
     [model_providers]

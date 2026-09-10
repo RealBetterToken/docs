@@ -32,54 +32,64 @@ description: "Configurez un fournisseur Codex personnalisé avec model_provider,
 | `model` | Model ID principal par défaut |
 | `review_model` | Modèle utilisé par les flux de revue de code tels que `/review` |
 
+## Localisez les fichiers et sauvegardez-les
+
+Si vous avez défini un `CODEX_HOME` personnalisé, modifiez `config.toml` et `auth.json` dans ce répertoire. Sinon, utilisez `~/.codex` sur macOS / Linux ou `%USERPROFILE%\.codex` sur Windows. CLI et App doivent utiliser le même répertoire. WSL possède son propre répertoire utilisateur.
+
+Quittez complètement Codex avant toute modification. Sauvegardez les deux fichiers dans un emplacement privé. Créez les fichiers manquants. Remplacez les paramètres existants sans dupliquer les clés ni les tables ; conservez les autres paramètres.
+
+<Warning>
+  Cette configuration remplace la connexion ChatGPT par l’authentification avec une API Key. Elle ne conserve pas l’accès au compte officiel. Protégez `auth.json` et ses sauvegardes ; ne les partagez pas et ne les ajoutez pas au dépôt.
+</Warning>
+
 ## Modèle recommandé
 
-Conservez un ID de fournisseur cohérent :
+### Modifiez config.toml
+
+Placez `model_provider`, `model` et `cli_auth_credentials_store` au niveau racine, avant toutes les tables TOML, et non dans un profil. L’ID du fournisseur doit correspondre au nom de sa table. Pour cette authentification par fichiers, retirez `env_key` et `experimental_bearer_token` du fournisseur sélectionné.
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
 ```
 
-Cela signifie que Codex utilise le fournisseur nommé `custom`, envoie les requêtes de modèles à `{{openai-base-url}}` et communique selon le format Responses API.
+L’exemple utilise GPT-6 Astra (`gpt-6-astra`). Pour un autre modèle, copiez son ID complet depuis la <a href={"{{model-plaza-url}}"}>model plaza</a> et remplacez `model`. GPT, Kimi et GLM utilisent la même structure d’authentification par fichiers ; la configuration automatique est disponible pour GPT.
 
-Ne placez pas l’API Key directement dans `config.toml`. Définissez-la dans le terminal qui lance Codex :
+### Modifiez auth.json
+
+`auth.json` se trouve dans le même répertoire que `config.toml`. Si `auth.json` n’existe pas, créez ce fichier dans ce répertoire. Utilisez le JSON suivant comme contenu du fichier, remplacez `YOUR_API_KEY` par votre BetterToken API Key, puis enregistrez le fichier.
+
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
+
+## Redémarrez et vérifiez
+
+Enregistrez les deux fichiers. Lancez une nouvelle session Codex CLI directement dans le terminal :
 
 ```bash
-export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+codex
 ```
 
-Sous Windows PowerShell :
-
-```powershell
-$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-```
-
-## Vérifier la configuration
-
-1. Vérifiez que `model_provider = "custom"` correspond exactement à `[model_providers.custom]`.
-2. Vérifiez que la Base URL est `{{openai-base-url}}`, y compris `/v1`.
-3. Copiez un Model ID actuel depuis le **fournisseur GPT** dans la <a href={"{{model-plaza-url}}"}>model plaza</a>.
-4. Quittez complètement Codex et relancez-le depuis un nouveau terminal où la variable d’environnement est définie.
-5. Envoyez une petite tâche d’explication de code et vérifiez que Codex renvoie une réponse complète.
+Quittez complètement Codex App, y compris les processus en arrière-plan. Rouvrez l’application et créez une nouvelle tâche locale. Envoyez une courte consigne dans chaque client utilisé. Une réponse normale vérifie la connexion de ce client.
 
 ## Dépannage
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Fournisseur introuvable | L’ID du fournisseur et la table de configuration ne correspondent pas | Utilisez `custom` aux deux endroits |
-| API Key absente au démarrage | La variable nommée par `env_key` est indisponible | Définissez `MODEL_PROVIDER_API_KEY`, puis ouvrez un nouveau terminal |
-| `401` ou `403` | API Key invalide ou authentification OpenAI mélangée | Copiez de nouveau la Key et définissez `requires_openai_auth = false` |
-| `404` | La Base URL ne contient pas `/v1` ou pointe vers un point de terminaison Anthropic | Utilisez `{{openai-base-url}}` |
-| Modèle introuvable | La valeur est un nom d’affichage, un modèle retiré ou un modèle non GPT | Copiez un Model ID actuel depuis la model plaza |
-| Erreur de protocole Responses | `wire_api` est absent ou incorrect | Définissez `wire_api = "responses"` |
+En cas de `401`, `403` ou de demande de connexion, vérifiez le répertoire actif, la Key dans `auth.json`, `auth_mode = apikey`, `cli_auth_credentials_store = file` et `requires_openai_auth = true`. Pour une erreur de fournisseur ou de modèle, vérifiez l’ID du fournisseur, `{{openai-base-url}}`, `wire_api = responses` et la disponibilité du modèle. Si les changements ne s’appliquent pas, vérifiez les paramètres prioritaires et assurez-vous que CLI et App utilisent le même `CODEX_HOME`.
 
 ## Documentation associée
 

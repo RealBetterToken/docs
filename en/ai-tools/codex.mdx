@@ -1,19 +1,19 @@
 ---
 title: "Codex CLI/App Custom Provider: config.toml, API Key, and Base URL"
 sidebarTitle: "Codex"
-description: "Configure a Codex CLI/App custom provider with config.toml, BETTERTOKEN_API_KEY, a Responses Base URL, and a current Model ID."
+description: "Configure Codex CLI and Codex App with config.toml, auth.json, a BetterToken API Key, and the Responses Base URL."
 icon: "code"
 ---
 
-Codex CLI and Codex App connect to BetterToken through OpenAI Responses. The configuration file is `~/.codex/config.toml`, and the API Key is supplied through `BETTERTOKEN_API_KEY`.
+Codex CLI and Codex App share `config.toml` and `auth.json` for local tasks. This setup uses a BetterToken API Key through OpenAI Responses.
 
 ## Key settings
 
 | Field | Value |
 | --- | --- |
-| API Key | `BETTERTOKEN_API_KEY` environment variable |
+| API Key | `auth.json` → `OPENAI_API_KEY` |
 | Base URL | `{{openai-base-url}}` |
-| Model | `YOUR_MODEL_ID` |
+| Model | `gpt-6-astra` |
 
 ## Prerequisites
 
@@ -26,6 +26,16 @@ Codex CLI and Codex App connect to BetterToken through OpenAI Responses. The con
 ```bash
 npm install -g @openai/codex
 ```
+
+## Locate and back up your files
+
+If you use a custom `CODEX_HOME`, edit `config.toml` and `auth.json` in that directory. Otherwise use `~/.codex` on macOS / Linux or `%USERPROFILE%\.codex` on Windows. CLI and App must use the same directory. WSL has its own user directory.
+
+Fully quit Codex before editing. Back up both files to a private location. Create missing files if needed. Replace existing settings instead of appending duplicate keys or tables; keep unrelated settings.
+
+<Warning>
+  This switches from ChatGPT login to API Key authentication. It does not preserve official account access. Protect `auth.json` and its backups; never commit or share them.
+</Warning>
 
 ## Command-line setup
 
@@ -44,67 +54,52 @@ The BetterToken Automatic setup script writes the Codex provider configuration. 
   </Tab>
 </Tabs>
 
-After it finishes, open `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows), confirm that `model`, `review_model`, and the BetterToken provider were written correctly, and fully restart Codex.
+After installation, check both files against the manual configuration below and correct any differences before starting Codex.
 
 ## Manual setup
 
-GPT, Kimi, and GLM use the same `config.toml` structure. Only replace `YOUR_MODEL_ID` with a current Model ID from the selected provider. One-click command-line setup is currently available for GPT only.
+### Edit config.toml
 
-### Set the API Key
-
-<Tabs>
-  <Tab title="macOS / Linux">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
-
-    Add this line to `~/.zshrc` or `~/.bashrc` to persist it.
-  </Tab>
-  <Tab title="Windows PowerShell">
-    ```powershell
-    [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
-    $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
-    ```
-  </Tab>
-</Tabs>
-
-<Warning>
-  Do not put a BetterToken API Key in `~/.codex/auth.json`. That file is for the official Codex login; a custom provider should read the environment variable through `env_key`.
-</Warning>
-
-### Configure config.toml
-
-Edit `~/.codex/config.toml`:
+Put `model_provider`, `model`, and `cli_auth_credentials_store` at the top level, before all TOML tables, not under a profile. The selected provider ID must match its table name. For this file-auth setup, remove `env_key` and `experimental_bearer_token` from the selected provider.
 
 ```toml
-model_provider = "custom"
-model = "YOUR_MODEL_ID"
-review_model = "YOUR_MODEL_ID"
-model_reasoning_effort = "high"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "BETTERTOKEN_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
 request_max_retries = 4
 stream_max_retries = 8
 stream_idle_timeout_ms = 300000
 supports_websockets = false
 ```
 
-`model_provider = "custom"` must match the `[model_providers.custom]` table. Replace both `YOUR_MODEL_ID` values with a current complete Model ID.
+This example uses GPT-6 Astra (`gpt-6-astra`). For another model, copy its complete ID from the <a href={"{{model-plaza-url}}"}>model plaza</a> and replace `model`. GPT, Kimi, and GLM use the same file-auth structure; automatic setup is available for GPT.
+
+### Edit auth.json
+
+`auth.json` is in the same directory as `config.toml`. If `auth.json` does not exist, create it in that directory. Set its contents to the following JSON, replace `YOUR_API_KEY` with your BetterToken API Key, and save the file.
+
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
 ## Verify the connection
 
-Open a new terminal and run:
+Save both files. In the terminal, start a new Codex CLI session directly:
 
 ```bash
 codex
 ```
 
-Send a short task. A streamed response without login, `401`, or model errors confirms the setup.
+Fully quit Codex App, including background processes, then reopen it and create a new local task. Send a short prompt in each client you use. A normal response verifies that client's connection.
 
 ## Switch models
 
@@ -112,13 +107,7 @@ Change `model` and, optionally, `review_model`. Save the file, stop the current 
 
 ## Common errors
 
-| Error | Fix |
-| --- | --- |
-| `401` or an OpenAI sign-in prompt | Check `BETTERTOKEN_API_KEY` and confirm `requires_openai_auth = false`. |
-| Provider not found | Make `model_provider = "custom"` match `[model_providers.custom]`. |
-| API mode error | Keep `wire_api = "responses"`; do not switch to Chat Completions. |
-| Model not found | Replace `YOUR_MODEL_ID` with a current complete ID from Setup or the model plaza. |
-| Configuration not applied | Open a new terminal, verify the environment variable, and fully restart Codex. |
+For `401`, `403`, or a sign-in prompt, check the active directory, the Key in `auth.json`, `auth_mode = apikey`, `cli_auth_credentials_store = file`, and `requires_openai_auth = true`. For provider or model errors, check the matching provider ID, `{{openai-base-url}}`, `wire_api = responses`, and the model's availability. If changes do not apply, check configuration overrides and confirm CLI and App use the same `CODEX_HOME`.
 
 ## Advanced setup
 
@@ -145,10 +134,6 @@ Change `model` and, optionally, `review_model`. Save the file, stop the current 
 
 The Codex VS Code Extension shares `config.toml`, but preserving the official login uses a different authentication configuration. See the [Codex Extension setup guide](/en/ai-tools/codex-vscode).
 
-<Warning>
-  CLI/App setup and Extension setup with an official login are alternatives. Do not paste two `[model_providers.custom]` tables into the same TOML file.
-</Warning>
-
 ### Related FAQ
 
 - [What is Codex CLI?](/en/faq/codex/what-is-codex-cli)
@@ -166,6 +151,7 @@ The Codex VS Code Extension shares `config.toml`, but preserving the official lo
 ### Official reference
 
 - [Codex configuration reference](https://developers.openai.com/codex/config-reference)
+- [Official authentication reference](https://developers.openai.com/codex/auth)
 
 ## Technical details
 

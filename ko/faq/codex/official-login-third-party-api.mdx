@@ -4,6 +4,10 @@ sidebarTitle: "login과 history 유지"
 description: "third-party API 또는 custom model에 CC Switch를 사용하면서 official Codex login, plugins, Remote Control 및 unified session history를 유지하세요."
 ---
 
+<Note>
+  CLI/App에서 API Key 파일 인증을 사용하려면 [Codex 설정 가이드](/ko/ai-tools/codex)를 참고하세요. 이 페이지는 공식 로그인을 유지하는 별도 방식이므로 로그인 자격 증명을 API Key JSON으로 교체하지 마세요.
+</Note>
+
 official Codex login을 잃지 않고 third-party API 또는 custom model을 사용할 수 있습니다. official plugins, Remote Control 및 unified session history를 유지하려면 CC Switch에서 Codex App Enhancements 두 가지를 켜세요.
 
 ## 시작 전
@@ -66,6 +70,10 @@ restart 후 다음을 확인하세요.
 
 ## 수동 설정
 
+사용자 지정 `CODEX_HOME`이 설정되어 있으면 해당 디렉터리의 `config.toml`과 `auth.json`을 편집하세요. 그렇지 않으면 macOS / Linux에서는 `~/.codex`, Windows에서는 `%USERPROFILE%\.codex`를 사용합니다. CLI와 App은 같은 디렉터리를 사용해야 합니다. WSL은 별도의 사용자 디렉터리를 사용합니다.
+
+편집하기 전에 Codex를 완전히 종료하고 두 파일을 비공개 위치에 백업하세요. 없는 파일은 생성합니다. 기존 설정을 교체하고 키나 테이블을 중복으로 추가하지 마세요. 관련 없는 설정은 유지하세요.
+
 manual setup은 local Codex files 편집에 익숙한 advanced users용입니다. 대부분의 users는 먼저 CC Switch를 사용해야 합니다.
 
 <Steps>
@@ -80,11 +88,9 @@ manual setup은 local Codex files 편집에 익숙한 advanced users용입니다
 
     ```toml
     model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
+    model = "gpt-6-astra"
+    review_model = "gpt-6-astra"
     model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
     windows_wsl_setup_acknowledged = true
 
     [model_providers]

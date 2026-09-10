@@ -13,7 +13,7 @@ Codex VS Code Extension, Codex CLI/App के साथ `~/.codex/config.toml` �
 | --- | --- |
 | API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
 | Base URL | `{{openai-base-url}}` |
-| Model | `YOUR_MODEL_ID` |
+| Model | `gpt-6-astra` |
 
 ## आवश्यकताएं
 
@@ -28,17 +28,19 @@ VS Code Marketplace से extension इंस्टॉल करें, फि�
 
 ## मैन्युअल सेटअप
 
+यदि आपने अपना `CODEX_HOME` सेट किया है, तो उसी डायरेक्टरी में `config.toml` संपादित करें। अन्यथा macOS / Linux पर `~/.codex/config.toml` या Windows पर `%USERPROFILE%\.codex\config.toml` उपयोग करें।
+
+Codex पूरी तरह बंद करें, फिर मौजूदा `config.toml` और `auth.json` का बैकअप लें। डुप्लिकेट provider टेबल जोड़ने के बजाय मौजूदा provider सेटिंग अपडेट करें।
+
 ### Extension कॉन्फ़िगर करें
 
 `~/.codex/config.toml` संपादित करें:
 
 ```toml
-model_provider = "custom"
-model = "YOUR_MODEL_ID"
-review_model = "YOUR_MODEL_ID"
-model_reasoning_effort = "high"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
 wire_api = "responses"
@@ -48,22 +50,9 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 फ़ाइल सहेजें, VS Code में **Developer: Reload Window** चलाएं और Codex पैनल फिर से खोलें।
 
-<Note>
-  `requires_openai_auth = true` आधिकारिक लॉगिन बनाए रखता है। `experimental_bearer_token` BetterToken मॉडल अनुरोधों को प्रमाणित करता है। BetterToken API Key को `auth.json` में न लिखें।
-</Note>
-
-### CLI/App और Extension प्रमाणीकरण को न मिलाएं
-
-| स्थिति | प्रमाणीकरण फ़ील्ड |
-| --- | --- |
-| केवल Codex CLI/App कस्टम provider | `env_key = "BETTERTOKEN_API_KEY"` और `requires_openai_auth = false` |
-| आधिकारिक लॉगिन वाला Extension | `requires_openai_auth = true` और `experimental_bearer_token = "YOUR_API_KEY"` |
-
-दोनों विकल्प `[model_providers.custom]` का उपयोग करते हैं। TOML फ़ाइल में केवल एक table रखें।
-
 ## कनेक्शन सत्यापित करें
 
-नया Extension session बनाएं और छोटा कार्य भेजें। प्लगइन और Remote Control उपलब्ध रहते हुए `YOUR_MODEL_ID` से उत्तर मिलना सेटअप की पुष्टि करता है।
+नया Extension session बनाएं और छोटा कार्य भेजें। प्लगइन और Remote Control उपलब्ध रहते हुए `gpt-6-astra` से उत्तर मिलना सेटअप की पुष्टि करता है।
 
 ## मॉडल बदलें
 
@@ -75,8 +64,8 @@ experimental_bearer_token = "YOUR_API_KEY"
 | --- | --- |
 | Extension फिर से sign in मांगता है | आधिकारिक लॉगिन बहाल करें और `requires_openai_auth = true` रखें। |
 | `401` या `403` | `experimental_bearer_token` फिर से कॉपी करें; `auth.json` को overwrite न करें। |
-| duplicate table | दूसरा `[model_providers.custom]` table हटाएं और एक प्रमाणीकरण mode रखें। |
-| मॉडल नहीं मिला | `YOUR_MODEL_ID` को वर्तमान पूर्ण Model ID से बदलें। |
+| duplicate table | दूसरा `[model_providers.bettertoken]` table हटाएं और एक प्रमाणीकरण mode रखें। |
+| मॉडल नहीं मिला | `gpt-6-astra` को वर्तमान पूर्ण Model ID से बदलें। |
 | configuration लागू नहीं हुआ | फ़ाइल सहेजें और **Developer: Reload Window** चलाएं। |
 
 ## उन्नत सेटअप
@@ -114,6 +103,6 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 ## तकनीकी विवरण
 
-<Accordion title="Extension प्रमाणीकरण CLI/App से अलग क्यों है">
-  कुछ Codex उत्पाद सुविधाओं के लिए Extension आधिकारिक लॉगिन का उपयोग करता है, इसलिए यह सेटअप `requires_openai_auth = true` रखता है। केवल CLI/App कस्टम provider environment variable और `requires_openai_auth = false` इस्तेमाल करता है। दोनों `{{openai-base-url}}` के जरिए OpenAI Responses अनुरोध भेजते हैं।
+<Accordion title="Responses प्रोटोकॉल">
+  Extension, OpenAI Responses के जरिए `{{openai-base-url}}` पर मॉडल अनुरोध भेजता है।
 </Accordion>

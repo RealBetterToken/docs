@@ -32,54 +32,64 @@ description: "model_provider, Base URL, wire_api, API Key 및 Model ID로 Codex 
 | `model` | default main model ID |
 | `review_model` | `/review` 등의 code review flows에 사용하는 model |
 
+## 파일 위치 확인 및 백업
+
+사용자 지정 `CODEX_HOME`이 설정되어 있으면 해당 디렉터리의 `config.toml`과 `auth.json`을 편집하세요. 그렇지 않으면 macOS / Linux에서는 `~/.codex`, Windows에서는 `%USERPROFILE%\.codex`를 사용합니다. CLI와 App은 같은 디렉터리를 사용해야 합니다. WSL은 별도의 사용자 디렉터리를 사용합니다.
+
+편집하기 전에 Codex를 완전히 종료하고 두 파일을 비공개 위치에 백업하세요. 없는 파일은 생성합니다. 기존 설정을 교체하고 키나 테이블을 중복으로 추가하지 마세요. 관련 없는 설정은 유지하세요.
+
+<Warning>
+  이 설정은 ChatGPT 로그인에서 API Key 인증으로 전환하며 공식 계정 접근 상태를 유지하지 않습니다. `auth.json`과 백업을 보호하고 공유하거나 저장소에 커밋하지 마세요.
+</Warning>
+
 ## 권장 pattern
 
-provider id를 일관되게 유지하세요.
+### config.toml 편집
+
+`model_provider`, `model`, `cli_auth_credentials_store`를 프로필 안이 아닌 모든 TOML 테이블 앞의 최상위에 배치하세요. 제공업체 ID와 테이블 이름이 일치해야 합니다. 이 파일 인증 방식에서는 선택한 제공업체의 `env_key`와 `experimental_bearer_token`을 제거하세요.
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
 ```
 
-이는 Codex가 `custom`이라는 provider를 사용하고 model requests를 `{{openai-base-url}}`으로 보내며 Responses API shape로 통신한다는 뜻입니다.
+예제는 GPT-6 Astra(`gpt-6-astra`)를 사용합니다. 다른 모델은 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 전체 ID를 복사해 `model`을 바꾸세요. GPT, Kimi, GLM은 같은 파일 인증 구조를 사용하며 자동 설정은 GPT에서 사용할 수 있습니다.
 
-API Key를 `config.toml`에 직접 넣지 마세요. Codex를 실행하는 terminal에서 설정하세요.
+### auth.json 편집
+
+`auth.json`은 `config.toml`과 같은 디렉터리에 있습니다. `auth.json`이 없으면 해당 디렉터리에 새로 만드세요. 파일 내용을 다음 JSON으로 설정하고, `YOUR_API_KEY`를 자신의 BetterToken API Key로 바꾼 다음 저장하세요.
+
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
+
+## 재시작 및 확인
+
+두 파일을 저장한 뒤 터미널에서 새 Codex CLI 세션을 바로 시작하세요.
 
 ```bash
-export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
+codex
 ```
 
-Windows PowerShell:
-
-```powershell
-$env:MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-```
-
-## 설정 확인
-
-1. `model_provider = "custom"`이 `[model_providers.custom]`과 정확히 일치하는지 확인하세요.
-2. Base URL이 `{{openai-base-url}}`이며 `/v1`을 포함하는지 확인하세요.
-3. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 **GPT provider**에서 current Model ID를 복사하세요.
-4. Codex를 완전히 종료하고 environment variable이 설정된 새 terminal에서 다시 실행하세요.
-5. 작은 code-explanation task를 보내 Codex가 complete response를 반환하는지 확인하세요.
+백그라운드 프로세스를 포함해 Codex App을 완전히 종료한 다음 다시 열고 새 로컬 작업을 만드세요. 사용하는 각 클라이언트에서 짧은 프롬프트를 보내 정상 응답을 확인하세요.
 
 ## 문제 해결
 
-| 증상 | 원인 | 해결 방법 |
-| --- | --- | --- |
-| Provider not found | provider id와 configuration table이 일치하지 않음 | 두 곳 모두 `custom` 사용 |
-| startup 시 API Key 누락 | `env_key`가 지정한 variable을 사용할 수 없음 | `MODEL_PROVIDER_API_KEY`를 설정하고 새 terminal 열기 |
-| `401` 또는 `403` | invalid API Key 또는 mixed OpenAI authentication | Key를 다시 복사하고 `requires_openai_auth = false` 설정 |
-| `404` | Base URL에 `/v1`이 없거나 Anthropic endpoint를 가리킴 | `{{openai-base-url}}` 사용 |
-| Model not found | value가 display name, retired model 또는 non-GPT model임 | 모델 광장에서 current Model ID 복사 |
-| Responses protocol error | `wire_api`가 없거나 incorrect함 | `wire_api = "responses"` 설정 |
+`401`, `403` 또는 로그인 요청이 표시되면 활성 디렉터리, `auth.json`의 Key, `auth_mode = apikey`, `cli_auth_credentials_store = file`, `requires_openai_auth = true`를 확인하세요. 제공업체나 모델 오류가 발생하면 제공업체 ID 일치 여부, `{{openai-base-url}}`, `wire_api = responses`, 모델 사용 가능 여부를 확인하세요. 변경 사항이 적용되지 않으면 설정 재정의 항목을 확인하고 CLI와 App이 같은 `CODEX_HOME`을 사용하는지 확인하세요.
 
 ## 관련 문서
 

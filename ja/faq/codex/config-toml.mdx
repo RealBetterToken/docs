@@ -1,126 +1,69 @@
 ---
 title: "Codex config.toml：カスタムプロバイダー、Base URL、API Key"
 sidebarTitle: "config.toml"
-description: "カスタムプロバイダー用の Codex config.toml を設定します。model_provider、Base URL、API Key の env_key、wire_api responses を設定し、401、404、モデルエラーを解決します。"
+description: "config.toml、auth.json、BetterToken API Key、Responses の Base URL を使って Codex CLI と Codex App を設定します。"
 ---
 
-## 要点
+Codex CLI と Codex App はローカルタスクで `config.toml` と `auth.json` を共有します。この設定では OpenAI Responses 経由で BetterToken API Key を使用します。
 
-Codex CLI でカスタムプロバイダーを使用するには、ユーザーレベルの `~/.codex/config.toml` を編集します。`model_provider = "custom"` を設定し、`[model_providers.custom]` を定義して、Base URL には `{{openai-base-url}}`、`wire_api = "responses"` を使用します。BetterToken API Key は `env_key` から読み込み、モデル ID は **GPT プロバイダー**からコピーします。
+## ファイルの場所を確認してバックアップする
 
-## 正しい設定ファイルを探す
+独自の `CODEX_HOME` を設定している場合は、そのディレクトリの `config.toml` と `auth.json` を編集してください。それ以外は macOS / Linux では `~/.codex`、Windows では `%USERPROFILE%\.codex` を使用します。CLI と App は同じディレクトリを使用する必要があります。WSL のユーザーディレクトリは別です。
 
-| 環境 | ユーザーレベル設定 |
-| --- | --- |
-| macOS / Linux | `~/.codex/config.toml` |
-| Windows | `%USERPROFILE%\.codex\config.toml` |
-| Windows + WSL | WSL 内の `~/.codex/config.toml` |
-
-VS Code の Codex 拡張機能で歯車アイコンをクリックし、**Codex Settings → Open config.toml** を選択します。CLI と IDE 拡張機能は同じ設定レイヤーを共有します。
+編集前に Codex を完全に終了し、両方のファイルを非公開の場所にバックアップしてください。ファイルがなければ作成します。既存の設定を置き換え、キーやテーブルを重複して追加しないでください。無関係な設定は残します。
 
 <Warning>
-  プロバイダーと認証の設定はユーザーレベルの `~/.codex/config.toml` に記述します。プロジェクトの `.codex/config.toml` にはプロジェクト固有の上書き設定を置けますが、Codex はそこでの `model_provider` と `model_providers` を無視します。プロジェクトの指示は `AGENTS.md` に記述してください。
+  この設定は ChatGPT ログインから API Key 認証に切り替えます。公式アカウントへのアクセスは維持されません。`auth.json` とバックアップを保護し、共有したりリポジトリにコミットしたりしないでください。
 </Warning>
 
 ## 最小構成
 
-<Steps>
-  <Step title="API Key の環境変数を設定する">
-    macOS、Linux、または WSL の場合：
+### config.toml を編集する
 
-    ```bash
-    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-    ```
-
-    Windows PowerShell の場合：
-
-    ```powershell
-    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
-    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
-    ```
-
-    `YOUR_API_KEY` をお使いの BetterToken API Key に置き換えます。継続的に使用する場合は、プロジェクトリポジトリではなく、保護されたオペレーティングシステムの環境変数に保存してください。
-  </Step>
-  <Step title="config.toml を編集する">
-    ```toml
-    model_provider = "custom"
-    model = "gpt-5.5"
-
-    [model_providers.custom]
-    name = "{{codex-provider-name}}"
-    base_url = "{{openai-base-url}}"
-    env_key = "MODEL_PROVIDER_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    ```
-
-    `model` は例です。<a href={"{{model-plaza-url}}"}>モデル広場</a>の **GPT プロバイダー**から、現在利用できるモデル ID をコピーしてください。
-  </Step>
-  <Step title="再起動してテストする">
-    Codex を完全に終了し、新しいターミナルを開いて次を実行します。
-
-    ```bash
-    codex
-    ```
-
-    簡単なプロンプトを送信します。正常な応答が返れば、プロバイダー、認証、モデル ID は有効です。
-  </Step>
-</Steps>
-
-## 推奨する完全な設定
-
-レビュー用モデルと、より長いストリームタイムアウトが必要な場合は、この設定を使用します。
+`model_provider`、`model`、`cli_auth_credentials_store` はプロファイル内ではなく、すべての TOML テーブルより前のトップレベルに記述してください。プロバイダー ID とテーブル名を一致させます。このファイル認証では、選択したプロバイダーから `env_key` と `experimental_bearer_token` を削除してください。
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
-review_model = "gpt-5.4"
-model_reasoning_effort = "high"
-model_context_window = 1000000
-model_auto_compact_token_limit = 900000
-windows_wsl_setup_acknowledged = true
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
-name = "{{codex-provider-name}}"
+[model_providers.bettertoken]
+name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
 request_max_retries = 4
 stream_max_retries = 8
 stream_idle_timeout_ms = 300000
 supports_websockets = false
 ```
 
-既存のトップレベル項目と `[model_providers.custom]` の内容を統合します。同じ TOML テーブルを 2 回宣言しないでください。
+例では GPT-6 Astra（`gpt-6-astra`）を使用します。別のモデルでは、<a href={"{{model-plaza-url}}"}>モデル広場</a>から完全な ID をコピーして `model` を置き換えてください。GPT、Kimi、GLM のファイル認証構造は共通です。自動設定は GPT で利用できます。
 
-## 各項目の関係
+### auth.json を編集する
 
-| 項目 | 目的 | BetterToken の値 |
-| --- | --- | --- |
-| `model_provider` | プロバイダー ID を選択 | `"custom"` |
-| `[model_providers.custom]` | そのプロバイダーを定義 | `model_provider` と一致させる |
-| `base_url` | モデルリクエストのエンドポイント | `{{openai-base-url}}` |
-| `env_key` | API Key を含む環境変数の名前 | `MODEL_PROVIDER_API_KEY` |
-| `wire_api` | プロバイダーのプロトコル | `"responses"` |
-| `requires_openai_auth` | 公式 OpenAI 認証を使用するか | 通常のサードパーティ API 設定では `false` |
-| `model` | デフォルトのモデル ID | 現在利用可能な GPT プロバイダーの ID |
+`auth.json` は `config.toml` と同じディレクトリにあります。`auth.json` がない場合は、そのディレクトリに新規作成してください。ファイルの内容を次の JSON にし、`YOUR_API_KEY` を自分の BetterToken API Key に置き換えて保存してください。
 
-<Note>
-  公式 Codex App のログイン、プラグイン、Remote Control を維持しながらサードパーティ API を使用する場合は、この通常の認証例ではなく、専用の[公式ログインと統合セッションの設定](/ja/faq/codex/official-login-third-party-api)を使用してください。
-</Note>
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
-## よくあるエラー
+## 再起動して確認する
 
-| 症状 | 原因 | 解決方法 |
-| --- | --- | --- |
-| プロバイダーが見つからない | `model_provider` がテーブル名と一致しない | 両方に `custom` を使用する |
-| 起動時に API Key が見つからない | 環境変数がない、またはターミナルで再読み込みされていない | `MODEL_PROVIDER_API_KEY` を設定し、新しいターミナルを開く |
-| `401` または `403` | Key が誤っている、または認証方式が混在している | Key をもう一度コピーし、`env_key` の名前を一致させ、`requires_openai_auth = false` を維持する |
-| `404` | Base URL に `/v1` がない、またはプロトコルが誤っている | `{{openai-base-url}}` を使用する |
-| モデルが見つからない | モデル ID が利用不可、または GPT プロバイダーのものではない | モデル広場から現在の ID をコピーする |
-| 変更が反映されない | 設定レイヤー、パス、または WSL 環境が誤っている | Codex を実行する環境のユーザー設定を編集し、Codex を再起動する |
-| TOML 解析エラー | テーブル、引用符、またはネストが重複・誤っている | 重複した `[model_providers.custom]` テーブルを削除し、文字列の引用符を確認する |
+両方のファイルを保存し、ターミナルで新しい Codex CLI セッションを直接起動します。
+
+```bash
+codex
+```
+
+バックグラウンドプロセスを含めて Codex App を完全に終了し、再度開いて新しいローカルタスクを作成してください。使用する各クライアントで短いプロンプトを送信します。正常な応答でそのクライアントの接続を確認してください。
+
+## トラブルシューティング
+
+`401`、`403`、ログイン要求が出た場合は、使用中のディレクトリ、`auth.json` の Key、`auth_mode = apikey`、`cli_auth_credentials_store = file`、`requires_openai_auth = true` を確認してください。プロバイダーやモデルのエラーでは、プロバイダー ID の一致、`{{openai-base-url}}`、`wire_api = responses`、モデルの利用可否を確認します。変更が反映されない場合は設定の上書きを調べ、CLI と App が同じ `CODEX_HOME` を使用していることを確認してください。
 
 ## 関連ドキュメント
 

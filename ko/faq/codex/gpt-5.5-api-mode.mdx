@@ -1,126 +1,71 @@
 ---
-title: "Codex가 API mode에서 GPT-5.5를 사용할 수 없는 이유"
-sidebarTitle: "Codex API mode에서 GPT-5.5 사용"
-description: "local model catalog로 Codex custom API mode에서 GPT-5.5를 임시로 enable하세요."
+title: "Codex API 모드에서 GPT-6 Astra를 설정하려면?"
+sidebarTitle: "GPT-6 Astra API 모드"
+description: "BetterToken API Key와 파일 인증으로 Codex CLI 및 Codex App에서 GPT-6 Astra를 사용합니다."
 ---
 
-2026년 4월 24일 기준 일부 Codex versions에서는 custom API provider를 사용할 때 `gpt-5.5`를 직접 선택하지 못할 수 있습니다. 이는 Codex의 local model catalog limitation입니다. BetterToken `{{openai-base-url}}` endpoint를 사용할 수 없다는 뜻은 아닙니다.
+Codex CLI와 Codex App은 로컬 작업에 `config.toml`과 `auth.json`을 함께 사용합니다. 이 설정은 OpenAI Responses를 통해 BetterToken API Key를 사용합니다.
 
-local `custom-models.json` file을 추가하여 Codex가 `gpt-5.5`를 인식하게 한 다음 `~/.codex/config.toml`에서 이를 reference할 수 있습니다. 이후 Codex version이 `gpt-5.5`를 native로 지원한다면 built-in Codex setup을 우선하세요.
+`gpt-6-astra`를 사용하기 전에 Codex를 업데이트하세요.
 
-<Note>
-  이 페이지에서 제공하는 전체 `custom-models.json`을 사용하세요. file을 수동 편집한다면 existing model entries와 fields를 유지하고 필요한 model configuration만 변경하세요.
-</Note>
+## 파일 위치 확인 및 백업
 
-## 설정 단계
+사용자 지정 `CODEX_HOME`이 설정되어 있으면 해당 디렉터리의 `config.toml`과 `auth.json`을 편집하세요. 그렇지 않으면 macOS / Linux에서는 `~/.codex`, Windows에서는 `%USERPROFILE%\.codex`를 사용합니다. CLI와 App은 같은 디렉터리를 사용해야 합니다. WSL은 별도의 사용자 디렉터리를 사용합니다.
 
-<Steps>
-  <Step title="custom model config file 준비">
-    custom model config path는 `~/.codex/custom-models.json`입니다.
+편집하기 전에 Codex를 완전히 종료하고 두 파일을 비공개 위치에 백업하세요. 없는 파일은 생성합니다. 기존 설정을 교체하고 키나 테이블을 중복으로 추가하지 마세요. 관련 없는 설정은 유지하세요.
 
-    <Tabs>
-      <Tab title="JSON file 다운로드">
-        전체 model catalog를 다운로드하세요.
+<Warning>
+  이 설정은 ChatGPT 로그인에서 API Key 인증으로 전환하며 공식 계정 접근 상태를 유지하지 않습니다. `auth.json`과 백업을 보호하고 공유하거나 저장소에 커밋하지 마세요.
+</Warning>
 
-        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">custom-models.json 다운로드</a>
+## config.toml 편집
 
-        downloaded file을 Codex config directory에 두고 `custom-models.json`으로 이름을 지정하세요.
+`model_provider`, `model`, `cli_auth_credentials_store`를 프로필 안이 아닌 모든 TOML 테이블 앞의 최상위에 배치하세요. 제공업체 ID와 테이블 이름이 일치해야 합니다. 이 파일 인증 방식에서는 선택한 제공업체의 `env_key`와 `experimental_bearer_token`을 제거하세요.
 
-        | System | Target path |
-        |--------|-------------|
-        | macOS / Linux | `~/.codex/custom-models.json` |
-        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+```toml
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-        downloaded file은 전체 model catalog입니다. 다음 단계에서 Codex config로 이를 reference합니다.
-      </Tab>
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
 
-      <Tab title="JSON 수동 편집">
-        이미 `~/.codex/custom-models.json`이 있다면 existing file을 편집하세요. `gpt-5.5` entry 하나만 유지하지 마세요.
+예제는 GPT-6 Astra(`gpt-6-astra`)를 사용합니다. 다른 모델은 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 전체 ID를 복사해 `model`을 바꾸세요. GPT, Kimi, GLM은 같은 파일 인증 구조를 사용하며 자동 설정은 GPT에서 사용할 수 있습니다.
 
-        수동 편집 시 `models` array에 `gpt-5.5` entry가 포함되는지 확인하고 다른 model configs를 유지하세요. JSON에 익숙하지 않다면 download option을 사용하세요.
+## auth.json 편집
 
-        `gpt-5.5` entry에는 다음과 유사한 key fields가 포함되어야 합니다.
+`auth.json`은 `config.toml`과 같은 디렉터리에 있습니다. `auth.json`이 없으면 해당 디렉터리에 새로 만드세요. 파일 내용을 다음 JSON으로 설정하고, `YOUR_API_KEY`를 자신의 BetterToken API Key로 바꾼 다음 저장하세요.
 
-        ```json
-        {
-          "slug": "gpt-5.5",
-          "display_name": "gpt-5.5",
-          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
-          "base_instructions": "...",
-          "model_messages": {
-            "instructions_template": "...",
-            "instructions_variables": {
-              "personality_default": "",
-              "personality_friendly": "...",
-              "personality_pragmatic": "..."
-            }
-          },
-          "supports_reasoning_summaries": true,
-          "support_verbosity": true,
-          "context_window": 272000
-        }
-        ```
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
-        <Note>
-          위 code block은 단일 model entry의 key structure만 보여 줍니다. downloaded file 또는 existing complete model catalog를 source of truth로 사용하세요.
-        </Note>
-      </Tab>
-    </Tabs>
-  </Step>
+## 재시작 및 확인
 
-  <Step title="Codex config에서 JSON file reference">
-    Codex config file `~/.codex/config.toml`을 연 다음 다음 config를 add 또는 merge하세요.
+두 파일을 저장한 뒤 터미널에서 새 Codex CLI 세션을 바로 시작하세요.
 
-    macOS / Linux 예시:
+```bash
+codex
+```
 
-    ```toml
-    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-    model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
-    model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
-    windows_wsl_setup_acknowledged = true
-
-    [model_providers]
-    [model_providers.{{codex-provider-id}}]
-    name = "{{codex-provider-name}}"
-    base_url = "{{openai-base-url}}"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 8
-    stream_idle_timeout_ms = 300000
-    supports_websockets = false
-    ```
-
-    Windows 예시:
-
-    ```toml
-    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
-    ```
-
-    `model_catalog_json`은 local absolute path여야 합니다. Windows의 TOML double-quoted strings에서는 `\`를 `\\`로 작성하세요.
-  </Step>
-
-  <Step title="Codex 다시 시작">
-    config file을 변경한 후 current Codex process를 중지하고 새 terminal session에서 시작하세요.
-
-    ```bash
-    codex
-    ```
-  </Step>
-</Steps>
+백그라운드 프로세스를 포함해 Codex App을 완전히 종료한 다음 다시 열고 새 로컬 작업을 만드세요. 사용하는 각 클라이언트에서 짧은 프롬프트를 보내 정상 응답을 확인하세요.
 
 ## 문제 해결
 
-`gpt-5.5`가 여전히 작동하지 않는다면 다음 items를 순서대로 확인하세요.
+`401`, `403` 또는 로그인 요청이 표시되면 활성 디렉터리, `auth.json`의 Key, `auth_mode = apikey`, `cli_auth_credentials_store = file`, `requires_openai_auth = true`를 확인하세요. 제공업체나 모델 오류가 발생하면 제공업체 ID 일치 여부, `{{openai-base-url}}`, `wire_api = responses`, 모델 사용 가능 여부를 확인하세요. 변경 사항이 적용되지 않으면 설정 재정의 항목을 확인하고 CLI와 App이 같은 `CODEX_HOME`을 사용하는지 확인하세요.
 
-1. `model_catalog_json`이 local absolute path를 사용함
-2. `custom-models.json`이 complete model catalog를 유지함
-3. `base_url`이 `{{openai-base-url}}`임
-4. `wire_api`가 `responses`임
-5. `model_provider`가 `[model_providers.{{codex-provider-id}}]`의 provider id와 일치함
+## 관련 가이드
 
-Codex version이 이미 `gpt-5.5`를 native로 지원한다면 `model_catalog_json`을 제거하고 일반 [Codex 설정 가이드](/ko/ai-tools/codex)로 돌아가세요.
+- [Codex CLI/App 설정 가이드](/ko/ai-tools/codex)
+- [공식 인증 참고 문서](https://developers.openai.com/codex/auth)

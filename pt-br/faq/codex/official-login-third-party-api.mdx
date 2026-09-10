@@ -4,6 +4,10 @@ sidebarTitle: "Manter login e histórico"
 description: "Use o CC Switch com uma API de terceiros ou um modelo personalizado sem perder o login oficial do Codex, plugins, Remote Control e o histórico unificado."
 ---
 
+<Note>
+  Para autenticar CLI/App com uma API Key em arquivos, siga o [guia do Codex](/pt-br/ai-tools/codex). Esta página descreve uma alternativa para manter o login oficial; não substitua suas credenciais pelo JSON de API Key.
+</Note>
+
 Você pode usar uma API de terceiros ou um modelo personalizado sem perder o login oficial do Codex. Ative duas opções de Codex App Enhancements no CC Switch para manter plugins oficiais, Remote Control e um histórico unificado de sessões.
 
 ## Antes de começar
@@ -66,6 +70,10 @@ Após reiniciar, confirme:
 
 ## Configuração manual
 
+Se você definiu um `CODEX_HOME` personalizado, edite `config.toml` e `auth.json` nesse diretório. Caso contrário, use `~/.codex` no macOS / Linux ou `%USERPROFILE%\.codex` no Windows. CLI e App devem usar o mesmo diretório. O WSL tem seu próprio diretório de usuário.
+
+Feche o Codex completamente antes de editar. Faça backup dos dois arquivos em um local privado. Crie os arquivos que faltarem. Substitua as configurações existentes sem duplicar chaves ou tabelas; preserve as demais configurações.
+
 A configuração manual é destinada a usuários avançados que sabem editar arquivos locais do Codex. A maioria deve começar pelo CC Switch.
 
 <Steps>
@@ -80,11 +88,9 @@ A configuração manual é destinada a usuários avançados que sabem editar arq
 
     ```toml
     model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
+    model = "gpt-6-astra"
+    review_model = "gpt-6-astra"
     model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
     windows_wsl_setup_acknowledged = true
 
     [model_providers]

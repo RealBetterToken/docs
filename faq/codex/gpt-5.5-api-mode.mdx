@@ -1,126 +1,71 @@
 ---
-title: "Почему Codex не может использовать GPT-5.5 в API mode?"
-sidebarTitle: "GPT-5.5 в Codex API mode"
-description: "Временно включите GPT-5.5 в Codex custom API mode через локальный каталог моделей."
+title: "Как настроить GPT-6 Astra в API-режиме Codex?"
+sidebarTitle: "GPT-6 Astra в API-режиме"
+description: "Используйте GPT-6 Astra в Codex CLI и Codex App с BetterToken API Key и файловой авторизацией."
 ---
 
-По состоянию на 24 апреля 2026 года некоторые версии Codex могут не позволять выбрать `gpt-5.5` напрямую при использовании custom API provider. Это ограничение локального model catalog в Codex. Оно не означает, что endpoint BetterToken `{{openai-base-url}}` недоступен.
+Codex CLI и Codex App используют общие `config.toml` и `auth.json` для локальных задач. BetterToken API Key передаётся через OpenAI Responses.
 
-Можно добавить локальный файл `custom-models.json`, чтобы Codex распознавал `gpt-5.5`, а затем сослаться на него из `~/.codex/config.toml`. Если более новая версия Codex поддерживает `gpt-5.5` нативно, предпочитайте встроенную настройку Codex.
+Обновите Codex перед использованием `gpt-6-astra`.
 
-<Note>
-  Используйте полный `custom-models.json`, предоставленный на этой странице. Если вы редактируете файл вручную, сохраните существующие model entries и fields, меняя только нужную model configuration.
-</Note>
+## Найдите файлы и создайте резервные копии
 
-## Шаги настройки
+Если задан свой `CODEX_HOME`, редактируйте `config.toml` и `auth.json` в этом каталоге. Иначе используйте `~/.codex` в macOS / Linux или `%USERPROFILE%\.codex` в Windows. CLI и App должны использовать один каталог. В WSL каталог пользователя отдельный.
 
-<Steps>
-  <Step title="Подготовьте custom model config file">
-    Путь custom model config: `~/.codex/custom-models.json`.
+Перед изменениями полностью закройте Codex. Сохраните резервные копии обоих файлов в защищённом месте. Создайте отсутствующие файлы. Заменяйте существующие настройки, не добавляйте повторные ключи или таблицы; сохраните остальные параметры.
 
-    <Tabs>
-      <Tab title="Скачать JSON file">
-        Скачайте полный model catalog:
+<Warning>
+  Эта настройка переключает вход через ChatGPT на авторизацию по API Key и не сохраняет доступ к официальному аккаунту. Защитите `auth.json` и резервные копии: не публикуйте их и не добавляйте в репозиторий.
+</Warning>
 
-        <a href="/images/downloads/custom-models-gpt-5.5.png" download="custom-models.json">Download custom-models.json</a>
+## Измените config.toml
 
-        Поместите скачанный файл в директорию конфигурации Codex и назовите его `custom-models.json`.
+Разместите `model_provider`, `model` и `cli_auth_credentials_store` на верхнем уровне, перед всеми таблицами TOML, а не внутри профиля. ID выбранного провайдера должен совпадать с именем таблицы. Для файловой авторизации удалите `env_key` и `experimental_bearer_token` из настроек выбранного провайдера.
 
-        | Система | Целевой путь |
-        |--------|--------------|
-        | macOS / Linux | `~/.codex/custom-models.json` |
-        | Windows | `C:\Users\YOUR_USER\.codex\custom-models.json` |
+```toml
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-        Скачанный файл — полный model catalog. На следующем шаге он подключается из Codex config.
-      </Tab>
+[model_providers.bettertoken]
+name = "BetterToken"
+base_url = "{{openai-base-url}}"
+wire_api = "responses"
+requires_openai_auth = true
+request_max_retries = 4
+stream_max_retries = 8
+stream_idle_timeout_ms = 300000
+supports_websockets = false
+```
 
-      <Tab title="Редактировать JSON вручную">
-        Если у вас уже есть `~/.codex/custom-models.json`, редактируйте существующий файл. Не оставляйте только одну запись `gpt-5.5`.
+В примере используется GPT-6 Astra (`gpt-6-astra`). Для другой модели скопируйте полный ID из <a href={"{{model-plaza-url}}"}>model plaza</a> и замените `model`. GPT, Kimi и GLM используют одинаковую файловую авторизацию; автоматическая настройка доступна для GPT.
 
-        При ручном редактировании убедитесь, что массив `models` содержит запись `gpt-5.5`, и сохраните остальные model configs. Если вы не уверены в JSON, используйте вариант скачивания.
+## Измените auth.json
 
-        Запись `gpt-5.5` должна содержать ключевые поля примерно такой структуры:
+Файл `auth.json` находится в том же каталоге, что и `config.toml`. Если файла `auth.json` нет, создайте его в этом каталоге. Запишите в него следующий JSON, замените `YOUR_API_KEY` на свой BetterToken API Key и сохраните файл.
 
-        ```json
-        {
-          "slug": "gpt-5.5",
-          "display_name": "gpt-5.5",
-          "description": "Custom local catalog entry for GPT-5.5 based on gpt-5.4 metadata.",
-          "base_instructions": "...",
-          "model_messages": {
-            "instructions_template": "...",
-            "instructions_variables": {
-              "personality_default": "",
-              "personality_friendly": "...",
-              "personality_pragmatic": "..."
-            }
-          },
-          "supports_reasoning_summaries": true,
-          "support_verbosity": true,
-          "context_window": 272000
-        }
-        ```
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
-        <Note>
-          Code block выше показывает только ключевую структуру одной model entry. Используйте скачанный файл или существующий полный model catalog как source of truth.
-        </Note>
-      </Tab>
-    </Tabs>
-  </Step>
+## Перезапустите и проверьте
 
-  <Step title="Сошлитесь на JSON file в Codex config">
-    Откройте Codex config file `~/.codex/config.toml`, затем добавьте или объедините следующую конфигурацию.
+Сохраните оба файла. Запустите новый сеанс Codex CLI прямо из терминала:
 
-    Пример для macOS / Linux:
+```bash
+codex
+```
 
-    ```toml
-    model_catalog_json = "/Users/YOUR_USER/.codex/custom-models.json"
-    model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
-    model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
-    windows_wsl_setup_acknowledged = true
+Полностью закройте Codex App, включая фоновые процессы, затем откройте его и создайте новую локальную задачу. Отправьте короткий запрос в каждом используемом клиенте. Нормальный ответ подтверждает подключение этого клиента.
 
-    [model_providers]
-    [model_providers.{{codex-provider-id}}]
-    name = "{{codex-provider-name}}"
-    base_url = "{{openai-base-url}}"
-    wire_api = "responses"
-    requires_openai_auth = false
-    request_max_retries = 4
-    stream_max_retries = 8
-    stream_idle_timeout_ms = 300000
-    supports_websockets = false
-    ```
+## Устранение ошибок
 
-    Пример для Windows:
+При `401`, `403` или запросе входа проверьте активный каталог, Key в `auth.json`, `auth_mode = apikey`, `cli_auth_credentials_store = file` и `requires_openai_auth = true`. При ошибке провайдера или модели проверьте совпадение ID провайдера, `{{openai-base-url}}`, `wire_api = responses` и доступность модели. Если изменения не применились, проверьте переопределения конфигурации и убедитесь, что CLI и App используют один `CODEX_HOME`.
 
-    ```toml
-    model_catalog_json = "C:\\Users\\YOUR_USER\\.codex\\custom-models.json"
-    ```
+## Связанные инструкции
 
-    `model_catalog_json` должен быть локальным абсолютным путем. В TOML double-quoted strings на Windows пишите `\` как `\\`.
-  </Step>
-
-  <Step title="Перезапустите Codex">
-    После изменения config file остановите текущий процесс Codex и запустите его в новой terminal session:
-
-    ```bash
-    codex
-    ```
-  </Step>
-</Steps>
-
-## Диагностика
-
-Если `gpt-5.5` все еще не работает, проверьте по порядку:
-
-1. `model_catalog_json` использует локальный абсолютный путь
-2. `custom-models.json` сохраняет полный model catalog
-3. `base_url` равен `{{openai-base-url}}`
-4. `wire_api` равен `responses`
-5. `model_provider` совпадает с provider id в `[model_providers.{{codex-provider-id}}]`
-
-Если ваша версия Codex уже поддерживает `gpt-5.5` нативно, удалите `model_catalog_json` и вернитесь к обычной [инструкции Codex](/ai-tools/codex).
+- [Настройка Codex CLI/App](/ai-tools/codex)
+- [Официальная справка по авторизации](https://developers.openai.com/codex/auth)

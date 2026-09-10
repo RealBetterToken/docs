@@ -1,19 +1,19 @@
 ---
 title: "Codex CLI/App 自定义 provider：config.toml、API Key 与 Base URL"
 sidebarTitle: "Codex"
-description: "配置 Codex CLI/App 的 custom provider、config.toml、BETTERTOKEN_API_KEY、Responses Base URL 与 Model ID。"
+description: "使用 config.toml、auth.json、BetterToken API Key 和 Responses Base URL 配置 Codex CLI 与 Codex App。"
 icon: "code"
 ---
 
-Codex CLI 和 Codex App 通过 OpenAI Responses 接入 BetterToken。配置文件是 `~/.codex/config.toml`，API Key 通过 `BETTERTOKEN_API_KEY` 环境变量提供。
+Codex CLI 和 Codex App 的本地任务共用 `config.toml` 与 `auth.json`，通过 OpenAI Responses 使用 BetterToken API Key。
 
 ## 重点信息
 
 | 字段 | 填写内容 |
 | --- | --- |
-| API Key | 环境变量 `BETTERTOKEN_API_KEY` |
+| API Key | `auth.json` → `OPENAI_API_KEY` |
 | Base URL | `{{openai-base-url}}` |
-| Model | `YOUR_MODEL_ID` |
+| Model | `gpt-6-astra` |
 
 ## 准备工作
 
@@ -26,6 +26,16 @@ Codex CLI 和 Codex App 通过 OpenAI Responses 接入 BetterToken。配置文�
 ```bash
 npm install -g @openai/codex
 ```
+
+## 确认路径并备份
+
+如果设置了自定义 `CODEX_HOME`，请编辑该目录中的 `config.toml` 和 `auth.json`。否则，macOS / Linux 使用 `~/.codex`，Windows 使用 `%USERPROFILE%\.codex`。CLI 与 App 必须使用同一目录。WSL 有独立的用户目录。
+
+修改前完全退出 Codex，将两个文件备份到私密位置。文件不存在时可创建。替换已有设置，不要重复追加键或表；保留无关配置。
+
+<Warning>
+  此配置会从 ChatGPT 登录切换为 API Key 认证，不保留官方账号访问状态。妥善保护 `auth.json` 及其备份，不要提交到代码仓库或分享。
+</Warning>
 
 ## 命令行配置
 
@@ -44,67 +54,52 @@ BetterToken Automatic setup 脚本会写入 Codex provider 配置。脚本需要
   </Tab>
 </Tabs>
 
-运行后打开 `~/.codex/config.toml`（Windows 为 `%USERPROFILE%\.codex\config.toml`），确认 `model`、`review_model` 和 BetterToken provider 已正确写入，然后完全重启 Codex。
+安装后，按照下方手动配置检查两个文件，修正不一致的设置后再启动 Codex。
 
 ## 手动配置
 
-GPT、Kimi 和 GLM 使用同一份 `config.toml` 结构，只需要把 `YOUR_MODEL_ID` 换成对应提供商的实际 Model ID。命令行一键配置目前仅用于 GPT。
+### 编辑 config.toml
 
-### 设置 API Key
-
-<Tabs>
-  <Tab title="macOS / Linux">
-    ```bash
-    export BETTERTOKEN_API_KEY="YOUR_API_KEY"
-    ```
-
-    需要长期生效时，把这一行加入 `~/.zshrc` 或 `~/.bashrc`。
-  </Tab>
-  <Tab title="Windows PowerShell">
-    ```powershell
-    [Environment]::SetEnvironmentVariable("BETTERTOKEN_API_KEY", "YOUR_API_KEY", "User")
-    $env:BETTERTOKEN_API_KEY = "YOUR_API_KEY"
-    ```
-  </Tab>
-</Tabs>
-
-<Warning>
-  不要把 BetterToken API Key 写入 `~/.codex/auth.json`。该文件用于 Codex 官方登录；自定义 provider 应通过 `env_key` 读取环境变量。
-</Warning>
-
-### 配置 config.toml
-
-编辑 `~/.codex/config.toml`：
+将 `model_provider`、`model` 和 `cli_auth_credentials_store` 放在所有 TOML 表之前的顶层，不要放在 profile 中。选中的提供商 ID 必须与表名一致。使用本页文件认证时，移除该提供商下的 `env_key` 和 `experimental_bearer_token`。
 
 ```toml
-model_provider = "custom"
-model = "YOUR_MODEL_ID"
-review_model = "YOUR_MODEL_ID"
-model_reasoning_effort = "high"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "BETTERTOKEN_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
 request_max_retries = 4
 stream_max_retries = 8
 stream_idle_timeout_ms = 300000
 supports_websockets = false
 ```
 
-`model_provider = "custom"` 必须与 `[model_providers.custom]` 的 table 名一致。将两个 `YOUR_MODEL_ID` 替换为当前可用的完整 Model ID。
+示例使用 GPT-6 Astra（`gpt-6-astra`）。切换模型时，从<a href={"{{model-plaza-url}}"}>模型广场</a>复制完整 ID 并替换 `model`。GPT、Kimi 和 GLM 使用相同的文件认证结构；自动配置适用于 GPT。
+
+### 编辑 auth.json
+
+`auth.json` 与 `config.toml` 位于同一目录。如果找不到 `auth.json`，请在该目录中新建这个文件。将文件内容设为以下 JSON，把 `YOUR_API_KEY` 替换为你的 BetterToken API Key，然后保存。
+
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
 ## 验证连接
 
-打开新终端并运行：
+保存两个文件后，在终端直接启动新的 Codex CLI 会话：
 
 ```bash
 codex
 ```
 
-发送一条简短任务。能正常流式返回内容，且没有登录、`401` 或模型不存在错误，即表示配置成功。
+完全退出 Codex App，包括后台进程，然后重新打开并新建本地任务。在实际使用的每个客户端发送简短提示词，确认能够正常返回。
 
 ## 切换模型
 
@@ -112,13 +107,7 @@ codex
 
 ## 常见错误
 
-| 错误 | 处理方式 |
-| --- | --- |
-| `401` 或要求 OpenAI 登录 | 检查 `BETTERTOKEN_API_KEY`，并确认 `requires_openai_auth = false`。 |
-| 找不到 provider | 确认 `model_provider = "custom"` 与 `[model_providers.custom]` 完全一致。 |
-| API mode 错误 | 保留 `wire_api = "responses"`，不要改成 Chat Completions。 |
-| 找不到模型 | 用 Setup 弹窗或模型广场中的完整 ID 替换 `YOUR_MODEL_ID`。 |
-| 配置未生效 | 打开新终端，确认环境变量存在，并完全重启 Codex。 |
+出现 `401`、`403` 或登录提示时，检查实际使用的目录、`auth.json` 中的 Key、`auth_mode = apikey`、`cli_auth_credentials_store = file` 和 `requires_openai_auth = true`。提供商或模型报错时，检查提供商 ID 是否一致、`{{openai-base-url}}`、`wire_api = responses` 及模型是否可用。配置未生效时，检查覆盖设置，并确认 CLI 与 App 使用相同的 `CODEX_HOME`。
 
 ## 进阶配置
 
@@ -145,10 +134,6 @@ codex
 
 Codex VS Code Extension 与 CLI/App 共享 `config.toml`，但保留官方登录时使用不同鉴权配置。请查看 [Codex Extension 配置指南](/zh/ai-tools/codex-vscode)。
 
-<Warning>
-  CLI/App 配置与 Extension 保留官方登录配置是两个方案。不要把两个同名 `[model_providers.custom]` table 同时粘贴到一个 TOML 文件。
-</Warning>
-
 ### 相关 FAQ
 
 - [Codex CLI 是什么？](/zh/faq/codex/what-is-codex-cli)
@@ -166,6 +151,7 @@ Codex VS Code Extension 与 CLI/App 共享 `config.toml`，但保留官方登录
 ### 官方参考
 
 - [Codex 配置参考](https://developers.openai.com/codex/config-reference)
+- [官方认证参考](https://developers.openai.com/codex/auth)
 
 ## 技术说明
 

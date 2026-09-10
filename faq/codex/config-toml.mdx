@@ -1,126 +1,69 @@
 ---
 title: "Codex config.toml: custom provider, Base URL и API Key"
 sidebarTitle: "config.toml"
-description: "Настройте custom provider в Codex config.toml: model_provider, Base URL, API Key через env_key, wire_api responses и решения ошибок 401, 404 и model not found."
+description: "Настройте Codex CLI и Codex App через config.toml, auth.json, BetterToken API Key и Base URL Responses."
 ---
 
-## Короткий ответ
+Codex CLI и Codex App используют общие `config.toml` и `auth.json` для локальных задач. BetterToken API Key передаётся через OpenAI Responses.
 
-Чтобы использовать custom provider в Codex CLI, измените пользовательский файл `~/.codex/config.toml`. Задайте `model_provider = "custom"`, добавьте `[model_providers.custom]`, укажите Base URL `{{openai-base-url}}` и `wire_api = "responses"`. API Key BetterToken передавайте через `env_key`, а Model ID копируйте у провайдера **GPT**.
+## Найдите файлы и создайте резервные копии
 
-## Найдите правильный файл конфигурации
+Если задан свой `CODEX_HOME`, редактируйте `config.toml` и `auth.json` в этом каталоге. Иначе используйте `~/.codex` в macOS / Linux или `%USERPROFILE%\.codex` в Windows. CLI и App должны использовать один каталог. В WSL каталог пользователя отдельный.
 
-| Среда | Пользовательская конфигурация |
-| --- | --- |
-| macOS / Linux | `~/.codex/config.toml` |
-| Windows | `%USERPROFILE%\.codex\config.toml` |
-| Windows + WSL | `~/.codex/config.toml` внутри WSL |
-
-В расширении Codex для VS Code нажмите шестерёнку и выберите **Codex Settings → Open config.toml**. CLI и IDE extension используют одни и те же уровни конфигурации.
+Перед изменениями полностью закройте Codex. Сохраните резервные копии обоих файлов в защищённом месте. Создайте отсутствующие файлы. Заменяйте существующие настройки, не добавляйте повторные ключи или таблицы; сохраните остальные параметры.
 
 <Warning>
-  Provider и authentication settings должны находиться в пользовательском `~/.codex/config.toml`. Файл проекта `.codex/config.toml` подходит для project overrides, но Codex игнорирует в нём `model_provider` и `model_providers`. Инструкции проекта храните в `AGENTS.md`.
+  Эта настройка переключает вход через ChatGPT на авторизацию по API Key и не сохраняет доступ к официальному аккаунту. Защитите `auth.json` и резервные копии: не публикуйте их и не добавляйте в репозиторий.
 </Warning>
 
 ## Минимальная рабочая конфигурация
 
-<Steps>
-  <Step title="Задайте переменную окружения с API Key">
-    macOS, Linux или WSL:
+### Измените config.toml
 
-    ```bash
-    export MODEL_PROVIDER_API_KEY="YOUR_API_KEY"
-    ```
-
-    Windows PowerShell:
-
-    ```powershell
-    [Environment]::SetEnvironmentVariable("MODEL_PROVIDER_API_KEY", "YOUR_API_KEY", "User")
-    $env:MODEL_PROVIDER_API_KEY = "YOUR_API_KEY"
-    ```
-
-    Замените `YOUR_API_KEY` на API Key BetterToken. Для постоянного использования храните переменную в защищённой конфигурации системы, а не в репозитории проекта.
-  </Step>
-  <Step title="Измените config.toml">
-    ```toml
-    model_provider = "custom"
-    model = "gpt-5.5"
-
-    [model_providers.custom]
-    name = "{{codex-provider-name}}"
-    base_url = "{{openai-base-url}}"
-    env_key = "MODEL_PROVIDER_API_KEY"
-    wire_api = "responses"
-    requires_openai_auth = false
-    ```
-
-    `model` приведён как пример. Скопируйте актуальный Model ID у провайдера **GPT** в <a href={"{{model-plaza-url}}"}>model plaza</a>.
-  </Step>
-  <Step title="Перезапустите и проверьте">
-    Полностью завершите Codex, откройте новый терминал и выполните:
-
-    ```bash
-    codex
-    ```
-
-    Отправьте простой запрос. Нормальный ответ подтверждает, что provider, authentication и Model ID применены.
-  </Step>
-</Steps>
-
-## Рекомендуемая полная конфигурация
-
-Используйте этот вариант, если нужен review model и увеличенный тайм-аут stream:
+Разместите `model_provider`, `model` и `cli_auth_credentials_store` на верхнем уровне, перед всеми таблицами TOML, а не внутри профиля. ID выбранного провайдера должен совпадать с именем таблицы. Для файловой авторизации удалите `env_key` и `experimental_bearer_token` из настроек выбранного провайдера.
 
 ```toml
-model_provider = "custom"
-model = "gpt-5.5"
-review_model = "gpt-5.4"
-model_reasoning_effort = "high"
-model_context_window = 1000000
-model_auto_compact_token_limit = 900000
-windows_wsl_setup_acknowledged = true
+model_provider = "bettertoken"
+model = "gpt-6-astra"
+cli_auth_credentials_store = "file"
 
-[model_providers.custom]
-name = "{{codex-provider-name}}"
+[model_providers.bettertoken]
+name = "BetterToken"
 base_url = "{{openai-base-url}}"
-env_key = "MODEL_PROVIDER_API_KEY"
 wire_api = "responses"
-requires_openai_auth = false
+requires_openai_auth = true
 request_max_retries = 4
 stream_max_retries = 8
 stream_idle_timeout_ms = 300000
 supports_websockets = false
 ```
 
-Объединяйте существующие поля верхнего уровня и содержимое `[model_providers.custom]`. Не объявляйте одну TOML-таблицу дважды.
+В примере используется GPT-6 Astra (`gpt-6-astra`). Для другой модели скопируйте полный ID из <a href={"{{model-plaza-url}}"}>model plaza</a> и замените `model`. GPT, Kimi и GLM используют одинаковую файловую авторизацию; автоматическая настройка доступна для GPT.
 
-## Как связаны основные поля
+### Измените auth.json
 
-| Поле | Назначение | Значение для BetterToken |
-| --- | --- | --- |
-| `model_provider` | Выбирает provider ID | `"custom"` |
-| `[model_providers.custom]` | Описывает этот provider | Должен совпадать с `model_provider` |
-| `base_url` | Endpoint запросов модели | `{{openai-base-url}}` |
-| `env_key` | Имя переменной с API Key | `MODEL_PROVIDER_API_KEY` |
-| `wire_api` | Протокол provider | `"responses"` |
-| `requires_openai_auth` | Использовать официальную authentication OpenAI | `false` для обычного стороннего API |
-| `model` | Model ID по умолчанию | Актуальный ID у провайдера GPT |
+Файл `auth.json` находится в том же каталоге, что и `config.toml`. Если файла `auth.json` нет, создайте его в этом каталоге. Запишите в него следующий JSON, замените `YOUR_API_KEY` на свой BetterToken API Key и сохраните файл.
 
-<Note>
-  Чтобы сохранить официальный login state Codex App, плагины и Remote Control при использовании стороннего API, применяйте отдельную [инструкцию по сохранению входа и общей истории](/faq/codex/official-login-third-party-api), а не этот обычный пример authentication.
-</Note>
+```json
+{
+  "auth_mode": "apikey",
+  "OPENAI_API_KEY": "YOUR_API_KEY"
+}
+```
 
-## Частые ошибки
+## Перезапустите и проверьте
 
-| Симптом | Причина | Решение |
-| --- | --- | --- |
-| Provider не найден | `model_provider` не совпадает с именем таблицы | Используйте `custom` в обоих местах |
-| При запуске отсутствует API Key | Переменная не задана или терминал её ещё не прочитал | Задайте `MODEL_PROVIDER_API_KEY` и откройте новый терминал |
-| `401` или `403` | Неверный Key или смешаны способы authentication | Скопируйте Key заново; проверьте имя `env_key` и `requires_openai_auth = false` |
-| `404` | В Base URL нет `/v1` или выбран неверный протокол | Используйте `{{openai-base-url}}` |
-| Model not found | Model ID недоступен или не входит в провайдер GPT | Скопируйте актуальный ID из model plaza |
-| Изменения не применяются | Неверный уровень, путь или WSL-среда | Измените пользовательский файл в среде, где запущен Codex, затем перезапустите Codex |
-| Ошибка разбора TOML | Дублирующаяся таблица, кавычки или вложенность | Удалите дубликаты `[model_providers.custom]` и проверьте кавычки |
+Сохраните оба файла. Запустите новый сеанс Codex CLI прямо из терминала:
+
+```bash
+codex
+```
+
+Полностью закройте Codex App, включая фоновые процессы, затем откройте его и создайте новую локальную задачу. Отправьте короткий запрос в каждом используемом клиенте. Нормальный ответ подтверждает подключение этого клиента.
+
+## Устранение ошибок
+
+При `401`, `403` или запросе входа проверьте активный каталог, Key в `auth.json`, `auth_mode = apikey`, `cli_auth_credentials_store = file` и `requires_openai_auth = true`. При ошибке провайдера или модели проверьте совпадение ID провайдера, `{{openai-base-url}}`, `wire_api = responses` и доступность модели. Если изменения не применились, проверьте переопределения конфигурации и убедитесь, что CLI и App используют один `CODEX_HOME`.
 
 ## Связанные документы
 

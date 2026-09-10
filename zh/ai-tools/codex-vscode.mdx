@@ -13,7 +13,7 @@ Codex VS Code Extension 与 Codex CLI/App 共用 `~/.codex/config.toml`。如果
 | --- | --- |
 | API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
 | Base URL | `{{openai-base-url}}` |
-| Model | `YOUR_MODEL_ID` |
+| Model | `gpt-6-astra` |
 
 ## 准备工作
 
@@ -28,17 +28,19 @@ Codex VS Code Extension 与 Codex CLI/App 共用 `~/.codex/config.toml`。如果
 
 ## 手动配置
 
+如果设置了自定义 `CODEX_HOME`，请编辑该目录中的 `config.toml`。否则，macOS / Linux 使用 `~/.codex/config.toml`，Windows 使用 `%USERPROFILE%\.codex\config.toml`。
+
+完全退出 Codex，然后备份现有的 `config.toml` 和 `auth.json`。更新已有的 provider 设置，不要重复添加同名 provider table。
+
 ### 配置 Extension
 
 编辑 `~/.codex/config.toml`：
 
 ```toml
-model_provider = "custom"
-model = "YOUR_MODEL_ID"
-review_model = "YOUR_MODEL_ID"
-model_reasoning_effort = "high"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
 wire_api = "responses"
@@ -48,22 +50,9 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 保存后在 VS Code 中执行 **Developer: Reload Window**，然后重新打开 Codex 面板。
 
-<Note>
-  `requires_openai_auth = true` 保留官方登录态；`experimental_bearer_token` 用于 BetterToken 模型请求。不要把 BetterToken API Key 写入 `auth.json`。
-</Note>
-
-### CLI/App 与 Extension 配置不能混用
-
-| 场景 | 鉴权字段 |
-| --- | --- |
-| 仅 Codex CLI/App 自定义 provider | `env_key = "BETTERTOKEN_API_KEY"`、`requires_openai_auth = false` |
-| Extension 保留官方登录 | `requires_openai_auth = true`、`experimental_bearer_token = "YOUR_API_KEY"` |
-
-两种方案都使用 `[model_providers.custom]`。同一个 TOML 文件中只能保留其中一套，不要重复声明同名 table。
-
 ## 验证连接
 
-在 Extension 中新建会话并发送一条短任务。能够调用 `YOUR_MODEL_ID` 返回内容，同时插件和 Remote Control 仍可使用，即表示配置成功。
+在 Extension 中新建会话并发送一条短任务。能够调用 `gpt-6-astra` 返回内容，同时插件和 Remote Control 仍可使用，即表示配置成功。
 
 ## 切换模型
 
@@ -75,8 +64,8 @@ experimental_bearer_token = "YOUR_API_KEY"
 | --- | --- |
 | Extension 要求重新登录 | 先恢复官方登录，再确认 `requires_openai_auth = true`。 |
 | `401` 或 `403` | 重新复制 `experimental_bearer_token`，不要改写 `auth.json`。 |
-| Duplicate table | 删除另一套 `[model_providers.custom]`，只保留当前场景的配置。 |
-| 模型不存在 | 用当前完整 Model ID 替换 `YOUR_MODEL_ID`。 |
+| Duplicate table | 删除另一套 `[model_providers.bettertoken]`，只保留当前场景的配置。 |
+| 模型不存在 | 用当前完整 Model ID 替换 `gpt-6-astra`。 |
 | 配置未生效 | 保存文件并执行 **Developer: Reload Window**。 |
 
 ## 进阶配置
@@ -114,6 +103,6 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 ## 技术说明
 
-<Accordion title="为什么 Extension 的鉴权与 CLI/App 不同">
-  Extension 需要官方登录来启用部分 Codex 产品能力，所以本场景保留 `requires_openai_auth = true`。纯 CLI/App 自定义 provider 不需要官方登录，使用环境变量和 `requires_openai_auth = false`。两种配置都通过 OpenAI Responses 请求 `{{openai-base-url}}`。
+<Accordion title="Responses 协议">
+  Extension 通过 OpenAI Responses 向 `{{openai-base-url}}` 发送模型请求。
 </Accordion>

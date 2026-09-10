@@ -4,6 +4,10 @@ sidebarTitle: "Conserver connexion et historique"
 description: "Utilisez CC Switch avec une API tierce ou un modèle personnalisé tout en conservant la connexion Codex officielle, les plugins, Remote Control et un historique de sessions unifié."
 ---
 
+<Note>
+  Pour l’authentification CLI/App par fichiers avec une API Key, suivez le [guide Codex](/fr/ai-tools/codex). Cette page présente une alternative pour conserver la connexion officielle ; ne remplacez pas ses identifiants par le JSON de l’API Key.
+</Note>
+
 Vous pouvez utiliser une API tierce ou un modèle personnalisé sans perdre votre connexion Codex officielle. Activez deux améliorations Codex App dans CC Switch pour conserver les plugins officiels, Remote Control et un historique de sessions unifié.
 
 ## Avant de commencer
@@ -66,6 +70,10 @@ Après le redémarrage, vérifiez les éléments suivants :
 
 ## Configuration manuelle
 
+Si vous avez défini un `CODEX_HOME` personnalisé, modifiez `config.toml` et `auth.json` dans ce répertoire. Sinon, utilisez `~/.codex` sur macOS / Linux ou `%USERPROFILE%\.codex` sur Windows. CLI et App doivent utiliser le même répertoire. WSL possède son propre répertoire utilisateur.
+
+Quittez complètement Codex avant toute modification. Sauvegardez les deux fichiers dans un emplacement privé. Créez les fichiers manquants. Remplacez les paramètres existants sans dupliquer les clés ni les tables ; conservez les autres paramètres.
+
 La configuration manuelle est destinée aux utilisateurs avancés à l’aise avec la modification des fichiers Codex locaux. La plupart des utilisateurs devraient d’abord utiliser CC Switch.
 
 <Steps>
@@ -80,11 +88,9 @@ La configuration manuelle est destinée aux utilisateurs avancés à l’aise av
 
     ```toml
     model_provider = "{{codex-provider-id}}"
-    model = "gpt-5.5"
-    review_model = "gpt-5.4"
+    model = "gpt-6-astra"
+    review_model = "gpt-6-astra"
     model_reasoning_effort = "high"
-    model_context_window = 1000000
-    model_auto_compact_token_limit = 900000
     windows_wsl_setup_acknowledged = true
 
     [model_providers]

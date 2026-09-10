@@ -13,7 +13,7 @@ Codex VS Code 拡張機能は Codex CLI/App と `~/.codex/config.toml` を共有
 | --- | --- |
 | API Key | `experimental_bearer_token = "YOUR_API_KEY"` |
 | Base URL | `{{openai-base-url}}` |
-| Model | `YOUR_MODEL_ID` |
+| Model | `gpt-6-astra` |
 
 ## 事前準備
 
@@ -28,17 +28,19 @@ VS Code Marketplace から拡張機能をインストールし、VS Code を再�
 
 ## 手動設定
 
+独自の `CODEX_HOME` を設定している場合は、そのディレクトリの `config.toml` を編集してください。それ以外は macOS / Linux では `~/.codex/config.toml`、Windows では `%USERPROFILE%\.codex\config.toml` を使用します。
+
+Codex を完全に終了し、既存の `config.toml` と `auth.json` をバックアップしてください。プロバイダーテーブルを重複して追加せず、既存のプロバイダー設定を更新します。
+
 ### 拡張機能を設定する
 
 `~/.codex/config.toml` を編集します。
 
 ```toml
-model_provider = "custom"
-model = "YOUR_MODEL_ID"
-review_model = "YOUR_MODEL_ID"
-model_reasoning_effort = "high"
+model_provider = "bettertoken"
+model = "gpt-6-astra"
 
-[model_providers.custom]
+[model_providers.bettertoken]
 name = "BetterToken"
 base_url = "{{openai-base-url}}"
 wire_api = "responses"
@@ -48,22 +50,9 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 ファイルを保存し、VS Code で **Developer: Reload Window** を実行して Codex パネルを開き直します。
 
-<Note>
-  `requires_openai_auth = true` は公式ログインを維持します。`experimental_bearer_token` は BetterToken モデルへのリクエストを認証します。BetterToken API Key を `auth.json` に書き込まないでください。
-</Note>
-
-### CLI/App と拡張機能の認証を併用しない
-
-| シナリオ | 認証フィールド |
-| --- | --- |
-| Codex CLI/App のカスタムプロバイダーのみ | `env_key = "BETTERTOKEN_API_KEY"` と `requires_openai_auth = false` |
-| 公式ログインを使う拡張機能 | `requires_openai_auth = true` と `experimental_bearer_token = "YOUR_API_KEY"` |
-
-どちらも `[model_providers.custom]` を使用します。TOML ファイルには一方のテーブルだけを残してください。
-
 ## 接続を確認する
 
-新しい拡張機能セッションを作成し、短いタスクを送信します。プラグインと Remote Control を利用でき、`YOUR_MODEL_ID` から応答が返れば設定は完了です。
+新しい拡張機能セッションを作成し、短いタスクを送信します。プラグインと Remote Control を利用でき、`gpt-6-astra` から応答が返れば設定は完了です。
 
 ## モデルを切り替える
 
@@ -75,8 +64,8 @@ experimental_bearer_token = "YOUR_API_KEY"
 | --- | --- |
 | 拡張機能が再ログインを求める | 公式ログインを復元し、`requires_openai_auth = true` を維持します。 |
 | `401` または `403` | `experimental_bearer_token` を再度コピーします。`auth.json` は上書きしません。 |
-| テーブルが重複している | もう一方の `[model_providers.custom]` テーブルを削除し、認証モードを 1 つにします。 |
-| モデルが見つからない | `YOUR_MODEL_ID` を現在利用できる完全な Model ID に置き換えます。 |
+| テーブルが重複している | もう一方の `[model_providers.bettertoken]` テーブルを削除し、認証モードを 1 つにします。 |
+| モデルが見つからない | `gpt-6-astra` を現在利用できる完全な Model ID に置き換えます。 |
 | 設定が適用されない | ファイルを保存し、**Developer: Reload Window** を実行します。 |
 
 ## Advanced setup
@@ -114,6 +103,6 @@ experimental_bearer_token = "YOUR_API_KEY"
 
 ## 技術詳細
 
-<Accordion title="拡張機能の認証が CLI/App と異なる理由">
-  拡張機能は一部の Codex 製品機能で公式ログインを使用するため、この設定では `requires_openai_auth = true` を維持します。純粋な CLI/App カスタムプロバイダーは環境変数と `requires_openai_auth = false` を使用します。どちらも `{{openai-base-url}}` 経由で OpenAI Responses リクエストを送信します。
+<Accordion title="Responses プロトコル">
+  拡張機能は OpenAI Responses 経由で `{{openai-base-url}}` にモデルリクエストを送信します。
 </Accordion>
