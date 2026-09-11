@@ -1,34 +1,34 @@
 ---
-title: "Der begrenzte Test von DeepSeek V4.1 Flash ist verfügbar"
-description: "Testen Sie DeepSeek V4.1 Flash auf BetterToken mit der temporären Model ID deepseek-v4.1-flash-expires-on-0910 vor dem geplanten Ablauf am 2026-09-10."
-tag: "BEGRENZT"
+title: "DeepSeek V4.1 Flash ist jetzt verfügbar"
+description: "Nutzen Sie DeepSeek V4.1 Flash auf BetterToken mit der Model ID deepseek-flash über OpenAI Chat Completions oder Anthropic Messages."
+tag: "NEU"
 ---
 
-Aktualisiert: 9. September 2026
+Aktualisiert: 11. September 2026
 
-BetterToken bietet jetzt einen begrenzten Testzugang zu **DeepSeek V4.1 Flash** mit der exakten Model ID `deepseek-v4.1-flash-expires-on-0910`. Dieser temporäre Eintrag soll am **10. September 2026** ablaufen. Verwenden Sie ihn zur Bewertung des Modells und nicht als dauerhafte Produktionskonfiguration. Prüfen Sie vor einer Anfrage den aktuellen Zugang und Preis in der <a href={"{{model-plaza-url}}"}>model plaza</a>.
+**DeepSeek V4.1 Flash** ist jetzt offiziell auf BetterToken verfügbar. Verwenden Sie die exakte Model ID `deepseek-flash`. Prüfen Sie vor einer Anfrage den aktuellen Zugang und Preis in der <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-<Warning>
-  Die temporäre Model ID enthält das Ablaufdatum. Sie kann nach dem 10. September 2026 nicht mehr funktionieren und wird nicht automatisch durch eine spätere stabile ID ersetzt. Halten Sie ein stabiles Ersatzmodell bereit.
-</Warning>
+<Check>
+  Setzen Sie `model` auf `deepseek-flash`. Die vorherige Model ID des begrenzten Tests ist nicht mehr der aktuelle Eintrag.
+</Check>
 
 ## Was jetzt verfügbar ist
 
 | Einstellung | Wert |
 | --- | --- |
 | Provider | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `{{openai-base-url}}` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `{{anthropic-base-url}}` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken-Status | Begrenzter Test; Ablauf am 10. September 2026 vorgesehen |
+| BetterToken-Status | Verfügbar |
 
 Wählen Sie je nach Client OpenAI Chat Completions oder Anthropic Messages. Beide Protokolle verwenden denselben BetterToken API Key und dieselbe Model ID.
 
 ## Nutzungshinweise
 
-Vergleichen Sie während des Testzeitraums DeepSeek V4.1 Flash mit dem stabilen DeepSeek-V4-Flash-Eintrag anhand von Aufgaben aus Ihrem eigenen Workflow:
+Vergleichen Sie DeepSeek V4.1 Flash mit einem anderen verfügbaren Modell anhand von Aufgaben aus Ihrem eigenen Workflow:
 
 - **Codeänderungen**: Geben Sie beiden Modellen dieselbe Repository-Aufgabe und vergleichen Sie Korrektheit, Qualität der Änderungen und notwendigen Nachbesserungsaufwand
 - **Agenten-Workflows**: Messen Sie, wie zuverlässig jedes Modell mehrstufige Anweisungen befolgt und die Tools Ihres Clients verwendet
@@ -40,7 +40,7 @@ Führen Sie mehrere repräsentative Prompts aus, statt sich auf ein einzelnes Er
 ## Schnellstart
 
 1. <a href={"{{register-url}}"}>Erstellen Sie einen BetterToken API Key</a> oder öffnen Sie **Setup** für einen vorhandenen Schlüssel.
-2. Prüfen Sie in der model plaza, ob `deepseek-v4.1-flash-expires-on-0910` noch verfügbar ist.
+2. Prüfen Sie in der model plaza, ob `deepseek-flash` verfügbar ist.
 3. Wählen Sie den **Provider DeepSeek**.
 4. Verwenden Sie die Base URL Ihres Protokolls aus der Tabelle oben und die vollständige Model ID.
 5. Senden Sie eine kleine Anfrage, bevor Sie eine längere Bewertung starten.
@@ -50,7 +50,7 @@ curl "{{chat-completions-url}}" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -62,29 +62,28 @@ curl "{{chat-completions-url}}" \
 
 Eine erfolgreiche Antwort enthält die Modellausgabe unter `choices[0].message.content`. SDK-Beispiele und das vollständige Anfrageformat finden Sie in der [Chat Completions API-Referenz](/de/api-reference/chat-completions).
 
-## Auf den Ablauf vorbereiten
+## Von der Model ID des begrenzten Tests migrieren
 
-Vor dem 10. September 2026:
+Wenn eine Konfiguration noch die vorherige Model ID des begrenzten Tests verwendet:
 
 1. Suchen Sie alle Konfigurationen, die `deepseek-v4.1-flash-expires-on-0910` enthalten.
-2. Speichern Sie die benötigten Bewertungsergebnisse.
-3. Ersetzen Sie die temporäre ID durch `deepseek-v4-flash-0731` oder eine andere aktuell verfügbare Model ID.
-4. Führen Sie nach der Änderung einen kurzen Funktionstest aus.
-5. Prüfen Sie die model plaza auf einen neuen stabilen V4.1-Eintrag. Raten Sie die Model ID nicht.
+2. Ersetzen Sie sie durch `deepseek-flash`.
+3. Führen Sie nach der Änderung einen kurzen Funktionstest aus.
+4. Prüfen Sie den aktuellen Modelleintrag und Preis in der model plaza.
 
 ## Häufige Fragen
 
 ### Kann ich diese Model ID in der Produktion verwenden?
 
-Sie können Anfragen senden, solange der Eintrag verfügbar ist. Er sollte jedoch nicht das einzige Modell in einer langfristigen Produktionskonfiguration sein. Nach dem geplanten Ablauf können Anfragen fehlschlagen.
+Ja. Verwenden Sie `deepseek-flash` und prüfen Sie in der model plaza, ob das Modell für Ihren BetterToken API Key verfügbar ist.
 
 ### Kann ich es mit Claude Code oder der Anthropic Messages API verwenden?
 
-Ja. Verwenden Sie für Claude Code oder Anthropic Messages die Base URL `{{anthropic-base-url}}` und die Model ID `deepseek-v4.1-flash-expires-on-0910`. Direkte Messages-Anfragen verwenden `POST /v1/messages` mit dem BetterToken API Key im Header `x-api-key`.
+Ja. Verwenden Sie für Claude Code oder Anthropic Messages die Base URL `{{anthropic-base-url}}` und die Model ID `deepseek-flash`. Direkte Messages-Anfragen verwenden `POST /v1/messages` mit dem BetterToken API Key im Header `x-api-key`.
 
 ### Wo finde ich den aktuellen Preis?
 
-Prüfen Sie die aktuelle <a href={"{{model-plaza-url}}"}>model plaza</a>. Verfügbarkeit und Preis des temporären Modells können sich während des Tests ändern.
+Prüfen Sie die aktuelle <a href={"{{model-plaza-url}}"}>model plaza</a>. Verfügbarkeit und Preis können sich ändern.
 
 ## Weiterführende Dokumentation
 

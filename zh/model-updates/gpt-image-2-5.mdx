@@ -1,0 +1,82 @@
+---
+title: "GPT Image 2.5 上线：Flare 与 Sunburst"
+description: "了解 GPT Image 2.5 Flare 与 Sunburst 的区别、图片生成与编辑能力，以及 BetterToken 模型 ID 和 API 接入方式。"
+tag: "NEW"
+---
+
+更新日期：2026-09-10
+
+OpenAI 于 2026-09-08 发布 ChatGPT Images 2.5，并推出两个 API 模型：**GPT Image 2.5 Flare** 和 **GPT Image 2.5 Sunburst**。BetterToken 的<a href={"{{model-plaza-url}}"}>模型广场</a>已列出这两个模型，当前可用状态和价格以模型广场为准。
+
+## 选择模型
+
+| 模型 | 完整模型 ID | 适合的任务 |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | 快速生成、社媒素材、视觉草稿和日常图片编辑。 |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | 对细节保留和编辑精度要求更高的商品图、品牌素材与最终成稿。 |
+
+两者都接受文本和图片输入，并输出图片。日常任务可以先选 Flare；需要反复精修同一张素材时，可以对比 Sunburst。请使用表中的完整模型 ID，不要只填写 `gpt-image-2.5`。
+
+## 更新亮点
+
+- **生成更快**：OpenAI 报告 Flare 相比 GPT Image 2 的生成延迟降低 50%。实际耗时还取决于尺寸、质量和服务负载。
+- **编辑更精确**：更好地保留参考图中的主体、构图和未要求修改的细节，适合局部修改及多轮精修。
+- **画面与版式改进**：改善光照、纹理、风格遵循和复杂视觉指令的执行。含文字或数据的成品仍需人工复核。
+
+## 官方 API 新增选项
+
+OpenAI 的图片 API 为两个模型提供以下选项：
+
+- `quality` 支持 `low`、`medium`、`high`、`xhigh`、`max` 和 `auto`。
+- 透明背景使用 `background: "transparent"`，并搭配 `output_format: "png"` 或 `"webp"`。
+- 支持自定义尺寸。宽高须为 16 的倍数，比例介于 1:3 和 3:1 之间，单边不超过 3840 像素，总像素数介于 655,360 和 8,294,400 之间。超过 `2560x1440` 的输出属于实验性功能。
+
+<Note>
+  以上是 OpenAI 官方能力。BetterToken 的参数支持范围请以[文生图文档](/zh/api-reference/images-generations)和[图生图文档](/zh/api-reference/images-edits)为准。ChatGPT 中的 Sketch、模板和图片评论是客户端功能，不是图片 API 参数。
+</Note>
+
+## 通过 BetterToken 接入
+
+创建可访问对应模型的 BetterToken API Key，并填写以下参数：
+
+| 配置项 | 值 |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| 认证方式 | `Authorization: Bearer YOUR_API_KEY` |
+| 文生图 | `POST /v1/images/generations` |
+| 图生图 | `POST /v1/images/edits` |
+
+### 生成一张图片
+
+下面以 Flare 为例。使用 Sunburst 时，将 `model` 替换为 `gpt-image-2.5-sunburst`。
+
+```bash
+curl --fail-with-body --max-time 300 "{{images-generations-url}}" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+图片接口会等待生成完成，再通过 `data[0].b64_json` 返回图片内容。请先确认请求成功，再解码并保存。完整保存示例见[文生图文档](/zh/api-reference/images-generations)。
+
+编辑图片时，向 `POST /v1/images/edits` 提交 `multipart/form-data`，使用相同的完整模型 ID，并通过 `image` 上传参考图。具体示例见[图生图文档](/zh/api-reference/images-edits)。
+
+## 接入建议
+
+- 先使用 `n: 1`、`output_format: "png"` 和 `response_format: "b64_json"` 完成首次调用，再调整其他参数。
+- 为图片生成预留数分钟等待时间。切换模型后，比较实际延迟、输出尺寸和编辑效果。
+- OpenAI 官方按 token 定价；BetterToken 的计费方式和价格请查看模型广场，不要直接套用官方估价。
+
+## 官方来源
+
+- [ChatGPT Images 2.5 发布公告](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare 模型参考](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst 模型参考](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI 图片生成指南](https://developers.openai.com/api/docs/guides/image-generation)

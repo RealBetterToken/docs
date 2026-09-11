@@ -4977,7 +4977,7 @@ Playground уже использует полный URL `https://bettertoken.ai/
 
 ---
 
-## OpenAI-compatible API генерации изображений: GPT Image 2
+## API генерации изображений
 
 Source: https://docs.bettertoken.ai/api-reference/images-generations
 
@@ -5313,37 +5313,122 @@ Endpoint не возвращает `task_id`; отдельного status query 
 
 ---
 
-## Ограниченный тест DeepSeek V4.1 Flash доступен
+## GPT Image 2.5: доступны Flare и Sunburst
+
+Source: https://docs.bettertoken.ai/model-updates/gpt-image-2-5
+
+Description: Сравните GPT Image 2.5 Flare и Sunburst для генерации и редактирования изображений. Идентификаторы моделей и подключение API через BetterToken.
+
+Обновлено: 2026-09-10
+
+OpenAI выпустила ChatGPT Images 2.5 2026-09-08 и представила две модели API: **GPT Image 2.5 Flare** и **GPT Image 2.5 Sunburst**. Обе указаны в <a href={"https://bettertoken.ai/pricing"}>каталоге моделей</a> BetterToken. Актуальную доступность и цены проверяйте там.
+
+## Как выбрать модель
+
+| Модель | Полный ID модели | Подходящие задачи |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Быстрая генерация, материалы для соцсетей, визуальные эскизы и повседневное редактирование. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Изображения товаров, фирменные материалы и готовые иллюстрации, требующие сохранения деталей и точных правок. |
+
+Обе модели принимают текст и изображения и создают изображения. Для повседневных задач начните с Flare; для многократных точных правок одного материала сравните результат с Sunburst. Используйте полный ID из таблицы, а не просто `gpt-image-2.5`.
+
+## Что изменилось
+
+- **Быстрее генерация**: по данным OpenAI, задержка Flare на 50% ниже, чем у GPT Image 2. Фактическое время также зависит от размера, качества и нагрузки на сервис.
+- **Точнее редактирование**: модель лучше сохраняет объекты, композицию и детали исходного изображения, которые вы не просили менять, в том числе при последовательных правках.
+- **Лучше изображение и компоновка**: улучшены освещение, текстуры, соблюдение стиля и выполнение сложных визуальных инструкций. Перед использованием готового изображения проверьте текст и факты.
+
+## Новые параметры официального API
+
+API изображений OpenAI предлагает следующие параметры для обеих моделей:
+
+- `quality` принимает `low`, `medium`, `high`, `xhigh`, `max` и `auto`.
+- Для прозрачного фона используйте `background: "transparent"` вместе с `output_format: "png"` или `"webp"`.
+- Поддерживаются произвольные размеры. Ширина и высота должны быть кратны 16, соотношение сторон — от 1:3 до 3:1, каждая сторона — не более 3840 пикселей, общее число пикселей — от 655,360 до 8,294,400. Вывод выше `2560x1440` является экспериментальным.
+
+<Note>
+  Это возможности OpenAI. Поддерживаемые BetterToken параметры описаны в документации по [генерации](/api-reference/images-generations) и [редактированию изображений](/api-reference/images-edits). Sketch, шаблоны и комментарии к изображениям в ChatGPT — функции клиента, а не параметры API изображений.
+</Note>
+
+## Подключение через BetterToken
+
+Создайте BetterToken API Key с доступом к нужной модели и используйте следующие настройки:
+
+| Настройка | Значение |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| Аутентификация | `Authorization: Bearer YOUR_API_KEY` |
+| Генерация изображений | `POST /v1/images/generations` |
+| Редактирование изображений | `POST /v1/images/edits` |
+
+### Создание изображения
+
+В примере используется Flare. Для Sunburst замените `model` на `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+Эндпоинт ожидает завершения генерации и возвращает изображение в `data[0].b64_json`. Перед декодированием и сохранением убедитесь, что запрос выполнен успешно. Полный пример сохранения приведён в разделе [генерации изображений](/api-reference/images-generations).
+
+Для редактирования отправьте `multipart/form-data` на `POST /v1/images/edits`, укажите тот же полный ID модели и загрузите исходное изображение в поле `image`. Примеры приведены в разделе [редактирования изображений](/api-reference/images-edits).
+
+## Рекомендации по подключению
+
+- Для первого запроса используйте `n: 1`, `output_format: "png"` и `response_format: "b64_json"`, затем настройте остальные параметры.
+- Отведите несколько минут на генерацию. При смене модели сравните фактическую задержку, размеры результата и качество правок.
+- OpenAI взимает плату за токены. Тарифы и способ расчёта BetterToken смотрите в каталоге моделей; официальные оценки нельзя применять напрямую.
+
+## Официальные источники
+
+- [Анонс ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [Справочник модели GPT Image 2.5 Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [Справочник модели GPT Image 2.5 Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [Руководство OpenAI по генерации изображений](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash теперь доступен
 
 Source: https://docs.bettertoken.ai/model-updates/deepseek-v4-1-flash
 
-Description: Протестируйте DeepSeek V4.1 Flash в BetterToken с временным Model ID deepseek-v4.1-flash-expires-on-0910 до запланированного отключения 2026-09-10.
+Description: Используйте DeepSeek V4.1 Flash в BetterToken с Model ID deepseek-flash через OpenAI Chat Completions или Anthropic Messages.
 
-Обновлено: 9 сентября 2026 года
+Обновлено: 11 сентября 2026 года
 
-BetterToken открыл ограниченный тест **DeepSeek V4.1 Flash** с точным Model ID `deepseek-v4.1-flash-expires-on-0910`. Эту временную запись планируется отключить **10 сентября 2026 года**. Используйте её для оценки модели, а не как постоянную производственную конфигурацию. Перед запросом проверьте текущую доступность и цену в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+**DeepSeek V4.1 Flash** официально доступен в BetterToken. Используйте точный Model ID `deepseek-flash`. Перед запросом проверьте текущую доступность и цену в <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-<Warning>
-  Дата отключения указана прямо во временном Model ID. После 10 сентября 2026 года он может перестать работать и не будет автоматически заменён будущим стабильным ID. Заранее подготовьте стабильную резервную модель.
-</Warning>
+<Check>
+  Укажите `deepseek-flash` в поле `model`. Предыдущий временный Model ID больше не является актуальной записью.
+</Check>
 
 ## Что доступно сейчас
 
 | Параметр | Значение |
 | --- | --- |
 | Провайдер | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| Статус BetterToken | Ограниченный тест; отключение запланировано на 10 сентября 2026 года |
+| Статус BetterToken | Доступен |
 
 Выберите OpenAI Chat Completions или Anthropic Messages в зависимости от клиента. Оба протокола используют один BetterToken API Key и Model ID.
 
 ## Рекомендации по использованию
 
-Используйте тестовый период, чтобы сравнить DeepSeek V4.1 Flash со стабильной записью DeepSeek V4 Flash на задачах из вашего рабочего процесса:
+Сравните DeepSeek V4.1 Flash с другой доступной моделью на задачах из вашего рабочего процесса:
 
 - **Изменение кода**: дайте обеим моделям одну задачу по репозиторию и сравните корректность, качество правок и число необходимых уточнений
 - **Агентные процессы**: измерьте, насколько надёжно каждая модель выполняет многошаговые инструкции и использует инструменты клиента
@@ -5355,7 +5440,7 @@ BetterToken открыл ограниченный тест **DeepSeek V4.1 Flash
 ## Быстрый старт
 
 1. <a href={"https://bettertoken.ai/register"}>Создайте BetterToken API Key</a> или откройте окно **Setup** для существующего ключа.
-2. Убедитесь в model plaza, что `deepseek-v4.1-flash-expires-on-0910` всё ещё доступен.
+2. Убедитесь в model plaza, что `deepseek-flash` доступен.
 3. Выберите **провайдера DeepSeek**.
 4. Укажите Base URL нужного протокола из таблицы выше и полный Model ID.
 5. Сначала отправьте небольшой запрос, затем переходите к длительной оценке.
@@ -5365,7 +5450,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -5377,29 +5462,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 Успешный ответ содержит результат модели в `choices[0].message.content`. Примеры для SDK и полный формат запроса приведены в [справочнике Chat Completions API](/api-reference/chat-completions).
 
-## Подготовка к отключению
+## Переход с временного Model ID
 
-До 10 сентября 2026 года:
+Если в конфигурации всё ещё указан предыдущий временный Model ID:
 
 1. Найдите все конфигурации с `deepseek-v4.1-flash-expires-on-0910`.
-2. Сохраните нужные результаты оценки.
-3. Замените временный ID на `deepseek-v4-flash-0731` или другой доступный Model ID.
-4. После замены выполните быструю проверку.
-5. Проверьте в model plaza, появилась ли новая стабильная запись V4.1. Не угадывайте её Model ID.
+2. Замените его на `deepseek-flash`.
+3. После замены выполните быструю проверку.
+4. Проверьте актуальную запись модели и цену в model plaza.
 
 ## Частые вопросы
 
 ### Можно ли использовать этот Model ID в производственной среде?
 
-Пока запись доступна, запросы отправлять можно. Однако не делайте её единственной моделью в долгосрочной производственной конфигурации. После окончания теста запросы могут перестать выполняться.
+Да. Используйте `deepseek-flash` и проверьте в model plaza, что модель доступна для вашего BetterToken API Key.
 
 ### Можно ли использовать модель с Claude Code или Anthropic Messages API?
 
-Да. Для Claude Code или Anthropic Messages используйте Base URL `https://bettertoken.ai` и Model ID `deepseek-v4.1-flash-expires-on-0910`. Прямые запросы Messages используют `POST /v1/messages` и BetterToken API Key в заголовке `x-api-key`.
+Да. Для Claude Code или Anthropic Messages используйте Base URL `https://bettertoken.ai` и Model ID `deepseek-flash`. Прямые запросы Messages используют `POST /v1/messages` и BetterToken API Key в заголовке `x-api-key`.
 
 ### Где посмотреть актуальную цену?
 
-Проверьте <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Доступность и цена временной модели могут меняться во время теста.
+Проверьте <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Доступность и цена модели могут меняться.
 
 ## Связанная документация
 
@@ -14413,7 +14497,7 @@ Replace `YOUR_MODEL_ID` with the complete Model ID from the model plaza or **Set
 
 ---
 
-## OpenAI-Compatible Image Generation API: GPT Image 2 Guide
+## Image Generation API
 
 Source: https://docs.bettertoken.ai/en/api-reference/images-generations
 
@@ -14749,37 +14833,122 @@ The endpoint does not return a `task_id`, and there is no separate status query 
 
 ---
 
-## DeepSeek V4.1 Flash limited test is live
+## GPT Image 2.5 is available: Flare and Sunburst
+
+Source: https://docs.bettertoken.ai/en/model-updates/gpt-image-2-5
+
+Description: Compare GPT Image 2.5 Flare and Sunburst for image generation and editing, with BetterToken model IDs and API setup.
+
+Updated: 2026-09-10
+
+OpenAI released ChatGPT Images 2.5 on 2026-09-08 with two API models: **GPT Image 2.5 Flare** and **GPT Image 2.5 Sunburst**. Both are listed in the BetterToken <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Check it for current availability and pricing.
+
+## Choose a model
+
+| Model | Full model ID | Best suited to |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Fast generation, social content, visual drafts, and everyday image editing. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Product images, brand assets, and final artwork that need closer detail preservation and editing precision. |
+
+Both accept text and image inputs and produce images. Start with Flare for everyday tasks; compare Sunburst when you need repeated, precise edits to the same asset. Use the full model ID in the table, not just `gpt-image-2.5`.
+
+## What changed
+
+- **Faster generation**: OpenAI reports 50% lower generation latency for Flare than GPT Image 2. Actual time also depends on size, quality, and service load.
+- **More precise editing**: Better preservation of reference subjects, composition, and details you did not ask to change, including across multiple edits.
+- **Visual and layout improvements**: Better lighting, textures, style adherence, and handling of complex visual instructions. Review text and factual details before using a finished image.
+
+## New options in the official API
+
+OpenAI's image API offers these options for both models:
+
+- `quality` accepts `low`, `medium`, `high`, `xhigh`, `max`, and `auto`.
+- For a transparent background, use `background: "transparent"` with `output_format: "png"` or `"webp"`.
+- Custom dimensions are supported. Width and height must be multiples of 16, the aspect ratio must be between 1:3 and 3:1, neither edge may exceed 3840 pixels, and total pixels must be between 655,360 and 8,294,400. Output above `2560x1440` is experimental.
+
+<Note>
+  These are OpenAI capabilities. For parameters supported by BetterToken, follow the [image generation](/en/api-reference/images-generations) and [image editing](/en/api-reference/images-edits) documentation. Sketch, templates, and image comments in ChatGPT are client features, not image API parameters.
+</Note>
+
+## Connect through BetterToken
+
+Create a BetterToken API Key with access to the model and use these settings:
+
+| Setting | Value |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| Authentication | `Authorization: Bearer YOUR_API_KEY` |
+| Image generation | `POST /v1/images/generations` |
+| Image editing | `POST /v1/images/edits` |
+
+### Generate an image
+
+This example uses Flare. To use Sunburst, replace `model` with `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+The image endpoint waits for generation to finish, then returns image content in `data[0].b64_json`. Check that the request succeeded before decoding and saving it. See [image generation](/en/api-reference/images-generations) for a complete saving example.
+
+To edit an image, send `multipart/form-data` to `POST /v1/images/edits`, use the same full model ID, and upload a reference with `image`. See [image editing](/en/api-reference/images-edits) for examples.
+
+## Integration tips
+
+- Start with `n: 1`, `output_format: "png"`, and `response_format: "b64_json"` before adjusting other parameters.
+- Allow several minutes for image generation. After changing models, compare actual latency, output dimensions, and editing results.
+- OpenAI charges by tokens. Check the model plaza for BetterToken billing and prices instead of applying official estimates directly.
+
+## Official sources
+
+- [ChatGPT Images 2.5 announcement](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare model reference](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst model reference](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI image generation guide](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash is now available
 
 Source: https://docs.bettertoken.ai/en/model-updates/deepseek-v4-1-flash
 
-Description: Test DeepSeek V4.1 Flash on BetterToken with the temporary Model ID deepseek-v4.1-flash-expires-on-0910 before its scheduled 2026-09-10 expiration.
+Description: Use DeepSeek V4.1 Flash on BetterToken with the Model ID deepseek-flash through OpenAI Chat Completions or Anthropic Messages.
 
-Updated: September 9, 2026
+Updated: September 11, 2026
 
-BetterToken now provides limited test access to **DeepSeek V4.1 Flash** through the exact Model ID `deepseek-v4.1-flash-expires-on-0910`. This temporary entry is scheduled to expire on **September 10, 2026**. Use it to evaluate the model, not as a permanent production configuration. Check current access and pricing in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before sending a request.
+**DeepSeek V4.1 Flash** is now officially available on BetterToken. Use the exact Model ID `deepseek-flash`. Check current access and pricing in the <a href={"https://bettertoken.ai/pricing"}>model plaza</a> before sending a request.
 
-<Warning>
-  The temporary Model ID includes its expiration date. It may stop working after September 10, 2026, and it is not automatically replaced by a future stable ID. Keep a stable fallback model ready.
-</Warning>
+<Check>
+  Set `model` to `deepseek-flash`. The previous limited-test Model ID is no longer the current entry.
+</Check>
 
 ## What is available now
 
 | Setting | Value |
 | --- | --- |
 | Provider | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken status | Limited test; scheduled to expire on September 10, 2026 |
+| BetterToken status | Available |
 
 Choose OpenAI Chat Completions or Anthropic Messages to match your client. Both protocols use the same BetterToken API Key and Model ID.
 
 ## Usage suggestions
 
-Use the test window to compare DeepSeek V4.1 Flash with the stable DeepSeek V4 Flash entry on tasks that matter to your workflow:
+Compare DeepSeek V4.1 Flash with another available model on tasks that matter to your workflow:
 
 - **Coding changes**: give both models the same repository task and compare correctness, edit quality, and the amount of follow-up required
 - **Agent workflows**: measure how reliably each model follows multistep instructions and uses the tools your client provides
@@ -14791,7 +14960,7 @@ Run several representative prompts instead of relying on one result. Keep the cl
 ## Quick start
 
 1. <a href={"https://bettertoken.ai/register"}>Create a BetterToken API Key</a> or open **Setup** for an existing key.
-2. Confirm that `deepseek-v4.1-flash-expires-on-0910` is still available in the model plaza.
+2. Confirm that `deepseek-flash` is available in the model plaza.
 3. Select the **DeepSeek provider**.
 4. Set the Base URL for your protocol using the table above, and enter the complete Model ID.
 5. Send a small request before running a longer evaluation.
@@ -14801,7 +14970,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -14813,29 +14982,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 A successful response returns model output under `choices[0].message.content`. For SDK examples and the complete request format, see the [Chat Completions API reference](/en/api-reference/chat-completions).
 
-## Prepare for expiration
+## Migrate from the limited-test Model ID
 
-Before September 10, 2026:
+If a configuration still uses the previous limited-test Model ID:
 
 1. Find every configuration that contains `deepseek-v4.1-flash-expires-on-0910`.
-2. Save the evaluation results you need.
-3. Replace the temporary ID with `deepseek-v4-flash-0731` or another currently available Model ID.
-4. Run a smoke test after the change.
-5. Check the model plaza for any new stable V4.1 entry. Do not guess its Model ID.
+2. Replace it with `deepseek-flash`.
+3. Run a smoke test after the change.
+4. Confirm the current model entry and price in the model plaza.
 
 ## Frequently asked questions
 
 ### Can I use this Model ID in production?
 
-You can send requests while the entry is available, but you should not make it the only model in a long-lived production configuration. Its scheduled expiration can cause requests to fail after the test ends.
+Yes. Use `deepseek-flash` and verify that the model remains available for your BetterToken API Key in the model plaza.
 
 ### Can I use it with Claude Code or the Anthropic Messages API?
 
-Yes. For Claude Code or Anthropic Messages, use Base URL `https://bettertoken.ai` and Model ID `deepseek-v4.1-flash-expires-on-0910`. Direct Messages requests use `POST /v1/messages` with your BetterToken API Key in `x-api-key`.
+Yes. For Claude Code or Anthropic Messages, use Base URL `https://bettertoken.ai` and Model ID `deepseek-flash`. Direct Messages requests use `POST /v1/messages` with your BetterToken API Key in `x-api-key`.
 
 ### Where can I find the current price?
 
-Check the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Temporary-model availability and pricing can change during the test.
+Check the live <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Availability and pricing can change.
 
 ## Related documentation
 
@@ -23969,7 +24137,7 @@ Playground 使用完整路径 `https://bettertoken.ai/v1/chat/completions`，无
 
 ---
 
-## OpenAI-compatible 图片生成 API：GPT Image 2 接入指南
+## 图片生成 API
 
 Source: https://docs.bettertoken.ai/zh/api-reference/images-generations
 
@@ -24363,37 +24531,122 @@ b64_json = result["data"][0]["b64_json"]
 
 ---
 
-## DeepSeek V4.1 Flash 限时测试版已上线
+## GPT Image 2.5 上线：Flare 与 Sunburst
+
+Source: https://docs.bettertoken.ai/zh/model-updates/gpt-image-2-5
+
+Description: 了解 GPT Image 2.5 Flare 与 Sunburst 的区别、图片生成与编辑能力，以及 BetterToken 模型 ID 和 API 接入方式。
+
+更新日期：2026-09-10
+
+OpenAI 于 2026-09-08 发布 ChatGPT Images 2.5，并推出两个 API 模型：**GPT Image 2.5 Flare** 和 **GPT Image 2.5 Sunburst**。BetterToken 的<a href={"https://bettertoken.ai/pricing"}>模型广场</a>已列出这两个模型，当前可用状态和价格以模型广场为准。
+
+## 选择模型
+
+| 模型 | 完整模型 ID | 适合的任务 |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | 快速生成、社媒素材、视觉草稿和日常图片编辑。 |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | 对细节保留和编辑精度要求更高的商品图、品牌素材与最终成稿。 |
+
+两者都接受文本和图片输入，并输出图片。日常任务可以先选 Flare；需要反复精修同一张素材时，可以对比 Sunburst。请使用表中的完整模型 ID，不要只填写 `gpt-image-2.5`。
+
+## 更新亮点
+
+- **生成更快**：OpenAI 报告 Flare 相比 GPT Image 2 的生成延迟降低 50%。实际耗时还取决于尺寸、质量和服务负载。
+- **编辑更精确**：更好地保留参考图中的主体、构图和未要求修改的细节，适合局部修改及多轮精修。
+- **画面与版式改进**：改善光照、纹理、风格遵循和复杂视觉指令的执行。含文字或数据的成品仍需人工复核。
+
+## 官方 API 新增选项
+
+OpenAI 的图片 API 为两个模型提供以下选项：
+
+- `quality` 支持 `low`、`medium`、`high`、`xhigh`、`max` 和 `auto`。
+- 透明背景使用 `background: "transparent"`，并搭配 `output_format: "png"` 或 `"webp"`。
+- 支持自定义尺寸。宽高须为 16 的倍数，比例介于 1:3 和 3:1 之间，单边不超过 3840 像素，总像素数介于 655,360 和 8,294,400 之间。超过 `2560x1440` 的输出属于实验性功能。
+
+<Note>
+  以上是 OpenAI 官方能力。BetterToken 的参数支持范围请以[文生图文档](/zh/api-reference/images-generations)和[图生图文档](/zh/api-reference/images-edits)为准。ChatGPT 中的 Sketch、模板和图片评论是客户端功能，不是图片 API 参数。
+</Note>
+
+## 通过 BetterToken 接入
+
+创建可访问对应模型的 BetterToken API Key，并填写以下参数：
+
+| 配置项 | 值 |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| 认证方式 | `Authorization: Bearer YOUR_API_KEY` |
+| 文生图 | `POST /v1/images/generations` |
+| 图生图 | `POST /v1/images/edits` |
+
+### 生成一张图片
+
+下面以 Flare 为例。使用 Sunburst 时，将 `model` 替换为 `gpt-image-2.5-sunburst`。
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+图片接口会等待生成完成，再通过 `data[0].b64_json` 返回图片内容。请先确认请求成功，再解码并保存。完整保存示例见[文生图文档](/zh/api-reference/images-generations)。
+
+编辑图片时，向 `POST /v1/images/edits` 提交 `multipart/form-data`，使用相同的完整模型 ID，并通过 `image` 上传参考图。具体示例见[图生图文档](/zh/api-reference/images-edits)。
+
+## 接入建议
+
+- 先使用 `n: 1`、`output_format: "png"` 和 `response_format: "b64_json"` 完成首次调用，再调整其他参数。
+- 为图片生成预留数分钟等待时间。切换模型后，比较实际延迟、输出尺寸和编辑效果。
+- OpenAI 官方按 token 定价；BetterToken 的计费方式和价格请查看模型广场，不要直接套用官方估价。
+
+## 官方来源
+
+- [ChatGPT Images 2.5 发布公告](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare 模型参考](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst 模型参考](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI 图片生成指南](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash 正式上线
 
 Source: https://docs.bettertoken.ai/zh/model-updates/deepseek-v4-1-flash
 
-Description: 通过 BetterToken 测试 DeepSeek V4.1 Flash，临时模型 ID deepseek-v4.1-flash-expires-on-0910 计划于 2026-09-10 到期。
+Description: 通过 BetterToken 使用 DeepSeek V4.1 Flash，Model ID 为 deepseek-flash，支持 OpenAI Chat Completions 和 Anthropic Messages。
 
-更新日期：2026 年 9 月 9 日
+更新日期：2026 年 9 月 11 日
 
-BetterToken 现已提供 **DeepSeek V4.1 Flash** 限时测试，准确的模型 ID 是 `deepseek-v4.1-flash-expires-on-0910`。该临时条目计划于 **2026 年 9 月 10 日**到期。请将它用于模型评估，不要作为永久生产配置。发送请求前，请在实时<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认访问权限和价格。
+**DeepSeek V4.1 Flash** 已在 BetterToken 正式上线。准确的 Model ID 是 `deepseek-flash`。发送请求前，请在实时<a href={"https://bettertoken.ai/pricing"}>模型广场</a>确认访问权限和价格。
 
-<Warning>
-  临时模型 ID 中包含到期日期。2026 年 9 月 10 日后它可能停止工作，也不会自动替换为未来的稳定版 ID。请提前准备稳定的备用模型。
-</Warning>
+<Check>
+  将 `model` 设置为 `deepseek-flash`。此前的限时测试 Model ID 已不再是当前条目。
+</Check>
 
 ## 当前可用配置
 
 | 设置项 | 值 |
 | --- | --- |
 | 提供商 | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken 状态 | 限时测试；计划于 2026 年 9 月 10 日到期 |
+| BetterToken 状态 | 已上线 |
 
 根据客户端选择 OpenAI Chat Completions 或 Anthropic Messages。两种协议使用相同的 BetterToken API Key 和 Model ID。
 
 ## 使用建议
 
-在测试期内，用与你实际工作流相关的任务对比 DeepSeek V4.1 Flash 和稳定版 DeepSeek V4 Flash：
+使用与你实际工作流相关的任务，将 DeepSeek V4.1 Flash 与另一个当前可用模型进行比较：
 
 - **代码修改**：向两个模型提交同一个仓库任务，对比正确性、修改质量和需要追加沟通的次数
 - **Agent 工作流**：衡量每个模型遵循多步骤指令和使用客户端工具的稳定性
@@ -24405,7 +24658,7 @@ BetterToken 现已提供 **DeepSeek V4.1 Flash** 限时测试，准确的模型 
 ## 快速开始
 
 1. <a href={"https://bettertoken.ai/register"}>创建 BetterToken API Key</a>，或打开现有 Key 的 **Setup** 弹窗。
-2. 在模型广场确认 `deepseek-v4.1-flash-expires-on-0910` 仍然可用。
+2. 在模型广场确认 `deepseek-flash` 可用。
 3. 选择 **DeepSeek 提供商**。
 4. 按上表选择对应协议的 Base URL，并填写完整 Model ID。
 5. 先发送一个小型请求，再开始较长的评估任务。
@@ -24415,7 +24668,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -24427,29 +24680,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 请求成功时，模型输出位于 `choices[0].message.content`。SDK 示例和完整请求格式请参阅 [Chat Completions API 参考](/zh/api-reference/chat-completions)。
 
-## 为到期做好准备
+## 从限时测试 Model ID 迁移
 
-请在 2026 年 9 月 10 日前完成以下操作：
+如果现有配置仍使用此前的限时测试 Model ID：
 
 1. 找出所有包含 `deepseek-v4.1-flash-expires-on-0910` 的配置。
-2. 保存需要保留的评估结果。
-3. 将临时 ID 替换为 `deepseek-v4-flash-0731` 或其他当前可用的 Model ID。
-4. 修改后运行冒烟测试。
-5. 在模型广场查看是否有新的稳定版 V4.1 条目。不要猜测它的 Model ID。
+2. 将它替换为 `deepseek-flash`。
+3. 修改后运行冒烟测试。
+4. 在模型广场确认当前模型条目和价格。
 
 ## 常见问题
 
 ### 可以在生产环境中使用这个 Model ID 吗？
 
-条目可用期间可以发送请求，但不应将它设为长期生产配置中的唯一模型。测试结束后，计划到期可能导致请求失败。
+可以。请使用 `deepseek-flash`，并在模型广场确认你的 BetterToken API Key 仍可使用该模型。
 
 ### 可以将它用于 Claude Code 或 Anthropic Messages API 吗？
 
-支持。Claude Code 或 Anthropic Messages 使用 Base URL `https://bettertoken.ai`，Model ID 填写 `deepseek-v4.1-flash-expires-on-0910`。直接调用 Messages 时，使用 `POST /v1/messages`，并在 `x-api-key` 请求头中传入 BetterToken API Key。
+支持。Claude Code 或 Anthropic Messages 使用 Base URL `https://bettertoken.ai`，Model ID 填写 `deepseek-flash`。直接调用 Messages 时，使用 `POST /v1/messages`，并在 `x-api-key` 请求头中传入 BetterToken API Key。
 
 ### 在哪里查看当前价格？
 
-请查看实时<a href={"https://bettertoken.ai/pricing"}>模型广场</a>。测试期间，临时模型的可用性和价格都可能变化。
+请查看实时<a href={"https://bettertoken.ai/pricing"}>模型广场</a>。模型可用性和价格可能变化。
 
 ## 相关文档
 
@@ -33443,7 +33695,7 @@ Playground पहले से पूरा URL `https://bettertoken.ai/v1/chat/
 
 ---
 
-## OpenAI-Compatible Image Generation API: GPT Image 2 गाइड
+## इमेज जनरेशन API
 
 Source: https://docs.bettertoken.ai/hi/api-reference/images-generations
 
@@ -33779,37 +34031,122 @@ endpoint `task_id` नहीं लौटाता, और कोई अलग s
 
 ---
 
-## DeepSeek V4.1 Flash का सीमित टेस्ट उपलब्ध है
+## GPT Image 2.5 उपलब्ध है: Flare और Sunburst
+
+Source: https://docs.bettertoken.ai/hi/model-updates/gpt-image-2-5
+
+Description: इमेज बनाने और एडिट करने के लिए GPT Image 2.5 Flare और Sunburst की तुलना करें। BetterToken मॉडल ID और API सेटअप जानें।
+
+अपडेट: 2026-09-10
+
+OpenAI ने 2026-09-08 को ChatGPT Images 2.5 के साथ दो API मॉडल जारी किए: **GPT Image 2.5 Flare** और **GPT Image 2.5 Sunburst**। दोनों BetterToken के <a href={"https://bettertoken.ai/pricing"}>मॉडल कैटलॉग</a> में सूचीबद्ध हैं। मौजूदा उपलब्धता और कीमतें वहीं देखें।
+
+## मॉडल चुनें
+
+| मॉडल | पूरी मॉडल ID | उपयुक्त काम |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | तेज़ जनरेशन, सोशल मीडिया सामग्री, विज़ुअल ड्राफ़्ट और रोज़मर्रा की इमेज एडिटिंग। |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | प्रोडक्ट इमेज, ब्रांड सामग्री और अंतिम डिज़ाइन, जहाँ बारीकियाँ बनाए रखना और सटीक एडिटिंग ज़रूरी है। |
+
+दोनों टेक्स्ट और इमेज इनपुट लेते हैं और इमेज आउटपुट देते हैं। रोज़मर्रा के काम के लिए Flare से शुरू करें; एक ही सामग्री में बार-बार सटीक बदलाव करने हों तो Sunburst से तुलना करें। तालिका में दी गई पूरी मॉडल ID इस्तेमाल करें, सिर्फ़ `gpt-image-2.5` नहीं।
+
+## क्या बदला है
+
+- **तेज़ जनरेशन**: OpenAI के अनुसार Flare की जनरेशन लेटेंसी GPT Image 2 से 50% कम है। वास्तविक समय साइज़, क्वालिटी और सेवा के लोड पर भी निर्भर करता है।
+- **अधिक सटीक एडिटिंग**: कई बार एडिट करने पर भी रेफ़रेंस के विषय, कंपोज़िशन और वे बारीकियाँ बेहतर बनी रहती हैं जिन्हें बदलने के लिए नहीं कहा गया था।
+- **विज़ुअल और लेआउट में सुधार**: लाइटिंग, टेक्सचर, शैली के पालन और जटिल विज़ुअल निर्देशों को समझने में सुधार हुआ है। अंतिम इमेज इस्तेमाल करने से पहले टेक्स्ट और तथ्यों की जाँच करें।
+
+## आधिकारिक API में नए विकल्प
+
+OpenAI का इमेज API दोनों मॉडलों के लिए ये विकल्प देता है:
+
+- `quality` में `low`, `medium`, `high`, `xhigh`, `max` और `auto` इस्तेमाल कर सकते हैं।
+- पारदर्शी बैकग्राउंड के लिए `background: "transparent"` के साथ `output_format: "png"` या `"webp"` इस्तेमाल करें।
+- कस्टम साइज़ समर्थित हैं। चौड़ाई और ऊँचाई 16 के गुणज हों, अनुपात 1:3 से 3:1 के बीच हो, कोई भी किनारा 3840 पिक्सेल से बड़ा न हो और कुल पिक्सेल 655,360 से 8,294,400 के बीच हों। `2560x1440` से बड़े आउटपुट प्रयोगात्मक हैं।
+
+<Note>
+  ये OpenAI की क्षमताएँ हैं। BetterToken पर समर्थित पैरामीटर के लिए [इमेज जनरेशन](/hi/api-reference/images-generations) और [इमेज एडिटिंग](/hi/api-reference/images-edits) दस्तावेज़ देखें। ChatGPT में Sketch, टेम्पलेट और इमेज टिप्पणियाँ क्लाइंट सुविधाएँ हैं, इमेज API पैरामीटर नहीं।
+</Note>
+
+## BetterToken से कनेक्ट करें
+
+मॉडल तक पहुँच वाली BetterToken API Key बनाएँ और ये सेटिंग इस्तेमाल करें:
+
+| सेटिंग | मान |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| प्रमाणीकरण | `Authorization: Bearer YOUR_API_KEY` |
+| इमेज जनरेशन | `POST /v1/images/generations` |
+| इमेज एडिटिंग | `POST /v1/images/edits` |
+
+### इमेज बनाएँ
+
+इस उदाहरण में Flare इस्तेमाल किया गया है। Sunburst के लिए `model` को `gpt-image-2.5-sunburst` से बदलें।
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+इमेज एंडपॉइंट जनरेशन पूरा होने तक प्रतीक्षा करता है, फिर `data[0].b64_json` में इमेज लौटाता है। डिकोड और सेव करने से पहले अनुरोध की सफलता जाँचें। सेव करने का पूरा उदाहरण [इमेज जनरेशन](/hi/api-reference/images-generations) में देखें।
+
+इमेज एडिट करने के लिए `POST /v1/images/edits` पर `multipart/form-data` भेजें, वही पूरी मॉडल ID इस्तेमाल करें और `image` से रेफ़रेंस अपलोड करें। उदाहरण [इमेज एडिटिंग](/hi/api-reference/images-edits) में देखें।
+
+## इंटीग्रेशन सुझाव
+
+- दूसरे पैरामीटर बदलने से पहले `n: 1`, `output_format: "png"` और `response_format: "b64_json"` से शुरुआत करें।
+- इमेज जनरेशन के लिए कुछ मिनट का समय दें। मॉडल बदलने के बाद वास्तविक लेटेंसी, आउटपुट साइज़ और एडिटिंग के नतीजों की तुलना करें।
+- OpenAI टोकन के आधार पर शुल्क लेता है। BetterToken की बिलिंग और कीमतों के लिए मॉडल कैटलॉग देखें; आधिकारिक अनुमान सीधे लागू न करें।
+
+## आधिकारिक स्रोत
+
+- [ChatGPT Images 2.5 की घोषणा](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare मॉडल संदर्भ](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst मॉडल संदर्भ](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI इमेज जनरेशन गाइड](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash अब उपलब्ध है
 
 Source: https://docs.bettertoken.ai/hi/model-updates/deepseek-v4-1-flash
 
-Description: BetterToken पर DeepSeek V4.1 Flash को अस्थायी Model ID deepseek-v4.1-flash-expires-on-0910 के साथ निर्धारित 2026-09-10 समाप्ति से पहले टेस्ट करें।
+Description: BetterToken पर DeepSeek V4.1 Flash को Model ID deepseek-flash के साथ OpenAI Chat Completions या Anthropic Messages के जरिए इस्तेमाल करें।
 
-अपडेट: 9 सितंबर 2026
+अपडेट: 11 सितंबर 2026
 
-BetterToken अब सटीक Model ID `deepseek-v4.1-flash-expires-on-0910` के माध्यम से **DeepSeek V4.1 Flash** का सीमित टेस्ट एक्सेस देता है। यह अस्थायी एंट्री **10 सितंबर 2026** को समाप्त होने वाली है। इसे स्थायी प्रोडक्शन कॉन्फ़िगरेशन के रूप में नहीं, बल्कि मॉडल का मूल्यांकन करने के लिए इस्तेमाल करें। अनुरोध भेजने से पहले <a href={"https://bettertoken.ai/pricing"}>model plaza</a> में मौजूदा उपलब्धता और कीमत देखें।
+**DeepSeek V4.1 Flash** अब BetterToken पर आधिकारिक रूप से उपलब्ध है। सटीक Model ID `deepseek-flash` इस्तेमाल करें। अनुरोध भेजने से पहले <a href={"https://bettertoken.ai/pricing"}>model plaza</a> में मौजूदा उपलब्धता और कीमत देखें।
 
-<Warning>
-  अस्थायी Model ID में उसकी समाप्ति तिथि शामिल है। यह 10 सितंबर 2026 के बाद काम करना बंद कर सकता है और भविष्य के स्थिर ID से अपने आप नहीं बदलेगा। एक स्थिर वैकल्पिक मॉडल तैयार रखें।
-</Warning>
+<Check>
+  `model` को `deepseek-flash` पर सेट करें। पिछला सीमित-टेस्ट Model ID अब मौजूदा एंट्री नहीं है।
+</Check>
 
 ## अभी क्या उपलब्ध है
 
 | सेटिंग | मान |
 | --- | --- |
 | प्रोवाइडर | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken स्थिति | सीमित टेस्ट; 10 सितंबर 2026 को समाप्त होना निर्धारित |
+| BetterToken स्थिति | उपलब्ध |
 
 अपने क्लाइंट के अनुसार OpenAI Chat Completions या Anthropic Messages चुनें। दोनों प्रोटोकॉल एक ही BetterToken API Key और Model ID इस्तेमाल करते हैं।
 
 ## उपयोग के सुझाव
 
-टेस्ट अवधि में अपने वर्कफ़्लो के लिए महत्वपूर्ण कार्यों पर DeepSeek V4.1 Flash की तुलना स्थिर DeepSeek V4 Flash एंट्री से करें:
+अपने वर्कफ़्लो के लिए महत्वपूर्ण कार्यों पर DeepSeek V4.1 Flash की तुलना किसी अन्य उपलब्ध मॉडल से करें:
 
 - **कोड में बदलाव**: दोनों मॉडलों को एक ही रिपॉज़िटरी कार्य दें और शुद्धता, बदलाव की गुणवत्ता तथा आवश्यक फ़ॉलो-अप की तुलना करें
 - **Agent वर्कफ़्लो**: मापें कि हर मॉडल कई चरणों वाले निर्देशों का पालन और क्लाइंट के टूल का उपयोग कितनी विश्वसनीयता से करता है
@@ -33821,7 +34158,7 @@ BetterToken अब सटीक Model ID `deepseek-v4.1-flash-expires-on-0910` �
 ## जल्दी शुरू करें
 
 1. <a href={"https://bettertoken.ai/register"}>BetterToken API Key बनाएं</a> या मौजूदा Key के लिए **Setup** खोलें।
-2. model plaza में पुष्टि करें कि `deepseek-v4.1-flash-expires-on-0910` अभी भी उपलब्ध है।
+2. model plaza में पुष्टि करें कि `deepseek-flash` उपलब्ध है।
 3. **DeepSeek प्रोवाइडर** चुनें।
 4. ऊपर की तालिका से अपने प्रोटोकॉल का Base URL चुनें और पूरा Model ID दर्ज करें।
 5. लंबा मूल्यांकन शुरू करने से पहले एक छोटा अनुरोध भेजें।
@@ -33831,7 +34168,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -33843,29 +34180,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 सफल प्रतिक्रिया में मॉडल आउटपुट `choices[0].message.content` में मिलता है। SDK उदाहरण और पूरा अनुरोध प्रारूप [Chat Completions API संदर्भ](/hi/api-reference/chat-completions) में देखें।
 
-## समाप्ति के लिए तैयारी करें
+## सीमित-टेस्ट Model ID से माइग्रेट करें
 
-10 सितंबर 2026 से पहले:
+अगर किसी कॉन्फ़िगरेशन में पिछला सीमित-टेस्ट Model ID अभी भी मौजूद है:
 
 1. `deepseek-v4.1-flash-expires-on-0910` वाली हर कॉन्फ़िगरेशन खोजें।
-2. ज़रूरी मूल्यांकन परिणाम सुरक्षित करें।
-3. अस्थायी ID को `deepseek-v4-flash-0731` या किसी अन्य वर्तमान में उपलब्ध Model ID से बदलें।
-4. बदलाव के बाद स्मोक टेस्ट चलाएं।
-5. model plaza में नई स्थिर V4.1 एंट्री देखें। उसके Model ID का अनुमान न लगाएं।
+2. इसे `deepseek-flash` से बदलें।
+3. बदलाव के बाद स्मोक टेस्ट चलाएं।
+4. model plaza में मौजूदा मॉडल एंट्री और कीमत की पुष्टि करें।
 
 ## अक्सर पूछे जाने वाले प्रश्न
 
 ### क्या मैं इस Model ID को प्रोडक्शन में इस्तेमाल कर सकता हूं?
 
-एंट्री उपलब्ध रहने तक आप अनुरोध भेज सकते हैं, लेकिन इसे लंबे समय की प्रोडक्शन कॉन्फ़िगरेशन में एकमात्र मॉडल न बनाएं। टेस्ट समाप्त होने के बाद निर्धारित समाप्ति के कारण अनुरोध विफल हो सकते हैं।
+हां। `deepseek-flash` इस्तेमाल करें और model plaza में पुष्टि करें कि मॉडल आपकी BetterToken API Key के लिए उपलब्ध है।
 
 ### क्या इसे Claude Code या Anthropic Messages API के साथ इस्तेमाल किया जा सकता है?
 
-हां। Claude Code या Anthropic Messages के लिए Base URL `https://bettertoken.ai` और Model ID `deepseek-v4.1-flash-expires-on-0910` इस्तेमाल करें। सीधे Messages अनुरोधों में `POST /v1/messages` और `x-api-key` हेडर में अपनी BetterToken API Key दें।
+हां। Claude Code या Anthropic Messages के लिए Base URL `https://bettertoken.ai` और Model ID `deepseek-flash` इस्तेमाल करें। सीधे Messages अनुरोधों में `POST /v1/messages` और `x-api-key` हेडर में अपनी BetterToken API Key दें।
 
 ### मौजूदा कीमत कहां मिलेगी?
 
-लाइव <a href={"https://bettertoken.ai/pricing"}>model plaza</a> देखें। टेस्ट के दौरान अस्थायी मॉडल की उपलब्धता और कीमत बदल सकती है।
+लाइव <a href={"https://bettertoken.ai/pricing"}>model plaza</a> देखें। उपलब्धता और कीमत बदल सकती है।
 
 ## संबंधित दस्तावेज़
 
@@ -42853,7 +43189,7 @@ Sustituye `YOUR_MODEL_ID` por el ID de modelo completo de la model plaza o del c
 
 ---
 
-## API de generación de imágenes compatible con OpenAI: guía de GPT Image 2
+## API de generación de imágenes
 
 Source: https://docs.bettertoken.ai/es/api-reference/images-generations
 
@@ -43189,37 +43525,122 @@ El endpoint no devuelve un `task_id`, y no existe un endpoint separado para cons
 
 ---
 
-## La prueba limitada de DeepSeek V4.1 Flash ya está disponible
+## GPT Image 2.5 ya está disponible: Flare y Sunburst
+
+Source: https://docs.bettertoken.ai/es/model-updates/gpt-image-2-5
+
+Description: Compara GPT Image 2.5 Flare y Sunburst para generar y editar imágenes, con los ID de modelo y la configuración de la API de BetterToken.
+
+Actualizado: 2026-09-10
+
+OpenAI lanzó ChatGPT Images 2.5 el 2026-09-08 con dos modelos de API: **GPT Image 2.5 Flare** y **GPT Image 2.5 Sunburst**. Ambos figuran en el <a href={"https://bettertoken.ai/pricing"}>catálogo de modelos</a> de BetterToken. Consulta allí la disponibilidad y los precios actuales.
+
+## Elige un modelo
+
+| Modelo | ID de modelo completo | Tareas recomendadas |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Generación rápida, contenido para redes sociales, borradores visuales y edición cotidiana. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Imágenes de productos, recursos de marca y diseños finales que requieren conservar detalles y editar con mayor precisión. |
+
+Ambos aceptan texto e imágenes y generan imágenes. Empieza con Flare para tareas cotidianas; compara Sunburst cuando necesites varias ediciones precisas del mismo recurso. Usa el ID completo de la tabla, no solo `gpt-image-2.5`.
+
+## Qué ha cambiado
+
+- **Generación más rápida**: según OpenAI, Flare reduce la latencia de generación un 50% frente a GPT Image 2. El tiempo real también depende del tamaño, la calidad y la carga del servicio.
+- **Edición más precisa**: conserva mejor los sujetos de referencia, la composición y los detalles que no pediste cambiar, incluso tras varias ediciones.
+- **Mejoras visuales y de composición**: mejor iluminación, texturas, fidelidad al estilo y seguimiento de instrucciones visuales complejas. Revisa el texto y los datos antes de usar la imagen final.
+
+## Nuevas opciones de la API oficial
+
+La API de imágenes de OpenAI ofrece estas opciones para ambos modelos:
+
+- `quality` admite `low`, `medium`, `high`, `xhigh`, `max` y `auto`.
+- Para un fondo transparente, usa `background: "transparent"` con `output_format: "png"` o `"webp"`.
+- Admite dimensiones personalizadas. El ancho y el alto deben ser múltiplos de 16, la relación de aspecto debe estar entre 1:3 y 3:1, ningún lado puede superar los 3840 píxeles y el total debe estar entre 655,360 y 8,294,400 píxeles. Las salidas superiores a `2560x1440` son experimentales.
+
+<Note>
+  Estas son capacidades de OpenAI. Consulta los parámetros compatibles con BetterToken en la documentación de [generación](/es/api-reference/images-generations) y [edición de imágenes](/es/api-reference/images-edits). Sketch, las plantillas y los comentarios sobre imágenes en ChatGPT son funciones del cliente, no parámetros de la API.
+</Note>
+
+## Conecta a través de BetterToken
+
+Crea una BetterToken API Key con acceso al modelo y usa estos valores:
+
+| Ajuste | Valor |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| Autenticación | `Authorization: Bearer YOUR_API_KEY` |
+| Generación de imágenes | `POST /v1/images/generations` |
+| Edición de imágenes | `POST /v1/images/edits` |
+
+### Genera una imagen
+
+Este ejemplo usa Flare. Para usar Sunburst, sustituye `model` por `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+El endpoint espera a que termine la generación y devuelve la imagen en `data[0].b64_json`. Comprueba que la solicitud haya tenido éxito antes de decodificar y guardar el resultado. Consulta [generación de imágenes](/es/api-reference/images-generations) para ver un ejemplo completo de guardado.
+
+Para editar una imagen, envía `multipart/form-data` a `POST /v1/images/edits`, usa el mismo ID completo y sube una referencia mediante `image`. Consulta los ejemplos de [edición de imágenes](/es/api-reference/images-edits).
+
+## Consejos de integración
+
+- Empieza con `n: 1`, `output_format: "png"` y `response_format: "b64_json"` antes de ajustar otros parámetros.
+- Deja varios minutos para la generación. Tras cambiar de modelo, compara la latencia real, las dimensiones y el resultado de las ediciones.
+- OpenAI cobra por tokens. Consulta la facturación y los precios de BetterToken en el catálogo de modelos; no apliques directamente las estimaciones oficiales.
+
+## Fuentes oficiales
+
+- [Anuncio de ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [Referencia del modelo GPT Image 2.5 Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [Referencia del modelo GPT Image 2.5 Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [Guía de generación de imágenes de OpenAI](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash ya está disponible
 
 Source: https://docs.bettertoken.ai/es/model-updates/deepseek-v4-1-flash
 
-Description: Prueba DeepSeek V4.1 Flash en BetterToken con el Model ID temporal deepseek-v4.1-flash-expires-on-0910 antes de su caducidad prevista el 2026-09-10.
+Description: Usa DeepSeek V4.1 Flash en BetterToken con el Model ID deepseek-flash mediante OpenAI Chat Completions o Anthropic Messages.
 
-Actualizado: 9 de septiembre de 2026
+Actualizado: 11 de septiembre de 2026
 
-BetterToken ofrece acceso de prueba limitado a **DeepSeek V4.1 Flash** mediante el Model ID exacto `deepseek-v4.1-flash-expires-on-0910`. Está previsto que esta entrada temporal caduque el **10 de septiembre de 2026**. Úsala para evaluar el modelo, no como configuración permanente de producción. Antes de enviar una solicitud, consulta el acceso y el precio actuales en la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+**DeepSeek V4.1 Flash** ya está disponible oficialmente en BetterToken. Usa el Model ID exacto `deepseek-flash`. Antes de enviar una solicitud, consulta el acceso y el precio actuales en la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-<Warning>
-  El Model ID temporal incluye su fecha de caducidad. Puede dejar de funcionar después del 10 de septiembre de 2026 y no se sustituirá automáticamente por un futuro ID estable. Prepara un modelo alternativo estable.
-</Warning>
+<Check>
+  Establece `model` en `deepseek-flash`. El Model ID de la prueba limitada anterior ya no es la entrada actual.
+</Check>
 
 ## Qué está disponible ahora
 
 | Ajuste | Valor |
 | --- | --- |
 | Proveedor | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| Estado en BetterToken | Prueba limitada; caducidad prevista para el 10 de septiembre de 2026 |
+| Estado en BetterToken | Disponible |
 
 Elige OpenAI Chat Completions o Anthropic Messages según tu cliente. Ambos protocolos usan la misma BetterToken API Key y el mismo Model ID.
 
 ## Recomendaciones de uso
 
-Utiliza el periodo de prueba para comparar DeepSeek V4.1 Flash con la entrada estable de DeepSeek V4 Flash en tareas relevantes para tu flujo de trabajo:
+Compara DeepSeek V4.1 Flash con otro modelo disponible en tareas relevantes para tu flujo de trabajo:
 
 - **Cambios de código**: asigna a ambos modelos la misma tarea de repositorio y compara la corrección, la calidad de las modificaciones y el seguimiento necesario
 - **Flujos de agentes**: mide la fiabilidad con la que cada modelo sigue instrucciones de varios pasos y utiliza las herramientas del cliente
@@ -43231,7 +43652,7 @@ Ejecuta varios prompts representativos en lugar de confiar en un único resultad
 ## Inicio rápido
 
 1. <a href={"https://bettertoken.ai/register"}>Crea una BetterToken API Key</a> o abre **Setup** para una clave existente.
-2. Confirma en la model plaza que `deepseek-v4.1-flash-expires-on-0910` sigue disponible.
+2. Confirma en la model plaza que `deepseek-flash` está disponible.
 3. Selecciona el **proveedor DeepSeek**.
 4. Configura la Base URL de tu protocolo según la tabla anterior e introduce el Model ID completo.
 5. Envía una solicitud pequeña antes de iniciar una evaluación más larga.
@@ -43241,7 +43662,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -43253,29 +43674,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 Una respuesta correcta devuelve el contenido del modelo en `choices[0].message.content`. Consulta ejemplos de SDK y el formato completo en la [referencia de Chat Completions API](/es/api-reference/chat-completions).
 
-## Preparación para la caducidad
+## Migrar desde el Model ID de la prueba limitada
 
-Antes del 10 de septiembre de 2026:
+Si una configuración todavía usa el Model ID de la prueba limitada anterior:
 
 1. Busca todas las configuraciones que contengan `deepseek-v4.1-flash-expires-on-0910`.
-2. Guarda los resultados de evaluación que necesites.
-3. Sustituye el ID temporal por `deepseek-v4-flash-0731` u otro Model ID disponible.
-4. Ejecuta una prueba rápida después del cambio.
-5. Consulta en la model plaza si existe una nueva entrada estable de V4.1. No adivines su Model ID.
+2. Sustitúyelo por `deepseek-flash`.
+3. Ejecuta una prueba rápida después del cambio.
+4. Confirma la entrada actual del modelo y el precio en la model plaza.
 
 ## Preguntas frecuentes
 
 ### ¿Puedo usar este Model ID en producción?
 
-Puedes enviar solicitudes mientras la entrada esté disponible, pero no debe ser el único modelo de una configuración de producción duradera. La caducidad prevista puede hacer que las solicitudes fallen al terminar la prueba.
+Sí. Usa `deepseek-flash` y confirma en la model plaza que el modelo está disponible para tu BetterToken API Key.
 
 ### ¿Puedo usarlo con Claude Code o Anthropic Messages API?
 
-Sí. Para Claude Code o Anthropic Messages, usa la Base URL `https://bettertoken.ai` y el Model ID `deepseek-v4.1-flash-expires-on-0910`. Las solicitudes directas de Messages usan `POST /v1/messages` con la BetterToken API Key en `x-api-key`.
+Sí. Para Claude Code o Anthropic Messages, usa la Base URL `https://bettertoken.ai` y el Model ID `deepseek-flash`. Las solicitudes directas de Messages usan `POST /v1/messages` con la BetterToken API Key en `x-api-key`.
 
 ### ¿Dónde puedo consultar el precio actual?
 
-Consulta la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> en tiempo real. La disponibilidad y el precio del modelo temporal pueden cambiar durante la prueba.
+Consulta la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> en tiempo real. La disponibilidad y el precio pueden cambiar.
 
 ## Documentación relacionada
 
@@ -52252,7 +52672,7 @@ Substitua `YOUR_MODEL_ID` pelo ID completo da model plaza ou da caixa **Setup**.
 
 ---
 
-## API de geração de imagens compatível com OpenAI: guia do GPT Image 2
+## API de geração de imagens
 
 Source: https://docs.bettertoken.ai/pt-br/api-reference/images-generations
 
@@ -52588,37 +53008,122 @@ O endpoint não retorna `task_id`, nem há endpoint separado para consultar stat
 
 ---
 
-## O teste limitado do DeepSeek V4.1 Flash está disponível
+## GPT Image 2.5 disponível: Flare e Sunburst
+
+Source: https://docs.bettertoken.ai/pt-br/model-updates/gpt-image-2-5
+
+Description: Compare GPT Image 2.5 Flare e Sunburst para gerar e editar imagens, com IDs de modelo e configuração da API BetterToken.
+
+Atualizado: 2026-09-10
+
+A OpenAI lançou o ChatGPT Images 2.5 em 2026-09-08 com dois modelos de API: **GPT Image 2.5 Flare** e **GPT Image 2.5 Sunburst**. Ambos estão no <a href={"https://bettertoken.ai/pricing"}>catálogo de modelos</a> da BetterToken. Consulte-o para verificar a disponibilidade e os preços atuais.
+
+## Escolha um modelo
+
+| Modelo | ID completo do modelo | Tarefas indicadas |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Geração rápida, conteúdo para redes sociais, rascunhos visuais e edição cotidiana. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Imagens de produtos, materiais de marca e artes finais que exigem maior preservação de detalhes e precisão nas edições. |
+
+Ambos aceitam texto e imagens como entrada e produzem imagens. Comece com Flare nas tarefas do dia a dia; compare Sunburst quando precisar de várias edições precisas no mesmo material. Use o ID completo da tabela, não apenas `gpt-image-2.5`.
+
+## O que mudou
+
+- **Geração mais rápida**: segundo a OpenAI, a latência de geração do Flare é 50% menor que a do GPT Image 2. O tempo real também depende do tamanho, da qualidade e da carga do serviço.
+- **Edição mais precisa**: preserva melhor os elementos de referência, a composição e os detalhes que você não pediu para alterar, inclusive ao longo de várias edições.
+- **Melhorias visuais e de composição**: avanços em iluminação, texturas, fidelidade ao estilo e execução de instruções visuais complexas. Revise textos e dados antes de usar a imagem final.
+
+## Novas opções da API oficial
+
+A API de imagens da OpenAI oferece estas opções para ambos os modelos:
+
+- `quality` aceita `low`, `medium`, `high`, `xhigh`, `max` e `auto`.
+- Para um fundo transparente, use `background: "transparent"` com `output_format: "png"` ou `"webp"`.
+- Dimensões personalizadas são aceitas. Largura e altura devem ser múltiplos de 16, a proporção deve ficar entre 1:3 e 3:1, nenhum lado pode ultrapassar 3840 pixels e o total deve ficar entre 655,360 e 8,294,400 pixels. Saídas acima de `2560x1440` são experimentais.
+
+<Note>
+  Esses são recursos da OpenAI. Consulte os parâmetros aceitos pela BetterToken na documentação de [geração](/pt-br/api-reference/images-generations) e [edição de imagens](/pt-br/api-reference/images-edits). Sketch, modelos de criação e comentários em imagens no ChatGPT são recursos do cliente, não parâmetros da API.
+</Note>
+
+## Conecte pela BetterToken
+
+Crie uma BetterToken API Key com acesso ao modelo e use estas configurações:
+
+| Configuração | Valor |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| Autenticação | `Authorization: Bearer YOUR_API_KEY` |
+| Geração de imagens | `POST /v1/images/generations` |
+| Edição de imagens | `POST /v1/images/edits` |
+
+### Gere uma imagem
+
+Este exemplo usa Flare. Para usar Sunburst, substitua `model` por `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+O endpoint aguarda o fim da geração e retorna a imagem em `data[0].b64_json`. Verifique se a solicitação foi bem-sucedida antes de decodificar e salvar o resultado. Consulte [geração de imagens](/pt-br/api-reference/images-generations) para um exemplo completo de salvamento.
+
+Para editar uma imagem, envie `multipart/form-data` para `POST /v1/images/edits`, use o mesmo ID completo e envie uma referência com `image`. Veja os exemplos de [edição de imagens](/pt-br/api-reference/images-edits).
+
+## Dicas de integração
+
+- Comece com `n: 1`, `output_format: "png"` e `response_format: "b64_json"` antes de ajustar outros parâmetros.
+- Reserve alguns minutos para a geração. Após trocar de modelo, compare a latência real, as dimensões e os resultados das edições.
+- A OpenAI cobra por tokens. Consulte a cobrança e os preços da BetterToken no catálogo de modelos; não aplique diretamente as estimativas oficiais.
+
+## Fontes oficiais
+
+- [Anúncio do ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [Referência do modelo GPT Image 2.5 Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [Referência do modelo GPT Image 2.5 Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [Guia de geração de imagens da OpenAI](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash já está disponível
 
 Source: https://docs.bettertoken.ai/pt-br/model-updates/deepseek-v4-1-flash
 
-Description: Teste o DeepSeek V4.1 Flash no BetterToken com o Model ID temporário deepseek-v4.1-flash-expires-on-0910 antes da expiração programada para 2026-09-10.
+Description: Use o DeepSeek V4.1 Flash no BetterToken com o Model ID deepseek-flash por OpenAI Chat Completions ou Anthropic Messages.
 
-Atualizado em: 9 de setembro de 2026
+Atualizado em: 11 de setembro de 2026
 
-O BetterToken agora oferece acesso de teste limitado ao **DeepSeek V4.1 Flash** com o Model ID exato `deepseek-v4.1-flash-expires-on-0910`. Essa entrada temporária está programada para expirar em **10 de setembro de 2026**. Use-a para avaliar o modelo, não como configuração permanente de produção. Antes de enviar uma solicitação, verifique o acesso e o preço atuais na <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+O **DeepSeek V4.1 Flash** já está disponível oficialmente no BetterToken. Use o Model ID exato `deepseek-flash`. Antes de enviar uma solicitação, verifique o acesso e o preço atuais na <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-<Warning>
-  O Model ID temporário inclui a data de expiração. Ele pode parar de funcionar depois de 10 de setembro de 2026 e não será substituído automaticamente por um futuro ID estável. Mantenha um modelo estável de reserva.
-</Warning>
+<Check>
+  Defina `model` como `deepseek-flash`. O Model ID do teste limitado anterior não é mais a entrada atual.
+</Check>
 
 ## O que está disponível agora
 
 | Configuração | Valor |
 | --- | --- |
 | Provedor | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| Status no BetterToken | Teste limitado; expiração programada para 10 de setembro de 2026 |
+| Status no BetterToken | Disponível |
 
 Escolha OpenAI Chat Completions ou Anthropic Messages conforme seu cliente. Os dois protocolos usam a mesma BetterToken API Key e o mesmo Model ID.
 
 ## Sugestões de uso
 
-Use o período de teste para comparar o DeepSeek V4.1 Flash com a entrada estável do DeepSeek V4 Flash em tarefas importantes para seu fluxo de trabalho:
+Compare o DeepSeek V4.1 Flash com outro modelo disponível em tarefas importantes para seu fluxo de trabalho:
 
 - **Alterações de código**: atribua a mesma tarefa de repositório aos dois modelos e compare correção, qualidade das edições e acompanhamento necessário
 - **Fluxos com agentes**: meça a confiabilidade com que cada modelo segue instruções de várias etapas e usa as ferramentas fornecidas pelo cliente
@@ -52630,7 +53135,7 @@ Execute vários prompts representativos em vez de confiar em um único resultado
 ## Início rápido
 
 1. <a href={"https://bettertoken.ai/register"}>Crie uma BetterToken API Key</a> ou abra **Setup** para uma chave existente.
-2. Confirme na model plaza se `deepseek-v4.1-flash-expires-on-0910` ainda está disponível.
+2. Confirme na model plaza se `deepseek-flash` está disponível.
 3. Selecione o **provedor DeepSeek**.
 4. Use a Base URL do seu protocolo na tabela acima e informe o Model ID completo.
 5. Envie uma solicitação pequena antes de iniciar uma avaliação mais longa.
@@ -52640,7 +53145,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -52652,29 +53157,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 Uma resposta bem-sucedida retorna a saída do modelo em `choices[0].message.content`. Para exemplos com SDK e o formato completo da solicitação, consulte a [referência da Chat Completions API](/pt-br/api-reference/chat-completions).
 
-## Prepare-se para a expiração
+## Migrar do Model ID do teste limitado
 
-Antes de 10 de setembro de 2026:
+Se uma configuração ainda usa o Model ID do teste limitado anterior:
 
 1. Encontre todas as configurações que contêm `deepseek-v4.1-flash-expires-on-0910`.
-2. Salve os resultados da avaliação de que precisa.
-3. Substitua o ID temporário por `deepseek-v4-flash-0731` ou outro Model ID disponível no momento.
-4. Execute um teste rápido depois da alteração.
-5. Verifique na model plaza se há uma nova entrada estável V4.1. Não tente adivinhar o Model ID.
+2. Substitua-o por `deepseek-flash`.
+3. Execute um teste rápido depois da alteração.
+4. Confirme a entrada atual do modelo e o preço na model plaza.
 
 ## Perguntas frequentes
 
 ### Posso usar esse Model ID em produção?
 
-Você pode enviar solicitações enquanto a entrada estiver disponível, mas ela não deve ser o único modelo em uma configuração de produção duradoura. A expiração programada pode fazer com que as solicitações falhem após o fim do teste.
+Sim. Use `deepseek-flash` e confirme na model plaza que o modelo está disponível para sua BetterToken API Key.
 
 ### Posso usá-lo com Claude Code ou Anthropic Messages API?
 
-Sim. Para Claude Code ou Anthropic Messages, use a Base URL `https://bettertoken.ai` e o Model ID `deepseek-v4.1-flash-expires-on-0910`. Solicitações diretas de Messages usam `POST /v1/messages` com sua BetterToken API Key no cabeçalho `x-api-key`.
+Sim. Para Claude Code ou Anthropic Messages, use a Base URL `https://bettertoken.ai` e o Model ID `deepseek-flash`. Solicitações diretas de Messages usam `POST /v1/messages` com sua BetterToken API Key no cabeçalho `x-api-key`.
 
 ### Onde encontro o preço atual?
 
-Consulte a <a href={"https://bettertoken.ai/pricing"}>model plaza</a> em tempo real. A disponibilidade e o preço do modelo temporário podem mudar durante o teste.
+Consulte a <a href={"https://bettertoken.ai/pricing"}>model plaza</a> em tempo real. A disponibilidade e o preço podem mudar.
 
 ## Documentação relacionada
 
@@ -61650,7 +62154,7 @@ Playground では完全な URL `https://bettertoken.ai/v1/chat/completions` が�
 
 ---
 
-## OpenAI 互換画像生成 API：GPT Image 2 ガイド
+## 画像生成 API
 
 Source: https://docs.bettertoken.ai/ja/api-reference/images-generations
 
@@ -61986,37 +62490,122 @@ b64_json = result["data"][0]["b64_json"]
 
 ---
 
-## DeepSeek V4.1 Flash の期間限定テストを開始
+## GPT Image 2.5 登場：Flare と Sunburst
+
+Source: https://docs.bettertoken.ai/ja/model-updates/gpt-image-2-5
+
+Description: GPT Image 2.5 Flare と Sunburst の画像生成・編集機能の違い、BetterToken のモデル ID と API 設定方法を紹介します。
+
+更新日：2026-09-10
+
+OpenAI は 2026-09-08 に ChatGPT Images 2.5 を公開し、**GPT Image 2.5 Flare** と **GPT Image 2.5 Sunburst** の 2 つの API モデルを発表しました。BetterToken の<a href={"https://bettertoken.ai/pricing"}>モデル一覧</a>にも両モデルが掲載されています。最新の提供状況と料金はモデル一覧で確認してください。
+
+## モデルを選ぶ
+
+| モデル | 完全なモデル ID | 適した用途 |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | 高速な生成、SNS 向け素材、ビジュアルの下書き、日常的な画像編集。 |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | 細部の保持と精密な編集が求められる商品画像、ブランド素材、最終成果物。 |
+
+どちらもテキストと画像を入力し、画像を出力します。日常的な作業には Flare から始め、同じ素材に精密な編集を繰り返す場合は Sunburst と比較してください。`gpt-image-2.5` だけでなく、表にある完全なモデル ID を使用します。
+
+## 主な変更点
+
+- **生成の高速化**：OpenAI によると、Flare の生成遅延は GPT Image 2 より 50% 低下しています。実際の所要時間はサイズ、品質、サービスの負荷によっても変わります。
+- **編集精度の向上**：参照画像の被写体、構図、変更を指示していない細部を、複数回の編集でも保持しやすくなりました。
+- **画質とレイアウトの改善**：光、質感、スタイルへの忠実さ、複雑な視覚的指示への対応が改善しています。完成画像を使う前に文字や事実関係を確認してください。
+
+## 公式 API の新しいオプション
+
+OpenAI の画像 API は、両モデルで次のオプションを提供します。
+
+- `quality` は `low`、`medium`、`high`、`xhigh`、`max`、`auto` を指定できます。
+- 背景を透過するには、`background: "transparent"` と `output_format: "png"` または `"webp"` を組み合わせます。
+- カスタムサイズに対応しています。幅と高さは 16 の倍数、アスペクト比は 1:3 から 3:1、各辺は最大 3840 ピクセル、総画素数は 655,360 から 8,294,400 の範囲です。`2560x1440` を超える出力は実験的機能です。
+
+<Note>
+  これらは OpenAI の機能です。BetterToken が対応するパラメータは、[画像生成](/ja/api-reference/images-generations)と[画像編集](/ja/api-reference/images-edits)のドキュメントを参照してください。ChatGPT の Sketch、テンプレート、画像コメントはクライアント機能であり、画像 API のパラメータではありません。
+</Note>
+
+## BetterToken 経由で接続する
+
+対象モデルにアクセスできる BetterToken API Key を作成し、次の設定を使用します。
+
+| 設定項目 | 値 |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| 認証方式 | `Authorization: Bearer YOUR_API_KEY` |
+| 画像生成 | `POST /v1/images/generations` |
+| 画像編集 | `POST /v1/images/edits` |
+
+### 画像を生成する
+
+この例では Flare を使用します。Sunburst を使う場合は、`model` を `gpt-image-2.5-sunburst` に変更してください。
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+画像エンドポイントは生成完了を待ち、`data[0].b64_json` に画像データを返します。リクエストの成功を確認してからデコードして保存してください。保存処理の例は[画像生成](/ja/api-reference/images-generations)を参照してください。
+
+画像を編集するには、`POST /v1/images/edits` に `multipart/form-data` を送信します。同じ完全なモデル ID を指定し、`image` で参照画像をアップロードしてください。例は[画像編集](/ja/api-reference/images-edits)を参照してください。
+
+## 接続時のポイント
+
+- 最初は `n: 1`、`output_format: "png"`、`response_format: "b64_json"` で呼び出し、その後ほかのパラメータを調整します。
+- 画像生成には数分の待ち時間を確保してください。モデルを変更したら、実際の遅延、出力サイズ、編集結果を比較します。
+- OpenAI はトークン単位で課金します。BetterToken の課金方式と料金はモデル一覧で確認し、公式の見積もりをそのまま適用しないでください。
+
+## 公式情報
+
+- [ChatGPT Images 2.5 の発表](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare モデルリファレンス](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst モデルリファレンス](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI 画像生成ガイド](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash が正式リリース
 
 Source: https://docs.bettertoken.ai/ja/model-updates/deepseek-v4-1-flash
 
-Description: BetterToken で DeepSeek V4.1 Flash を一時的な Model ID deepseek-v4.1-flash-expires-on-0910 を使って、予定された 2026-09-10 の期限までテストできます。
+Description: BetterToken で Model ID deepseek-flash を指定し、OpenAI Chat Completions または Anthropic Messages から DeepSeek V4.1 Flash を利用できます。
 
-更新日：2026 年 9 月 9 日
+更新日：2026 年 9 月 11 日
 
-BetterToken では、正確な Model ID `deepseek-v4.1-flash-expires-on-0910` を使って **DeepSeek V4.1 Flash** を期間限定でテストできるようになりました。この一時的なエントリは **2026 年 9 月 10 日**に期限切れとなる予定です。恒久的な本番設定ではなく、モデルの評価に使用してください。リクエストを送る前に、<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>で現在のアクセス状況と料金を確認してください。
+**DeepSeek V4.1 Flash** が BetterToken で正式に利用できるようになりました。正確な Model ID は `deepseek-flash` です。リクエストを送る前に、<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>で現在のアクセス状況と料金を確認してください。
 
-<Warning>
-  一時的な Model ID には有効期限が含まれています。2026 年 9 月 10 日以降は動作しなくなる可能性があり、将来の安定版 ID に自動で置き換わることもありません。安定した代替モデルを用意してください。
-</Warning>
+<Check>
+  `model` に `deepseek-flash` を指定します。以前の期間限定テスト用 Model ID は現在のエントリではありません。
+</Check>
 
 ## 現在利用できる設定
 
 | 設定 | 値 |
 | --- | --- |
 | プロバイダー | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken の状態 | 期間限定テスト、2026 年 9 月 10 日に期限切れ予定 |
+| BetterToken の状態 | 利用可能 |
 
 クライアントに合わせて OpenAI Chat Completions または Anthropic Messages を選択してください。両方のプロトコルで同じ BetterToken API Key と Model ID を使用します。
 
 ## 使用のヒント
 
-テスト期間中に、実際のワークフローで重要なタスクを使って DeepSeek V4.1 Flash と安定版 DeepSeek V4 Flash を比較してください。
+実際のワークフローで重要なタスクを使って DeepSeek V4.1 Flash と現在利用可能な別のモデルを比較してください。
 
 - **コード変更**：両方のモデルに同じリポジトリタスクを与え、正確性、編集品質、追加の指示が必要な回数を比較する
 - **Agent ワークフロー**：各モデルが複数手順の指示に従い、クライアントのツールを利用する信頼性を測る
@@ -62028,7 +62617,7 @@ BetterToken では、正確な Model ID `deepseek-v4.1-flash-expires-on-0910` �
 ## クイックスタート
 
 1. <a href={"https://bettertoken.ai/register"}>BetterToken API Key を作成</a>するか、既存の Key の **Setup** を開きます。
-2. `deepseek-v4.1-flash-expires-on-0910` がまだ利用可能かモデル広場で確認します。
+2. `deepseek-flash` が利用可能かモデル広場で確認します。
 3. **DeepSeek プロバイダー**を選択します。
 4. 上の表からプロトコルに対応する Base URL を選び、完全な Model ID を入力します。
 5. 長い評価を始める前に、小さなリクエストを送信します。
@@ -62038,7 +62627,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -62050,29 +62639,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 成功したレスポンスでは、モデルの出力が `choices[0].message.content` に返されます。SDK の例と完全なリクエスト形式は、[Chat Completions API リファレンス](/ja/api-reference/chat-completions)を参照してください。
 
-## 有効期限への準備
+## 期間限定テスト用 Model ID から移行する
 
-2026 年 9 月 10 日までに、次の作業を行ってください。
+設定で以前の期間限定テスト用 Model ID をまだ使用している場合：
 
 1. `deepseek-v4.1-flash-expires-on-0910` を含むすべての設定を見つけます。
-2. 必要な評価結果を保存します。
-3. 一時 ID を `deepseek-v4-flash-0731` または現在利用可能な別の Model ID に置き換えます。
-4. 変更後にスモークテストを実行します。
-5. 新しい安定版 V4.1 エントリがあるかモデル広場で確認します。Model ID を推測しないでください。
+2. `deepseek-flash` に置き換えます。
+3. 変更後にスモークテストを実行します。
+4. モデル広場で現在のモデルエントリと料金を確認します。
 
 ## よくある質問
 
 ### この Model ID を本番環境で使用できますか？
 
-エントリが利用できる間はリクエストを送信できますが、長期運用する本番設定の唯一のモデルにはしないでください。予定された期限を過ぎると、リクエストが失敗する可能性があります。
+はい。`deepseek-flash` を使用し、BetterToken API Key でモデルを利用できることをモデル広場で確認してください。
 
 ### Claude Code や Anthropic Messages API で使用できますか？
 
-はい。Claude Code または Anthropic Messages では Base URL `https://bettertoken.ai` と Model ID `deepseek-v4.1-flash-expires-on-0910` を使用してください。Messages を直接呼び出す場合は `POST /v1/messages` を使用し、`x-api-key` ヘッダーに BetterToken API Key を指定します。
+はい。Claude Code または Anthropic Messages では Base URL `https://bettertoken.ai` と Model ID `deepseek-flash` を使用してください。Messages を直接呼び出す場合は `POST /v1/messages` を使用し、`x-api-key` ヘッダーに BetterToken API Key を指定します。
 
 ### 現在の料金はどこで確認できますか？
 
-リアルタイムの<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>を確認してください。テスト中は一時モデルの提供状況と料金が変更される場合があります。
+リアルタイムの<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>を確認してください。提供状況と料金は変更される場合があります。
 
 ## 関連ドキュメント
 
@@ -71045,7 +71633,7 @@ Remplacez `YOUR_MODEL_ID` par le Model ID complet du model plaza ou de la boîte
 
 ---
 
-## API de génération d’images OpenAI compatible : guide GPT Image 2
+## API de génération d’images
 
 Source: https://docs.bettertoken.ai/fr/api-reference/images-generations
 
@@ -71381,37 +71969,122 @@ L’endpoint ne renvoie pas de `task_id`, et il n’existe pas d’endpoint dist
 
 ---
 
-## Le test limite de DeepSeek V4.1 Flash est disponible
+## GPT Image 2.5 est disponible : Flare et Sunburst
+
+Source: https://docs.bettertoken.ai/fr/model-updates/gpt-image-2-5
+
+Description: Comparez GPT Image 2.5 Flare et Sunburst pour créer et retoucher des images, avec les identifiants de modèles et la configuration API BetterToken.
+
+Mise à jour : 2026-09-10
+
+OpenAI a lancé ChatGPT Images 2.5 le 2026-09-08 avec deux modèles API : **GPT Image 2.5 Flare** et **GPT Image 2.5 Sunburst**. Ils figurent tous deux dans le <a href={"https://bettertoken.ai/pricing"}>catalogue de modèles</a> BetterToken. Consultez-le pour connaître leur disponibilité et leurs tarifs actuels.
+
+## Choisir un modèle
+
+| Modèle | Identifiant complet | Usages adaptés |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Génération rapide, contenus pour les réseaux sociaux, ébauches visuelles et retouches courantes. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Photos de produits, visuels de marque et créations finales exigeant une meilleure conservation des détails et des retouches précises. |
+
+Les deux modèles acceptent du texte et des images et produisent des images. Commencez par Flare pour les tâches courantes ; comparez Sunburst pour des retouches précises et répétées du même visuel. Utilisez l’identifiant complet du tableau, pas seulement `gpt-image-2.5`.
+
+## Les nouveautés
+
+- **Génération plus rapide** : OpenAI annonce une latence de génération réduite de 50% pour Flare par rapport à GPT Image 2. Le délai réel dépend aussi de la taille, de la qualité et de la charge du service.
+- **Retouches plus précises** : meilleure conservation des sujets de référence, de la composition et des détails que vous ne demandez pas de modifier, même au fil des retouches.
+- **Visuels et composition améliorés** : meilleurs éclairages, textures, respect du style et suivi des consignes visuelles complexes. Vérifiez les textes et les données avant d’utiliser une image finale.
+
+## Nouvelles options de l’API officielle
+
+L’API d’images OpenAI propose ces options pour les deux modèles :
+
+- `quality` accepte `low`, `medium`, `high`, `xhigh`, `max` et `auto`.
+- Pour un fond transparent, utilisez `background: "transparent"` avec `output_format: "png"` ou `"webp"`.
+- Les dimensions personnalisées sont prises en charge. La largeur et la hauteur doivent être des multiples de 16, le rapport doit être compris entre 1:3 et 3:1, aucun côté ne peut dépasser 3840 pixels et le total doit être compris entre 655,360 et 8,294,400 pixels. Les sorties supérieures à `2560x1440` sont expérimentales.
+
+<Note>
+  Il s’agit des capacités OpenAI. Consultez les paramètres pris en charge par BetterToken dans la documentation de [génération](/fr/api-reference/images-generations) et de [retouche d’images](/fr/api-reference/images-edits). Sketch, les modèles de création et les commentaires sur les images dans ChatGPT sont des fonctions du client, pas des paramètres API.
+</Note>
+
+## Se connecter via BetterToken
+
+Créez une BetterToken API Key autorisée à utiliser le modèle, puis appliquez ces paramètres :
+
+| Paramètre | Valeur |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| Authentification | `Authorization: Bearer YOUR_API_KEY` |
+| Génération d’images | `POST /v1/images/generations` |
+| Retouche d’images | `POST /v1/images/edits` |
+
+### Générer une image
+
+Cet exemple utilise Flare. Pour utiliser Sunburst, remplacez `model` par `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+L’endpoint attend la fin de la génération, puis renvoie l’image dans `data[0].b64_json`. Vérifiez que la requête a réussi avant de décoder et d’enregistrer le résultat. Consultez la [génération d’images](/fr/api-reference/images-generations) pour un exemple complet d’enregistrement.
+
+Pour retoucher une image, envoyez `multipart/form-data` à `POST /v1/images/edits`, utilisez le même identifiant complet et téléversez une référence avec `image`. Consultez les exemples de [retouche d’images](/fr/api-reference/images-edits).
+
+## Conseils d’intégration
+
+- Commencez avec `n: 1`, `output_format: "png"` et `response_format: "b64_json"` avant d’ajuster les autres paramètres.
+- Prévoyez plusieurs minutes pour la génération. Après un changement de modèle, comparez la latence réelle, les dimensions et les résultats des retouches.
+- OpenAI facture les tokens. Consultez le catalogue de modèles pour la facturation et les tarifs BetterToken ; n’appliquez pas directement les estimations officielles.
+
+## Sources officielles
+
+- [Annonce de ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [Référence du modèle GPT Image 2.5 Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [Référence du modèle GPT Image 2.5 Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [Guide OpenAI de génération d’images](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash est maintenant disponible
 
 Source: https://docs.bettertoken.ai/fr/model-updates/deepseek-v4-1-flash
 
-Description: Testez DeepSeek V4.1 Flash sur BetterToken avec le Model ID temporaire deepseek-v4.1-flash-expires-on-0910 avant son expiration prevue le 2026-09-10.
+Description: Utilisez DeepSeek V4.1 Flash sur BetterToken avec le Model ID deepseek-flash via OpenAI Chat Completions ou Anthropic Messages.
 
-Mis a jour le 9 septembre 2026
+Mis à jour le 11 septembre 2026
 
-BetterToken propose desormais un acces de test limite a **DeepSeek V4.1 Flash** avec le Model ID exact `deepseek-v4.1-flash-expires-on-0910`. Cette entree temporaire doit expirer le **10 septembre 2026**. Utilisez-la pour evaluer le modele, pas comme configuration de production permanente. Avant toute requete, verifiez l'acces et le tarif actuels dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+**DeepSeek V4.1 Flash** est maintenant officiellement disponible sur BetterToken. Utilisez le Model ID exact `deepseek-flash`. Avant toute requête, vérifiez l’accès et le tarif actuels dans la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-<Warning>
-  Le Model ID temporaire contient sa date d'expiration. Il peut cesser de fonctionner apres le 10 septembre 2026 et ne sera pas automatiquement remplace par un futur ID stable. Preparez un modele de secours stable.
-</Warning>
+<Check>
+  Définissez `model` sur `deepseek-flash`. L’ancien Model ID du test limité n’est plus l’entrée actuelle.
+</Check>
 
 ## Ce qui est disponible maintenant
 
 | Parametre | Valeur |
 | --- | --- |
 | Fournisseur | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| Statut BetterToken | Test limite ; expiration prevue le 10 septembre 2026 |
+| Statut BetterToken | Disponible |
 
 Choisissez OpenAI Chat Completions ou Anthropic Messages selon votre client. Les deux protocoles utilisent la même BetterToken API Key et le même Model ID.
 
 ## Conseils d’utilisation
 
-Profitez de la periode de test pour comparer DeepSeek V4.1 Flash a l'entree stable DeepSeek V4 Flash sur des taches propres a votre flux de travail :
+Comparez DeepSeek V4.1 Flash à un autre modèle disponible sur des tâches propres à votre flux de travail :
 
 - **Modifications de code** : confiez la meme tache de depot aux deux modeles et comparez l'exactitude, la qualite des modifications et le suivi necessaire
 - **Flux agentiques** : mesurez la fiabilite avec laquelle chaque modele suit des instructions en plusieurs etapes et utilise les outils du client
@@ -71423,7 +72096,7 @@ Executez plusieurs prompts representatifs au lieu de vous fier a un seul resulta
 ## Demarrage rapide
 
 1. <a href={"https://bettertoken.ai/register"}>Creez une BetterToken API Key</a> ou ouvrez **Setup** pour une cle existante.
-2. Verifiez dans la model plaza que `deepseek-v4.1-flash-expires-on-0910` est toujours disponible.
+2. Vérifiez dans la model plaza que `deepseek-flash` est disponible.
 3. Selectionnez le **fournisseur DeepSeek**.
 4. Utilisez la Base URL de votre protocole dans le tableau ci-dessus et le Model ID complet.
 5. Envoyez une petite requete avant de lancer une evaluation plus longue.
@@ -71433,7 +72106,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -71445,29 +72118,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 Une reponse reussie renvoie la sortie du modele dans `choices[0].message.content`. Pour les exemples de SDK et le format complet, consultez la [reference Chat Completions API](/fr/api-reference/chat-completions).
 
-## Preparation a l'expiration
+## Migrer depuis le Model ID du test limité
 
-Avant le 10 septembre 2026 :
+Si une configuration utilise encore l’ancien Model ID du test limité :
 
 1. Recherchez toutes les configurations contenant `deepseek-v4.1-flash-expires-on-0910`.
-2. Conservez les resultats d'evaluation necessaires.
-3. Remplacez l'ID temporaire par `deepseek-v4-flash-0731` ou un autre Model ID disponible.
-4. Executez un test rapide apres le changement.
-5. Verifiez dans la model plaza si une nouvelle entree stable V4.1 existe. Ne devinez pas son Model ID.
+2. Remplacez-le par `deepseek-flash`.
+3. Exécutez un test rapide après le changement.
+4. Vérifiez l’entrée actuelle du modèle et le tarif dans la model plaza.
 
 ## Questions frequentes
 
 ### Puis-je utiliser ce Model ID en production ?
 
-Vous pouvez envoyer des requetes tant que l'entree est disponible, mais n'en faites pas l'unique modele d'une configuration de production durable. Son expiration programmee peut provoquer l'echec des requetes apres la fin du test.
+Oui. Utilisez `deepseek-flash` et vérifiez dans la model plaza que le modèle est disponible pour votre BetterToken API Key.
 
 ### Puis-je l'utiliser avec Claude Code ou Anthropic Messages API ?
 
-Oui. Pour Claude Code ou Anthropic Messages, utilisez la Base URL `https://bettertoken.ai` et le Model ID `deepseek-v4.1-flash-expires-on-0910`. Les requêtes Messages directes utilisent `POST /v1/messages` avec votre BetterToken API Key dans `x-api-key`.
+Oui. Pour Claude Code ou Anthropic Messages, utilisez la Base URL `https://bettertoken.ai` et le Model ID `deepseek-flash`. Les requêtes Messages directes utilisent `POST /v1/messages` avec votre BetterToken API Key dans `x-api-key`.
 
 ### Ou trouver le tarif actuel ?
 
-Consultez la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> en direct. La disponibilite et le tarif du modele temporaire peuvent changer pendant le test.
+Consultez la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> en direct. La disponibilité et le tarif peuvent changer.
 
 ## Documentation associée
 
@@ -80443,7 +81115,7 @@ Ersetze `YOUR_MODEL_ID` durch die vollständige Model ID aus der model plaza ode
 
 ---
 
-## OpenAI-kompatible Bildgenerierungs-API: GPT Image 2 Anleitung
+## API zur Bildgenerierung
 
 Source: https://docs.bettertoken.ai/de/api-reference/images-generations
 
@@ -80779,37 +81451,122 @@ Der Endpunkt gibt keine `task_id` zurück; es gibt keinen separaten Endpunkt fü
 
 ---
 
-## Der begrenzte Test von DeepSeek V4.1 Flash ist verfügbar
+## GPT Image 2.5 ist verfügbar: Flare und Sunburst
+
+Source: https://docs.bettertoken.ai/de/model-updates/gpt-image-2-5
+
+Description: Vergleiche GPT Image 2.5 Flare und Sunburst für Bilderzeugung und Bildbearbeitung, mit Modell-IDs und API-Einrichtung für BetterToken.
+
+Aktualisiert: 2026-09-10
+
+OpenAI hat ChatGPT Images 2.5 am 2026-09-08 mit zwei API-Modellen veröffentlicht: **GPT Image 2.5 Flare** und **GPT Image 2.5 Sunburst**. Beide sind im <a href={"https://bettertoken.ai/pricing"}>Modellkatalog</a> von BetterToken aufgeführt. Dort findest du die aktuelle Verfügbarkeit und Preise.
+
+## Modell auswählen
+
+| Modell | Vollständige Modell-ID | Geeignete Aufgaben |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Schnelle Generierung, Social-Media-Inhalte, visuelle Entwürfe und alltägliche Bildbearbeitung. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Produktbilder, Markenmaterialien und fertige Motive, bei denen Detailtreue und präzise Bearbeitung besonders wichtig sind. |
+
+Beide Modelle verarbeiten Text- und Bildeingaben und erzeugen Bilder. Beginne bei alltäglichen Aufgaben mit Flare; vergleiche Sunburst, wenn du dasselbe Motiv wiederholt präzise bearbeiten musst. Verwende die vollständige Modell-ID aus der Tabelle, nicht nur `gpt-image-2.5`.
+
+## Was sich geändert hat
+
+- **Schnellere Generierung**: Laut OpenAI ist die Generierungslatenz von Flare um 50% niedriger als bei GPT Image 2. Die tatsächliche Dauer hängt auch von Größe, Qualität und Auslastung ab.
+- **Präzisere Bearbeitung**: Referenzmotive, Komposition und nicht zur Änderung vorgesehene Details bleiben besser erhalten, auch über mehrere Bearbeitungsschritte hinweg.
+- **Bessere Darstellung und Anordnung**: Verbesserte Beleuchtung, Texturen, Stiltreue und Umsetzung komplexer visueller Anweisungen. Prüfe Texte und Fakten vor der Verwendung eines fertigen Bildes.
+
+## Neue Optionen der offiziellen API
+
+Die Bild-API von OpenAI bietet für beide Modelle folgende Optionen:
+
+- `quality` akzeptiert `low`, `medium`, `high`, `xhigh`, `max` und `auto`.
+- Für einen transparenten Hintergrund verwende `background: "transparent"` mit `output_format: "png"` oder `"webp"`.
+- Benutzerdefinierte Abmessungen werden unterstützt. Breite und Höhe müssen Vielfache von 16 sein, das Seitenverhältnis muss zwischen 1:3 und 3:1 liegen, keine Seite darf 3840 Pixel überschreiten und die Gesamtpixelzahl muss zwischen 655,360 und 8,294,400 liegen. Ausgaben über `2560x1440` sind experimentell.
+
+<Note>
+  Dies sind Funktionen von OpenAI. Die von BetterToken unterstützten Parameter findest du in der Dokumentation zur [Bilderzeugung](/de/api-reference/images-generations) und [Bildbearbeitung](/de/api-reference/images-edits). Sketch, Vorlagen und Bildkommentare in ChatGPT sind Clientfunktionen, keine Parameter der Bild-API.
+</Note>
+
+## Über BetterToken verbinden
+
+Erstelle einen BetterToken API Key mit Zugriff auf das Modell und verwende diese Einstellungen:
+
+| Einstellung | Wert |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| Authentifizierung | `Authorization: Bearer YOUR_API_KEY` |
+| Bilderzeugung | `POST /v1/images/generations` |
+| Bildbearbeitung | `POST /v1/images/edits` |
+
+### Ein Bild generieren
+
+Dieses Beispiel verwendet Flare. Für Sunburst ersetze `model` durch `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+Der Bild-Endpunkt wartet auf die abgeschlossene Generierung und gibt den Bildinhalt dann in `data[0].b64_json` zurück. Prüfe vor dem Dekodieren und Speichern, ob die Anfrage erfolgreich war. Ein vollständiges Speicherbeispiel findest du unter [Bilderzeugung](/de/api-reference/images-generations).
+
+Sende zum Bearbeiten eines Bildes `multipart/form-data` an `POST /v1/images/edits`, verwende dieselbe vollständige Modell-ID und lade eine Referenz über `image` hoch. Beispiele findest du unter [Bildbearbeitung](/de/api-reference/images-edits).
+
+## Hinweise zur Integration
+
+- Beginne mit `n: 1`, `output_format: "png"` und `response_format: "b64_json"`, bevor du weitere Parameter anpasst.
+- Plane mehrere Minuten für die Bilderzeugung ein. Vergleiche nach einem Modellwechsel die tatsächliche Latenz, Bildabmessungen und Bearbeitungsergebnisse.
+- OpenAI rechnet nach Tokens ab. Die Abrechnung und Preise von BetterToken findest du im Modellkatalog; übernimm offizielle Kostenschätzungen nicht direkt.
+
+## Offizielle Quellen
+
+- [Ankündigung von ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [Modellreferenz für GPT Image 2.5 Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [Modellreferenz für GPT Image 2.5 Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI-Leitfaden zur Bilderzeugung](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash ist jetzt verfügbar
 
 Source: https://docs.bettertoken.ai/de/model-updates/deepseek-v4-1-flash
 
-Description: Testen Sie DeepSeek V4.1 Flash auf BetterToken mit der temporären Model ID deepseek-v4.1-flash-expires-on-0910 vor dem geplanten Ablauf am 2026-09-10.
+Description: Nutzen Sie DeepSeek V4.1 Flash auf BetterToken mit der Model ID deepseek-flash über OpenAI Chat Completions oder Anthropic Messages.
 
-Aktualisiert: 9. September 2026
+Aktualisiert: 11. September 2026
 
-BetterToken bietet jetzt einen begrenzten Testzugang zu **DeepSeek V4.1 Flash** mit der exakten Model ID `deepseek-v4.1-flash-expires-on-0910`. Dieser temporäre Eintrag soll am **10. September 2026** ablaufen. Verwenden Sie ihn zur Bewertung des Modells und nicht als dauerhafte Produktionskonfiguration. Prüfen Sie vor einer Anfrage den aktuellen Zugang und Preis in der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+**DeepSeek V4.1 Flash** ist jetzt offiziell auf BetterToken verfügbar. Verwenden Sie die exakte Model ID `deepseek-flash`. Prüfen Sie vor einer Anfrage den aktuellen Zugang und Preis in der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
-<Warning>
-  Die temporäre Model ID enthält das Ablaufdatum. Sie kann nach dem 10. September 2026 nicht mehr funktionieren und wird nicht automatisch durch eine spätere stabile ID ersetzt. Halten Sie ein stabiles Ersatzmodell bereit.
-</Warning>
+<Check>
+  Setzen Sie `model` auf `deepseek-flash`. Die vorherige Model ID des begrenzten Tests ist nicht mehr der aktuelle Eintrag.
+</Check>
 
 ## Was jetzt verfügbar ist
 
 | Einstellung | Wert |
 | --- | --- |
 | Provider | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken-Status | Begrenzter Test; Ablauf am 10. September 2026 vorgesehen |
+| BetterToken-Status | Verfügbar |
 
 Wählen Sie je nach Client OpenAI Chat Completions oder Anthropic Messages. Beide Protokolle verwenden denselben BetterToken API Key und dieselbe Model ID.
 
 ## Nutzungshinweise
 
-Vergleichen Sie während des Testzeitraums DeepSeek V4.1 Flash mit dem stabilen DeepSeek-V4-Flash-Eintrag anhand von Aufgaben aus Ihrem eigenen Workflow:
+Vergleichen Sie DeepSeek V4.1 Flash mit einem anderen verfügbaren Modell anhand von Aufgaben aus Ihrem eigenen Workflow:
 
 - **Codeänderungen**: Geben Sie beiden Modellen dieselbe Repository-Aufgabe und vergleichen Sie Korrektheit, Qualität der Änderungen und notwendigen Nachbesserungsaufwand
 - **Agenten-Workflows**: Messen Sie, wie zuverlässig jedes Modell mehrstufige Anweisungen befolgt und die Tools Ihres Clients verwendet
@@ -80821,7 +81578,7 @@ Führen Sie mehrere repräsentative Prompts aus, statt sich auf ein einzelnes Er
 ## Schnellstart
 
 1. <a href={"https://bettertoken.ai/register"}>Erstellen Sie einen BetterToken API Key</a> oder öffnen Sie **Setup** für einen vorhandenen Schlüssel.
-2. Prüfen Sie in der model plaza, ob `deepseek-v4.1-flash-expires-on-0910` noch verfügbar ist.
+2. Prüfen Sie in der model plaza, ob `deepseek-flash` verfügbar ist.
 3. Wählen Sie den **Provider DeepSeek**.
 4. Verwenden Sie die Base URL Ihres Protokolls aus der Tabelle oben und die vollständige Model ID.
 5. Senden Sie eine kleine Anfrage, bevor Sie eine längere Bewertung starten.
@@ -80831,7 +81588,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -80843,29 +81600,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 Eine erfolgreiche Antwort enthält die Modellausgabe unter `choices[0].message.content`. SDK-Beispiele und das vollständige Anfrageformat finden Sie in der [Chat Completions API-Referenz](/de/api-reference/chat-completions).
 
-## Auf den Ablauf vorbereiten
+## Von der Model ID des begrenzten Tests migrieren
 
-Vor dem 10. September 2026:
+Wenn eine Konfiguration noch die vorherige Model ID des begrenzten Tests verwendet:
 
 1. Suchen Sie alle Konfigurationen, die `deepseek-v4.1-flash-expires-on-0910` enthalten.
-2. Speichern Sie die benötigten Bewertungsergebnisse.
-3. Ersetzen Sie die temporäre ID durch `deepseek-v4-flash-0731` oder eine andere aktuell verfügbare Model ID.
-4. Führen Sie nach der Änderung einen kurzen Funktionstest aus.
-5. Prüfen Sie die model plaza auf einen neuen stabilen V4.1-Eintrag. Raten Sie die Model ID nicht.
+2. Ersetzen Sie sie durch `deepseek-flash`.
+3. Führen Sie nach der Änderung einen kurzen Funktionstest aus.
+4. Prüfen Sie den aktuellen Modelleintrag und Preis in der model plaza.
 
 ## Häufige Fragen
 
 ### Kann ich diese Model ID in der Produktion verwenden?
 
-Sie können Anfragen senden, solange der Eintrag verfügbar ist. Er sollte jedoch nicht das einzige Modell in einer langfristigen Produktionskonfiguration sein. Nach dem geplanten Ablauf können Anfragen fehlschlagen.
+Ja. Verwenden Sie `deepseek-flash` und prüfen Sie in der model plaza, ob das Modell für Ihren BetterToken API Key verfügbar ist.
 
 ### Kann ich es mit Claude Code oder der Anthropic Messages API verwenden?
 
-Ja. Verwenden Sie für Claude Code oder Anthropic Messages die Base URL `https://bettertoken.ai` und die Model ID `deepseek-v4.1-flash-expires-on-0910`. Direkte Messages-Anfragen verwenden `POST /v1/messages` mit dem BetterToken API Key im Header `x-api-key`.
+Ja. Verwenden Sie für Claude Code oder Anthropic Messages die Base URL `https://bettertoken.ai` und die Model ID `deepseek-flash`. Direkte Messages-Anfragen verwenden `POST /v1/messages` mit dem BetterToken API Key im Header `x-api-key`.
 
 ### Wo finde ich den aktuellen Preis?
 
-Prüfen Sie die aktuelle <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Verfügbarkeit und Preis des temporären Modells können sich während des Tests ändern.
+Prüfen Sie die aktuelle <a href={"https://bettertoken.ai/pricing"}>model plaza</a>. Verfügbarkeit und Preis können sich ändern.
 
 ## Weiterführende Dokumentation
 
@@ -89835,7 +90591,7 @@ Playground는 이미 전체 URL `https://bettertoken.ai/v1/chat/completions`을 
 
 ---
 
-## OpenAI-compatible 이미지 생성 API: GPT Image 2 가이드
+## 이미지 생성 API
 
 Source: https://docs.bettertoken.ai/ko/api-reference/images-generations
 
@@ -90171,37 +90927,122 @@ endpoint는 `task_id`를 반환하지 않으며 별도의 status query 또는 re
 
 ---
 
-## DeepSeek V4.1 Flash 기간 한정 테스트 제공
+## GPT Image 2.5 출시: Flare와 Sunburst
+
+Source: https://docs.bettertoken.ai/ko/model-updates/gpt-image-2-5
+
+Description: GPT Image 2.5 Flare와 Sunburst의 이미지 생성 및 편집 기능을 비교하고 BetterToken 모델 ID와 API 설정 방법을 확인하세요.
+
+업데이트: 2026-09-10
+
+OpenAI는 2026-09-08에 ChatGPT Images 2.5와 함께 **GPT Image 2.5 Flare**, **GPT Image 2.5 Sunburst** API 모델을 공개했습니다. BetterToken <a href={"https://bettertoken.ai/pricing"}>모델 목록</a>에도 두 모델이 등록되어 있습니다. 현재 이용 가능 여부와 가격은 모델 목록에서 확인하세요.
+
+## 모델 선택
+
+| 모델 | 전체 모델 ID | 적합한 작업 |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | 빠른 생성, 소셜 콘텐츠, 시각적 초안, 일상적인 이미지 편집. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | 세부 사항 유지와 정밀 편집이 필요한 제품 이미지, 브랜드 소재, 최종 결과물. |
+
+두 모델 모두 텍스트와 이미지를 입력받아 이미지를 출력합니다. 일상적인 작업은 Flare로 시작하고, 같은 소재를 여러 번 정밀하게 편집할 때는 Sunburst와 비교하세요. `gpt-image-2.5`만 입력하지 말고 표의 전체 모델 ID를 사용하세요.
+
+## 주요 변경 사항
+
+- **더 빠른 생성**: OpenAI에 따르면 Flare의 생성 지연 시간은 GPT Image 2보다 50% 줄었습니다. 실제 시간은 크기, 품질, 서비스 부하에 따라 달라집니다.
+- **더 정밀한 편집**: 여러 차례 편집할 때도 참조 이미지의 피사체, 구도, 변경을 요청하지 않은 세부 사항을 더 잘 유지합니다.
+- **시각 품질과 배치 개선**: 조명, 질감, 스타일 준수, 복잡한 시각적 지시 처리 능력이 향상되었습니다. 완성된 이미지의 텍스트와 사실관계는 사용 전에 확인하세요.
+
+## 공식 API의 새 옵션
+
+OpenAI 이미지 API는 두 모델에 다음 옵션을 제공합니다.
+
+- `quality`는 `low`, `medium`, `high`, `xhigh`, `max`, `auto`를 지원합니다.
+- 투명 배경을 사용하려면 `background: "transparent"`와 `output_format: "png"` 또는 `"webp"`를 함께 지정하세요.
+- 사용자 지정 크기를 지원합니다. 너비와 높이는 16의 배수, 종횡비는 1:3에서 3:1 사이여야 합니다. 각 변은 최대 3840픽셀이며 총 픽셀 수는 655,360에서 8,294,400 사이여야 합니다. `2560x1440`을 초과하는 출력은 실험적 기능입니다.
+
+<Note>
+  위 내용은 OpenAI의 기능입니다. BetterToken에서 지원하는 매개변수는 [이미지 생성](/ko/api-reference/images-generations) 및 [이미지 편집](/ko/api-reference/images-edits) 문서를 참고하세요. ChatGPT의 Sketch, 템플릿, 이미지 댓글은 클라이언트 기능이며 이미지 API 매개변수가 아닙니다.
+</Note>
+
+## BetterToken으로 연결
+
+해당 모델에 접근할 수 있는 BetterToken API Key를 만들고 다음 설정을 사용하세요.
+
+| 설정 | 값 |
+| --- | --- |
+| Base URL | `https://bettertoken.ai/v1` |
+| 인증 방식 | `Authorization: Bearer YOUR_API_KEY` |
+| 이미지 생성 | `POST /v1/images/generations` |
+| 이미지 편집 | `POST /v1/images/edits` |
+
+### 이미지 생성하기
+
+이 예시는 Flare를 사용합니다. Sunburst를 사용하려면 `model`을 `gpt-image-2.5-sunburst`로 바꾸세요.
+
+```bash
+curl --fail-with-body --max-time 300 "https://bettertoken.ai/v1/images/generations" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+이미지 엔드포인트는 생성이 완료될 때까지 기다린 뒤 `data[0].b64_json`으로 이미지 데이터를 반환합니다. 요청 성공 여부를 확인한 후 디코딩하고 저장하세요. 전체 저장 예시는 [이미지 생성](/ko/api-reference/images-generations)을 참고하세요.
+
+이미지를 편집하려면 `POST /v1/images/edits`에 `multipart/form-data`를 전송하고, 동일한 전체 모델 ID를 사용하며, `image`로 참조 이미지를 업로드하세요. 예시는 [이미지 편집](/ko/api-reference/images-edits)을 참고하세요.
+
+## 연동 팁
+
+- 먼저 `n: 1`, `output_format: "png"`, `response_format: "b64_json"`으로 호출한 다음 다른 매개변수를 조정하세요.
+- 이미지 생성에 몇 분의 대기 시간을 허용하세요. 모델을 바꾼 후 실제 지연 시간, 출력 크기, 편집 결과를 비교하세요.
+- OpenAI는 토큰 단위로 과금합니다. BetterToken의 과금 방식과 가격은 모델 목록에서 확인하고 공식 예상 비용을 그대로 적용하지 마세요.
+
+## 공식 출처
+
+- [ChatGPT Images 2.5 발표](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare 모델 참고 문서](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst 모델 참고 문서](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI 이미지 생성 가이드](https://developers.openai.com/api/docs/guides/image-generation)
+
+---
+
+## DeepSeek V4.1 Flash 정식 출시
 
 Source: https://docs.bettertoken.ai/ko/model-updates/deepseek-v4-1-flash
 
-Description: BetterToken에서 DeepSeek V4.1 Flash를 임시 Model ID deepseek-v4.1-flash-expires-on-0910으로 예정된 2026-09-10 만료 전까지 테스트하세요.
+Description: BetterToken에서 Model ID deepseek-flash를 사용해 OpenAI Chat Completions 또는 Anthropic Messages로 DeepSeek V4.1 Flash를 이용하세요.
 
-업데이트: 2026년 9월 9일
+업데이트: 2026년 9월 11일
 
-BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **DeepSeek V4.1 Flash** 기간 한정 테스트를 제공합니다. 이 임시 항목은 **2026년 9월 10일**에 만료될 예정입니다. 영구적인 프로덕션 설정이 아니라 모델 평가에 사용하세요. 요청을 보내기 전에 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 현재 접근 가능 여부와 가격을 확인하세요.
+**DeepSeek V4.1 Flash**가 BetterToken에 정식 출시되었습니다. 정확한 Model ID는 `deepseek-flash`입니다. 요청을 보내기 전에 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 현재 접근 가능 여부와 가격을 확인하세요.
 
-<Warning>
-  임시 Model ID에는 만료일이 포함되어 있습니다. 2026년 9월 10일 이후 작동이 중단될 수 있으며, 향후 안정 버전 ID로 자동 교체되지 않습니다. 안정적인 대체 모델을 준비하세요.
-</Warning>
+<Check>
+  `model`을 `deepseek-flash`로 설정하세요. 이전 기간 한정 테스트용 Model ID는 더 이상 현재 항목이 아닙니다.
+</Check>
 
 ## 현재 사용할 수 있는 설정
 
 | 설정 | 값 |
 | --- | --- |
 | 제공업체 | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `https://bettertoken.ai/v1` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `https://bettertoken.ai` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken 상태 | 기간 한정 테스트, 2026년 9월 10일 만료 예정 |
+| BetterToken 상태 | 사용 가능 |
 
 클라이언트에 맞게 OpenAI Chat Completions 또는 Anthropic Messages를 선택하세요. 두 프로토콜은 같은 BetterToken API Key와 Model ID를 사용합니다.
 
 ## 사용 권장 사항
 
-테스트 기간에 실제 워크플로에 중요한 작업으로 DeepSeek V4.1 Flash와 안정 버전 DeepSeek V4 Flash 항목을 비교하세요.
+실제 워크플로에 중요한 작업으로 DeepSeek V4.1 Flash와 현재 사용할 수 있는 다른 모델을 비교하세요.
 
 - **코드 변경**: 두 모델에 같은 저장소 작업을 주고 정확성, 수정 품질, 추가 지시가 필요한 정도를 비교합니다
 - **Agent 워크플로**: 각 모델이 여러 단계의 지시를 따르고 클라이언트 도구를 사용하는 안정성을 측정합니다
@@ -90213,7 +91054,7 @@ BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **
 ## 빠른 시작
 
 1. <a href={"https://bettertoken.ai/register"}>BetterToken API Key를 생성</a>하거나 기존 Key의 **Setup**을 엽니다.
-2. 모델 광장에서 `deepseek-v4.1-flash-expires-on-0910`을 아직 사용할 수 있는지 확인합니다.
+2. 모델 광장에서 `deepseek-flash`를 사용할 수 있는지 확인합니다.
 3. **DeepSeek 제공업체**를 선택합니다.
 4. 위 표에서 프로토콜에 맞는 Base URL을 선택하고 전체 Model ID를 입력합니다.
 5. 긴 평가를 시작하기 전에 작은 요청을 먼저 보냅니다.
@@ -90223,7 +91064,7 @@ curl "https://bettertoken.ai/v1/chat/completions" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -90235,29 +91076,28 @@ curl "https://bettertoken.ai/v1/chat/completions" \
 
 성공한 응답에서는 모델 출력이 `choices[0].message.content`에 반환됩니다. SDK 예제와 전체 요청 형식은 [Chat Completions API 레퍼런스](/ko/api-reference/chat-completions)를 참조하세요.
 
-## 만료에 대비하기
+## 기간 한정 테스트용 Model ID에서 이전하기
 
-2026년 9월 10일 전에 다음 작업을 완료하세요.
+설정에서 이전 기간 한정 테스트용 Model ID를 계속 사용하고 있다면 다음을 수행하세요.
 
 1. `deepseek-v4.1-flash-expires-on-0910`이 포함된 모든 설정을 찾습니다.
-2. 필요한 평가 결과를 저장합니다.
-3. 임시 ID를 `deepseek-v4-flash-0731` 또는 현재 사용할 수 있는 다른 Model ID로 교체합니다.
-4. 변경 후 스모크 테스트를 실행합니다.
-5. 모델 광장에 새로운 안정 버전 V4.1 항목이 있는지 확인합니다. Model ID를 추측하지 마세요.
+2. `deepseek-flash`로 교체합니다.
+3. 변경 후 스모크 테스트를 실행합니다.
+4. 모델 광장에서 현재 모델 항목과 가격을 확인합니다.
 
 ## 자주 묻는 질문
 
 ### 이 Model ID를 프로덕션에서 사용할 수 있나요?
 
-항목을 사용할 수 있는 동안 요청을 보낼 수 있지만, 장기 프로덕션 설정의 유일한 모델로 두어서는 안 됩니다. 예정된 만료 후에는 요청이 실패할 수 있습니다.
+가능합니다. `deepseek-flash`를 사용하고 모델 광장에서 BetterToken API Key로 이 모델을 사용할 수 있는지 확인하세요.
 
 ### Claude Code 또는 Anthropic Messages API와 함께 사용할 수 있나요?
 
-지원합니다. Claude Code 또는 Anthropic Messages에서는 Base URL `https://bettertoken.ai`과 Model ID `deepseek-v4.1-flash-expires-on-0910`을 사용하세요. Messages를 직접 호출할 때는 `POST /v1/messages`를 사용하고 `x-api-key` 헤더에 BetterToken API Key를 전달하세요.
+지원합니다. Claude Code 또는 Anthropic Messages에서는 Base URL `https://bettertoken.ai`과 Model ID `deepseek-flash`을 사용하세요. Messages를 직접 호출할 때는 `POST /v1/messages`를 사용하고 `x-api-key` 헤더에 BetterToken API Key를 전달하세요.
 
 ### 현재 가격은 어디에서 확인할 수 있나요?
 
-실시간 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>을 확인하세요. 테스트 중에는 임시 모델의 제공 여부와 가격이 변경될 수 있습니다.
+실시간 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>을 확인하세요. 제공 여부와 가격은 변경될 수 있습니다.
 
 ## 관련 문서
 

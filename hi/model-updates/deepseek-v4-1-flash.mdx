@@ -1,34 +1,34 @@
 ---
-title: "DeepSeek V4.1 Flash का सीमित टेस्ट उपलब्ध है"
-description: "BetterToken पर DeepSeek V4.1 Flash को अस्थायी Model ID deepseek-v4.1-flash-expires-on-0910 के साथ निर्धारित 2026-09-10 समाप्ति से पहले टेस्ट करें।"
-tag: "सीमित"
+title: "DeepSeek V4.1 Flash अब उपलब्ध है"
+description: "BetterToken पर DeepSeek V4.1 Flash को Model ID deepseek-flash के साथ OpenAI Chat Completions या Anthropic Messages के जरिए इस्तेमाल करें।"
+tag: "नया"
 ---
 
-अपडेट: 9 सितंबर 2026
+अपडेट: 11 सितंबर 2026
 
-BetterToken अब सटीक Model ID `deepseek-v4.1-flash-expires-on-0910` के माध्यम से **DeepSeek V4.1 Flash** का सीमित टेस्ट एक्सेस देता है। यह अस्थायी एंट्री **10 सितंबर 2026** को समाप्त होने वाली है। इसे स्थायी प्रोडक्शन कॉन्फ़िगरेशन के रूप में नहीं, बल्कि मॉडल का मूल्यांकन करने के लिए इस्तेमाल करें। अनुरोध भेजने से पहले <a href={"{{model-plaza-url}}"}>model plaza</a> में मौजूदा उपलब्धता और कीमत देखें।
+**DeepSeek V4.1 Flash** अब BetterToken पर आधिकारिक रूप से उपलब्ध है। सटीक Model ID `deepseek-flash` इस्तेमाल करें। अनुरोध भेजने से पहले <a href={"{{model-plaza-url}}"}>model plaza</a> में मौजूदा उपलब्धता और कीमत देखें।
 
-<Warning>
-  अस्थायी Model ID में उसकी समाप्ति तिथि शामिल है। यह 10 सितंबर 2026 के बाद काम करना बंद कर सकता है और भविष्य के स्थिर ID से अपने आप नहीं बदलेगा। एक स्थिर वैकल्पिक मॉडल तैयार रखें।
-</Warning>
+<Check>
+  `model` को `deepseek-flash` पर सेट करें। पिछला सीमित-टेस्ट Model ID अब मौजूदा एंट्री नहीं है।
+</Check>
 
 ## अभी क्या उपलब्ध है
 
 | सेटिंग | मान |
 | --- | --- |
 | प्रोवाइडर | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `{{openai-base-url}}` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `{{anthropic-base-url}}` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken स्थिति | सीमित टेस्ट; 10 सितंबर 2026 को समाप्त होना निर्धारित |
+| BetterToken स्थिति | उपलब्ध |
 
 अपने क्लाइंट के अनुसार OpenAI Chat Completions या Anthropic Messages चुनें। दोनों प्रोटोकॉल एक ही BetterToken API Key और Model ID इस्तेमाल करते हैं।
 
 ## उपयोग के सुझाव
 
-टेस्ट अवधि में अपने वर्कफ़्लो के लिए महत्वपूर्ण कार्यों पर DeepSeek V4.1 Flash की तुलना स्थिर DeepSeek V4 Flash एंट्री से करें:
+अपने वर्कफ़्लो के लिए महत्वपूर्ण कार्यों पर DeepSeek V4.1 Flash की तुलना किसी अन्य उपलब्ध मॉडल से करें:
 
 - **कोड में बदलाव**: दोनों मॉडलों को एक ही रिपॉज़िटरी कार्य दें और शुद्धता, बदलाव की गुणवत्ता तथा आवश्यक फ़ॉलो-अप की तुलना करें
 - **Agent वर्कफ़्लो**: मापें कि हर मॉडल कई चरणों वाले निर्देशों का पालन और क्लाइंट के टूल का उपयोग कितनी विश्वसनीयता से करता है
@@ -40,7 +40,7 @@ BetterToken अब सटीक Model ID `deepseek-v4.1-flash-expires-on-0910` �
 ## जल्दी शुरू करें
 
 1. <a href={"{{register-url}}"}>BetterToken API Key बनाएं</a> या मौजूदा Key के लिए **Setup** खोलें।
-2. model plaza में पुष्टि करें कि `deepseek-v4.1-flash-expires-on-0910` अभी भी उपलब्ध है।
+2. model plaza में पुष्टि करें कि `deepseek-flash` उपलब्ध है।
 3. **DeepSeek प्रोवाइडर** चुनें।
 4. ऊपर की तालिका से अपने प्रोटोकॉल का Base URL चुनें और पूरा Model ID दर्ज करें।
 5. लंबा मूल्यांकन शुरू करने से पहले एक छोटा अनुरोध भेजें।
@@ -50,7 +50,7 @@ curl "{{chat-completions-url}}" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -62,29 +62,28 @@ curl "{{chat-completions-url}}" \
 
 सफल प्रतिक्रिया में मॉडल आउटपुट `choices[0].message.content` में मिलता है। SDK उदाहरण और पूरा अनुरोध प्रारूप [Chat Completions API संदर्भ](/hi/api-reference/chat-completions) में देखें।
 
-## समाप्ति के लिए तैयारी करें
+## सीमित-टेस्ट Model ID से माइग्रेट करें
 
-10 सितंबर 2026 से पहले:
+अगर किसी कॉन्फ़िगरेशन में पिछला सीमित-टेस्ट Model ID अभी भी मौजूद है:
 
 1. `deepseek-v4.1-flash-expires-on-0910` वाली हर कॉन्फ़िगरेशन खोजें।
-2. ज़रूरी मूल्यांकन परिणाम सुरक्षित करें।
-3. अस्थायी ID को `deepseek-v4-flash-0731` या किसी अन्य वर्तमान में उपलब्ध Model ID से बदलें।
-4. बदलाव के बाद स्मोक टेस्ट चलाएं।
-5. model plaza में नई स्थिर V4.1 एंट्री देखें। उसके Model ID का अनुमान न लगाएं।
+2. इसे `deepseek-flash` से बदलें।
+3. बदलाव के बाद स्मोक टेस्ट चलाएं।
+4. model plaza में मौजूदा मॉडल एंट्री और कीमत की पुष्टि करें।
 
 ## अक्सर पूछे जाने वाले प्रश्न
 
 ### क्या मैं इस Model ID को प्रोडक्शन में इस्तेमाल कर सकता हूं?
 
-एंट्री उपलब्ध रहने तक आप अनुरोध भेज सकते हैं, लेकिन इसे लंबे समय की प्रोडक्शन कॉन्फ़िगरेशन में एकमात्र मॉडल न बनाएं। टेस्ट समाप्त होने के बाद निर्धारित समाप्ति के कारण अनुरोध विफल हो सकते हैं।
+हां। `deepseek-flash` इस्तेमाल करें और model plaza में पुष्टि करें कि मॉडल आपकी BetterToken API Key के लिए उपलब्ध है।
 
 ### क्या इसे Claude Code या Anthropic Messages API के साथ इस्तेमाल किया जा सकता है?
 
-हां। Claude Code या Anthropic Messages के लिए Base URL `{{anthropic-base-url}}` और Model ID `deepseek-v4.1-flash-expires-on-0910` इस्तेमाल करें। सीधे Messages अनुरोधों में `POST /v1/messages` और `x-api-key` हेडर में अपनी BetterToken API Key दें।
+हां। Claude Code या Anthropic Messages के लिए Base URL `{{anthropic-base-url}}` और Model ID `deepseek-flash` इस्तेमाल करें। सीधे Messages अनुरोधों में `POST /v1/messages` और `x-api-key` हेडर में अपनी BetterToken API Key दें।
 
 ### मौजूदा कीमत कहां मिलेगी?
 
-लाइव <a href={"{{model-plaza-url}}"}>model plaza</a> देखें। टेस्ट के दौरान अस्थायी मॉडल की उपलब्धता और कीमत बदल सकती है।
+लाइव <a href={"{{model-plaza-url}}"}>model plaza</a> देखें। उपलब्धता और कीमत बदल सकती है।
 
 ## संबंधित दस्तावेज़
 

@@ -1,0 +1,82 @@
+---
+title: "GPT Image 2.5 est disponible : Flare et Sunburst"
+description: "Comparez GPT Image 2.5 Flare et Sunburst pour créer et retoucher des images, avec les identifiants de modèles et la configuration API BetterToken."
+tag: "NEW"
+---
+
+Mise à jour : 2026-09-10
+
+OpenAI a lancé ChatGPT Images 2.5 le 2026-09-08 avec deux modèles API : **GPT Image 2.5 Flare** et **GPT Image 2.5 Sunburst**. Ils figurent tous deux dans le <a href={"{{model-plaza-url}}"}>catalogue de modèles</a> BetterToken. Consultez-le pour connaître leur disponibilité et leurs tarifs actuels.
+
+## Choisir un modèle
+
+| Modèle | Identifiant complet | Usages adaptés |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | Génération rapide, contenus pour les réseaux sociaux, ébauches visuelles et retouches courantes. |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | Photos de produits, visuels de marque et créations finales exigeant une meilleure conservation des détails et des retouches précises. |
+
+Les deux modèles acceptent du texte et des images et produisent des images. Commencez par Flare pour les tâches courantes ; comparez Sunburst pour des retouches précises et répétées du même visuel. Utilisez l’identifiant complet du tableau, pas seulement `gpt-image-2.5`.
+
+## Les nouveautés
+
+- **Génération plus rapide** : OpenAI annonce une latence de génération réduite de 50% pour Flare par rapport à GPT Image 2. Le délai réel dépend aussi de la taille, de la qualité et de la charge du service.
+- **Retouches plus précises** : meilleure conservation des sujets de référence, de la composition et des détails que vous ne demandez pas de modifier, même au fil des retouches.
+- **Visuels et composition améliorés** : meilleurs éclairages, textures, respect du style et suivi des consignes visuelles complexes. Vérifiez les textes et les données avant d’utiliser une image finale.
+
+## Nouvelles options de l’API officielle
+
+L’API d’images OpenAI propose ces options pour les deux modèles :
+
+- `quality` accepte `low`, `medium`, `high`, `xhigh`, `max` et `auto`.
+- Pour un fond transparent, utilisez `background: "transparent"` avec `output_format: "png"` ou `"webp"`.
+- Les dimensions personnalisées sont prises en charge. La largeur et la hauteur doivent être des multiples de 16, le rapport doit être compris entre 1:3 et 3:1, aucun côté ne peut dépasser 3840 pixels et le total doit être compris entre 655,360 et 8,294,400 pixels. Les sorties supérieures à `2560x1440` sont expérimentales.
+
+<Note>
+  Il s’agit des capacités OpenAI. Consultez les paramètres pris en charge par BetterToken dans la documentation de [génération](/fr/api-reference/images-generations) et de [retouche d’images](/fr/api-reference/images-edits). Sketch, les modèles de création et les commentaires sur les images dans ChatGPT sont des fonctions du client, pas des paramètres API.
+</Note>
+
+## Se connecter via BetterToken
+
+Créez une BetterToken API Key autorisée à utiliser le modèle, puis appliquez ces paramètres :
+
+| Paramètre | Valeur |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| Authentification | `Authorization: Bearer YOUR_API_KEY` |
+| Génération d’images | `POST /v1/images/generations` |
+| Retouche d’images | `POST /v1/images/edits` |
+
+### Générer une image
+
+Cet exemple utilise Flare. Pour utiliser Sunburst, remplacez `model` par `gpt-image-2.5-sunburst`.
+
+```bash
+curl --fail-with-body --max-time 300 "{{images-generations-url}}" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+L’endpoint attend la fin de la génération, puis renvoie l’image dans `data[0].b64_json`. Vérifiez que la requête a réussi avant de décoder et d’enregistrer le résultat. Consultez la [génération d’images](/fr/api-reference/images-generations) pour un exemple complet d’enregistrement.
+
+Pour retoucher une image, envoyez `multipart/form-data` à `POST /v1/images/edits`, utilisez le même identifiant complet et téléversez une référence avec `image`. Consultez les exemples de [retouche d’images](/fr/api-reference/images-edits).
+
+## Conseils d’intégration
+
+- Commencez avec `n: 1`, `output_format: "png"` et `response_format: "b64_json"` avant d’ajuster les autres paramètres.
+- Prévoyez plusieurs minutes pour la génération. Après un changement de modèle, comparez la latence réelle, les dimensions et les résultats des retouches.
+- OpenAI facture les tokens. Consultez le catalogue de modèles pour la facturation et les tarifs BetterToken ; n’appliquez pas directement les estimations officielles.
+
+## Sources officielles
+
+- [Annonce de ChatGPT Images 2.5](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [Référence du modèle GPT Image 2.5 Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [Référence du modèle GPT Image 2.5 Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [Guide OpenAI de génération d’images](https://developers.openai.com/api/docs/guides/image-generation)

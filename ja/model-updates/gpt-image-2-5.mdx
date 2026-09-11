@@ -1,0 +1,82 @@
+---
+title: "GPT Image 2.5 登場：Flare と Sunburst"
+description: "GPT Image 2.5 Flare と Sunburst の画像生成・編集機能の違い、BetterToken のモデル ID と API 設定方法を紹介します。"
+tag: "NEW"
+---
+
+更新日：2026-09-10
+
+OpenAI は 2026-09-08 に ChatGPT Images 2.5 を公開し、**GPT Image 2.5 Flare** と **GPT Image 2.5 Sunburst** の 2 つの API モデルを発表しました。BetterToken の<a href={"{{model-plaza-url}}"}>モデル一覧</a>にも両モデルが掲載されています。最新の提供状況と料金はモデル一覧で確認してください。
+
+## モデルを選ぶ
+
+| モデル | 完全なモデル ID | 適した用途 |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | 高速な生成、SNS 向け素材、ビジュアルの下書き、日常的な画像編集。 |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | 細部の保持と精密な編集が求められる商品画像、ブランド素材、最終成果物。 |
+
+どちらもテキストと画像を入力し、画像を出力します。日常的な作業には Flare から始め、同じ素材に精密な編集を繰り返す場合は Sunburst と比較してください。`gpt-image-2.5` だけでなく、表にある完全なモデル ID を使用します。
+
+## 主な変更点
+
+- **生成の高速化**：OpenAI によると、Flare の生成遅延は GPT Image 2 より 50% 低下しています。実際の所要時間はサイズ、品質、サービスの負荷によっても変わります。
+- **編集精度の向上**：参照画像の被写体、構図、変更を指示していない細部を、複数回の編集でも保持しやすくなりました。
+- **画質とレイアウトの改善**：光、質感、スタイルへの忠実さ、複雑な視覚的指示への対応が改善しています。完成画像を使う前に文字や事実関係を確認してください。
+
+## 公式 API の新しいオプション
+
+OpenAI の画像 API は、両モデルで次のオプションを提供します。
+
+- `quality` は `low`、`medium`、`high`、`xhigh`、`max`、`auto` を指定できます。
+- 背景を透過するには、`background: "transparent"` と `output_format: "png"` または `"webp"` を組み合わせます。
+- カスタムサイズに対応しています。幅と高さは 16 の倍数、アスペクト比は 1:3 から 3:1、各辺は最大 3840 ピクセル、総画素数は 655,360 から 8,294,400 の範囲です。`2560x1440` を超える出力は実験的機能です。
+
+<Note>
+  これらは OpenAI の機能です。BetterToken が対応するパラメータは、[画像生成](/ja/api-reference/images-generations)と[画像編集](/ja/api-reference/images-edits)のドキュメントを参照してください。ChatGPT の Sketch、テンプレート、画像コメントはクライアント機能であり、画像 API のパラメータではありません。
+</Note>
+
+## BetterToken 経由で接続する
+
+対象モデルにアクセスできる BetterToken API Key を作成し、次の設定を使用します。
+
+| 設定項目 | 値 |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| 認証方式 | `Authorization: Bearer YOUR_API_KEY` |
+| 画像生成 | `POST /v1/images/generations` |
+| 画像編集 | `POST /v1/images/edits` |
+
+### 画像を生成する
+
+この例では Flare を使用します。Sunburst を使う場合は、`model` を `gpt-image-2.5-sunburst` に変更してください。
+
+```bash
+curl --fail-with-body --max-time 300 "{{images-generations-url}}" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+画像エンドポイントは生成完了を待ち、`data[0].b64_json` に画像データを返します。リクエストの成功を確認してからデコードして保存してください。保存処理の例は[画像生成](/ja/api-reference/images-generations)を参照してください。
+
+画像を編集するには、`POST /v1/images/edits` に `multipart/form-data` を送信します。同じ完全なモデル ID を指定し、`image` で参照画像をアップロードしてください。例は[画像編集](/ja/api-reference/images-edits)を参照してください。
+
+## 接続時のポイント
+
+- 最初は `n: 1`、`output_format: "png"`、`response_format: "b64_json"` で呼び出し、その後ほかのパラメータを調整します。
+- 画像生成には数分の待ち時間を確保してください。モデルを変更したら、実際の遅延、出力サイズ、編集結果を比較します。
+- OpenAI はトークン単位で課金します。BetterToken の課金方式と料金はモデル一覧で確認し、公式の見積もりをそのまま適用しないでください。
+
+## 公式情報
+
+- [ChatGPT Images 2.5 の発表](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare モデルリファレンス](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst モデルリファレンス](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI 画像生成ガイド](https://developers.openai.com/api/docs/guides/image-generation)

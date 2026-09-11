@@ -1,34 +1,34 @@
 ---
-title: "DeepSeek V4.1 Flash 기간 한정 테스트 제공"
-description: "BetterToken에서 DeepSeek V4.1 Flash를 임시 Model ID deepseek-v4.1-flash-expires-on-0910으로 예정된 2026-09-10 만료 전까지 테스트하세요."
-tag: "기간 한정"
+title: "DeepSeek V4.1 Flash 정식 출시"
+description: "BetterToken에서 Model ID deepseek-flash를 사용해 OpenAI Chat Completions 또는 Anthropic Messages로 DeepSeek V4.1 Flash를 이용하세요."
+tag: "신규"
 ---
 
-업데이트: 2026년 9월 9일
+업데이트: 2026년 9월 11일
 
-BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **DeepSeek V4.1 Flash** 기간 한정 테스트를 제공합니다. 이 임시 항목은 **2026년 9월 10일**에 만료될 예정입니다. 영구적인 프로덕션 설정이 아니라 모델 평가에 사용하세요. 요청을 보내기 전에 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 현재 접근 가능 여부와 가격을 확인하세요.
+**DeepSeek V4.1 Flash**가 BetterToken에 정식 출시되었습니다. 정확한 Model ID는 `deepseek-flash`입니다. 요청을 보내기 전에 <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 현재 접근 가능 여부와 가격을 확인하세요.
 
-<Warning>
-  임시 Model ID에는 만료일이 포함되어 있습니다. 2026년 9월 10일 이후 작동이 중단될 수 있으며, 향후 안정 버전 ID로 자동 교체되지 않습니다. 안정적인 대체 모델을 준비하세요.
-</Warning>
+<Check>
+  `model`을 `deepseek-flash`로 설정하세요. 이전 기간 한정 테스트용 Model ID는 더 이상 현재 항목이 아닙니다.
+</Check>
 
 ## 현재 사용할 수 있는 설정
 
 | 설정 | 값 |
 | --- | --- |
 | 제공업체 | **DeepSeek** |
-| Model ID | `deepseek-v4.1-flash-expires-on-0910` |
+| Model ID | `deepseek-flash` |
 | OpenAI Base URL | `{{openai-base-url}}` |
 | OpenAI Chat Completions | `POST /v1/chat/completions` |
 | Anthropic Base URL | `{{anthropic-base-url}}` |
 | Anthropic Messages | `POST /v1/messages` |
-| BetterToken 상태 | 기간 한정 테스트, 2026년 9월 10일 만료 예정 |
+| BetterToken 상태 | 사용 가능 |
 
 클라이언트에 맞게 OpenAI Chat Completions 또는 Anthropic Messages를 선택하세요. 두 프로토콜은 같은 BetterToken API Key와 Model ID를 사용합니다.
 
 ## 사용 권장 사항
 
-테스트 기간에 실제 워크플로에 중요한 작업으로 DeepSeek V4.1 Flash와 안정 버전 DeepSeek V4 Flash 항목을 비교하세요.
+실제 워크플로에 중요한 작업으로 DeepSeek V4.1 Flash와 현재 사용할 수 있는 다른 모델을 비교하세요.
 
 - **코드 변경**: 두 모델에 같은 저장소 작업을 주고 정확성, 수정 품질, 추가 지시가 필요한 정도를 비교합니다
 - **Agent 워크플로**: 각 모델이 여러 단계의 지시를 따르고 클라이언트 도구를 사용하는 안정성을 측정합니다
@@ -40,7 +40,7 @@ BetterToken은 정확한 Model ID `deepseek-v4.1-flash-expires-on-0910`으로 **
 ## 빠른 시작
 
 1. <a href={"{{register-url}}"}>BetterToken API Key를 생성</a>하거나 기존 Key의 **Setup**을 엽니다.
-2. 모델 광장에서 `deepseek-v4.1-flash-expires-on-0910`을 아직 사용할 수 있는지 확인합니다.
+2. 모델 광장에서 `deepseek-flash`를 사용할 수 있는지 확인합니다.
 3. **DeepSeek 제공업체**를 선택합니다.
 4. 위 표에서 프로토콜에 맞는 Base URL을 선택하고 전체 Model ID를 입력합니다.
 5. 긴 평가를 시작하기 전에 작은 요청을 먼저 보냅니다.
@@ -50,7 +50,7 @@ curl "{{chat-completions-url}}" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   --data '{
-    "model": "deepseek-v4.1-flash-expires-on-0910",
+    "model": "deepseek-flash",
     "messages": [
       {
         "role": "user",
@@ -62,29 +62,28 @@ curl "{{chat-completions-url}}" \
 
 성공한 응답에서는 모델 출력이 `choices[0].message.content`에 반환됩니다. SDK 예제와 전체 요청 형식은 [Chat Completions API 레퍼런스](/ko/api-reference/chat-completions)를 참조하세요.
 
-## 만료에 대비하기
+## 기간 한정 테스트용 Model ID에서 이전하기
 
-2026년 9월 10일 전에 다음 작업을 완료하세요.
+설정에서 이전 기간 한정 테스트용 Model ID를 계속 사용하고 있다면 다음을 수행하세요.
 
 1. `deepseek-v4.1-flash-expires-on-0910`이 포함된 모든 설정을 찾습니다.
-2. 필요한 평가 결과를 저장합니다.
-3. 임시 ID를 `deepseek-v4-flash-0731` 또는 현재 사용할 수 있는 다른 Model ID로 교체합니다.
-4. 변경 후 스모크 테스트를 실행합니다.
-5. 모델 광장에 새로운 안정 버전 V4.1 항목이 있는지 확인합니다. Model ID를 추측하지 마세요.
+2. `deepseek-flash`로 교체합니다.
+3. 변경 후 스모크 테스트를 실행합니다.
+4. 모델 광장에서 현재 모델 항목과 가격을 확인합니다.
 
 ## 자주 묻는 질문
 
 ### 이 Model ID를 프로덕션에서 사용할 수 있나요?
 
-항목을 사용할 수 있는 동안 요청을 보낼 수 있지만, 장기 프로덕션 설정의 유일한 모델로 두어서는 안 됩니다. 예정된 만료 후에는 요청이 실패할 수 있습니다.
+가능합니다. `deepseek-flash`를 사용하고 모델 광장에서 BetterToken API Key로 이 모델을 사용할 수 있는지 확인하세요.
 
 ### Claude Code 또는 Anthropic Messages API와 함께 사용할 수 있나요?
 
-지원합니다. Claude Code 또는 Anthropic Messages에서는 Base URL `{{anthropic-base-url}}`과 Model ID `deepseek-v4.1-flash-expires-on-0910`을 사용하세요. Messages를 직접 호출할 때는 `POST /v1/messages`를 사용하고 `x-api-key` 헤더에 BetterToken API Key를 전달하세요.
+지원합니다. Claude Code 또는 Anthropic Messages에서는 Base URL `{{anthropic-base-url}}`과 Model ID `deepseek-flash`을 사용하세요. Messages를 직접 호출할 때는 `POST /v1/messages`를 사용하고 `x-api-key` 헤더에 BetterToken API Key를 전달하세요.
 
 ### 현재 가격은 어디에서 확인할 수 있나요?
 
-실시간 <a href={"{{model-plaza-url}}"}>모델 광장</a>을 확인하세요. 테스트 중에는 임시 모델의 제공 여부와 가격이 변경될 수 있습니다.
+실시간 <a href={"{{model-plaza-url}}"}>모델 광장</a>을 확인하세요. 제공 여부와 가격은 변경될 수 있습니다.
 
 ## 관련 문서
 

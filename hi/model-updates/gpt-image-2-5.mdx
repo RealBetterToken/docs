@@ -1,0 +1,82 @@
+---
+title: "GPT Image 2.5 उपलब्ध है: Flare और Sunburst"
+description: "इमेज बनाने और एडिट करने के लिए GPT Image 2.5 Flare और Sunburst की तुलना करें। BetterToken मॉडल ID और API सेटअप जानें।"
+tag: "NEW"
+---
+
+अपडेट: 2026-09-10
+
+OpenAI ने 2026-09-08 को ChatGPT Images 2.5 के साथ दो API मॉडल जारी किए: **GPT Image 2.5 Flare** और **GPT Image 2.5 Sunburst**। दोनों BetterToken के <a href={"{{model-plaza-url}}"}>मॉडल कैटलॉग</a> में सूचीबद्ध हैं। मौजूदा उपलब्धता और कीमतें वहीं देखें।
+
+## मॉडल चुनें
+
+| मॉडल | पूरी मॉडल ID | उपयुक्त काम |
+| --- | --- | --- |
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | तेज़ जनरेशन, सोशल मीडिया सामग्री, विज़ुअल ड्राफ़्ट और रोज़मर्रा की इमेज एडिटिंग। |
+| GPT Image 2.5 Sunburst | `gpt-image-2.5-sunburst` | प्रोडक्ट इमेज, ब्रांड सामग्री और अंतिम डिज़ाइन, जहाँ बारीकियाँ बनाए रखना और सटीक एडिटिंग ज़रूरी है। |
+
+दोनों टेक्स्ट और इमेज इनपुट लेते हैं और इमेज आउटपुट देते हैं। रोज़मर्रा के काम के लिए Flare से शुरू करें; एक ही सामग्री में बार-बार सटीक बदलाव करने हों तो Sunburst से तुलना करें। तालिका में दी गई पूरी मॉडल ID इस्तेमाल करें, सिर्फ़ `gpt-image-2.5` नहीं।
+
+## क्या बदला है
+
+- **तेज़ जनरेशन**: OpenAI के अनुसार Flare की जनरेशन लेटेंसी GPT Image 2 से 50% कम है। वास्तविक समय साइज़, क्वालिटी और सेवा के लोड पर भी निर्भर करता है।
+- **अधिक सटीक एडिटिंग**: कई बार एडिट करने पर भी रेफ़रेंस के विषय, कंपोज़िशन और वे बारीकियाँ बेहतर बनी रहती हैं जिन्हें बदलने के लिए नहीं कहा गया था।
+- **विज़ुअल और लेआउट में सुधार**: लाइटिंग, टेक्सचर, शैली के पालन और जटिल विज़ुअल निर्देशों को समझने में सुधार हुआ है। अंतिम इमेज इस्तेमाल करने से पहले टेक्स्ट और तथ्यों की जाँच करें।
+
+## आधिकारिक API में नए विकल्प
+
+OpenAI का इमेज API दोनों मॉडलों के लिए ये विकल्प देता है:
+
+- `quality` में `low`, `medium`, `high`, `xhigh`, `max` और `auto` इस्तेमाल कर सकते हैं।
+- पारदर्शी बैकग्राउंड के लिए `background: "transparent"` के साथ `output_format: "png"` या `"webp"` इस्तेमाल करें।
+- कस्टम साइज़ समर्थित हैं। चौड़ाई और ऊँचाई 16 के गुणज हों, अनुपात 1:3 से 3:1 के बीच हो, कोई भी किनारा 3840 पिक्सेल से बड़ा न हो और कुल पिक्सेल 655,360 से 8,294,400 के बीच हों। `2560x1440` से बड़े आउटपुट प्रयोगात्मक हैं।
+
+<Note>
+  ये OpenAI की क्षमताएँ हैं। BetterToken पर समर्थित पैरामीटर के लिए [इमेज जनरेशन](/hi/api-reference/images-generations) और [इमेज एडिटिंग](/hi/api-reference/images-edits) दस्तावेज़ देखें। ChatGPT में Sketch, टेम्पलेट और इमेज टिप्पणियाँ क्लाइंट सुविधाएँ हैं, इमेज API पैरामीटर नहीं।
+</Note>
+
+## BetterToken से कनेक्ट करें
+
+मॉडल तक पहुँच वाली BetterToken API Key बनाएँ और ये सेटिंग इस्तेमाल करें:
+
+| सेटिंग | मान |
+| --- | --- |
+| Base URL | `{{openai-base-url}}` |
+| प्रमाणीकरण | `Authorization: Bearer YOUR_API_KEY` |
+| इमेज जनरेशन | `POST /v1/images/generations` |
+| इमेज एडिटिंग | `POST /v1/images/edits` |
+
+### इमेज बनाएँ
+
+इस उदाहरण में Flare इस्तेमाल किया गया है। Sunburst के लिए `model` को `gpt-image-2.5-sunburst` से बदलें।
+
+```bash
+curl --fail-with-body --max-time 300 "{{images-generations-url}}" \
+  -H "Authorization: Bearer $BETTERTOKEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2.5-flare",
+    "prompt": "A product photo of a green ceramic mug on a white studio table",
+    "size": "1024x1024",
+    "n": 1,
+    "response_format": "b64_json",
+    "output_format": "png"
+  }'
+```
+
+इमेज एंडपॉइंट जनरेशन पूरा होने तक प्रतीक्षा करता है, फिर `data[0].b64_json` में इमेज लौटाता है। डिकोड और सेव करने से पहले अनुरोध की सफलता जाँचें। सेव करने का पूरा उदाहरण [इमेज जनरेशन](/hi/api-reference/images-generations) में देखें।
+
+इमेज एडिट करने के लिए `POST /v1/images/edits` पर `multipart/form-data` भेजें, वही पूरी मॉडल ID इस्तेमाल करें और `image` से रेफ़रेंस अपलोड करें। उदाहरण [इमेज एडिटिंग](/hi/api-reference/images-edits) में देखें।
+
+## इंटीग्रेशन सुझाव
+
+- दूसरे पैरामीटर बदलने से पहले `n: 1`, `output_format: "png"` और `response_format: "b64_json"` से शुरुआत करें।
+- इमेज जनरेशन के लिए कुछ मिनट का समय दें। मॉडल बदलने के बाद वास्तविक लेटेंसी, आउटपुट साइज़ और एडिटिंग के नतीजों की तुलना करें।
+- OpenAI टोकन के आधार पर शुल्क लेता है। BetterToken की बिलिंग और कीमतों के लिए मॉडल कैटलॉग देखें; आधिकारिक अनुमान सीधे लागू न करें।
+
+## आधिकारिक स्रोत
+
+- [ChatGPT Images 2.5 की घोषणा](https://openai.com/index/introducing-chatgpt-images-2-5/)
+- [GPT Image 2.5 Flare मॉडल संदर्भ](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare)
+- [GPT Image 2.5 Sunburst मॉडल संदर्भ](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst)
+- [OpenAI इमेज जनरेशन गाइड](https://developers.openai.com/api/docs/guides/image-generation)
