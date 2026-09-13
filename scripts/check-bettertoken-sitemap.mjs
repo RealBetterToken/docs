@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
   betterTokenLanguages,
   buildBetterTokenSitemap,
+  gitLastmodByUrl,
   hiddenApiReferenceRoutes,
   localizedRouteGroups,
 } from './generate-bettertoken-sitemap.mjs';
@@ -15,7 +16,7 @@ import { xDefaultLanguage } from './i18n-locales.mjs';
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(await readFile(path.join(rootDir, 'docs.json'), 'utf8'));
 const sitemap = await readFile(path.join(rootDir, 'sitemap.xml'), 'utf8');
-const expectedSitemap = buildBetterTokenSitemap(config);
+const expectedSitemap = buildBetterTokenSitemap(config, { lastmodByUrl: gitLastmodByUrl(config) });
 const routeGroups = localizedRouteGroups(config);
 const legacyRoutes = [
   'faq/claude-desktop-cowork-code-gateway',
@@ -48,6 +49,8 @@ const expectedUrlCount = [...routeGroups.values()].reduce((count, variants) => c
 assert.equal(urlBlocks.length, expectedUrlCount, 'Sitemap URL count must match localized navigation');
 
 for (const block of urlBlocks) {
+  assert.match(block, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/, 'Every URL must have a Git-backed lastmod');
+  assert.equal((block.match(/<lastmod>/g) ?? []).length, 1, 'Every URL must have exactly one lastmod');
   const links = [...block.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)];
   assert.deepEqual(
     links.map((match) => match[1]),

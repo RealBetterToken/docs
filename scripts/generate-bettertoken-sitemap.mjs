@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,6 +49,42 @@ function canonicalPath(routePrefix, route) {
   return pathParts.length ? `/${pathParts.join('/')}` : '';
 }
 
+function sourcePathForUrl(url) {
+  const route = new URL(url).pathname.replace(/^\//, '').replace(/\/$/, '') || 'index';
+  const candidates = [`${route}.mdx`, `${route}.md`, `${route}/index.mdx`, `${route}/index.md`];
+  const sourcePath = candidates.find((candidate) => existsSync(path.join(rootDir, candidate)));
+  if (!sourcePath) throw new Error(`BetterToken page source is missing for ${url}`);
+  return sourcePath;
+}
+
+export function gitLastmodByUrl(config, history = null) {
+  const gitHistory = history ?? execFileSync(
+    'git',
+    ['-c', 'core.quotepath=false', 'log', '--format=%x1e%cI', '--name-only', '--'],
+    { cwd: rootDir, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+  );
+  const lastmodByPath = new Map();
+
+  for (const record of gitHistory.split('\x1e')) {
+    const [committedAt, ...files] = record.split(/\r?\n/).filter(Boolean);
+    if (!committedAt) continue;
+    for (const file of files) {
+      if (!lastmodByPath.has(file)) lastmodByPath.set(file, committedAt.slice(0, 10));
+    }
+  }
+
+  const result = new Map();
+  for (const variants of localizedRouteGroups(config).values()) {
+    for (const url of variants.values()) {
+      const sourcePath = sourcePathForUrl(url);
+      const lastmod = lastmodByPath.get(sourcePath);
+      if (!lastmod) throw new Error(`Git modification date is missing for ${sourcePath}`);
+      result.set(url, lastmod);
+    }
+  }
+  return result;
+}
+
 export function localizedRouteGroups(config) {
   const groups = new Map();
 
@@ -76,7 +114,7 @@ export function localizedRouteGroups(config) {
   return groups;
 }
 
-export function buildBetterTokenSitemap(config) {
+export function buildBetterTokenSitemap(config, { lastmodByUrl = new Map() } = {}) {
   const groups = localizedRouteGroups(config);
   const entries = [];
 
@@ -99,6 +137,7 @@ export function buildBetterTokenSitemap(config) {
       entries.push([
         '  <url>',
         `    <loc>${escapeXml(url)}</loc>`,
+        ...(lastmodByUrl.has(url) ? [`    <lastmod>${lastmodByUrl.get(url)}</lastmod>`] : []),
         ...alternates.map(
           ([alternateLanguage, alternateUrl]) =>
             `    <xhtml:link rel="alternate" hreflang="${alternateLanguage}" href="${escapeXml(alternateUrl)}" />`,
@@ -122,7 +161,7 @@ export async function generateBetterTokenSitemap({
   outputPath = defaultOutputPath,
 } = {}) {
   const config = JSON.parse(await readFile(configPath, 'utf8'));
-  const sitemap = buildBetterTokenSitemap(config);
+  const sitemap = buildBetterTokenSitemap(config, { lastmodByUrl: gitLastmodByUrl(config) });
   await writeFile(outputPath, sitemap);
   return sitemap;
 }
