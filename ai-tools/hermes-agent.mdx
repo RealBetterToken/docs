@@ -31,27 +31,51 @@ icon: "user-astronaut"
 ### Дополнительные требования
 
 - выбранный Model ID доступен у провайдера **GPT**
-- macOS, Linux или Windows WSL2
+- macOS, Linux, Windows 10/11 или WSL2
+- модель с контекстом не менее 64K для работы Hermes Agent с инструментами
 
 ## Установка
 
 ### Установка Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-    ```
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes рекомендует установщик Desktop для macOS и Windows. [Скачайте Hermes Desktop](https://hermes-agent.nousresearch.com/) и запустите установщик для своей операционной системы.
   </Tab>
 
-  <Tab title="Windows">
-    На Windows сначала используйте WSL2. Native PowerShell support зависит от текущей версии Hermes Agent. Если вы используете native Windows, следуйте подсказкам установщика вашей версии.
+  <Tab title="Linux / macOS / WSL2">
+    ```bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+    ```
+
+    После установки откройте новый терминал или перезагрузите shell, прежде чем запускать `hermes`.
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    Hermes Agent нативно поддерживает Windows 10 и Windows 11. Откройте PowerShell или Windows Terminal и выполните:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Права администратора не нужны. После установки откройте новое окно PowerShell, чтобы обновленный User PATH стал доступен.
   </Tab>
 </Tabs>
 
+Проверьте установку:
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>
+  WSL2 по-прежнему поддерживается, но не является обязательным. Используйте его, если вам нужна Linux-среда или встроенная терминальная панель Web Dashboard.
+</Note>
+
 ## Ручная настройка
 
-Основной способ — интерактивный интерфейс настройки моделей Hermes Agent. Команды и переменные окружения остаются дополнительными вариантами.
+Основной способ — интерактивный интерфейс настройки моделей Hermes Agent. Редактируйте файлы конфигурации напрямую только для ручной настройки.
 
 | Поле | Значение |
 | --- | --- |
@@ -65,13 +89,15 @@ icon: "user-astronaut"
   <Tab title="Интерактивная настройка">
     <Steps>
       <Step title="Запустите выбор модели">
+        Сначала завершите активный чат Hermes, затем выполните:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="Выберите OpenAI или OpenAI Compatible provider">
-        Выберите **OpenAI** или **OpenAI Compatible** в списке providers.
+      <Step title="Выберите Custom endpoint">
+        В списке providers выберите **Custom endpoint (self-hosted / VLLM / etc.)**.
       </Step>
 
       <Step title="Заполните конфигурацию BetterToken">
@@ -80,50 +106,37 @@ icon: "user-astronaut"
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: ваш API Key BetterToken
         - **Model**: Model ID провайдера **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
-      </Step>
 
-      <Step title="Перезапустите Hermes Agent">
-        После обновления конфигурации завершите текущую сессию Hermes Agent и запустите ее снова.
+        Если Hermes запрашивает API mode, выберите вариант OpenAI-compatible Chat Completions. Если нужно указать context length, используйте опубликованное значение модели не ниже 64K.
       </Step>
 
       <Step title="Запустите Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Для классического терминального интерфейса можно выполнить `hermes`.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    Если вам удобнее копировать команды, запишите конфигурацию Hermes Agent напрямую.
+  <Tab title="Файлы конфигурации">
+    Интерактивная настройка безопаснее: она проверяет и сохраняет endpoint. Для ручной настройки добавьте несекретные параметры модели в `~/.hermes/config.yaml`:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "{{openai-base-url}}"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "{{openai-base-url}}"
     ```
 
-    Замените `YOUR_API_KEY` на ваш API Key BetterToken, а `YOUR_MODEL_ID` — на Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+    API Key храните отдельно в `~/.hermes/.env`:
 
-    Затем запустите Hermes Agent:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    Если вы не хотите сохранять API Key в конфигурации Hermes Agent, экспортируйте его в текущем shell.
-
-    ```bash
-    export OPENAI_API_BASE="{{openai-base-url}}"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    Эти переменные действуют только в текущей shell-сессии. В новом терминале экспортируйте их снова или добавьте в свой shell profile.
+    В native Windows эти файлы находятся в `%LOCALAPPDATA%\hermes\`, а не в `~/.hermes/`. Замените `YOUR_MODEL_ID` и `YOUR_API_KEY`, затем выполните `hermes doctor` перед запуском Hermes.
   </Tab>
 </Tabs>
 
@@ -143,7 +156,7 @@ icon: "user-astronaut"
 - Если запросы не отвечают или завершаются ошибкой, проверьте, что **Base URL** равен `{{openai-base-url}}`. Обычно здесь не нужно добавлять `/chat/completions`.
 - Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что Model ID доступен у провайдера **GPT**.
-- Если после изменения настроек Hermes все еще использует старую модель, завершите текущую сессию Hermes Agent и снова выполните `hermes`.
+- Если Hermes все еще использует старую модель, завершите чат, снова сохраните custom endpoint через `hermes model` и начните новый чат.
 - BetterToken обычно не требует дополнительного `User-Agent` или custom headers. Добавляйте headers только если этого явно требует ваш custom gateway, tenant routing, observability или caching layer.
 
 <Note>
@@ -152,11 +165,17 @@ icon: "user-astronaut"
 
 ## Проверка подключения
 
-Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+Запустите `hermes --tui` или `hermes`, затем отправьте короткий запрос:
+
+```text
+Reply with HERMES_OK only. Do not use tools.
+```
+
+Подключение работает, если Hermes возвращает `HERMES_OK` без ошибок авторизации, endpoint или Model ID. После этого выполните одну небольшую задачу только на чтение, прежде чем включать gateways, scheduled tasks или дополнительные инструменты.
 
 ## Смена модели
 
-Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>, затем перезапустите текущую сессию.
+Для добавления или повторной настройки provider выполните `hermes model` вне чата. В активном чате используйте `/model` для переключения между уже настроенными providers и моделями. Используйте точный Model ID из <a href={"{{model-plaza-url}}"}>каталога моделей</a>.
 
 ## Частые ошибки
 
@@ -166,6 +185,8 @@ icon: "user-astronaut"
 | `connection error` | Проверьте Base URL `{{openai-base-url}}`, DNS и конфликтующий прокси. |
 | `401` или `403` | Повторно задайте API Key BetterToken и проверьте доступ к выбранной модели. |
 | `429` | Проверьте доступность модели и состояние баланса, затем повторите один запрос. |
+| `hermes: command not found` | После установки откройте новый терминал и проверьте PATH. |
+| Ошибка конфигурации после обновления | Выполните `hermes config check`, затем `hermes config migrate`, если Hermes предложит миграцию. |
 
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
@@ -213,3 +234,9 @@ hermes claw migrate
 
 После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `{{openai-base-url}}`, вашему API Key BetterToken и Model ID поддерживаемого провайдера.
 </Accordion>
+
+## Официальная документация Hermes
+
+- [Установка](https://hermes-agent.nousresearch.com/docs/getting-started/installation)
+- [Поддержка платформ](https://hermes-agent.nousresearch.com/docs/getting-started/platform-support)
+- [LLM и провайдеры моделей](https://hermes-agent.nousresearch.com/docs/integrations/providers)

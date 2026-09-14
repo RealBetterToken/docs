@@ -2435,27 +2435,51 @@ Description: Установите Hermes Agent, настройте API Key и Ba
 ### Дополнительные требования
 
 - выбранный Model ID доступен у провайдера **GPT**
-- macOS, Linux или Windows WSL2
+- macOS, Linux, Windows 10/11 или WSL2
+- модель с контекстом не менее 64K для работы Hermes Agent с инструментами
 
 ## Установка
 
 ### Установка Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-    ```
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes рекомендует установщик Desktop для macOS и Windows. [Скачайте Hermes Desktop](https://hermes-agent.nousresearch.com/) и запустите установщик для своей операционной системы.
   </Tab>
 
-  <Tab title="Windows">
-    На Windows сначала используйте WSL2. Native PowerShell support зависит от текущей версии Hermes Agent. Если вы используете native Windows, следуйте подсказкам установщика вашей версии.
+  <Tab title="Linux / macOS / WSL2">
+    ```bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+    ```
+
+    После установки откройте новый терминал или перезагрузите shell, прежде чем запускать `hermes`.
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    Hermes Agent нативно поддерживает Windows 10 и Windows 11. Откройте PowerShell или Windows Terminal и выполните:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Права администратора не нужны. После установки откройте новое окно PowerShell, чтобы обновленный User PATH стал доступен.
   </Tab>
 </Tabs>
 
+Проверьте установку:
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>
+  WSL2 по-прежнему поддерживается, но не является обязательным. Используйте его, если вам нужна Linux-среда или встроенная терминальная панель Web Dashboard.
+</Note>
+
 ## Ручная настройка
 
-Основной способ — интерактивный интерфейс настройки моделей Hermes Agent. Команды и переменные окружения остаются дополнительными вариантами.
+Основной способ — интерактивный интерфейс настройки моделей Hermes Agent. Редактируйте файлы конфигурации напрямую только для ручной настройки.
 
 | Поле | Значение |
 | --- | --- |
@@ -2469,13 +2493,15 @@ Description: Установите Hermes Agent, настройте API Key и Ba
   <Tab title="Интерактивная настройка">
     <Steps>
       <Step title="Запустите выбор модели">
+        Сначала завершите активный чат Hermes, затем выполните:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="Выберите OpenAI или OpenAI Compatible provider">
-        Выберите **OpenAI** или **OpenAI Compatible** в списке providers.
+      <Step title="Выберите Custom endpoint">
+        В списке providers выберите **Custom endpoint (self-hosted / VLLM / etc.)**.
       </Step>
 
       <Step title="Заполните конфигурацию BetterToken">
@@ -2484,50 +2510,37 @@ Description: Установите Hermes Agent, настройте API Key и Ba
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: ваш API Key BetterToken
         - **Model**: Model ID провайдера **GPT** из <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-      </Step>
 
-      <Step title="Перезапустите Hermes Agent">
-        После обновления конфигурации завершите текущую сессию Hermes Agent и запустите ее снова.
+        Если Hermes запрашивает API mode, выберите вариант OpenAI-compatible Chat Completions. Если нужно указать context length, используйте опубликованное значение модели не ниже 64K.
       </Step>
 
       <Step title="Запустите Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Для классического терминального интерфейса можно выполнить `hermes`.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    Если вам удобнее копировать команды, запишите конфигурацию Hermes Agent напрямую.
+  <Tab title="Файлы конфигурации">
+    Интерактивная настройка безопаснее: она проверяет и сохраняет endpoint. Для ручной настройки добавьте несекретные параметры модели в `~/.hermes/config.yaml`:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    Замените `YOUR_API_KEY` на ваш API Key BetterToken, а `YOUR_MODEL_ID` — на Model ID поддерживаемого провайдера из <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+    API Key храните отдельно в `~/.hermes/.env`:
 
-    Затем запустите Hermes Agent:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    Если вы не хотите сохранять API Key в конфигурации Hermes Agent, экспортируйте его в текущем shell.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    Эти переменные действуют только в текущей shell-сессии. В новом терминале экспортируйте их снова или добавьте в свой shell profile.
+    В native Windows эти файлы находятся в `%LOCALAPPDATA%\hermes\`, а не в `~/.hermes/`. Замените `YOUR_MODEL_ID` и `YOUR_API_KEY`, затем выполните `hermes doctor` перед запуском Hermes.
   </Tab>
 </Tabs>
 
@@ -2547,7 +2560,7 @@ Description: Установите Hermes Agent, настройте API Key и Ba
 - Если запросы не отвечают или завершаются ошибкой, проверьте, что **Base URL** равен `https://bettertoken.ai/v1`. Обычно здесь не нужно добавлять `/chat/completions`.
 - Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это Model ID поддерживаемого провайдера из <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 - Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что Model ID доступен у провайдера **GPT**.
-- Если после изменения настроек Hermes все еще использует старую модель, завершите текущую сессию Hermes Agent и снова выполните `hermes`.
+- Если Hermes все еще использует старую модель, завершите чат, снова сохраните custom endpoint через `hermes model` и начните новый чат.
 - BetterToken обычно не требует дополнительного `User-Agent` или custom headers. Добавляйте headers только если этого явно требует ваш custom gateway, tenant routing, observability или caching layer.
 
 <Note>
@@ -2556,11 +2569,17 @@ Description: Установите Hermes Agent, настройте API Key и Ba
 
 ## Проверка подключения
 
-Отправьте короткий тестовый запрос. Если инструмент возвращает ответ без ошибок авторизации или Model ID, подключение работает. После изменения конфигурации полностью перезапустите инструмент.
+Запустите `hermes --tui` или `hermes`, затем отправьте короткий запрос:
+
+```text
+Reply with HERMES_OK only. Do not use tools.
+```
+
+Подключение работает, если Hermes возвращает `HERMES_OK` без ошибок авторизации, endpoint или Model ID. После этого выполните одну небольшую задачу только на чтение, прежде чем включать gateways, scheduled tasks или дополнительные инструменты.
 
 ## Смена модели
 
-Откройте селектор моделей или измените поле `Model` в конфигурации. Используйте точный Model ID из <a href={"https://bettertoken.ai/pricing"}>каталога моделей</a>, затем перезапустите текущую сессию.
+Для добавления или повторной настройки provider выполните `hermes model` вне чата. В активном чате используйте `/model` для переключения между уже настроенными providers и моделями. Используйте точный Model ID из <a href={"https://bettertoken.ai/pricing"}>каталога моделей</a>.
 
 ## Частые ошибки
 
@@ -2570,6 +2589,8 @@ Description: Установите Hermes Agent, настройте API Key и Ba
 | `connection error` | Проверьте Base URL `https://bettertoken.ai/v1`, DNS и конфликтующий прокси. |
 | `401` или `403` | Повторно задайте API Key BetterToken и проверьте доступ к выбранной модели. |
 | `429` | Проверьте доступность модели и состояние баланса, затем повторите один запрос. |
+| `hermes: command not found` | После установки откройте новый терминал и проверьте PATH. |
+| Ошибка конфигурации после обновления | Выполните `hermes config check`, затем `hermes config migrate`, если Hermes предложит миграцию. |
 
 - [MCP и API Key / Base URL](/faq/concepts/mcp-vs-api-key-base-url)
 - [Что такое model_provider, base_url и wire_api?](/faq/codex/model-provider-base-url-wire-api)
@@ -2617,6 +2638,12 @@ hermes claw migrate
 
 После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `https://bettertoken.ai/v1`, вашему API Key BetterToken и Model ID поддерживаемого провайдера.
 </Accordion>
+
+## Официальная документация Hermes
+
+- [Установка](https://hermes-agent.nousresearch.com/docs/getting-started/installation)
+- [Поддержка платформ](https://hermes-agent.nousresearch.com/docs/getting-started/platform-support)
+- [LLM и провайдеры моделей](https://hermes-agent.nousresearch.com/docs/integrations/providers)
 
 ---
 
@@ -12017,23 +12044,47 @@ To connect Hermes Agent to BetterToken, prepare an API key, enter the Base URL s
 ### Additional requirements
 
 - The selected Model ID comes from the **supported provider**
-- macOS, Linux, or Windows WSL2
+- macOS, Linux, Windows 10/11, or WSL2
+- A model with at least a 64K context window for Hermes Agent tool use
 
 ## Install
 
 ### Install Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-    ```
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes recommends the Desktop installer for macOS and Windows. [Download Hermes Desktop](https://hermes-agent.nousresearch.com/) and run the installer for your operating system.
   </Tab>
 
-  <Tab title="Windows">
-    On Windows, prefer WSL2 first. Native PowerShell support depends on your current Hermes Agent version. If you use native Windows, follow the installer prompts for your installed version.
+  <Tab title="Linux / macOS / WSL2">
+    ```bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+    ```
+
+    When installation finishes, open a new terminal or reload your shell before running `hermes`.
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    Hermes Agent supports native Windows 10 and Windows 11. Open PowerShell or Windows Terminal and run:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Administrator rights are not required. Open a new PowerShell window after installation so the updated User PATH is available.
   </Tab>
 </Tabs>
+
+Verify the installation:
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>
+  WSL2 remains supported, but it is optional. Use it when you specifically need a Linux environment or the web dashboard's embedded terminal pane.
+</Note>
 
 ### Feature quick reference
 
@@ -12048,7 +12099,7 @@ To connect Hermes Agent to BetterToken, prepare an API key, enter the Base URL s
 
 ## Manual setup
 
-Use the interactive Hermes Agent model setup as the primary path. Command and environment-variable options remain available as alternatives.
+Use the interactive Hermes Agent model setup as the primary path. Edit the configuration files only when you need a manual setup.
 
 | Field | Value |
 | --- | --- |
@@ -12062,13 +12113,15 @@ Use the interactive Hermes Agent model setup as the primary path. Command and en
   <Tab title="Interactive setup">
     <Steps>
       <Step title="Run the model selector">
+        Exit any active Hermes chat first, then run:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="Choose the OpenAI or OpenAI Compatible provider">
-        Select **OpenAI** or **OpenAI Compatible** from the provider list.
+      <Step title="Choose Custom endpoint">
+        Select **Custom endpoint (self-hosted / VLLM / etc.)** from the provider list.
       </Step>
 
       <Step title="Fill in the BetterToken config">
@@ -12077,50 +12130,37 @@ Use the interactive Hermes Agent model setup as the primary path. Command and en
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: your BetterToken API Key
         - **Model**: a **model ID from a supported provider** copied from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-      </Step>
 
-      <Step title="Restart Hermes Agent">
-        After updating the config, quit the current Hermes Agent session and start it again.
+        If Hermes asks for an API mode, choose the OpenAI-compatible Chat Completions option. If it asks for context length, use the value published for that model and make sure it is at least 64K.
       </Step>
 
       <Step title="Start Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        You can also run `hermes` to use the classic terminal interface.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    If you prefer copy-paste commands, write the Hermes Agent config directly.
+  <Tab title="Config files">
+    The interactive setup is safer because it validates and stores the endpoint for you. For a manual setup, add the non-secret model settings to `~/.hermes/config.yaml`:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    Replace `YOUR_API_KEY` with your BetterToken API Key, and replace `YOUR_MODEL_ID` with a model ID from a supported provider from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+    Store the API Key separately in `~/.hermes/.env`:
 
-    Then start Hermes Agent:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    If you do not want to store the API Key in the Hermes Agent config, export it in the current shell.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    These variables only apply to the current shell session. Export them again in a new terminal, or add them to your own shell profile.
+    On native Windows, these files live under `%LOCALAPPDATA%\hermes\` instead of `~/.hermes/`. Replace `YOUR_MODEL_ID` and `YOUR_API_KEY`, then run `hermes doctor` before starting Hermes.
   </Tab>
 </Tabs>
 
@@ -12142,11 +12182,17 @@ After migration, still review the Hermes Agent **Base URL**, API Key, and model 
 
 ## Verify the connection
 
-Send a short test prompt. If the tool returns a response without an authentication or Model ID error, the connection works. Fully restart the tool after changing its configuration.
+Start Hermes with `hermes --tui` or `hermes`, then send this short prompt:
+
+```text
+Reply with HERMES_OK only. Do not use tools.
+```
+
+The connection works when Hermes returns `HERMES_OK` without an authentication, endpoint, or Model ID error. Then try one small read-only task before enabling gateways, scheduled tasks, or additional tools.
 
 ## Switch models
 
-Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>, then restart the current session.
+Run `hermes model` outside a chat to add or reconfigure a provider. Inside an active chat, use `/model` to switch between providers and models you already configured. Use the exact Model ID from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
 ## Common errors
 
@@ -12155,14 +12201,15 @@ Open the model selector or change the `Model` field in the configuration. Use th
 | `401` or `Unauthorized` | Check the BetterToken API key and remove leading or trailing spaces. |
 | `404` | Check the Base URL and do not append a specific endpoint path. |
 | `model not found` | Copy a current Model ID from the model plaza. |
-| Changes do not apply | Save the configuration and fully restart the tool. |
+| `hermes: command not found` | Open a new terminal after installation, then check the PATH. |
+| Configuration error after update | Run `hermes config check`, then `hermes config migrate` if prompted. |
 
 ### Troubleshooting
 
 - If requests fail or return no response, confirm that **Base URL** is exactly `https://bettertoken.ai/v1`. Do not append `/chat/completions` in this field.
 - If Hermes reports that the model does not exist, confirm that **Model** is a model ID from a supported provider from the <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 - If authentication fails, check for copied spaces and confirm that the selected Model ID comes from the **supported provider**.
-- If Hermes still uses the old model after a change, quit the current Hermes Agent session and run `hermes` again.
+- If Hermes still uses the old model, exit the chat, run `hermes model`, save the custom endpoint again, and start a new chat.
 - BetterToken usually does not require an extra `User-Agent` or custom headers. Only add headers when your custom gateway, tenant routing, observability, or caching layer explicitly requires them.
 
 <Note>
@@ -12201,6 +12248,12 @@ Open the model selector or change the `Model` field in the configuration. Use th
 <Accordion title="Protocol, endpoint, and internal provider fields">
   This setup uses `https://bettertoken.ai/v1`. The tool appends the OpenAI-compatible endpoint path. Do not add `/chat/completions` or `/responses` unless a specific field explicitly requires it.
 </Accordion>
+
+## Official Hermes references
+
+- [Installation](https://hermes-agent.nousresearch.com/docs/getting-started/installation)
+- [Platform support](https://hermes-agent.nousresearch.com/docs/getting-started/platform-support)
+- [LLM and model providers](https://hermes-agent.nousresearch.com/docs/integrations/providers)
 
 ---
 
@@ -21663,27 +21716,51 @@ Description: 安装 Hermes Agent，配置 BetterToken Base URL 和 API Key，选
 ### 工具特定要求
 
 - 所选 Model ID 来自 **受支持提供商**
-- macOS、Linux 或 Windows WSL2 环境
+- macOS、Linux、Windows 10/11 或 WSL2 环境
+- 用于 Hermes Agent 工具调用的模型至少具备 64K 上下文窗口
 
 ## 安装
 
 ### 安装 Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-    ```
+  <Tab title="Desktop（macOS / Windows）">
+    Hermes 官方推荐 macOS 和 Windows 用户使用 Desktop 安装器。前往 [Hermes Desktop 下载页](https://hermes-agent.nousresearch.com/)，下载并运行对应系统的安装程序。
   </Tab>
 
-  <Tab title="Windows">
-    Windows 用户建议优先使用 WSL2。原生 PowerShell 支持取决于 Hermes Agent 当前版本；如果你使用原生 Windows 环境，请按 Hermes 安装器的当前提示操作。
+  <Tab title="Linux / macOS / WSL2">
+    ```bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+    ```
+
+    安装完成后，请打开新终端或重新加载 shell，再运行 `hermes`。
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    Hermes Agent 原生支持 Windows 10 和 Windows 11。打开 PowerShell 或 Windows Terminal，然后运行：
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    安装不需要管理员权限。完成后请重新打开 PowerShell，让更新后的用户 PATH 生效。
   </Tab>
 </Tabs>
 
+验证安装：
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>
+  WSL2 仍受支持，但不是必需条件。只有在你明确需要 Linux 环境或 Web Dashboard 的内嵌终端面板时才需要选择 WSL2。
+</Note>
+
 ## 手动配置
 
-主要通过 Hermes Agent 的交互式模型配置界面完成设置；命令行和环境变量方式作为可选方案保留。
+优先使用 Hermes Agent 的交互式模型配置界面。只有在需要手动设置时，才直接编辑配置文件。
 
 | 字段 | 填写内容 |
 | --- | --- |
@@ -21697,13 +21774,15 @@ Description: 安装 Hermes Agent，配置 BetterToken Base URL 和 API Key，选
   <Tab title="交互式配置">
     <Steps>
       <Step title="运行模型选择器">
+        先退出正在运行的 Hermes 聊天，再执行：
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="选择 OpenAI 或 OpenAI Compatible provider">
-        在 provider 列表中，选择 **OpenAI** 或 **OpenAI Compatible**。
+      <Step title="选择 Custom endpoint">
+        在 provider 列表中选择 **Custom endpoint (self-hosted / VLLM / etc.)**。
       </Step>
 
       <Step title="填写 BetterToken 配置">
@@ -21712,60 +21791,53 @@ Description: 安装 Hermes Agent，配置 BetterToken Base URL 和 API Key，选
         - **Base URL**：`https://bettertoken.ai/v1`
         - **API Key**：你的 BetterToken API Key
         - **Model**：从<a href={"https://bettertoken.ai/pricing"}>模型广场</a>复制的 **受支持提供商的模型 ID**
-      </Step>
 
-      <Step title="重启 Hermes Agent">
-        修改配置后，请退出当前 Hermes Agent 会话，再重新启动。
+        如果 Hermes 询问 API mode，请选择 OpenAI-compatible Chat Completions 选项。如果需要填写 context length，请使用该模型公布的值，并确保至少为 64K。
       </Step>
 
       <Step title="启动 Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        你也可以运行 `hermes` 使用经典终端界面。
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="命令行配置">
-    如果你更适合复制命令，可以直接写入 Hermes Agent 配置。
+  <Tab title="配置文件">
+    交互式配置会自动验证并保存 endpoint，因此更加稳妥。如需手动配置，请将非敏感的模型设置写入 `~/.hermes/config.yaml`：
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    将 `YOUR_API_KEY` 替换为你的 BetterToken API Key，将 `YOUR_MODEL_ID` 替换为<a href={"https://bettertoken.ai/pricing"}>模型广场</a>中的 受支持提供商的模型 ID。
+    将 API Key 单独写入 `~/.hermes/.env`：
 
-    配置完成后运行：
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="环境变量">
-    如果你不想把 API Key 写入 Hermes Agent 配置，可以在当前 shell 中导出环境变量。
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    这组环境变量只对当前 shell 会话生效。新开终端后需要重新导出，或写入你自己的 shell profile。
+    在原生 Windows 中，这两个文件位于 `%LOCALAPPDATA%\hermes\`，而不是 `~/.hermes/`。替换 `YOUR_MODEL_ID` 和 `YOUR_API_KEY` 后，先运行 `hermes doctor`，再启动 Hermes。
   </Tab>
 </Tabs>
 
 ## 验证连接
 
-发送一条简短测试消息。工具正常返回内容，并且没有认证或 Model ID 错误，就说明连接成功。修改配置后请完全退出并重新启动工具。
+使用 `hermes --tui` 或 `hermes` 启动，然后发送以下短消息：
+
+```text
+Reply with HERMES_OK only. Do not use tools.
+```
+
+如果 Hermes 返回 `HERMES_OK`，且没有认证、endpoint 或 Model ID 错误，就说明连接成功。接下来先完成一个小型只读任务，再启用 gateway、定时任务或其他工具。
 
 ## 切换模型
 
-打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"https://bettertoken.ai/pricing"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
+在聊天外运行 `hermes model`，可以新增或重新配置 provider。在聊天中使用 `/model`，可以切换已经配置好的 provider 和模型。请使用<a href={"https://bettertoken.ai/pricing"}>模型广场</a>中的完整 Model ID。
 
 ## 常见错误
 
@@ -21774,14 +21846,15 @@ Description: 安装 Hermes Agent，配置 BetterToken Base URL 和 API Key，选
 | `401` 或 `Unauthorized` | 检查 BetterToken API Key，并删除首尾空格。 |
 | `404` | 检查 Base URL，不要附加具体 endpoint 路径。 |
 | `model not found` | 从模型广场重新复制当前 Model ID。 |
-| 配置未生效 | 保存配置，并完全退出后重新启动工具。 |
+| `hermes: command not found` | 安装后打开新终端，再检查 PATH。 |
+| 更新后配置错误 | 运行 `hermes config check`；如果提示迁移，再运行 `hermes config migrate`。 |
 
 ### 排障提示
 
 - 无响应或请求失败时，先确认 **Base URL** 是否正好是 `https://bettertoken.ai/v1`。这里通常不要再拼接 `/chat/completions`。
 - 报模型不存在时，确认 **Model** 是否来自<a href={"https://bettertoken.ai/pricing"}>模型广场</a>中的 受支持提供商。
 - 报鉴权失败时，确认 API Key 没有复制空格，并检查 Model ID 来自 **受支持提供商**。
-- 修改配置后仍走旧模型时，退出当前 Hermes Agent 会话并重新运行 `hermes`。
+- 仍在使用旧模型时，退出聊天，运行 `hermes model` 重新保存 custom endpoint，再开始新聊天。
 - 接入 BetterToken 时通常不需要额外设置 `User-Agent` 或其他 headers。只有当你还接了自定义网关、租户路由、审计或缓存服务时，再按对应上游服务的官方文档补充。
 
 <Note>
@@ -21847,6 +21920,12 @@ hermes claw migrate
 
 迁移后仍建议检查 Hermes Agent 中的 **Base URL**、API Key 和模型 ID，确保它们分别对应 `https://bettertoken.ai/v1`、你的 BetterToken API Key，以及 受支持提供商的模型 ID。
 </Accordion>
+
+## Hermes 官方参考
+
+- [安装说明](https://hermes-agent.nousresearch.com/docs/getting-started/installation)
+- [平台支持](https://hermes-agent.nousresearch.com/docs/getting-started/platform-support)
+- [LLM 与模型提供商](https://hermes-agent.nousresearch.com/docs/integrations/providers)
 
 ---
 
@@ -31245,23 +31324,41 @@ Hermes Agent को BetterToken से कनेक्ट करने के �
 ### अतिरिक्त आवश्यकताएं
 
 - चुनी गई Model ID **supported provider** से है
-- macOS, Linux, or Windows WSL2
+- macOS, Linux, Windows 10/11 या WSL2
+- tool use के लिए कम से कम 64K context window वाला model
 
 ## इंस्टॉल करें
 
 ### Hermes Agent इंस्टॉल करें
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes macOS और Windows पर Desktop installer की सलाह देता है। [Hermes Desktop डाउनलोड करें](https://hermes-agent.nousresearch.com/) और अपने operating system का installer चलाएं।
+  </Tab>
+
+  <Tab title="Linux / macOS / WSL2">
     ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
     ```
   </Tab>
 
-  <Tab title="Windows">
-    Windows पर पहले WSL2 चुनें। Native PowerShell समर्थन आपके वर्तमान Hermes Agent संस्करण पर निर्भर है। Native Windows इस्तेमाल करने पर इंस्टॉल किए संस्करण के installer prompt का पालन करें।
+  <Tab title="Windows PowerShell">
+    Hermes Agent Windows 10 और 11 को native support देता है। PowerShell या Windows Terminal में चलाएं:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Administrator rights आवश्यक नहीं हैं। Installation के बाद नया PowerShell window खोलें।
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>WSL2 supported है, लेकिन आवश्यक नहीं। Linux environment या Web Dashboard का embedded terminal चाहिए तभी इसे चुनें।</Note>
 
 ### फ़ीचर त्वरित संदर्भ
 
@@ -31276,7 +31373,7 @@ Hermes Agent को BetterToken से कनेक्ट करने के �
 
 ## मैन्युअल सेटअप
 
-interactive Hermes Agent मॉडल सेटअप को मुख्य तरीका मानें। command और environment-variable विकल्प वैकल्पिक रूप में उपलब्ध हैं।
+interactive Hermes Agent मॉडल सेटअप को मुख्य तरीका मानें। Manual setup की जरूरत होने पर ही config files को सीधे edit करें।
 
 | फ़ील्ड | मान |
 | --- | --- |
@@ -31290,13 +31387,15 @@ interactive Hermes Agent मॉडल सेटअप को मुख्य त
   <Tab title="Interactive setup">
     <Steps>
       <Step title="मॉडल selector चलाएं">
+        यदि Hermes chat खुली है, तो पहले session से बाहर निकलें। फिर चलाएं:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="OpenAI या OpenAI Compatible provider चुनें">
-        provider सूची से **OpenAI** या **OpenAI Compatible** चुनें।
+      <Step title="Custom endpoint चुनें">
+        provider सूची से **Custom endpoint (self-hosted / VLLM / etc.)** चुनें।
       </Step>
 
       <Step title="BetterToken config भरें">
@@ -31305,50 +31404,37 @@ interactive Hermes Agent मॉडल सेटअप को मुख्य त
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: आपकी BetterToken API Key
         - **Model**: <a href={"https://bettertoken.ai/pricing"}>model plaza</a> से कॉपी की **किसी समर्थित provider की मॉडल ID**
-      </Step>
 
-      <Step title="Hermes Agent रीस्टार्ट करें">
-        config अपडेट करने के बाद मौजूदा Hermes Agent session बंद करें और फिर शुरू करें।
+        यदि Hermes API mode पूछे, तो **Chat Completions** चुनें। Agent tool use के लिए कम से कम 64K context वाला model चुनें।
       </Step>
 
       <Step title="Hermes Agent शुरू करें">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Classic terminal interface के लिए `hermes` चलाएं।
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    यदि आप copy-paste command पसंद करते हैं, तो Hermes Agent config सीधे लिखें।
+  <Tab title="Config files">
+    `~/.hermes/config.yaml` में custom provider जोड़ें:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    `YOUR_API_KEY` को अपनी BetterToken API Key से और `YOUR_MODEL_ID` को <a href={"https://bettertoken.ai/pricing"}>model plaza</a> की समर्थित provider मॉडल ID से बदलें।
+    BetterToken API Key को `~/.hermes/.env` में अलग रखें:
 
-    फिर Hermes Agent शुरू करें:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    API Key को Hermes Agent config में न रखना हो तो इसे मौजूदा shell में export करें।
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    ये variable केवल मौजूदा shell session पर लागू होते हैं। नए terminal में फिर export करें या अपने shell profile में जोड़ें।
+    `YOUR_MODEL_ID` को <a href={"https://bettertoken.ai/pricing"}>model plaza</a> की supported provider model ID से और `YOUR_API_KEY` को अपनी BetterToken API Key से बदलें। Native Windows पर ये files `%LOCALAPPDATA%\hermes\` में होती हैं।
   </Tab>
 </Tabs>
 
@@ -31370,11 +31456,11 @@ migration के बाद भी Hermes Agent **Base URL**, API Key और म�
 
 ## कनेक्शन सत्यापित करें
 
-छोटे test prompt भेजें। यदि टूल बिना authentication या Model ID त्रुटि के उत्तर देता है, तो कनेक्शन काम कर रहा है। configuration बदलने के बाद टूल को पूरी तरह रीस्टार्ट करें।
+Hermes Agent शुरू करें और यह छोटा test prompt भेजें: `Reply with HERMES_OK only. Do not use tools.` यदि response ठीक `HERMES_OK` है, तो connection काम कर रहा है।
 
 ## मॉडल बदलें
 
-मॉडल selector खोलें या configuration में `Model` फ़ील्ड बदलें। <a href={"https://bettertoken.ai/pricing"}>model plaza</a> से सटीक Model ID उपयोग करें, फिर मौजूदा session रीस्टार्ट करें।
+Session के बाहर `hermes model` चलाएं। Active chat में पहले से configured provider या model बदलने के लिए `/model` उपयोग करें। <a href={"https://bettertoken.ai/pricing"}>model plaza</a> की exact Model ID चुनें।
 
 ## सामान्य त्रुटियां
 
@@ -40739,23 +40825,41 @@ Para conectar Hermes Agent con BetterToken, prepara una API Key, introduce la Ba
 ### Requisitos adicionales
 
 - El ID de modelo seleccionado procede del **proveedor compatible**
-- macOS, Linux, or Windows WSL2
+- macOS, Linux, Windows 10/11 o WSL2
+- Un modelo con una ventana de contexto mínima de 64K para usar herramientas
 
 ## Instalación
 
 ### Instala Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes recomienda el instalador Desktop para macOS y Windows. [Descarga Hermes Desktop](https://hermes-agent.nousresearch.com/) y ejecuta el instalador de tu sistema.
+  </Tab>
+
+  <Tab title="Linux / macOS / WSL2">
     ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
     ```
   </Tab>
 
-  <Tab title="Windows">
-    En Windows, usa preferentemente WSL2. La compatibilidad nativa con PowerShell depende de la versión actual de Hermes Agent. Si usas Windows de forma nativa, sigue las instrucciones del instalador de tu versión.
+  <Tab title="Windows PowerShell">
+    Hermes Agent es compatible de forma nativa con Windows 10 y 11. Ejecuta esto en PowerShell o Windows Terminal:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    No necesitas permisos de administrador. Abre una nueva ventana de PowerShell después de instalar.
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>WSL2 sigue siendo compatible, pero es opcional. Úsalo si necesitas un entorno Linux o el terminal integrado del Web Dashboard.</Note>
 
 ### Referencia rápida de funciones
 
@@ -40770,7 +40874,7 @@ Para conectar Hermes Agent con BetterToken, prepara una API Key, introduce la Ba
 
 ## Configuración manual
 
-Usa como método principal la configuración interactiva de modelos de Hermes Agent. Los comandos y las variables de entorno siguen disponibles como alternativas.
+Usa como método principal la configuración interactiva de modelos de Hermes Agent. Edita directamente los archivos de configuración solo cuando necesites una configuración manual.
 
 | Campo | Valor |
 | --- | --- |
@@ -40784,13 +40888,15 @@ Usa como método principal la configuración interactiva de modelos de Hermes Ag
   <Tab title="Configuración interactiva">
     <Steps>
       <Step title="Ejecuta el selector de modelos">
+        Si hay un chat de Hermes abierto, sal primero de la sesión. Después, ejecuta:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="Elige el proveedor OpenAI u OpenAI Compatible">
-        Selecciona **OpenAI** u **OpenAI Compatible** en la lista de proveedores.
+      <Step title="Elige Custom endpoint">
+        Selecciona **Custom endpoint (self-hosted / VLLM / etc.)** en la lista de proveedores.
       </Step>
 
       <Step title="Completa la configuración de BetterToken">
@@ -40799,50 +40905,37 @@ Usa como método principal la configuración interactiva de modelos de Hermes Ag
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: tu BetterToken API Key
         - **Model**: un **ID de modelo de un proveedor compatible** copiado desde la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-      </Step>
 
-      <Step title="Reinicia Hermes Agent">
-        Después de actualizar la configuración, cierra la sesión actual de Hermes Agent e inicia otra.
+        Si Hermes pregunta por el modo de API, elige **Chat Completions**. Para usar las herramientas del agente, selecciona un modelo con al menos 64K de contexto.
       </Step>
 
       <Step title="Inicia Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Ejecuta `hermes` si prefieres la interfaz clásica de terminal.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="Configuración por CLI">
-    Si prefieres copiar y pegar comandos, escribe directamente la configuración de Hermes Agent.
+  <Tab title="Archivos de configuración">
+    Añade el proveedor custom en `~/.hermes/config.yaml`:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    Sustituye `YOUR_API_KEY` por tu BetterToken API Key y `YOUR_MODEL_ID` por un ID de modelo de un proveedor compatible de la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+    Guarda la BetterToken API Key por separado en `~/.hermes/.env`:
 
-    Después, inicia Hermes Agent:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Variables de entorno">
-    Si no quieres guardar la API Key en la configuración de Hermes Agent, expórtala en el shell actual.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    Estas variables solo se aplican a la sesión actual del shell. Vuelve a exportarlas en una terminal nueva o añádelas a tu perfil del shell.
+    Sustituye `YOUR_MODEL_ID` por un ID de modelo de un proveedor compatible de la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> y `YOUR_API_KEY` por tu BetterToken API Key. En Windows nativo, estos archivos están en `%LOCALAPPDATA%\hermes\`.
   </Tab>
 </Tabs>
 
@@ -40864,11 +40957,11 @@ Después de migrar, revisa la **Base URL**, la API Key y el ID del modelo de Her
 
 ## Verifica la conexión
 
-Envía un prompt de prueba breve. Si la herramienta responde sin errores de autenticación ni de ID del modelo, la conexión funciona. Reinicia por completo la herramienta después de cambiar la configuración.
+Inicia Hermes Agent y envía este prompt de prueba: `Reply with HERMES_OK only. Do not use tools.` Si la respuesta es exactamente `HERMES_OK`, la conexión funciona.
 
 ## Cambia de modelo
 
-Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"https://bettertoken.ai/pricing"}>model plaza</a> y reinicia la sesión actual.
+Fuera de una sesión, ejecuta `hermes model`. En un chat activo, usa `/model` para cambiar entre proveedores o modelos ya configurados. Elige el ID de modelo exacto de la <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
 ## Errores habituales
 
@@ -50222,23 +50315,43 @@ Para conectar o Hermes Agent à BetterToken, prepare uma API Key, informe a Base
 ### Requisitos adicionais
 
 - O ID de modelo selecionado vem de um **provedor compatível**
-- macOS, Linux, or Windows WSL2
+- macOS, Linux, Windows 10/11 ou WSL2
+- Um modelo com janela de contexto mínima de 64K para uso de ferramentas
 
 ## Instalação
 
 ### Instalar o Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-    ```
+  <Tab title="Desktop (macOS / Windows)">
+    A Hermes recomenda o instalador Desktop no macOS e no Windows. [Baixe o Hermes Desktop](https://hermes-agent.nousresearch.com/) e execute o instalador do seu sistema.
   </Tab>
 
-  <Tab title="Windows">
-    No Windows, prefira WSL2. O suporte nativo ao PowerShell depende da versão atual do Hermes Agent. Se usar Windows nativo, siga as instruções do instalador da versão instalada.
+  <Tab title="Linux / macOS / WSL2">
+    ```bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+    ```
+
+    Ao terminar, abra um novo terminal ou recarregue o shell antes de executar `hermes`.
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    O Hermes Agent oferece suporte nativo ao Windows 10 e 11. Abra o PowerShell ou Windows Terminal e execute:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Não são necessários privilégios de administrador. Abra uma nova janela do PowerShell após a instalação para carregar o User PATH atualizado.
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>O WSL2 continua compatível, mas é opcional. Use-o quando precisar de um ambiente Linux ou do terminal incorporado do Web Dashboard.</Note>
 
 ### Referência rápida de recursos
 
@@ -50253,7 +50366,7 @@ Para conectar o Hermes Agent à BetterToken, prepare uma API Key, informe a Base
 
 ## Configuração manual
 
-Use a configuração interativa de modelo do Hermes Agent como caminho principal. Comandos e variáveis de ambiente continuam disponíveis como alternativas.
+Use a configuração interativa de modelo do Hermes Agent como caminho principal. Edite os arquivos de configuração diretamente apenas quando precisar de uma configuração manual.
 
 | Campo | Valor |
 | --- | --- |
@@ -50267,13 +50380,15 @@ Use a configuração interativa de modelo do Hermes Agent como caminho principal
   <Tab title="Configuração interativa">
     <Steps>
       <Step title="Execute o seletor de modelos">
+        Saia de qualquer chat Hermes ativo e execute:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="Escolha o provedor OpenAI ou OpenAI Compatible">
-        Selecione **OpenAI** ou **OpenAI Compatible** na lista de provedores.
+      <Step title="Escolha Custom endpoint">
+        Selecione **Custom endpoint (self-hosted / VLLM / etc.)** na lista de provedores.
       </Step>
 
       <Step title="Preencha a configuração da BetterToken">
@@ -50282,50 +50397,37 @@ Use a configuração interativa de modelo do Hermes Agent como caminho principal
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: sua BetterToken API Key
         - **Model**: um **ID de modelo de um provedor compatível** copiado da <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-      </Step>
 
-      <Step title="Reinicie o Hermes Agent">
-        Após atualizar a configuração, encerre a sessão atual do Hermes Agent e inicie-a novamente.
+        Se o Hermes pedir o API mode, escolha OpenAI-compatible Chat Completions. Use o context length publicado para o modelo e confirme pelo menos 64K.
       </Step>
 
       <Step title="Inicie o Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Execute `hermes` para usar a interface de terminal clássica.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="Configuração por CLI">
-    Se preferir comandos para copiar e colar, grave a configuração do Hermes Agent diretamente.
+  <Tab title="Arquivos de configuração">
+    A configuração interativa valida e salva o endpoint. Para configurar manualmente, adicione os ajustes a `~/.hermes/config.yaml`:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    Substitua `YOUR_API_KEY` pela sua BetterToken API Key e `YOUR_MODEL_ID` por um ID de modelo de um provedor compatível da <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+    Guarde a API Key em `~/.hermes/.env`:
 
-    Depois inicie o Hermes Agent:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Variáveis de ambiente">
-    Se não quiser armazenar a API Key na configuração do Hermes Agent, exporte-a no shell atual.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    Essas variáveis se aplicam somente à sessão atual do shell. Exporte-as novamente em um novo terminal ou adicione-as ao seu perfil de shell.
+    No Windows nativo, esses arquivos ficam em `%LOCALAPPDATA%\hermes\`. Substitua os valores e execute `hermes doctor`.
   </Tab>
 </Tabs>
 
@@ -50347,11 +50449,11 @@ Após a migração, revise a **Base URL**, a API Key e o ID de modelo do Hermes 
 
 ## Verifique a conexão
 
-Envie um prompt de teste curto. Se a ferramenta retornar uma resposta sem erro de autenticação ou de ID de modelo, a conexão funciona. Reinicie completamente a ferramenta depois de alterar a configuração.
+Inicie `hermes --tui` ou `hermes` e envie `Reply with HERMES_OK only. Do not use tools.`. A conexão funciona quando o Hermes retorna `HERMES_OK` sem erro de autenticação, endpoint ou ID de modelo.
 
 ## Alterne entre modelos
 
-Abra o seletor de modelos ou altere o campo `Model` na configuração. Use o ID de modelo exato da <a href={"https://bettertoken.ai/pricing"}>model plaza</a> e reinicie a sessão atual.
+Execute `hermes model` fora do chat para adicionar ou reconfigurar um provedor. No chat, use `/model` para alternar entre provedores e modelos já configurados.
 
 ## Erros comuns
 
@@ -59704,23 +59806,43 @@ Hermes Agent を BetterToken に接続するには、API Key を用意し、以�
 ### 追加要件
 
 - 選択した Model ID が**対応プロバイダー**のものである
-- macOS、Linux、または Windows WSL2
+- macOS、Linux、Windows 10/11、または WSL2
+- ツールを使うモデルには 64K 以上のコンテキストウィンドウが必要
 
 ## インストール
 
 ### Hermes Agent をインストールする
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-    ```
+  <Tab title="Desktop（macOS / Windows）">
+    Hermes は macOS と Windows では Desktop インストーラーを推奨しています。[Hermes Desktop をダウンロード](https://hermes-agent.nousresearch.com/)し、OS に対応するインストーラーを実行します。
   </Tab>
 
-  <Tab title="Windows">
-    Windows ではまず WSL2 を推奨します。ネイティブ PowerShell のサポートは、現在の Hermes Agent バージョンに依存します。ネイティブ Windows を使う場合は、インストール済みバージョンのインストーラー表示に従ってください。
+  <Tab title="Linux / macOS / WSL2">
+    ```bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+    ```
+
+    インストール後、新しいターミナルを開くか shell を再読み込みしてから `hermes` を実行します。
+  </Tab>
+
+  <Tab title="Windows PowerShell">
+    Hermes Agent は Windows 10 と Windows 11 をネイティブでサポートします。PowerShell または Windows Terminal で次を実行します。
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    管理者権限は不要です。インストール後は新しい PowerShell ウィンドウを開き、更新された User PATH を読み込みます。
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>WSL2 もサポートされますが必須ではありません。Linux 環境または Web Dashboard の埋め込みターミナルが必要な場合に選択してください。</Note>
 
 ### 機能のクイックリファレンス
 
@@ -59735,7 +59857,7 @@ Hermes Agent を BetterToken に接続するには、API Key を用意し、以�
 
 ## 手動設定
 
-対話型の Hermes Agent モデル設定を主な方法として使用します。代替手段として、コマンドと環境変数のオプションも利用できます。
+Hermes Agent の対話型モデル設定を主な方法として使用します。手動設定が必要な場合のみ、設定ファイルを直接編集します。
 
 | 項目 | 値 |
 | --- | --- |
@@ -59749,13 +59871,15 @@ Hermes Agent を BetterToken に接続するには、API Key を用意し、以�
   <Tab title="対話型設定">
     <Steps>
       <Step title="モデルセレクターを実行する">
+        実行中の Hermes チャットを終了してから次を実行します。
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="OpenAI または OpenAI Compatible プロバイダーを選択する">
-        プロバイダー一覧から **OpenAI** または **OpenAI Compatible** を選択します。
+      <Step title="Custom endpoint を選択する">
+        プロバイダー一覧から **Custom endpoint (self-hosted / VLLM / etc.)** を選択します。
       </Step>
 
       <Step title="BetterToken の設定を入力する">
@@ -59764,50 +59888,37 @@ Hermes Agent を BetterToken に接続するには、API Key を用意し、以�
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**：BetterToken API Key
         - **Model**：<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>からコピーした、**対応プロバイダーのモデル ID**
-      </Step>
 
-      <Step title="Hermes Agent を再起動する">
-        設定を更新した後、現在の Hermes Agent セッションを終了して再開します。
+        API mode を聞かれた場合は OpenAI-compatible Chat Completions を選択します。context length はモデルの公開値を使い、64K 以上であることを確認します。
       </Step>
 
       <Step title="Hermes Agent を起動する">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        クラシックなターミナル UI を使う場合は `hermes` を実行します。
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI 設定">
-    コピー＆ペーストのコマンドを使いたい場合は、Hermes Agent 設定を直接書き込みます。
+  <Tab title="設定ファイル">
+    対話型設定では endpoint が検証されて保存されます。手動で設定する場合は `~/.hermes/config.yaml` にモデル設定を追加します。
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    `YOUR_API_KEY` を BetterToken API Key に置き換え、`YOUR_MODEL_ID` を<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>にある対応プロバイダーのモデル ID に置き換えます。
+    API Key は `~/.hermes/.env` に分けて保存します。
 
-    その後、Hermes Agent を起動します。
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="環境変数">
-    API Key を Hermes Agent 設定に保存したくない場合は、現在のシェルでエクスポートします。
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    これらの変数は現在のシェルセッションにのみ適用されます。新しいターミナルで再度エクスポートするか、自分のシェルプロファイルに追加してください。
+    ネイティブ Windows では、これらのファイルは `%LOCALAPPDATA%\hermes\` にあります。値を置き換えた後、`hermes doctor` を実行します。
   </Tab>
 </Tabs>
 
@@ -59829,11 +59940,11 @@ hermes claw migrate
 
 ## 接続を確認する
 
-短いテストプロンプトを送信します。認証または Model ID のエラーなしでツールがレスポンスを返せば、接続は機能しています。設定を変更した後はツールを完全に再起動してください。
+`hermes --tui` または `hermes` を起動し、`Reply with HERMES_OK only. Do not use tools.` と送信します。認証、endpoint、Model ID のエラーなしで `HERMES_OK` が返れば接続は成功です。
 
 ## モデルを切り替える
 
-モデルセレクターを開くか、設定の `Model` フィールドを変更します。<a href={"https://bettertoken.ai/pricing"}>モデル広場</a>にある正確な Model ID を使用してから、現在のセッションを再起動してください。
+プロバイダーの追加や再設定には、チャット外で `hermes model` を実行します。チャット内では `/model` を使い、設定済みのプロバイダーとモデルを切り替えます。
 
 ## よくあるエラー
 
@@ -69183,23 +69294,41 @@ Pour connecter Hermes Agent à BetterToken, préparez une API Key, saisissez la 
 ### Exigences supplémentaires
 
 - Le Model ID sélectionné provient du **fournisseur compatible**
-- macOS, Linux ou Windows WSL2
+- macOS, Linux, Windows 10/11 ou WSL2
+- Un modèle doté d’une fenêtre de contexte d’au moins 64K pour utiliser les outils
 
 ## Installation
 
 ### Installer Hermes Agent
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes recommande l’installateur Desktop sur macOS et Windows. [Téléchargez Hermes Desktop](https://hermes-agent.nousresearch.com/) et exécutez l’installateur correspondant à votre système.
+  </Tab>
+
+  <Tab title="Linux / macOS / WSL2">
     ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
     ```
   </Tab>
 
-  <Tab title="Windows">
-    Sous Windows, privilégiez d’abord WSL2. La prise en charge native de PowerShell dépend de votre version actuelle de Hermes Agent. Si vous utilisez Windows natif, suivez les invites de l’installateur correspondant à votre version installée.
+  <Tab title="Windows PowerShell">
+    Hermes Agent prend en charge nativement Windows 10 et 11. Exécutez ceci dans PowerShell ou Windows Terminal :
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Aucun droit administrateur n’est requis. Ouvrez une nouvelle fenêtre PowerShell après l’installation.
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>WSL2 reste compatible, mais il est facultatif. Utilisez-le si vous avez besoin d’un environnement Linux ou du terminal intégré au Web Dashboard.</Note>
 
 ### Référence rapide des fonctionnalités
 
@@ -69214,7 +69343,7 @@ Pour connecter Hermes Agent à BetterToken, préparez une API Key, saisissez la 
 
 ## Configuration manuelle
 
-Utilisez la configuration interactive de modèle Hermes Agent comme méthode principale. Les commandes et les variables d’environnement restent disponibles comme alternatives.
+Utilisez la configuration interactive de modèle Hermes Agent comme méthode principale. Modifiez directement les fichiers de configuration uniquement si vous avez besoin d’une configuration manuelle.
 
 | Champ | Valeur |
 | --- | --- |
@@ -69228,13 +69357,15 @@ Utilisez la configuration interactive de modèle Hermes Agent comme méthode pri
   <Tab title="Interactive setup">
     <Steps>
       <Step title="Exécuter le sélecteur de modèle">
+        Si un chat Hermes est ouvert, quittez d’abord la session. Exécutez ensuite :
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="Choisir le fournisseur OpenAI ou OpenAI Compatible">
-        Sélectionnez **OpenAI** ou **OpenAI Compatible** dans la liste des fournisseurs.
+      <Step title="Choisir Custom endpoint">
+        Sélectionnez **Custom endpoint (self-hosted / VLLM / etc.)** dans la liste des fournisseurs.
       </Step>
 
       <Step title="Saisir la configuration BetterToken">
@@ -69243,50 +69374,37 @@ Utilisez la configuration interactive de modèle Hermes Agent comme méthode pri
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key** : votre BetterToken API Key
         - **Model** : un **model ID d’un fournisseur compatible** copié depuis le <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-      </Step>
 
-      <Step title="Redémarrer Hermes Agent">
-        Après avoir mis à jour la configuration, quittez la session Hermes Agent actuelle et redémarrez-la.
+        Si Hermes demande le mode d’API, choisissez **Chat Completions**. Pour les outils de l’agent, utilisez un modèle avec au moins 64K de contexte.
       </Step>
 
       <Step title="Démarrer Hermes Agent">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Exécutez `hermes` si vous préférez l’interface classique du terminal.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    Si vous préférez les commandes à copier-coller, écrivez directement la configuration Hermes Agent.
+  <Tab title="Fichiers de configuration">
+    Ajoutez le fournisseur custom dans `~/.hermes/config.yaml` :
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    Remplacez `YOUR_API_KEY` par votre BetterToken API Key et `YOUR_MODEL_ID` par un model ID d’un fournisseur compatible du <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+    Stockez séparément la BetterToken API Key dans `~/.hermes/.env` :
 
-    Démarrez ensuite Hermes Agent :
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    Si vous ne souhaitez pas stocker l’API Key dans la configuration Hermes Agent, exportez-la dans le shell actuel.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    Ces variables ne s’appliquent qu’à la session de shell actuelle. Exportez-les à nouveau dans un nouveau terminal ou ajoutez-les à votre propre profil de shell.
+    Remplacez `YOUR_MODEL_ID` par un model ID d’un fournisseur compatible du <a href={"https://bettertoken.ai/pricing"}>model plaza</a> et `YOUR_API_KEY` par votre BetterToken API Key. Sous Windows natif, ces fichiers se trouvent dans `%LOCALAPPDATA%\hermes\`.
   </Tab>
 </Tabs>
 
@@ -69308,11 +69426,11 @@ Après la migration, vérifiez encore la **Base URL**, l’API Key et le model I
 
 ## Vérifier la connexion
 
-Envoyez un court prompt de test. Si l’outil renvoie une réponse sans erreur d’authentification ni erreur de Model ID, la connexion fonctionne. Redémarrez complètement l’outil après avoir modifié sa configuration.
+Démarrez Hermes Agent et envoyez ce court prompt de test : `Reply with HERMES_OK only. Do not use tools.` Si la réponse est exactement `HERMES_OK`, la connexion fonctionne.
 
 ## Changer de modèle
 
-Ouvrez le sélecteur de modèle ou modifiez le champ `Model` dans la configuration. Utilisez le Model ID exact du <a href={"https://bettertoken.ai/pricing"}>model plaza</a>, puis redémarrez la session actuelle.
+En dehors d’une session, exécutez `hermes model`. Dans un chat actif, utilisez `/model` pour changer de fournisseur ou de modèle déjà configuré. Choisissez le Model ID exact du <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
 ## Erreurs courantes
 
@@ -78665,23 +78783,41 @@ Um Hermes Agent mit BetterToken zu verbinden, bereite einen API Key vor, trage d
 ### Zusätzliche Anforderungen
 
 - Die ausgewählte Model ID stammt vom **unterstützten Provider**
-- macOS, Linux oder Windows WSL2
+- macOS, Linux, Windows 10/11 oder WSL2
+- Ein Modell mit mindestens 64K Kontextfenster für die Tool-Nutzung
 
 ## Installation
 
 ### Hermes Agent installieren
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes empfiehlt den Desktop-Installer für macOS und Windows. [Hermes Desktop herunterladen](https://hermes-agent.nousresearch.com/) und den Installer für das eigene Betriebssystem ausführen.
+  </Tab>
+
+  <Tab title="Linux / macOS / WSL2">
     ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
     ```
   </Tab>
 
-  <Tab title="Windows">
-    Unter Windows solltest du zuerst WSL2 bevorzugen. Die native PowerShell-Unterstützung hängt von deiner aktuellen Hermes-Agent-Version ab. Wenn du natives Windows verwendest, folge den Installationsaufforderungen deiner installierten Version.
+  <Tab title="Windows PowerShell">
+    Hermes Agent unterstützt Windows 10 und 11 nativ. Führe in PowerShell oder Windows Terminal Folgendes aus:
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    Administratorrechte sind nicht erforderlich. Öffne nach der Installation ein neues PowerShell-Fenster.
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>WSL2 bleibt unterstützt, ist aber optional. Nutze es für eine Linux-Umgebung oder das eingebettete Terminal im Web Dashboard.</Note>
 
 ### Schnelle Funktionsübersicht
 
@@ -78696,7 +78832,7 @@ Um Hermes Agent mit BetterToken zu verbinden, bereite einen API Key vor, trage d
 
 ## Manuelle Einrichtung
 
-Verwende die interaktive Hermes-Agent-Modell-Einrichtung als primären Weg. Befehls- und Umgebungsvariablen-Optionen bleiben als Alternativen verfügbar.
+Verwende die interaktive Hermes-Agent-Modell-Einrichtung als primären Weg. Bearbeite die Konfigurationsdateien nur dann direkt, wenn du eine manuelle Einrichtung benötigst.
 
 | Feld | Wert |
 | --- | --- |
@@ -78710,13 +78846,15 @@ Verwende die interaktive Hermes-Agent-Modell-Einrichtung als primären Weg. Befe
   <Tab title="Interactive setup">
     <Steps>
       <Step title="Modellauswahl ausführen">
+        Wenn ein Hermes-Chat geöffnet ist, beende zuerst die Sitzung. Führe dann Folgendes aus:
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="OpenAI- oder OpenAI-Compatible-Provider auswählen">
-        Wähle **OpenAI** oder **OpenAI Compatible** aus der Provider-Liste.
+      <Step title="Custom endpoint auswählen">
+        Wähle **Custom endpoint (self-hosted / VLLM / etc.)** aus der Provider-Liste.
       </Step>
 
       <Step title="BetterToken-Konfiguration ausfüllen">
@@ -78725,50 +78863,37 @@ Verwende die interaktive Hermes-Agent-Modell-Einrichtung als primären Weg. Befe
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: dein BetterToken API Key
         - **Model**: eine **Model ID eines unterstützten Providers** aus der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>
-      </Step>
 
-      <Step title="Hermes Agent neu starten">
-        Beende nach der Aktualisierung der Konfiguration die aktuelle Hermes-Agent-Sitzung und starte sie erneut.
+        Wenn Hermes nach dem API-Modus fragt, wähle **Chat Completions**. Verwende für Agent-Tools ein Modell mit mindestens 64K Kontext.
       </Step>
 
       <Step title="Hermes Agent starten">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Führe `hermes` aus, wenn du die klassische Terminal-Oberfläche bevorzugst.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    Wenn du Befehle lieber kopierst und einfügst, schreibe die Hermes-Agent-Konfiguration direkt.
+  <Tab title="Konfigurationsdateien">
+    Füge den Custom Provider in `~/.hermes/config.yaml` hinzu:
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    Ersetze `YOUR_API_KEY` durch deinen BetterToken API Key und `YOUR_MODEL_ID` durch eine Model ID eines unterstützten Providers aus der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
+    Speichere den BetterToken API Key separat in `~/.hermes/.env`:
 
-    Starte anschließend Hermes Agent:
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    Wenn du den API Key nicht in der Hermes-Agent-Konfiguration speichern möchtest, exportiere ihn in der aktuellen Shell.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    Diese Variablen gelten nur für die aktuelle Shell-Sitzung. Exportiere sie in einem neuen Terminal erneut oder füge sie deinem eigenen Shell-Profil hinzu.
+    Ersetze `YOUR_MODEL_ID` durch eine Model ID eines unterstützten Providers aus der <a href={"https://bettertoken.ai/pricing"}>model plaza</a> und `YOUR_API_KEY` durch deinen BetterToken API Key. Unter nativem Windows liegen diese Dateien in `%LOCALAPPDATA%\hermes\`.
   </Tab>
 </Tabs>
 
@@ -78790,11 +78915,11 @@ Prüfe nach der Migration weiterhin die Hermes-Agent-**Base URL**, API Key und M
 
 ## Verbindung überprüfen
 
-Sende eine kurze Testanweisung. Wenn das Tool ohne Authentifizierungs- oder Model-ID-Fehler antwortet, funktioniert die Verbindung. Starte das Tool nach einer Konfigurationsänderung vollständig neu.
+Starte Hermes Agent und sende diese kurze Testanweisung: `Reply with HERMES_OK only. Do not use tools.` Wenn die Antwort genau `HERMES_OK` lautet, funktioniert die Verbindung.
 
 ## Modelle wechseln
 
-Öffne die Modellauswahl oder ändere das Feld `Model` in der Konfiguration. Verwende die genaue Model ID aus der <a href={"https://bettertoken.ai/pricing"}>model plaza</a> und starte dann die aktuelle Sitzung neu.
+Führe außerhalb einer Sitzung `hermes model` aus. Verwende in einem aktiven Chat `/model`, um zwischen bereits konfigurierten Providern oder Modellen zu wechseln. Wähle die genaue Model ID aus der <a href={"https://bettertoken.ai/pricing"}>model plaza</a>.
 
 ## Häufige Fehler
 
@@ -88141,23 +88266,41 @@ Hermes Agent를 BetterToken에 연결하려면 API Key를 준비하고 아래 Ba
 ### 추가 요구 사항
 
 - 선택한 Model ID가 **지원되는 provider**에서 옴
-- macOS, Linux, or Windows WSL2
+- macOS, Linux, Windows 10/11 또는 WSL2
+- 도구 사용을 위한 최소 64K context window의 모델
 
 ## 설치
 
 ### Hermes Agent 설치
 
 <Tabs>
-  <Tab title="macOS / Linux / WSL2">
+  <Tab title="Desktop (macOS / Windows)">
+    Hermes는 macOS와 Windows에서 Desktop installer 사용을 권장합니다. [Hermes Desktop을 다운로드](https://hermes-agent.nousresearch.com/)하고 운영체제에 맞는 installer를 실행하세요.
+  </Tab>
+
+  <Tab title="Linux / macOS / WSL2">
     ```bash
-    curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
     ```
   </Tab>
 
-  <Tab title="Windows">
-    Windows에서는 먼저 WSL2를 권장합니다. native PowerShell support는 현재 Hermes Agent version에 따라 다릅니다. native Windows를 사용한다면 설치된 version의 installer prompts를 따르세요.
+  <Tab title="Windows PowerShell">
+    Hermes Agent는 Windows 10과 11을 native로 지원합니다. PowerShell 또는 Windows Terminal에서 실행하세요.
+
+    ```powershell
+    iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+    ```
+
+    관리자 권한은 필요하지 않습니다. 설치 후 새 PowerShell 창을 여세요.
   </Tab>
 </Tabs>
+
+```bash
+hermes --version
+hermes doctor
+```
+
+<Note>WSL2도 지원되지만 필수는 아닙니다. Linux 환경이나 Web Dashboard의 embedded terminal이 필요할 때 사용하세요.</Note>
 
 ### 기능 빠른 참고
 
@@ -88172,7 +88315,7 @@ Hermes Agent를 BetterToken에 연결하려면 API Key를 준비하고 아래 Ba
 
 ## 수동 설정
 
-interactive Hermes Agent model setup을 기본 경로로 사용하세요. command 및 environment-variable options는 대안으로 계속 사용할 수 있습니다.
+Interactive Hermes Agent model setup을 기본 경로로 사용하세요. Manual setup이 필요한 경우에만 config files를 직접 수정하세요.
 
 | 필드 | 값 |
 | --- | --- |
@@ -88186,13 +88329,15 @@ interactive Hermes Agent model setup을 기본 경로로 사용하세요. comman
   <Tab title="Interactive setup">
     <Steps>
       <Step title="model selector 실행">
+        Hermes chat이 열려 있다면 먼저 session을 종료하세요. 그런 다음 실행하세요.
+
         ```bash
         hermes model
         ```
       </Step>
 
-      <Step title="OpenAI 또는 OpenAI Compatible provider 선택">
-        provider list에서 **OpenAI** 또는 **OpenAI Compatible**를 선택하세요.
+      <Step title="Custom endpoint 선택">
+        provider list에서 **Custom endpoint (self-hosted / VLLM / etc.)**를 선택하세요.
       </Step>
 
       <Step title="BetterToken config 입력">
@@ -88201,50 +88346,37 @@ interactive Hermes Agent model setup을 기본 경로로 사용하세요. comman
         - **Base URL**: `https://bettertoken.ai/v1`
         - **API Key**: BetterToken API Key
         - **Model**: <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>에서 복사한 **지원되는 provider의 model ID**
-      </Step>
 
-      <Step title="Hermes Agent 다시 시작">
-        config를 업데이트한 후 현재 Hermes Agent session을 종료하고 다시 시작하세요.
+        Hermes가 API mode를 묻는다면 **Chat Completions**를 선택하세요. Agent tool use에는 context가 64K 이상인 model을 선택하세요.
       </Step>
 
       <Step title="Hermes Agent 시작">
         ```bash
-        hermes
+        hermes --tui
         ```
+
+        Classic terminal interface를 사용하려면 `hermes`를 실행하세요.
       </Step>
     </Steps>
   </Tab>
 
-  <Tab title="CLI config">
-    copy-paste commands를 선호하면 Hermes Agent config를 직접 작성하세요.
+  <Tab title="Config files">
+    `~/.hermes/config.yaml`에 custom provider를 추가하세요.
 
-    ```bash
-    hermes config set llm.provider openai
-    hermes config set llm.base_url "https://bettertoken.ai/v1"
-    hermes config set llm.api_key "YOUR_API_KEY"
-    hermes config set llm.model "YOUR_MODEL_ID"
+    ```yaml
+    model:
+      default: YOUR_MODEL_ID
+      provider: custom
+      base_url: "https://bettertoken.ai/v1"
     ```
 
-    `YOUR_API_KEY`를 BetterToken API Key로 바꾸고 `YOUR_MODEL_ID`를 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>의 지원되는 provider model ID로 바꾸세요.
+    BetterToken API Key는 `~/.hermes/.env`에 별도로 저장하세요.
 
-    그런 다음 Hermes Agent를 시작하세요.
-
-    ```bash
-    hermes
-    ```
-  </Tab>
-
-  <Tab title="Environment variables">
-    API Key를 Hermes Agent config에 저장하지 않으려면 현재 shell에서 export하세요.
-
-    ```bash
-    export OPENAI_API_BASE="https://bettertoken.ai/v1"
-    export OPENAI_API_KEY="YOUR_API_KEY"
-    export HERMES_MODEL="YOUR_MODEL_ID"
-    hermes
+    ```dotenv
+    OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    이 variables는 현재 shell session에만 적용됩니다. 새 터미널에서 다시 export하거나 자신의 shell profile에 추가하세요.
+    `YOUR_MODEL_ID`를 <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>의 supported provider model ID로, `YOUR_API_KEY`를 BetterToken API Key로 바꾸세요. Native Windows에서는 이 files가 `%LOCALAPPDATA%\hermes\`에 있습니다.
   </Tab>
 </Tabs>
 
@@ -88266,11 +88398,11 @@ migration 후에도 Hermes Agent **Base URL**, API Key 및 model ID를 검토하
 
 ## 연결 확인
 
-짧은 테스트 prompt를 보내세요. 도구가 authentication 또는 Model ID 오류 없이 response를 반환하면 연결이 작동합니다. configuration을 변경한 후에는 도구를 완전히 다시 시작하세요.
+Hermes Agent를 시작하고 다음 테스트 prompt를 보내세요. `Reply with HERMES_OK only. Do not use tools.` response가 정확히 `HERMES_OK`라면 연결이 작동합니다.
 
 ## 모델 전환
 
-model selector를 열거나 configuration의 `Model` field를 변경하세요. <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>의 정확한 Model ID를 사용한 다음 현재 session을 다시 시작하세요.
+Session 밖에서는 `hermes model`을 실행하세요. Active chat에서 이미 configured된 provider 또는 model을 바꾸려면 `/model`을 사용하세요. <a href={"https://bettertoken.ai/pricing"}>모델 광장</a>의 정확한 Model ID를 선택하세요.
 
 ## 일반적인 오류
 
