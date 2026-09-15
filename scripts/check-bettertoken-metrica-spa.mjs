@@ -21,7 +21,22 @@ function createHarness(initialUrl) {
   const listeners = new Map();
   const clarityCalls = [];
   const metricaCalls = [];
+  const mutationObservers = [];
   const maskedAttributes = new Map();
+  const logoLink = {
+    href: 'https://bettertoken.ai',
+    setAttribute(name, value) {
+      if (name === 'href') this.href = value;
+    },
+  };
+  const logo = {
+    matches(selector) {
+      return selector === 'img.nav-logo';
+    },
+    closest(selector) {
+      return selector === 'a[href]' ? logoLink : null;
+    },
+  };
   const playground = {
     matches(selector) {
       return selector === '[id^="api-playground-"]';
@@ -72,6 +87,9 @@ function createHarness(initialUrl) {
     addEventListener(name, callback) {
       listeners.set(name, callback);
     },
+    querySelectorAll(selector) {
+      return selector === 'img.nav-logo' ? [logo] : [];
+    },
   };
 
   const history = {
@@ -88,6 +106,7 @@ function createHarness(initialUrl) {
   class MutationObserver {
     constructor(callback) {
       this.callback = callback;
+      mutationObservers.push(this);
     }
 
     observe() {}
@@ -127,8 +146,11 @@ function createHarness(initialUrl) {
     document,
     history,
     listeners,
+    logo,
+    logoLink,
     maskedAttributes,
     metricaCalls,
+    mutationObservers,
     window,
   };
 }
@@ -172,6 +194,19 @@ vm.runInNewContext(source, production.context);
 vm.runInNewContext(source, production.context);
 
 assert.equal(
+  production.logoLink.href,
+  'https://bettertoken.ai/en/',
+  'English docs logo must link to the English product homepage'
+);
+production.logoLink.href = 'https://bettertoken.ai';
+production.mutationObservers[0].callback([{ addedNodes: [production.logo] }]);
+assert.equal(
+  production.logoLink.href,
+  'https://bettertoken.ai/en/',
+  'A logo inserted after script startup must receive the localized homepage link'
+);
+
+assert.equal(
   production.maskedAttributes.get('data-clarity-mask'),
   'true',
   'API Playground must be masked for Clarity'
@@ -198,6 +233,35 @@ assert.deepEqual(production.metricaCalls, [[
   'https://docs.bettertoken.ai/en/ai-tools/codex',
   { title: 'Codex | BetterToken' },
 ]]);
+
+production.history.pushState({}, '', '/ja/quickstart');
+assert.equal(
+  production.logoLink.href,
+  'https://bettertoken.ai/ja/',
+  'SPA navigation must keep the product homepage locale aligned'
+);
+
+const russian = createHarness('https://docs.bettertoken.ai/quickstart');
+vm.runInNewContext(source, russian.context);
+assert.equal(russian.logoLink.href, 'https://bettertoken.ai/ru/');
+
+const chinese = createHarness('https://docs.bettertoken.ai/zh/quickstart');
+vm.runInNewContext(source, chinese.context);
+assert.equal(
+  chinese.logoLink.href,
+  'https://bettertoken.ai/en/',
+  'Chinese docs must use English until the product site has a Chinese locale'
+);
+
+for (const locale of ['de', 'es', 'fr', 'hi', 'ko', 'pt-br']) {
+  const localized = createHarness(`https://docs.bettertoken.ai/${locale}/quickstart`);
+  vm.runInNewContext(source, localized.context);
+  assert.equal(
+    localized.logoLink.href,
+    `https://bettertoken.ai/${locale}/`,
+    `${locale} docs logo must preserve the locale on the product site`
+  );
+}
 
 const click = production.listeners.get('click');
 click({ target: clickTarget({ href: 'https://bettertoken.ai/register?email=private@example.com' }) });

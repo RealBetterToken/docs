@@ -26,6 +26,67 @@
   var trackerPollTimer = null;
   var trackerPollStartedAt = 0;
 
+  function productHomepageForDocsPath(pathname) {
+    var firstSegment = normalizePath(pathname).split('/')[1];
+    var supportedProductLocales = {
+      de: true,
+      en: true,
+      es: true,
+      fr: true,
+      hi: true,
+      ja: true,
+      ko: true,
+      'pt-br': true,
+      ru: true,
+    };
+
+    if (supportedProductLocales[firstSegment]) {
+      return 'https://bettertoken.ai/' + firstSegment + '/';
+    }
+
+    // The product site has no Chinese locale yet; use an explicit English fallback.
+    if (firstSegment === 'zh') {
+      return 'https://bettertoken.ai/en/';
+    }
+
+    return 'https://bettertoken.ai/ru/';
+  }
+
+  function updateLogoLinks(root) {
+    if (!root) {
+      return;
+    }
+
+    var logos = [];
+    var href = productHomepageForDocsPath(window.location.pathname);
+    var canQueryDescendants = typeof root.querySelectorAll === 'function';
+    var rootIsLogo = typeof root.matches === 'function' && root.matches('img.nav-logo');
+
+    if (!canQueryDescendants && !rootIsLogo) {
+      return;
+    }
+
+    if (rootIsLogo) {
+      logos.push(root);
+    }
+
+    var descendants = canQueryDescendants ? root.querySelectorAll('img.nav-logo') : [];
+
+    for (var descendantIndex = 0; descendantIndex < descendants.length; descendantIndex += 1) {
+      logos.push(descendants[descendantIndex]);
+    }
+
+    for (var index = 0; index < logos.length; index += 1) {
+      var anchor = typeof logos[index].closest === 'function'
+        ? logos[index].closest('a[href]')
+        : null;
+
+      if (anchor) {
+        anchor.setAttribute('href', href);
+      }
+    }
+  }
+
   function installGtagQueue() {
     window.dataLayer = window.dataLayer || [];
 
@@ -68,6 +129,8 @@
   }
 
   function reportRouteChange() {
+    updateLogoLinks(document);
+
     var targetPage = pageKey();
 
     if (targetPage === lastReportedPage) {
@@ -245,6 +308,7 @@
   }
 
   maskPlayground(document.documentElement);
+  updateLogoLinks(document);
 
   if (typeof window.MutationObserver === 'function') {
     var playgroundObserver = new window.MutationObserver(function (mutations) {
@@ -253,6 +317,7 @@
 
         for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex += 1) {
           maskPlayground(nodes[nodeIndex]);
+          updateLogoLinks(nodes[nodeIndex]);
         }
       }
     });
