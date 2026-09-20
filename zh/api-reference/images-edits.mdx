@@ -89,6 +89,82 @@ curl '{{images-edits-url}}' \
   -F 'image[]=@reference-3.png'
 ```
 
+## 按蒙版局部编辑
+
+需要引导模型只编辑指定区域时，可以增加可选文件字段 `mask`。当前 BetterToken 后端只读取一个 PNG `mask` 文件，请不要重复提交 `mask[]`。
+
+- 原图和 mask 必须使用相同的文件格式和像素尺寸。由于 mask 必须是 PNG，请将两个文件都保存为 PNG。每个文件必须小于 50 MB。
+- mask 必须实际包含 Alpha 通道。完全透明像素（`Alpha 0`）表示允许模型重绘的区域；完全不透明像素（`Alpha 255`）用于引导模型保留该区域。
+- 普通 RGB 黑白图不是有效 mask，除非文件实际包含 Alpha 通道。
+- mask 是对模型的引导约束，不保证透明区域之外的像素逐像素绝对不变。
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Replace only the masked area with a blue circle. Preserve everything else.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@original.png' \
+  -F 'mask=@mask.png'
+```
+
+### 使用 Python 按蒙版编辑
+
+在同一个 `with` 语句中打开两个文件，确保请求结束后正确关闭文件：
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {"Authorization": "Bearer sk-***REDACTED***"}
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Replace only the masked area with a blue circle. Preserve everything else.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("original.png", "rb") as image_file, open("mask.png", "rb") as mask_file:
+    files = {
+        "image": ("original.png", image_file, "image/png"),
+        "mask": ("mask.png", mask_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+```
+
+### 上传前检查文件
+
+下面的最小 Pillow 检查会验证文件格式、尺寸、Alpha 通道，以及是否同时存在完全透明和完全不透明像素：
+
+```python
+from pathlib import Path
+from PIL import Image
+
+image_path = Path("original.png")
+mask_path = Path("mask.png")
+
+if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 50 * 1024 * 1024:
+    raise ValueError("Each file must be smaller than 50 MB")
+
+with Image.open(image_path) as image, Image.open(mask_path) as mask:
+    if image.format != "PNG" or mask.format != "PNG":
+        raise ValueError("The image and mask must both be PNG files")
+    if image.size != mask.size:
+        raise ValueError("The image and mask dimensions must match")
+    if "A" not in mask.getbands():
+        raise ValueError("The mask must contain an Alpha channel")
+    if mask.getchannel("A").getextrema() != (0, 255):
+        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+```
+
 ## Python 示例
 
 ```python
@@ -176,6 +252,7 @@ b64_json = result["data"][0]["b64_json"]
 - 请求使用 `multipart/form-data`。
 - 模型固定为 `gpt-image-2`。
 - 单参考图使用 `image`，多参考图使用重复的 `image[]`。
+- 按蒙版编辑时只提交一个 PNG `mask`，并确认它与原图同尺寸且包含 Alpha 通道。
 - `response_format` 固定为 `b64_json`。
 - `output_format` 固定为 `png`。
 - `n` 固定为 `1`。

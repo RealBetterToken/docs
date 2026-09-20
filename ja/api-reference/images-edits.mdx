@@ -63,6 +63,82 @@ curl '{{images-edits-url}}' \
   -F 'image[]=@reference-3.png'
 ```
 
+## マスクで選択範囲を編集する
+
+選択した範囲の編集を指示するには、任意の `mask` ファイルフィールドを追加します。現在の BetterToken エンドポイントが読み込む `mask` PNG ファイルは 1 つです。`mask[]` フィールドを複数送信しないでください。
+
+- 元画像とマスクは、ファイル形式とピクセル寸法を同じにする必要があります。マスクは PNG である必要があるため、両方のファイルに PNG を使用してください。各ファイルは 50 MB 未満にしてください。
+- マスクには Alpha チャンネルが必要です。完全に透明なピクセル（`Alpha 0`）は、モデルが再描画できる範囲を示します。完全に不透明なピクセル（`Alpha 255`）は、その範囲を保持するようモデルを誘導します。
+- 通常の RGB 白黒画像は、実際に Alpha チャンネルを含んでいない限り、有効なマスクではありません。
+- マスクはモデルへの指示です。透明な範囲の外側にあるピクセルが完全に同一のままになることを保証するものではありません。
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Replace only the masked area with a blue circle. Preserve everything else.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@original.png' \
+  -F 'mask=@mask.png'
+```
+
+### Python でマスク編集する
+
+リクエスト後に Python が両方のファイルを閉じるよう、1 つの `with` 文で開きます。
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {"Authorization": "Bearer sk-***REDACTED***"}
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Replace only the masked area with a blue circle. Preserve everything else.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("original.png", "rb") as image_file, open("mask.png", "rb") as mask_file:
+    files = {
+        "image": ("original.png", image_file, "image/png"),
+        "mask": ("mask.png", mask_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+```
+
+### アップロード前にファイルを確認する
+
+この最小限の Pillow チェックで、形式、寸法、Alpha チャンネル、完全に透明なピクセルと完全に不透明なピクセルを確認できます。
+
+```python
+from pathlib import Path
+from PIL import Image
+
+image_path = Path("original.png")
+mask_path = Path("mask.png")
+
+if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 50 * 1024 * 1024:
+    raise ValueError("Each file must be smaller than 50 MB")
+
+with Image.open(image_path) as image, Image.open(mask_path) as mask:
+    if image.format != "PNG" or mask.format != "PNG":
+        raise ValueError("The image and mask must both be PNG files")
+    if image.size != mask.size:
+        raise ValueError("The image and mask dimensions must match")
+    if "A" not in mask.getbands():
+        raise ValueError("The mask must contain an Alpha channel")
+    if mask.getchannel("A").getextrema() != (0, 255):
+        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+```
+
 ## Python の例
 
 ```python

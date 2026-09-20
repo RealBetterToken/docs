@@ -63,6 +63,82 @@ curl '{{images-edits-url}}' \
   -F 'image[]=@reference-3.png'
 ```
 
+## Modifier une zone sélectionnée avec un masque
+
+Ajoutez le champ de fichier facultatif `mask` pour orienter la modification vers une zone sélectionnée. Le point de terminaison BetterToken actuel lit un seul fichier PNG dans `mask`. N’envoyez pas plusieurs champs `mask[]`.
+
+- L’image d’origine et le masque doivent utiliser le même format et les mêmes dimensions en pixels. Le masque devant être au format PNG, utilisez ce format pour les deux fichiers. Chaque fichier doit faire moins de 50 MB.
+- Le masque doit contenir un canal Alpha. Les pixels entièrement transparents (`Alpha 0`) indiquent la zone que le modèle peut redessiner. Les pixels entièrement opaques (`Alpha 255`) indiquent au modèle de préserver cette zone.
+- Une image RVB ordinaire en noir et blanc n’est pas un masque valide si elle ne contient pas réellement de canal Alpha.
+- Le masque guide le modèle. Il ne garantit pas que les pixels situés en dehors de la zone transparente resteront parfaitement identiques.
+
+```bash
+curl '{{images-edits-url}}' \
+  -H 'Authorization: Bearer sk-***REDACTED***' \
+  -F 'model=gpt-image-2' \
+  -F 'prompt=Replace only the masked area with a blue circle. Preserve everything else.' \
+  -F 'n=1' \
+  -F 'size=1024x1024' \
+  -F 'response_format=b64_json' \
+  -F 'output_format=png' \
+  -F 'image=@original.png' \
+  -F 'mask=@mask.png'
+```
+
+### Édition avec masque en Python
+
+Ouvrez les deux fichiers dans une seule instruction `with` afin que Python les ferme après la requête :
+
+```python
+import requests
+
+url = "{{images-edits-url}}"
+headers = {"Authorization": "Bearer sk-***REDACTED***"}
+data = {
+    "model": "gpt-image-2",
+    "prompt": "Replace only the masked area with a blue circle. Preserve everything else.",
+    "n": "1",
+    "size": "1024x1024",
+    "response_format": "b64_json",
+    "output_format": "png",
+}
+
+with open("original.png", "rb") as image_file, open("mask.png", "rb") as mask_file:
+    files = {
+        "image": ("original.png", image_file, "image/png"),
+        "mask": ("mask.png", mask_file, "image/png"),
+    }
+    response = requests.post(url, headers=headers, data=data, files=files, timeout=300)
+
+response.raise_for_status()
+result = response.json()
+```
+
+### Vérifier les fichiers avant l’envoi
+
+Cette vérification minimale avec Pillow contrôle le format, les dimensions, le canal Alpha et la présence de pixels entièrement transparents et opaques :
+
+```python
+from pathlib import Path
+from PIL import Image
+
+image_path = Path("original.png")
+mask_path = Path("mask.png")
+
+if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 50 * 1024 * 1024:
+    raise ValueError("Each file must be smaller than 50 MB")
+
+with Image.open(image_path) as image, Image.open(mask_path) as mask:
+    if image.format != "PNG" or mask.format != "PNG":
+        raise ValueError("The image and mask must both be PNG files")
+    if image.size != mask.size:
+        raise ValueError("The image and mask dimensions must match")
+    if "A" not in mask.getbands():
+        raise ValueError("The mask must contain an Alpha channel")
+    if mask.getchannel("A").getextrema() != (0, 255):
+        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+```
+
 ## Exemple Python
 
 ```python
