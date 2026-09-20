@@ -1,7 +1,7 @@
 ---
 title: "Imagem para imagem (edição de imagens)"
 description: "Gere ou edite imagens a partir de referências com o GPT Image 2 pela API compatível com OpenAI da BetterToken."
-openapi: "api-reference/openapi.json POST /v1/images/edits"
+openapi: "api-reference/openapi.en.json POST /v1/images/edits"
 ---
 
 `POST /v1/images/edits`
@@ -65,11 +65,12 @@ curl '{{images-edits-url}}' \
 
 ## Edite uma área selecionada com máscara
 
-Adicione o campo de arquivo opcional `mask` quando quiser direcionar a edição para uma área selecionada. O endpoint atual da BetterToken lê um único arquivo PNG em `mask`. Não envie campos `mask[]` repetidos.
+Adicione o campo de arquivo opcional `mask` quando quiser direcionar a edição para uma área selecionada. O endpoint atual da BetterToken lê um único arquivo em `mask`. Não envie campos `mask[]` repetidos.
 
-- A imagem original e a máscara devem ter o mesmo formato e as mesmas dimensões em pixels. Como a máscara precisa ser PNG, use PNG nos dois arquivos. Cada arquivo deve ter menos de 50 MB.
+- A imagem original e a máscara devem ter o mesmo formato e as mesmas dimensões em pixels. Cada arquivo deve ter menos de 50 MB. Para máxima compatibilidade, use PNG com canal Alpha nos dois arquivos.
 - A máscara deve conter um canal Alpha. Pixels totalmente transparentes (`Alpha 0`) marcam a área que o modelo pode redesenhar. Pixels totalmente opacos (`Alpha 255`) orientam o modelo a preservar essa área.
 - Uma imagem RGB comum em preto e branco não é uma máscara válida se não tiver de fato um canal Alpha.
+- Se você enviar vários campos `image[]`, a máscara será aplicada à primeira imagem de entrada.
 - A máscara orienta o modelo. Ela não garante que os pixels fora da área transparente permaneçam absolutamente idênticos.
 
 ```bash
@@ -116,7 +117,7 @@ result = response.json()
 
 ### Verifique os arquivos antes do upload
 
-Esta verificação mínima com Pillow valida o formato, as dimensões, o canal Alpha e a presença de pixels totalmente transparentes e opacos:
+Esta verificação mínima com Pillow valida os requisitos de formato, dimensões e canal Alpha. Para uma máscara local típica, ela também exibe um aviso se o canal Alpha não incluir áreas totalmente transparentes e opacas:
 
 ```python
 from pathlib import Path
@@ -129,14 +130,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Exemplo em Python

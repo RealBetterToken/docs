@@ -1,7 +1,7 @@
 ---
 title: "画像から画像への変換（画像編集）"
 description: "BetterToken の OpenAI 互換 API を通じて、GPT Image 2 で参照画像から画像を生成または編集します。"
-openapi: "api-reference/openapi.json POST /v1/images/edits"
+openapi: "api-reference/openapi.en.json POST /v1/images/edits"
 ---
 
 `POST /v1/images/edits`
@@ -65,11 +65,12 @@ curl '{{images-edits-url}}' \
 
 ## マスクで選択範囲を編集する
 
-選択した範囲の編集を指示するには、任意の `mask` ファイルフィールドを追加します。現在の BetterToken エンドポイントが読み込む `mask` PNG ファイルは 1 つです。`mask[]` フィールドを複数送信しないでください。
+選択した範囲の編集を指示するには、任意の `mask` ファイルフィールドを追加します。現在の BetterToken エンドポイントが読み込む `mask` ファイルは 1 つです。`mask[]` フィールドを複数送信しないでください。
 
-- 元画像とマスクは、ファイル形式とピクセル寸法を同じにする必要があります。マスクは PNG である必要があるため、両方のファイルに PNG を使用してください。各ファイルは 50 MB 未満にしてください。
+- 元画像とマスクは、ファイル形式とピクセル寸法を同じにする必要があります。各ファイルは 50 MB 未満にしてください。最大限の互換性を得るには、両方のファイルに Alpha チャンネル付き PNG を使用することを推奨します。
 - マスクには Alpha チャンネルが必要です。完全に透明なピクセル（`Alpha 0`）は、モデルが再描画できる範囲を示します。完全に不透明なピクセル（`Alpha 255`）は、その範囲を保持するようモデルを誘導します。
 - 通常の RGB 白黒画像は、実際に Alpha チャンネルを含んでいない限り、有効なマスクではありません。
+- 複数の `image[]` フィールドを送信した場合、マスクは最初の入力画像に適用されます。
 - マスクはモデルへの指示です。透明な範囲の外側にあるピクセルが完全に同一のままになることを保証するものではありません。
 
 ```bash
@@ -116,7 +117,7 @@ result = response.json()
 
 ### アップロード前にファイルを確認する
 
-この最小限の Pillow チェックで、形式、寸法、Alpha チャンネル、完全に透明なピクセルと完全に不透明なピクセルを確認できます。
+この最小限の Pillow チェックで、必須の形式、寸法、Alpha チャンネルを確認できます。一般的な局所マスクについては、Alpha チャンネルに完全に透明な領域と完全に不透明な領域の両方がない場合に警告も表示します。
 
 ```python
 from pathlib import Path
@@ -129,14 +130,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python の例

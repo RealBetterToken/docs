@@ -73,8 +73,8 @@
     },
     "/v1/images/edits": {
       "post": {
-        "summary": "Редактирование изображения по reference images",
-        "description": "Создавайте новое изображение через GPT Image 2 на основе одной или нескольких reference images. Запрос использует multipart/form-data. В успешном ответе изображение находится в data[0].b64_json.",
+        "summary": "Редактирование по референсным изображениям",
+        "description": "Создавайте новое изображение через GPT Image 2 на основе одного или нескольких референсных изображений или направляйте локальное редактирование с помощью необязательного поля mask. Запрос использует multipart/form-data. В успешном ответе изображение находится в data[0].b64_json.",
         "operationId": "createImageEdit",
         "tags": [
           "GPT Image 2"
@@ -96,7 +96,7 @@
               },
               "example": {
                 "model": "YOUR_MODEL_ID",
-                "prompt": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.",
+                "prompt": "На основе этого изображения создай более аккуратное квадратное главное изображение продукта, сохранив общий стиль основного объекта.",
                 "n": "1",
                 "size": "1024x1024",
                 "response_format": "b64_json",
@@ -128,13 +128,18 @@
         "x-codeSamples": [
           {
             "lang": "cURL",
-            "label": "cURL single image",
-            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
+            "label": "cURL: одно изображение",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=На основе этого изображения создай более аккуратное квадратное главное изображение продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
           },
           {
             "lang": "cURL",
-            "label": "cURL multiple images",
-            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=Объедини эти reference images и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+            "label": "cURL: несколько изображений",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=Объедини эти референсные изображения и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+          },
+          {
+            "lang": "cURL",
+            "label": "cURL: редактирование с mask",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Замени только область mask синим кругом. Всё остальное сохрани без изменений.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@original.png' \\\n  -F 'mask=@mask.png'"
           }
         ]
       }
@@ -409,21 +414,26 @@
           },
           "prompt": {
             "type": "string",
-            "description": "Инструкция для редактирования изображения или генерации по reference image.",
-            "example": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта."
+            "description": "Инструкция для редактирования изображения или генерации по референсному изображению.",
+            "example": "На основе этого изображения создай более аккуратное квадратное главное изображение продукта, сохранив общий стиль основного объекта."
           },
           "image": {
             "type": "string",
             "format": "binary",
-            "description": "Поле для одной reference image. При одной reference image используйте image."
+            "description": "Поле для одного референсного изображения. В этом случае используйте image."
           },
           "image[]": {
             "type": "array",
-            "description": "Поле для нескольких reference images. При нескольких reference images повторяйте image[].",
+            "description": "Поле для нескольких референсных изображений. Повторяйте image[] для каждого файла.",
             "items": {
               "type": "string",
               "format": "binary"
             }
+          },
+          "mask": {
+            "type": "string",
+            "format": "binary",
+            "description": "Необязательный одиночный файл mask. Сервер читает только один файл mask. Формат и размеры mask должны совпадать с исходным изображением, размер каждого файла должен быть меньше 50 MB, а mask должна содержать Alpha-канал. Для максимальной совместимости рекомендуется использовать PNG с Alpha-каналом для обоих файлов. При нескольких image[] mask применяется к первому входному изображению."
           },
           "n": {
             "oneOf": [

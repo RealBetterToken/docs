@@ -5199,7 +5199,7 @@ Endpoint не возвращает `task_id`; отдельного status query 
 
 ---
 
-## Image to image (редактирование изображений)
+## Редактирование изображений
 
 Source: https://docs.bettertoken.ai/api-reference/images-edits
 
@@ -5207,7 +5207,7 @@ Description: Генерируйте или редактируйте изобра
 
 `POST /v1/images/edits`
 
-Endpoint image-to-image использует тело запроса `multipart/form-data`. Загрузите одно или несколько референсных изображений и передайте prompt и параметры как поля формы.
+Endpoint для редактирования изображений использует тело запроса `multipart/form-data`. Загрузите одно или несколько референсных изображений и передайте `prompt` и параметры как поля формы.
 
 <Note>
   Используйте `https://bettertoken.ai/v1` как `Base URL`. API Key BetterToken передается через `Authorization: Bearer YOUR_API_KEY`.
@@ -5266,18 +5266,19 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## Локальное редактирование по маске
 
-Добавьте необязательное файловое поле `mask`, если нужно направить редактирование на выбранную область. Текущий endpoint BetterToken читает один PNG-файл `mask`. Не отправляйте повторяющиеся поля `mask[]`.
+Добавьте необязательное файловое поле `mask`, если нужно направить редактирование на выбранную область. Текущий endpoint BetterToken читает один файл `mask`. Не отправляйте повторяющиеся поля `mask[]`.
 
-- Исходное изображение и mask должны иметь одинаковый формат и размеры в пикселях. Поскольку mask должна быть PNG, используйте PNG для обоих файлов. Размер каждого файла должен быть меньше 50 MB.
+- Исходное изображение и mask должны иметь одинаковый формат и размеры в пикселях. Размер каждого файла должен быть меньше 50 MB. Для максимальной совместимости рекомендуется использовать PNG с Alpha-каналом для исходного изображения и mask.
 - Mask должна содержать Alpha-канал. Полностью прозрачные пиксели (`Alpha 0`) отмечают область, которую модель может перерисовать. Полностью непрозрачные пиксели (`Alpha 255`) направляют модель на сохранение области.
 - Обычное чёрно-белое RGB-изображение не является корректной mask, если в файле нет Alpha-канала.
+- Если вы передаёте несколько полей `image[]`, mask применяется к первому входному изображению.
 - Mask служит ориентиром для модели и не гарантирует, что пиксели за пределами прозрачной области останутся абсолютно неизменными.
 
 ```bash
 curl 'https://bettertoken.ai/v1/images/edits' \
   -H 'Authorization: Bearer sk-***REDACTED***' \
   -F 'model=gpt-image-2' \
-  -F 'prompt=Replace only the masked area with a blue circle. Preserve everything else.' \
+  -F 'prompt=Замени только область mask синим кругом. Всё остальное сохрани без изменений.' \
   -F 'n=1' \
   -F 'size=1024x1024' \
   -F 'response_format=b64_json' \
@@ -5296,7 +5297,7 @@ url = "https://bettertoken.ai/v1/images/edits"
 headers = {"Authorization": "Bearer sk-***REDACTED***"}
 data = {
     "model": "gpt-image-2",
-    "prompt": "Replace only the masked area with a blue circle. Preserve everything else.",
+    "prompt": "Замени только область mask синим кругом. Всё остальное сохрани без изменений.",
     "n": "1",
     "size": "1024x1024",
     "response_format": "b64_json",
@@ -5316,7 +5317,7 @@ result = response.json()
 
 ### Проверка файлов перед загрузкой
 
-Этот минимальный пример с Pillow проверяет формат, размеры, Alpha-канал, а также наличие полностью прозрачных и полностью непрозрачных пикселей:
+Этот минимальный пример с Pillow проверяет обязательные требования к формату, размерам и Alpha-каналу. Для обычной локальной mask он также выводит предупреждение, если Alpha-канал не содержит одновременно полностью прозрачные и полностью непрозрачные области:
 
 ```python
 from pathlib import Path
@@ -5326,17 +5327,18 @@ image_path = Path("original.png")
 mask_path = Path("mask.png")
 
 if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 50 * 1024 * 1024:
-    raise ValueError("Each file must be smaller than 50 MB")
+    raise ValueError("Размер каждого файла должен быть меньше 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("Форматы исходного изображения и mask должны совпадать")
     if image.size != mask.size:
-        raise ValueError("The image and mask dimensions must match")
+        raise ValueError("Размеры исходного изображения и mask должны совпадать")
     if "A" not in mask.getbands():
-        raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+        raise ValueError("Mask должна содержать Alpha-канал")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Предупреждение: для обычной локальной mask добавьте полностью прозрачные и непрозрачные области")
 ```
 
 ## Пример на Python
@@ -14887,11 +14889,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## Edit a selected area with a mask
 
-Add the optional `mask` file field when you want to guide editing to a selected area. The current BetterToken endpoint reads one `mask` PNG file. Do not send repeated `mask[]` fields.
+Add the optional `mask` file field when you want to guide editing to a selected area. The current BetterToken endpoint reads one `mask` file. Do not send repeated `mask[]` fields.
 
-- The original image and mask must use the same file format and pixel dimensions. Because the mask must be PNG, use PNG for both files. Each file must be smaller than 50 MB.
+- The original image and mask must use the same file format and pixel dimensions. Each file must be smaller than 50 MB. For maximum compatibility, use PNG with an Alpha channel for both files.
 - The mask must contain an Alpha channel. Fully transparent pixels (`Alpha 0`) mark the area the model may redraw. Fully opaque pixels (`Alpha 255`) guide the model to preserve that area.
 - A regular RGB black-and-white image is not a valid mask unless it actually contains an Alpha channel.
+- If you send multiple `image[]` fields, the mask applies to the first input image.
 - The mask guides the model. It does not guarantee that pixels outside the transparent area remain absolutely identical.
 
 ```bash
@@ -14937,7 +14940,7 @@ result = response.json()
 
 ### Check the files before upload
 
-This minimal Pillow check verifies the format, dimensions, Alpha channel, and fully transparent and fully opaque pixels:
+This minimal Pillow check verifies the required format, dimensions, and Alpha channel. For a typical local mask, it also warns when the Alpha channel does not include both fully transparent and fully opaque areas:
 
 ```python
 from pathlib import Path
@@ -14950,14 +14953,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python example
@@ -24662,11 +24666,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## 按蒙版局部编辑
 
-需要引导模型只编辑指定区域时，可以增加可选文件字段 `mask`。当前 BetterToken 后端只读取一个 PNG `mask` 文件，请不要重复提交 `mask[]`。
+需要引导模型只编辑指定区域时，可以增加可选文件字段 `mask`。当前 BetterToken 后端只读取一个 `mask` 文件，请不要重复提交 `mask[]`。
 
-- 原图和 mask 必须使用相同的文件格式和像素尺寸。由于 mask 必须是 PNG，请将两个文件都保存为 PNG。每个文件必须小于 50 MB。
+- 原图和 mask 必须使用相同的文件格式和像素尺寸，每个文件必须小于 50 MB。为了获得最佳兼容性，建议原图和 mask 都使用带 Alpha 通道的 PNG。
 - mask 必须实际包含 Alpha 通道。完全透明像素（`Alpha 0`）表示允许模型重绘的区域；完全不透明像素（`Alpha 255`）用于引导模型保留该区域。
 - 普通 RGB 黑白图不是有效 mask，除非文件实际包含 Alpha 通道。
+- 如果提交多个 `image[]` 字段，mask 会应用于第一张输入图。
 - mask 是对模型的引导约束，不保证透明区域之外的像素逐像素绝对不变。
 
 ```bash
@@ -24712,7 +24717,7 @@ result = response.json()
 
 ### 上传前检查文件
 
-下面的最小 Pillow 检查会验证文件格式、尺寸、Alpha 通道，以及是否同时存在完全透明和完全不透明像素：
+下面的最小 Pillow 检查会验证文件格式、尺寸和 Alpha 通道这些强制要求。对于常见的局部 mask，如果 Alpha 通道没有同时包含完全透明和完全不透明的区域，代码还会输出提醒：
 
 ```python
 from pathlib import Path
@@ -24725,14 +24730,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python 示例
@@ -24821,7 +24827,7 @@ b64_json = result["data"][0]["b64_json"]
 - 请求使用 `multipart/form-data`。
 - 模型固定为 `gpt-image-2`。
 - 单参考图使用 `image`，多参考图使用重复的 `image[]`。
-- 按蒙版编辑时只提交一个 PNG `mask`，并确认它与原图同尺寸且包含 Alpha 通道。
+- 按蒙版编辑时只提交一个 `mask`，并确认它与原图格式、尺寸相同且包含 Alpha 通道。
 - `response_format` 固定为 `b64_json`。
 - `output_format` 固定为 `png`。
 - `n` 固定为 `1`。
@@ -34269,11 +34275,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## mask के साथ चुने हुए क्षेत्र को edit करें
 
-किसी चुने हुए क्षेत्र में edit को निर्देशित करने के लिए वैकल्पिक `mask` file field जोड़ें। मौजूदा BetterToken endpoint एक `mask` PNG file पढ़ता है। बार-बार `mask[]` fields न भेजें।
+किसी चुने हुए क्षेत्र में edit को निर्देशित करने के लिए वैकल्पिक `mask` file field जोड़ें। मौजूदा BetterToken endpoint एक `mask` file पढ़ता है। बार-बार `mask[]` fields न भेजें।
 
-- मूल image और mask का file format और pixel dimensions एक समान होना चाहिए। क्योंकि mask PNG होना चाहिए, दोनों files के लिए PNG इस्तेमाल करें। हर file 50 MB से छोटी होनी चाहिए।
+- मूल image और mask का file format और pixel dimensions एक समान होना चाहिए। हर file 50 MB से छोटी होनी चाहिए। अधिकतम compatibility के लिए दोनों files में Alpha channel वाला PNG इस्तेमाल करें।
 - Mask में Alpha channel होना चाहिए। पूरी तरह transparent pixels (`Alpha 0`) उस क्षेत्र को दिखाते हैं जिसे model दोबारा बना सकता है। पूरी तरह opaque pixels (`Alpha 255`) उस क्षेत्र को सुरक्षित रखने के लिए model को निर्देशित करते हैं।
 - सामान्य RGB black-and-white image तब तक मान्य mask नहीं है जब तक उसमें वास्तव में Alpha channel न हो।
+- अगर आप कई `image[]` fields भेजते हैं, तो mask पहली input image पर लागू होता है।
 - Mask model को निर्देशित करता है। यह guarantee नहीं करता कि transparent क्षेत्र के बाहर के pixels बिल्कुल समान रहेंगे।
 
 ```bash
@@ -34319,7 +34326,7 @@ result = response.json()
 
 ### upload से पहले files जांचें
 
-यह छोटा Pillow check format, dimensions, Alpha channel और पूरी तरह transparent तथा opaque pixels की जांच करता है:
+यह छोटा Pillow check अनिवार्य format, dimensions और Alpha channel की जांच करता है। सामान्य local mask के लिए, Alpha channel में पूरी तरह transparent और opaque दोनों areas न होने पर यह warning भी देता है:
 
 ```python
 from pathlib import Path
@@ -34332,14 +34339,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python उदाहरण
@@ -43845,11 +43853,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## Edita una zona seleccionada con una máscara
 
-Añade el campo de archivo opcional `mask` cuando quieras orientar la edición a una zona seleccionada. El endpoint actual de BetterToken admite un solo archivo PNG en `mask`. No envíes campos `mask[]` repetidos.
+Añade el campo de archivo opcional `mask` cuando quieras orientar la edición a una zona seleccionada. El endpoint actual de BetterToken admite un solo archivo en `mask`. No envíes campos `mask[]` repetidos.
 
-- La imagen original y la máscara deben tener el mismo formato y las mismas dimensiones en píxeles. Como la máscara debe ser PNG, usa PNG para ambos archivos. Cada archivo debe pesar menos de 50 MB.
+- La imagen original y la máscara deben tener el mismo formato y las mismas dimensiones en píxeles. Cada archivo debe pesar menos de 50 MB. Para obtener la máxima compatibilidad, usa PNG con canal Alpha en ambos archivos.
 - La máscara debe incluir un canal Alpha. Los píxeles totalmente transparentes (`Alpha 0`) marcan la zona que el modelo puede volver a dibujar. Los píxeles totalmente opacos (`Alpha 255`) indican al modelo que conserve esa zona.
 - Una imagen RGB normal en blanco y negro no es una máscara válida si no contiene realmente un canal Alpha.
+- Si envías varios campos `image[]`, la máscara se aplica a la primera imagen de entrada.
 - La máscara orienta al modelo. No garantiza que los píxeles fuera de la zona transparente permanezcan exactamente iguales.
 
 ```bash
@@ -43895,7 +43904,7 @@ result = response.json()
 
 ### Comprueba los archivos antes de subirlos
 
-Esta comprobación mínima con Pillow verifica el formato, las dimensiones, el canal Alpha y la presencia de píxeles totalmente transparentes y opacos:
+Esta comprobación mínima con Pillow verifica los requisitos de formato, dimensiones y canal Alpha. Para una máscara local típica, también muestra una advertencia si el canal Alpha no incluye zonas totalmente transparentes y opacas:
 
 ```python
 from pathlib import Path
@@ -43908,14 +43917,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Ejemplo con Python
@@ -53412,11 +53422,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## Edite uma área selecionada com máscara
 
-Adicione o campo de arquivo opcional `mask` quando quiser direcionar a edição para uma área selecionada. O endpoint atual da BetterToken lê um único arquivo PNG em `mask`. Não envie campos `mask[]` repetidos.
+Adicione o campo de arquivo opcional `mask` quando quiser direcionar a edição para uma área selecionada. O endpoint atual da BetterToken lê um único arquivo em `mask`. Não envie campos `mask[]` repetidos.
 
-- A imagem original e a máscara devem ter o mesmo formato e as mesmas dimensões em pixels. Como a máscara precisa ser PNG, use PNG nos dois arquivos. Cada arquivo deve ter menos de 50 MB.
+- A imagem original e a máscara devem ter o mesmo formato e as mesmas dimensões em pixels. Cada arquivo deve ter menos de 50 MB. Para máxima compatibilidade, use PNG com canal Alpha nos dois arquivos.
 - A máscara deve conter um canal Alpha. Pixels totalmente transparentes (`Alpha 0`) marcam a área que o modelo pode redesenhar. Pixels totalmente opacos (`Alpha 255`) orientam o modelo a preservar essa área.
 - Uma imagem RGB comum em preto e branco não é uma máscara válida se não tiver de fato um canal Alpha.
+- Se você enviar vários campos `image[]`, a máscara será aplicada à primeira imagem de entrada.
 - A máscara orienta o modelo. Ela não garante que os pixels fora da área transparente permaneçam absolutamente idênticos.
 
 ```bash
@@ -53462,7 +53473,7 @@ result = response.json()
 
 ### Verifique os arquivos antes do upload
 
-Esta verificação mínima com Pillow valida o formato, as dimensões, o canal Alpha e a presença de pixels totalmente transparentes e opacos:
+Esta verificação mínima com Pillow valida os requisitos de formato, dimensões e canal Alpha. Para uma máscara local típica, ela também exibe um aviso se o canal Alpha não incluir áreas totalmente transparentes e opacas:
 
 ```python
 from pathlib import Path
@@ -53475,14 +53486,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Exemplo em Python
@@ -62978,11 +62990,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## マスクで選択範囲を編集する
 
-選択した範囲の編集を指示するには、任意の `mask` ファイルフィールドを追加します。現在の BetterToken エンドポイントが読み込む `mask` PNG ファイルは 1 つです。`mask[]` フィールドを複数送信しないでください。
+選択した範囲の編集を指示するには、任意の `mask` ファイルフィールドを追加します。現在の BetterToken エンドポイントが読み込む `mask` ファイルは 1 つです。`mask[]` フィールドを複数送信しないでください。
 
-- 元画像とマスクは、ファイル形式とピクセル寸法を同じにする必要があります。マスクは PNG である必要があるため、両方のファイルに PNG を使用してください。各ファイルは 50 MB 未満にしてください。
+- 元画像とマスクは、ファイル形式とピクセル寸法を同じにする必要があります。各ファイルは 50 MB 未満にしてください。最大限の互換性を得るには、両方のファイルに Alpha チャンネル付き PNG を使用することを推奨します。
 - マスクには Alpha チャンネルが必要です。完全に透明なピクセル（`Alpha 0`）は、モデルが再描画できる範囲を示します。完全に不透明なピクセル（`Alpha 255`）は、その範囲を保持するようモデルを誘導します。
 - 通常の RGB 白黒画像は、実際に Alpha チャンネルを含んでいない限り、有効なマスクではありません。
+- 複数の `image[]` フィールドを送信した場合、マスクは最初の入力画像に適用されます。
 - マスクはモデルへの指示です。透明な範囲の外側にあるピクセルが完全に同一のままになることを保証するものではありません。
 
 ```bash
@@ -63028,7 +63041,7 @@ result = response.json()
 
 ### アップロード前にファイルを確認する
 
-この最小限の Pillow チェックで、形式、寸法、Alpha チャンネル、完全に透明なピクセルと完全に不透明なピクセルを確認できます。
+この最小限の Pillow チェックで、必須の形式、寸法、Alpha チャンネルを確認できます。一般的な局所マスクについては、Alpha チャンネルに完全に透明な領域と完全に不透明な領域の両方がない場合に警告も表示します。
 
 ```python
 from pathlib import Path
@@ -63041,14 +63054,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python の例
@@ -72539,11 +72553,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## Modifier une zone sélectionnée avec un masque
 
-Ajoutez le champ de fichier facultatif `mask` pour orienter la modification vers une zone sélectionnée. Le point de terminaison BetterToken actuel lit un seul fichier PNG dans `mask`. N’envoyez pas plusieurs champs `mask[]`.
+Ajoutez le champ de fichier facultatif `mask` pour orienter la modification vers une zone sélectionnée. Le point de terminaison BetterToken actuel lit un seul fichier dans `mask`. N’envoyez pas plusieurs champs `mask[]`.
 
-- L’image d’origine et le masque doivent utiliser le même format et les mêmes dimensions en pixels. Le masque devant être au format PNG, utilisez ce format pour les deux fichiers. Chaque fichier doit faire moins de 50 MB.
+- L’image d’origine et le masque doivent utiliser le même format et les mêmes dimensions en pixels. Chaque fichier doit faire moins de 50 MB. Pour une compatibilité maximale, utilisez un PNG avec canal Alpha pour les deux fichiers.
 - Le masque doit contenir un canal Alpha. Les pixels entièrement transparents (`Alpha 0`) indiquent la zone que le modèle peut redessiner. Les pixels entièrement opaques (`Alpha 255`) indiquent au modèle de préserver cette zone.
 - Une image RVB ordinaire en noir et blanc n’est pas un masque valide si elle ne contient pas réellement de canal Alpha.
+- Si vous envoyez plusieurs champs `image[]`, le masque s’applique à la première image d’entrée.
 - Le masque guide le modèle. Il ne garantit pas que les pixels situés en dehors de la zone transparente resteront parfaitement identiques.
 
 ```bash
@@ -72589,7 +72604,7 @@ result = response.json()
 
 ### Vérifier les fichiers avant l’envoi
 
-Cette vérification minimale avec Pillow contrôle le format, les dimensions, le canal Alpha et la présence de pixels entièrement transparents et opaques :
+Cette vérification minimale avec Pillow contrôle les exigences de format, de dimensions et de canal Alpha. Pour un masque local classique, elle affiche aussi un avertissement si le canal Alpha ne contient pas à la fois des zones entièrement transparentes et opaques :
 
 ```python
 from pathlib import Path
@@ -72602,14 +72617,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Exemple Python
@@ -82103,11 +82119,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## Einen ausgewählten Bereich mit Maske bearbeiten
 
-Füge das optionale Dateifeld `mask` hinzu, wenn du die Bearbeitung auf einen ausgewählten Bereich lenken möchtest. Der aktuelle BetterToken-Endpunkt liest eine einzelne PNG-Datei im Feld `mask`. Sende keine wiederholten `mask[]`-Felder.
+Füge das optionale Dateifeld `mask` hinzu, wenn du die Bearbeitung auf einen ausgewählten Bereich lenken möchtest. Der aktuelle BetterToken-Endpunkt liest eine einzelne Datei im Feld `mask`. Sende keine wiederholten `mask[]`-Felder.
 
-- Originalbild und Maske müssen dasselbe Dateiformat und dieselben Pixelabmessungen haben. Da die Maske eine PNG-Datei sein muss, verwende PNG für beide Dateien. Jede Datei muss kleiner als 50 MB sein.
+- Originalbild und Maske müssen dasselbe Dateiformat und dieselben Pixelabmessungen haben. Jede Datei muss kleiner als 50 MB sein. Verwende für maximale Kompatibilität PNG mit Alpha-Kanal für beide Dateien.
 - Die Maske muss einen Alpha-Kanal enthalten. Vollständig transparente Pixel (`Alpha 0`) markieren den Bereich, den das Modell neu zeichnen darf. Vollständig deckende Pixel (`Alpha 255`) weisen das Modell an, diesen Bereich beizubehalten.
 - Ein normales RGB-Schwarzweißbild ist keine gültige Maske, wenn es nicht tatsächlich einen Alpha-Kanal enthält.
+- Wenn du mehrere `image[]`-Felder sendest, wird die Maske auf das erste Eingabebild angewendet.
 - Die Maske dient dem Modell als Orientierung. Sie garantiert nicht, dass Pixel außerhalb des transparenten Bereichs absolut identisch bleiben.
 
 ```bash
@@ -82153,7 +82170,7 @@ result = response.json()
 
 ### Dateien vor dem Upload prüfen
 
-Diese minimale Pillow-Prüfung kontrolliert Format, Abmessungen, Alpha-Kanal sowie vollständig transparente und vollständig deckende Pixel:
+Diese minimale Pillow-Prüfung kontrolliert die erforderlichen Angaben zu Format, Abmessungen und Alpha-Kanal. Bei einer typischen lokalen Maske gibt sie außerdem eine Warnung aus, wenn der Alpha-Kanal nicht sowohl vollständig transparente als auch vollständig deckende Bereiche enthält:
 
 ```python
 from pathlib import Path
@@ -82166,14 +82183,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python-Beispiel
@@ -91661,11 +91679,12 @@ curl 'https://bettertoken.ai/v1/images/edits' \
 
 ## mask로 선택 영역 편집
 
-선택한 영역을 중심으로 편집하려면 선택 사항인 `mask` 파일 필드를 추가하세요. 현재 BetterToken endpoint는 하나의 `mask` PNG 파일만 읽습니다. `mask[]` 필드를 여러 번 보내지 마세요.
+선택한 영역을 중심으로 편집하려면 선택 사항인 `mask` 파일 필드를 추가하세요. 현재 BetterToken endpoint는 하나의 `mask` 파일만 읽습니다. `mask[]` 필드를 여러 번 보내지 마세요.
 
-- 원본 이미지와 mask는 파일 형식과 픽셀 크기가 같아야 합니다. Mask는 PNG여야 하므로 두 파일 모두 PNG를 사용하세요. 각 파일은 50 MB보다 작아야 합니다.
+- 원본 이미지와 mask는 파일 형식과 픽셀 크기가 같아야 합니다. 각 파일은 50 MB보다 작아야 합니다. 최대 호환성을 위해 두 파일 모두 Alpha channel이 있는 PNG를 사용하세요.
 - Mask에는 Alpha channel이 있어야 합니다. 완전히 투명한 픽셀(`Alpha 0`)은 모델이 다시 그릴 수 있는 영역을 표시합니다. 완전히 불투명한 픽셀(`Alpha 255`)은 해당 영역을 유지하도록 모델을 유도합니다.
 - 일반 RGB 흑백 이미지는 실제 Alpha channel을 포함하지 않으면 유효한 mask가 아닙니다.
+- 여러 `image[]` 필드를 보내면 mask는 첫 번째 입력 이미지에 적용됩니다.
 - Mask는 모델을 안내하지만, 투명 영역 밖의 픽셀이 완전히 동일하게 유지된다고 보장하지는 않습니다.
 
 ```bash
@@ -91711,7 +91730,7 @@ result = response.json()
 
 ### upload 전 파일 확인
 
-이 최소 Pillow 검사는 형식, 크기, Alpha channel, 완전히 투명한 픽셀과 완전히 불투명한 픽셀을 확인합니다.
+이 최소 Pillow 검사는 필수 형식, 크기, Alpha channel을 확인합니다. 일반적인 local mask의 경우 Alpha channel에 완전히 투명한 영역과 완전히 불투명한 영역이 모두 없으면 경고도 표시합니다.
 
 ```python
 from pathlib import Path
@@ -91724,14 +91743,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python 예시
@@ -96230,8 +96250,8 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
     },
     "/v1/images/edits": {
       "post": {
-        "summary": "Редактирование изображения по reference images",
-        "description": "Создавайте новое изображение через GPT Image 2 на основе одной или нескольких reference images. Запрос использует multipart/form-data. В успешном ответе изображение находится в data[0].b64_json.",
+        "summary": "Редактирование по референсным изображениям",
+        "description": "Создавайте новое изображение через GPT Image 2 на основе одного или нескольких референсных изображений или направляйте локальное редактирование с помощью необязательного поля mask. Запрос использует multipart/form-data. В успешном ответе изображение находится в data[0].b64_json.",
         "operationId": "createImageEdit",
         "tags": [
           "GPT Image 2"
@@ -96253,7 +96273,7 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
               },
               "example": {
                 "model": "YOUR_MODEL_ID",
-                "prompt": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.",
+                "prompt": "На основе этого изображения создай более аккуратное квадратное главное изображение продукта, сохранив общий стиль основного объекта.",
                 "n": "1",
                 "size": "1024x1024",
                 "response_format": "b64_json",
@@ -96285,13 +96305,18 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
         "x-codeSamples": [
           {
             "lang": "cURL",
-            "label": "cURL single image",
-            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
+            "label": "cURL: одно изображение",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=На основе этого изображения создай более аккуратное квадратное главное изображение продукта, сохранив общий стиль основного объекта.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
           },
           {
             "lang": "cURL",
-            "label": "cURL multiple images",
-            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=Объедини эти reference images и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+            "label": "cURL: несколько изображений",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=YOUR_MODEL_ID' \\\n  -F 'prompt=Объедини эти референсные изображения и создай рекламный постер в едином стиле.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+          },
+          {
+            "lang": "cURL",
+            "label": "cURL: редактирование с mask",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Замени только область mask синим кругом. Всё остальное сохрани без изменений.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@original.png' \\\n  -F 'mask=@mask.png'"
           }
         ]
       }
@@ -96566,21 +96591,26 @@ Source: https://docs.bettertoken.ai/api-reference/openapi.llmeasy.json
           },
           "prompt": {
             "type": "string",
-            "description": "Инструкция для редактирования изображения или генерации по reference image.",
-            "example": "На основе этого изображения создай более аккуратный квадратный key visual продукта, сохранив общий стиль основного объекта."
+            "description": "Инструкция для редактирования изображения или генерации по референсному изображению.",
+            "example": "На основе этого изображения создай более аккуратное квадратное главное изображение продукта, сохранив общий стиль основного объекта."
           },
           "image": {
             "type": "string",
             "format": "binary",
-            "description": "Поле для одной reference image. При одной reference image используйте image."
+            "description": "Поле для одного референсного изображения. В этом случае используйте image."
           },
           "image[]": {
             "type": "array",
-            "description": "Поле для нескольких reference images. При нескольких reference images повторяйте image[].",
+            "description": "Поле для нескольких референсных изображений. Повторяйте image[] для каждого файла.",
             "items": {
               "type": "string",
               "format": "binary"
             }
+          },
+          "mask": {
+            "type": "string",
+            "format": "binary",
+            "description": "Необязательный одиночный файл mask. Сервер читает только один файл mask. Формат и размеры mask должны совпадать с исходным изображением, размер каждого файла должен быть меньше 50 MB, а mask должна содержать Alpha-канал. Для максимальной совместимости рекомендуется использовать PNG с Alpha-каналом для обоих файлов. При нескольких image[] mask применяется к первому входному изображению."
           },
           "n": {
             "oneOf": [

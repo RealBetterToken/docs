@@ -1,7 +1,7 @@
 ---
 title: "Image to image (image editing)"
 description: "Generate or edit images from reference images with GPT Image 2 through BetterToken's OpenAI-compatible API."
-openapi: "api-reference/openapi.json POST /v1/images/edits"
+openapi: "api-reference/openapi.en.json POST /v1/images/edits"
 ---
 
 `POST /v1/images/edits`
@@ -65,11 +65,12 @@ curl '{{images-edits-url}}' \
 
 ## Edit a selected area with a mask
 
-Add the optional `mask` file field when you want to guide editing to a selected area. The current BetterToken endpoint reads one `mask` PNG file. Do not send repeated `mask[]` fields.
+Add the optional `mask` file field when you want to guide editing to a selected area. The current BetterToken endpoint reads one `mask` file. Do not send repeated `mask[]` fields.
 
-- The original image and mask must use the same file format and pixel dimensions. Because the mask must be PNG, use PNG for both files. Each file must be smaller than 50 MB.
+- The original image and mask must use the same file format and pixel dimensions. Each file must be smaller than 50 MB. For maximum compatibility, use PNG with an Alpha channel for both files.
 - The mask must contain an Alpha channel. Fully transparent pixels (`Alpha 0`) mark the area the model may redraw. Fully opaque pixels (`Alpha 255`) guide the model to preserve that area.
 - A regular RGB black-and-white image is not a valid mask unless it actually contains an Alpha channel.
+- If you send multiple `image[]` fields, the mask applies to the first input image.
 - The mask guides the model. It does not guarantee that pixels outside the transparent area remain absolutely identical.
 
 ```bash
@@ -116,7 +117,7 @@ result = response.json()
 
 ### Check the files before upload
 
-This minimal Pillow check verifies the format, dimensions, Alpha channel, and fully transparent and fully opaque pixels:
+This minimal Pillow check verifies the required format, dimensions, and Alpha channel. For a typical local mask, it also warns when the Alpha channel does not include both fully transparent and fully opaque areas:
 
 ```python
 from pathlib import Path
@@ -129,14 +130,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python example

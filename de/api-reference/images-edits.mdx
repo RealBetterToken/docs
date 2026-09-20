@@ -1,7 +1,7 @@
 ---
 title: "Bild zu Bild (Bildbearbeitung)"
 description: "Erstelle oder bearbeite Bilder aus Referenzbildern mit GPT Image 2 über BetterTokens OpenAI-kompatible API."
-openapi: "api-reference/openapi.json POST /v1/images/edits"
+openapi: "api-reference/openapi.en.json POST /v1/images/edits"
 ---
 
 `POST /v1/images/edits`
@@ -65,11 +65,12 @@ curl '{{images-edits-url}}' \
 
 ## Einen ausgewählten Bereich mit Maske bearbeiten
 
-Füge das optionale Dateifeld `mask` hinzu, wenn du die Bearbeitung auf einen ausgewählten Bereich lenken möchtest. Der aktuelle BetterToken-Endpunkt liest eine einzelne PNG-Datei im Feld `mask`. Sende keine wiederholten `mask[]`-Felder.
+Füge das optionale Dateifeld `mask` hinzu, wenn du die Bearbeitung auf einen ausgewählten Bereich lenken möchtest. Der aktuelle BetterToken-Endpunkt liest eine einzelne Datei im Feld `mask`. Sende keine wiederholten `mask[]`-Felder.
 
-- Originalbild und Maske müssen dasselbe Dateiformat und dieselben Pixelabmessungen haben. Da die Maske eine PNG-Datei sein muss, verwende PNG für beide Dateien. Jede Datei muss kleiner als 50 MB sein.
+- Originalbild und Maske müssen dasselbe Dateiformat und dieselben Pixelabmessungen haben. Jede Datei muss kleiner als 50 MB sein. Verwende für maximale Kompatibilität PNG mit Alpha-Kanal für beide Dateien.
 - Die Maske muss einen Alpha-Kanal enthalten. Vollständig transparente Pixel (`Alpha 0`) markieren den Bereich, den das Modell neu zeichnen darf. Vollständig deckende Pixel (`Alpha 255`) weisen das Modell an, diesen Bereich beizubehalten.
 - Ein normales RGB-Schwarzweißbild ist keine gültige Maske, wenn es nicht tatsächlich einen Alpha-Kanal enthält.
+- Wenn du mehrere `image[]`-Felder sendest, wird die Maske auf das erste Eingabebild angewendet.
 - Die Maske dient dem Modell als Orientierung. Sie garantiert nicht, dass Pixel außerhalb des transparenten Bereichs absolut identisch bleiben.
 
 ```bash
@@ -116,7 +117,7 @@ result = response.json()
 
 ### Dateien vor dem Upload prüfen
 
-Diese minimale Pillow-Prüfung kontrolliert Format, Abmessungen, Alpha-Kanal sowie vollständig transparente und vollständig deckende Pixel:
+Diese minimale Pillow-Prüfung kontrolliert die erforderlichen Angaben zu Format, Abmessungen und Alpha-Kanal. Bei einer typischen lokalen Maske gibt sie außerdem eine Warnung aus, wenn der Alpha-Kanal nicht sowohl vollständig transparente als auch vollständig deckende Bereiche enthält:
 
 ```python
 from pathlib import Path
@@ -129,14 +130,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python-Beispiel

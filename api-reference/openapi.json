@@ -74,7 +74,7 @@
     "/v1/images/edits": {
       "post": {
         "summary": "图生图（图片编辑）",
-        "description": "使用 GPT Image 2 根据一张或多张参考图片生成新图片，也可以通过可选的 PNG mask 引导局部编辑。请求使用 multipart/form-data，成功响应中的图片内容位于 data[0].b64_json。",
+        "description": "使用 GPT Image 2 根据一张或多张参考图片生成新图片，也可以通过可选的 mask 引导局部编辑。请求使用 multipart/form-data，成功响应中的图片内容位于 data[0].b64_json。",
         "operationId": "createImageEdit",
         "tags": [
           "GPT Image 2"
@@ -92,9 +92,6 @@
                 },
                 "image[]": {
                   "contentType": "image/png, image/jpeg, image/webp"
-                },
-                "mask": {
-                  "contentType": "image/png"
                 }
               },
               "example": {
@@ -436,7 +433,7 @@
           "mask": {
             "type": "string",
             "format": "binary",
-            "description": "可选的单个 PNG 蒙版文件。当前后端只读取一个 mask。蒙版必须含 Alpha 通道，并与原图格式、尺寸一致；透明区域允许模型重绘，不透明区域用于引导保留。每个文件必须小于 50 MB。"
+            "description": "可选的单个蒙版文件。当前后端只读取一个 mask。蒙版必须含 Alpha 通道，并与原图格式、尺寸一致；每个文件必须小于 50 MB。为获得最佳兼容性，建议原图和 mask 都使用带 Alpha 通道的 PNG。透明区域允许模型重绘，不透明区域用于引导保留；提交多个 image[] 时，mask 作用于第一张输入图。"
           },
           "n": {
             "oneOf": [

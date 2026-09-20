@@ -1,12 +1,12 @@
 ---
-title: "Image to image (редактирование изображений)"
+title: "Редактирование изображений"
 description: "Генерируйте или редактируйте изображения по референсным изображениям через GPT Image 2 и OpenAI-совместимый API BetterToken."
-openapi: "POST /v1/images/edits"
+openapi: "api-reference/openapi.llmeasy.json POST /v1/images/edits"
 ---
 
 `POST /v1/images/edits`
 
-Endpoint image-to-image использует тело запроса `multipart/form-data`. Загрузите одно или несколько референсных изображений и передайте prompt и параметры как поля формы.
+Endpoint для редактирования изображений использует тело запроса `multipart/form-data`. Загрузите одно или несколько референсных изображений и передайте `prompt` и параметры как поля формы.
 
 <Note>
   Используйте `{{openai-base-url}}` как `Base URL`. API Key BetterToken передается через `Authorization: Bearer YOUR_API_KEY`.
@@ -65,18 +65,19 @@ curl '{{images-edits-url}}' \
 
 ## Локальное редактирование по маске
 
-Добавьте необязательное файловое поле `mask`, если нужно направить редактирование на выбранную область. Текущий endpoint BetterToken читает один PNG-файл `mask`. Не отправляйте повторяющиеся поля `mask[]`.
+Добавьте необязательное файловое поле `mask`, если нужно направить редактирование на выбранную область. Текущий endpoint BetterToken читает один файл `mask`. Не отправляйте повторяющиеся поля `mask[]`.
 
-- Исходное изображение и mask должны иметь одинаковый формат и размеры в пикселях. Поскольку mask должна быть PNG, используйте PNG для обоих файлов. Размер каждого файла должен быть меньше 50 MB.
+- Исходное изображение и mask должны иметь одинаковый формат и размеры в пикселях. Размер каждого файла должен быть меньше 50 MB. Для максимальной совместимости рекомендуется использовать PNG с Alpha-каналом для исходного изображения и mask.
 - Mask должна содержать Alpha-канал. Полностью прозрачные пиксели (`Alpha 0`) отмечают область, которую модель может перерисовать. Полностью непрозрачные пиксели (`Alpha 255`) направляют модель на сохранение области.
 - Обычное чёрно-белое RGB-изображение не является корректной mask, если в файле нет Alpha-канала.
+- Если вы передаёте несколько полей `image[]`, mask применяется к первому входному изображению.
 - Mask служит ориентиром для модели и не гарантирует, что пиксели за пределами прозрачной области останутся абсолютно неизменными.
 
 ```bash
 curl '{{images-edits-url}}' \
   -H 'Authorization: Bearer sk-***REDACTED***' \
   -F 'model=gpt-image-2' \
-  -F 'prompt=Replace only the masked area with a blue circle. Preserve everything else.' \
+  -F 'prompt=Замени только область mask синим кругом. Всё остальное сохрани без изменений.' \
   -F 'n=1' \
   -F 'size=1024x1024' \
   -F 'response_format=b64_json' \
@@ -96,7 +97,7 @@ url = "{{images-edits-url}}"
 headers = {"Authorization": "Bearer sk-***REDACTED***"}
 data = {
     "model": "gpt-image-2",
-    "prompt": "Replace only the masked area with a blue circle. Preserve everything else.",
+    "prompt": "Замени только область mask синим кругом. Всё остальное сохрани без изменений.",
     "n": "1",
     "size": "1024x1024",
     "response_format": "b64_json",
@@ -116,7 +117,7 @@ result = response.json()
 
 ### Проверка файлов перед загрузкой
 
-Этот минимальный пример с Pillow проверяет формат, размеры, Alpha-канал, а также наличие полностью прозрачных и полностью непрозрачных пикселей:
+Этот минимальный пример с Pillow проверяет обязательные требования к формату, размерам и Alpha-каналу. Для обычной локальной mask он также выводит предупреждение, если Alpha-канал не содержит одновременно полностью прозрачные и полностью непрозрачные области:
 
 ```python
 from pathlib import Path
@@ -126,17 +127,18 @@ image_path = Path("original.png")
 mask_path = Path("mask.png")
 
 if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 50 * 1024 * 1024:
-    raise ValueError("Each file must be smaller than 50 MB")
+    raise ValueError("Размер каждого файла должен быть меньше 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("Форматы исходного изображения и mask должны совпадать")
     if image.size != mask.size:
-        raise ValueError("The image and mask dimensions must match")
+        raise ValueError("Размеры исходного изображения и mask должны совпадать")
     if "A" not in mask.getbands():
-        raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+        raise ValueError("Mask должна содержать Alpha-канал")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Предупреждение: для обычной локальной mask добавьте полностью прозрачные и непрозрачные области")
 ```
 
 ## Пример на Python

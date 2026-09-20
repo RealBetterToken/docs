@@ -91,11 +91,12 @@ curl '{{images-edits-url}}' \
 
 ## 按蒙版局部编辑
 
-需要引导模型只编辑指定区域时，可以增加可选文件字段 `mask`。当前 BetterToken 后端只读取一个 PNG `mask` 文件，请不要重复提交 `mask[]`。
+需要引导模型只编辑指定区域时，可以增加可选文件字段 `mask`。当前 BetterToken 后端只读取一个 `mask` 文件，请不要重复提交 `mask[]`。
 
-- 原图和 mask 必须使用相同的文件格式和像素尺寸。由于 mask 必须是 PNG，请将两个文件都保存为 PNG。每个文件必须小于 50 MB。
+- 原图和 mask 必须使用相同的文件格式和像素尺寸，每个文件必须小于 50 MB。为了获得最佳兼容性，建议原图和 mask 都使用带 Alpha 通道的 PNG。
 - mask 必须实际包含 Alpha 通道。完全透明像素（`Alpha 0`）表示允许模型重绘的区域；完全不透明像素（`Alpha 255`）用于引导模型保留该区域。
 - 普通 RGB 黑白图不是有效 mask，除非文件实际包含 Alpha 通道。
+- 如果提交多个 `image[]` 字段，mask 会应用于第一张输入图。
 - mask 是对模型的引导约束，不保证透明区域之外的像素逐像素绝对不变。
 
 ```bash
@@ -142,7 +143,7 @@ result = response.json()
 
 ### 上传前检查文件
 
-下面的最小 Pillow 检查会验证文件格式、尺寸、Alpha 通道，以及是否同时存在完全透明和完全不透明像素：
+下面的最小 Pillow 检查会验证文件格式、尺寸和 Alpha 通道这些强制要求。对于常见的局部 mask，如果 Alpha 通道没有同时包含完全透明和完全不透明的区域，代码还会输出提醒：
 
 ```python
 from pathlib import Path
@@ -155,14 +156,15 @@ if image_path.stat().st_size >= 50 * 1024 * 1024 or mask_path.stat().st_size >= 
     raise ValueError("Each file must be smaller than 50 MB")
 
 with Image.open(image_path) as image, Image.open(mask_path) as mask:
-    if image.format != "PNG" or mask.format != "PNG":
-        raise ValueError("The image and mask must both be PNG files")
+    if image.format != mask.format:
+        raise ValueError("The image and mask formats must match")
     if image.size != mask.size:
         raise ValueError("The image and mask dimensions must match")
     if "A" not in mask.getbands():
         raise ValueError("The mask must contain an Alpha channel")
-    if mask.getchannel("A").getextrema() != (0, 255):
-        raise ValueError("The mask Alpha channel must contain both 0 and 255")
+    alpha_min, alpha_max = mask.getchannel("A").getextrema()
+    if alpha_min > 0 or alpha_max < 255:
+        print("Warning: for a typical local mask, include fully transparent and fully opaque areas")
 ```
 
 ## Python 示例
@@ -252,7 +254,7 @@ b64_json = result["data"][0]["b64_json"]
 - 请求使用 `multipart/form-data`。
 - 模型固定为 `gpt-image-2`。
 - 单参考图使用 `image`，多参考图使用重复的 `image[]`。
-- 按蒙版编辑时只提交一个 PNG `mask`，并确认它与原图同尺寸且包含 Alpha 通道。
+- 按蒙版编辑时只提交一个 `mask`，并确认它与原图格式、尺寸相同且包含 Alpha 通道。
 - `response_format` 固定为 `b64_json`。
 - `output_format` 固定为 `png`。
 - `n` 固定为 `1`。

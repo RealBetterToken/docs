@@ -1,0 +1,634 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BetterToken API",
+    "description": "OpenAI-compatible and Anthropic-compatible API endpoints through BetterToken.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://bettertoken.ai"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/images/generations": {
+      "post": {
+        "summary": "Generate an image",
+        "description": "Generate an image from a text prompt with GPT Image 2. Send an application/json request. The successful response contains the image in data[0].b64_json.",
+        "operationId": "createImageGenerationEnglish",
+        "tags": [
+          "GPT Image 2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "prompt"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "Use the GPT Image 2 model ID.",
+                    "enum": [
+                      "gpt-image-2"
+                    ],
+                    "default": "gpt-image-2",
+                    "example": "gpt-image-2"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "description": "A detailed description of the image to generate.",
+                    "example": "A futuristic AI product poster on a light background, with glass textures, a clean composition, and a premium technology aesthetic."
+                  },
+                  "n": {
+                    "oneOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Use 1. Send separate requests when you need multiple output images.",
+                    "default": 1,
+                    "example": 1
+                  },
+                  "size": {
+                    "type": "string",
+                    "description": "The requested image size or aspect-ratio tier. The server may map or adjust the final pixel dimensions, so inspect the decoded image for its actual size.",
+                    "enum": [
+                      "auto",
+                      "1024x1024",
+                      "1536x1024",
+                      "1024x1536",
+                      "1536x1152",
+                      "1152x1536",
+                      "2048x2048",
+                      "2048x1152",
+                      "3840x2160",
+                      "2160x3840"
+                    ],
+                    "default": "1024x1024",
+                    "example": "1024x1024"
+                  },
+                  "response_format": {
+                    "type": "string",
+                    "description": "Use b64_json.",
+                    "enum": [
+                      "b64_json"
+                    ],
+                    "default": "b64_json",
+                    "example": "b64_json"
+                  },
+                  "output_format": {
+                    "type": "string",
+                    "description": "Use png. Do not rely on jpeg or webp being returned directly in the selected format.",
+                    "enum": [
+                      "png"
+                    ],
+                    "default": "png",
+                    "example": "png"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "model": "gpt-image-2",
+                "prompt": "A futuristic AI product poster on a light background, with glass textures, a clean composition, and a premium technology aesthetic.",
+                "n": 1,
+                "size": "1024x1024",
+                "response_format": "b64_json",
+                "output_format": "png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image generation result."
+          },
+          "400": {
+            "description": "Invalid request format or parameters."
+          },
+          "401": {
+            "description": "The BetterToken API Key is missing or invalid."
+          },
+          "402": {
+            "description": "The account has insufficient credit or balance."
+          },
+          "429": {
+            "description": "The request exceeded a rate or concurrency limit, or the upstream service is busy."
+          },
+          "500": {
+            "description": "The gateway or upstream service returned an error."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/images/generations' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"gpt-image-2\",\n    \"prompt\": \"A futuristic AI product poster on a light background, with glass textures, a clean composition, and a premium technology aesthetic.\",\n    \"n\": 1,\n    \"size\": \"1024x1024\",\n    \"response_format\": \"b64_json\",\n    \"output_format\": \"png\"\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/images/edits": {
+      "post": {
+        "summary": "Edit an image",
+        "description": "Create a new image from one or more reference images with GPT Image 2. You can also guide a local edit with an optional mask. Send the request as multipart/form-data. The successful response contains the image in data[0].b64_json.",
+        "operationId": "createImageEditEnglish",
+        "tags": [
+          "GPT Image 2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "prompt"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "Use the GPT Image 2 model ID.",
+                    "enum": [
+                      "gpt-image-2"
+                    ],
+                    "default": "gpt-image-2",
+                    "example": "gpt-image-2"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "description": "Instructions for editing the image or generating from reference images.",
+                    "example": "Use this reference image to create a more polished square product hero image while preserving the main style."
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The reference image field for a single input image."
+                  },
+                  "image[]": {
+                    "type": "array",
+                    "description": "Repeat this field for each input when sending multiple reference images.",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "mask": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "An optional single mask file. The mask and original image must have the same format and dimensions, each file must be smaller than 50 MB, and the mask must contain an Alpha channel. For maximum compatibility, use PNG with an Alpha channel for both files. With multiple image[] inputs, the mask applies to the first image."
+                  },
+                  "n": {
+                    "oneOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Use 1. Send separate requests when you need multiple output images.",
+                    "default": "1",
+                    "example": "1"
+                  },
+                  "size": {
+                    "type": "string",
+                    "description": "The requested image size or aspect-ratio tier. The server may map or adjust the final pixel dimensions, so inspect the decoded image for its actual size.",
+                    "enum": [
+                      "auto",
+                      "1024x1024",
+                      "1536x1024",
+                      "1024x1536",
+                      "1536x1152",
+                      "1152x1536",
+                      "2048x2048",
+                      "2048x1152",
+                      "3840x2160",
+                      "2160x3840"
+                    ],
+                    "default": "1024x1024",
+                    "example": "1024x1024"
+                  },
+                  "response_format": {
+                    "type": "string",
+                    "description": "Use b64_json.",
+                    "enum": [
+                      "b64_json"
+                    ],
+                    "default": "b64_json",
+                    "example": "b64_json"
+                  },
+                  "output_format": {
+                    "type": "string",
+                    "description": "Use png. Do not rely on jpeg or webp being returned directly in the selected format.",
+                    "enum": [
+                      "png"
+                    ],
+                    "default": "png",
+                    "example": "png"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "encoding": {
+                "image": {
+                  "contentType": "image/png, image/jpeg, image/webp"
+                },
+                "image[]": {
+                  "contentType": "image/png, image/jpeg, image/webp"
+                }
+              },
+              "example": {
+                "model": "gpt-image-2",
+                "prompt": "Use this reference image to create a more polished square product hero image while preserving the main style.",
+                "n": "1",
+                "size": "1024x1024",
+                "response_format": "b64_json",
+                "output_format": "png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image editing result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "created": {
+                      "type": "integer",
+                      "example": 1710000000
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "b64_json": {
+                            "type": "string",
+                            "description": "Base64-encoded image content.",
+                            "example": "iVBORw0KGgoAAAANSUhEUgAA...(truncated)"
+                          },
+                          "revised_prompt": {
+                            "type": "string",
+                            "description": "An optional revised prompt."
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format or parameters."
+          },
+          "401": {
+            "description": "The BetterToken API Key is missing or invalid."
+          },
+          "402": {
+            "description": "The account has insufficient credit or balance."
+          },
+          "429": {
+            "description": "The request exceeded a rate or concurrency limit, or the upstream service is busy."
+          },
+          "500": {
+            "description": "The gateway or upstream service returned an error."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL single image",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Use this reference image to create a more polished square product hero image while preserving the main style.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@reference.png'"
+          },
+          {
+            "lang": "cURL",
+            "label": "cURL multiple images",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Combine these reference images into one consistent promotional poster.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image[]=@reference-1.png' \\\n  -F 'image[]=@reference-2.jpg' \\\n  -F 'image[]=@reference-3.png'"
+          },
+          {
+            "lang": "cURL",
+            "label": "cURL masked edit",
+            "source": "curl 'https://bettertoken.ai/v1/images/edits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -F 'model=gpt-image-2' \\\n  -F 'prompt=Replace only the masked area with a blue circle. Preserve everything else.' \\\n  -F 'n=1' \\\n  -F 'size=1024x1024' \\\n  -F 'response_format=b64_json' \\\n  -F 'output_format=png' \\\n  -F 'image=@original.png' \\\n  -F 'mask=@mask.png'"
+          }
+        ]
+      }
+    },
+    "/v1/responses": {
+      "post": {
+        "summary": "Create a Responses API response",
+        "description": "Send input to a GPT provider model through BetterToken's OpenAI Responses API. Enter your BetterToken API Key in the Playground to test the request.",
+        "operationId": "createResponseEnglish",
+        "tags": [
+          "OpenAI Responses"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "input"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "A model ID currently available from a GPT provider. Check the model plaza for the latest options.",
+                    "example": "YOUR_MODEL_ID"
+                  },
+                  "input": {
+                    "type": "string",
+                    "description": "The text input to send to the model.",
+                    "example": "Hello"
+                  }
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "model": "YOUR_MODEL_ID",
+                "input": "Hello"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The Responses API result from the selected model."
+          },
+          "400": {
+            "description": "Invalid request format or parameters."
+          },
+          "401": {
+            "description": "The BetterToken API Key is missing or invalid."
+          },
+          "402": {
+            "description": "The account has insufficient credit or balance."
+          },
+          "429": {
+            "description": "The request exceeded a rate or concurrency limit, or the upstream service is busy."
+          },
+          "500": {
+            "description": "The gateway or upstream service returned an error."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/responses' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"input\": \"Hello\"\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "summary": "Create a Chat Completions response",
+        "description": "Send conversation messages to a GPT provider model through BetterToken's OpenAI-compatible Chat Completions API. Use this endpoint with external tools and applications that require /v1/chat/completions.",
+        "operationId": "createChatCompletionEnglish",
+        "tags": [
+          "OpenAI Chat Completions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "messages"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "A model ID currently available from a GPT provider. Check the model plaza for the latest options.",
+                    "example": "YOUR_MODEL_ID"
+                  },
+                  "messages": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "Conversation messages. Each item should contain role and content.",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "role",
+                        "content"
+                      ],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "example": "user"
+                        },
+                        "content": {
+                          "type": "string",
+                          "example": "Hello"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "stream": {
+                    "type": "boolean",
+                    "description": "Whether to request a streaming response.",
+                    "default": false
+                  }
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "model": "YOUR_MODEL_ID",
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Hello"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The Chat Completions result from the selected model."
+          },
+          "400": {
+            "description": "Invalid request format or parameters."
+          },
+          "401": {
+            "description": "The BetterToken API Key is missing or invalid."
+          },
+          "402": {
+            "description": "The account has insufficient credit or balance."
+          },
+          "429": {
+            "description": "The request exceeded a rate or concurrency limit, or the upstream service is busy."
+          },
+          "500": {
+            "description": "The gateway or upstream service returned an error."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/chat/completions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]\n  }'"
+          }
+        ]
+      }
+    },
+    "/v1/messages": {
+      "post": {
+        "summary": "Create an Anthropic Messages response",
+        "description": "Send messages to a Claude provider model through BetterToken's Anthropic-compatible Messages API. Use this endpoint with Claude Code, the Anthropic SDK, and applications that require /v1/messages.",
+        "operationId": "createAnthropicMessageEnglish",
+        "tags": [
+          "Anthropic Messages"
+        ],
+        "security": [
+          {
+            "anthropicApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "anthropic-version",
+            "in": "header",
+            "required": true,
+            "description": "The Anthropic API version header.",
+            "schema": {
+              "type": "string",
+              "default": "claude-cli/2.0.76 (external, cli)",
+              "example": "claude-cli/2.0.76 (external, cli)"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "max_tokens",
+                  "messages"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "A model ID currently available from a Claude provider. Check the model plaza for the latest options.",
+                    "example": "YOUR_MODEL_ID"
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The maximum number of tokens to generate in the response.",
+                    "default": 1024,
+                    "example": 1024
+                  },
+                  "messages": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "Messages in Anthropic format. Each item should contain role and content.",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "role",
+                        "content"
+                      ],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "example": "user"
+                        },
+                        "content": {
+                          "type": "string",
+                          "example": "Hello"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  }
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "model": "YOUR_MODEL_ID",
+                "max_tokens": 1024,
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "Hello"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The Anthropic Messages result from the selected model."
+          },
+          "400": {
+            "description": "Invalid request format or parameters."
+          },
+          "401": {
+            "description": "The BetterToken API Key is missing or invalid."
+          },
+          "402": {
+            "description": "The account has insufficient credit or balance."
+          },
+          "429": {
+            "description": "The request exceeded a rate or concurrency limit, or the upstream service is busy."
+          },
+          "500": {
+            "description": "The gateway or upstream service returned an error."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://bettertoken.ai/v1/messages' \\\n  -H 'x-api-key: YOUR_API_KEY' \\\n  -H 'anthropic-version: claude-cli/2.0.76 (external, cli)' \\\n  -H 'content-type: application/json' \\\n  --data '{\n    \"model\": \"YOUR_MODEL_ID\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]\n  }'"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key"
+      },
+      "anthropicApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  }
+}
