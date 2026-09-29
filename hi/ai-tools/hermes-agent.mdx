@@ -23,7 +23,7 @@ Hermes Agent को BetterToken से कनेक्ट करने के �
 
 ### अतिरिक्त आवश्यकताएं
 
-- चुनी गई Model ID **supported provider** से है
+- <a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 - macOS, Linux, Windows 10/11 या WSL2
 - tool use के लिए कम से कम 64K context window वाला model
 
@@ -103,7 +103,7 @@ interactive Hermes Agent मॉडल सेटअप को मुख्य त
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: आपकी BetterToken API Key
-        - **Model**: <a href={"{{model-plaza-url}}"}>model plaza</a> से कॉपी की **किसी समर्थित provider की मॉडल ID**
+        - **Model**: <a href={"{{model-plaza-url}}"}>model plaza</a> से कॉपी की **मॉडल ID**
 
         यदि Hermes API mode पूछे, तो **Chat Completions** चुनें। Agent tool use के लिए कम से कम 64K context वाला model चुनें।
       </Step>
@@ -134,7 +134,7 @@ interactive Hermes Agent मॉडल सेटअप को मुख्य त
     OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    `YOUR_MODEL_ID` को <a href={"{{model-plaza-url}}"}>model plaza</a> की supported provider model ID से और `YOUR_API_KEY` को अपनी BetterToken API Key से बदलें। Native Windows पर ये files `%LOCALAPPDATA%\hermes\` में होती हैं।
+    `YOUR_MODEL_ID` को <a href={"{{model-plaza-url}}"}>model plaza</a> की Model ID से और `YOUR_API_KEY` को अपनी BetterToken API Key से बदलें। Native Windows पर ये files `%LOCALAPPDATA%\hermes\` में होती हैं।
   </Tab>
 </Tabs>
 
@@ -152,7 +152,7 @@ output की पुष्टि के बाद migration चलाएं:
 hermes claw migrate
 ```
 
-migration के बाद भी Hermes Agent **Base URL**, API Key और मॉडल ID जांचें। वे `{{openai-base-url}}`, आपकी BetterToken API Key और समर्थित provider मॉडल ID से मेल खाने चाहिए।
+migration के बाद भी Hermes Agent **Base URL**, API Key और मॉडल ID जांचें। वे `{{openai-base-url}}`, आपकी BetterToken API Key और मॉडल ID से मेल खाने चाहिए।
 
 ## कनेक्शन सत्यापित करें
 
@@ -175,8 +175,8 @@ Session के बाहर `hermes model` चलाएं। Active chat मे
 ### समस्या निवारण
 
 - यदि अनुरोध विफल हो या उत्तर न मिले, तो पुष्टि करें कि **Base URL** ठीक `{{openai-base-url}}` है। इस फ़ील्ड में `/chat/completions` न जोड़ें।
-- यदि Hermes बताए कि मॉडल मौजूद नहीं है, तो पुष्टि करें कि **Model** <a href={"{{model-plaza-url}}"}>model plaza</a> से समर्थित provider की मॉडल ID है।
-- authentication विफल होने पर कॉपी किए गए space जांचें और पुष्टि करें कि चुनी Model ID **supported provider** से है।
+- यदि Hermes बताए कि मॉडल मौजूद नहीं है, तो पुष्टि करें कि **Model** <a href={"{{model-plaza-url}}"}>model plaza</a> से मॉडल ID है।
+- <a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 - बदलाव के बाद Hermes अब भी पुराना मॉडल उपयोग करे तो मौजूदा Hermes Agent session बंद करके `hermes` फिर चलाएं।
 - BetterToken को सामान्यतः अतिरिक्त `User-Agent` या custom header की जरूरत नहीं होती। header केवल तब जोड़ें जब आपका custom gateway, tenant routing, observability या caching layer स्पष्ट रूप से मांगे।
 
@@ -190,26 +190,6 @@ Session के बाहर `hermes model` चलाएं। Active chat मे
 - [model_provider, base_url और wire_api क्या हैं?](/hi/faq/codex/model-provider-base-url-wire-api)
 - [Cline में OpenAI-compatible API कैसे कॉन्फ़िगर करें](/hi/faq/cline/openai-compatible-api)
 - [OpenClaw BetterToken सेटअप गाइड](/hi/ai-tools/openclaw)
-
-## उन्नत सेटअप
-
-{/* tool-provider-support:start */}
-### समर्थित provider
-
-| Provider | स्थिति |
-| --- | --- |
-| Claude | समर्थित नहीं |
-| GPT | मैन्युअल सेटअप |
-| Kimi | मैन्युअल सेटअप |
-| GLM | मैन्युअल सेटअप |
-
-<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
-
-<Accordion title="सेटअप के तरीकों का अर्थ">
-  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
-  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
-</Accordion>
-{/* tool-provider-support:end */}
 
 ## तकनीकी विवरण
 

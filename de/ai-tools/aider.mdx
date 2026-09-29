@@ -1,7 +1,7 @@
 ---
 title: "Aider einrichten: Installation, API Key, Base URL und eigene Modelle"
 sidebarTitle: "Aider"
-description: "Installiere Aider, konfiguriere die BetterToken Base URL und API Key, wähle ein kompatibles Provider-Modell und behebe häufige Fehler. Praktische Hinweise."
+description: "Installiere Aider, konfiguriere die BetterToken Base URL und API Key, wähle ein verfügbares Modell und behebe häufige Fehler. Praktische Hinweise."
 icon: "wrench"
 ---
 
@@ -77,7 +77,7 @@ aider --help
   </Tab>
 </Tabs>
 
-Ersetze `YOUR_API_KEY` durch deinen BetterToken API Key. `YOUR_MODEL_ID` ist nur ein Beispiel. Ersetze ihn durch eine aktuelle **Model ID eines unterstützten Providers** aus der model plaza und behalte das Präfix `openai/` bei.
+Ersetze `YOUR_API_KEY` durch deinen BetterToken API Key. `YOUR_MODEL_ID` ist nur ein Beispiel. Ersetze ihn durch eine aktuelle **Model ID ** aus der model plaza und behalte das Präfix `openai/` bei.
 
 ### Konfiguration mit .env speichern
 
@@ -114,7 +114,7 @@ Bewahre den API Key in der Umgebungsvariable `OPENAI_API_KEY` statt in einer gem
 
 ### Modell ändern
 
-Ersetze das Modell im Startbefehl durch eine aktuelle **Model ID eines unterstützten Providers**:
+Ersetze das Modell im Startbefehl durch eine aktuelle **Model ID aus der model plaza**:
 
 ```bash
 aider --model openai/YOUR_MODEL_ID
@@ -135,7 +135,7 @@ Sende eine kurze Testanweisung. Wenn das Tool ohne Authentifizierungs- oder Mode
 | Symptom | Vorgehen |
 | --- | --- |
 | `401`, `Unauthorized` oder `Invalid API key` | Prüfe `OPENAI_API_KEY`, bestätige, dass es ein BetterToken API Key ist, und entferne zusätzliche Leerzeichen. |
-| `model not found` oder Modell nicht verfügbar | Kopiere eine aktuelle **Model ID eines unterstützten Providers** aus der model plaza und übergib sie an Aider als `openai/model-id`. |
+| `model not found` oder Modell nicht verfügbar | Kopiere eine aktuelle **Model ID ** aus der model plaza und übergib sie an Aider als `openai/model-id`. |
 | Falsche Request-URL oder `404` | Bestätige, dass `OPENAI_API_BASE` auf `{{openai-base-url}}` gesetzt ist. Hänge nicht `/chat/completions` an. |
 | Windows liest die neuen Variablen nicht | `setx` wirkt nur in neu geöffneten Terminals. Schließe das aktuelle PowerShell-Fenster und öffne ein neues. |
 | Aider meldet ein unbekanntes Modell | Prüfe zuerst die Model ID und den API Provider. Aider kann für ein neues Modell eine Warnung anzeigen, du musst aber weiterhin eine aktuelle ID aus der model plaza verwenden. |
@@ -155,24 +155,6 @@ Aider verwendet dieses Präfix, um ein OpenAI-kompatibles Modell zu erkennen. We
 Wir empfehlen das nicht. Verwende Umgebungsvariablen oder eine von Git ignorierte Datei `.env`, um das Risiko zu verringern, einen API Key in Projektdateien offenzulegen.
 
 ## Erweiterte Konfiguration
-
-{/* tool-provider-support:start */}
-### Unterstützte Provider
-
-| Provider | Status |
-| --- | --- |
-| Claude | Nicht unterstützt |
-| GPT | Manuelle Konfiguration |
-| Kimi | Manuelle Konfiguration |
-| GLM | Manuelle Konfiguration |
-
-<Note>Die Statusangaben gelten für die auf dieser Seite beschriebene BetterToken-Konfiguration.</Note>
-
-<Accordion title="Bedeutung der Einrichtungsmethoden">
-  - **Manuelle Konfiguration**: Gib API Key, Base URL und Model ein.
-  - **Nicht unterstützt**: Derzeit gibt es keine verifizierte Methode für die direkte Verbindung.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Verwandte Anleitungen
 

@@ -10,36 +10,15 @@ Claude Desktop में BetterToken Gateway कॉन्फ़िगर कर�
 - Code mode में `Claude Code process exited with code 1` दिखता है
 - वही API Key terminal से Claude Code CLI में काम करती है
 
-ये समस्या सामान्यतः दो अलग कारणों से आती हैं: desktop Gateway auth scheme provider से मेल नहीं खाता, या Claude Desktop में bundled Claude Code संस्करण update होना पूरा नहीं हुआ।
-
 Gateway अभी कॉन्फ़िगर नहीं किया है तो [Claude Desktop में BetterToken API उपयोग करें](/hi/faq/claude-desktop-bettertoken-api) से शुरू करें।
 
 ## पहले Cowork mode ठीक करें
 
-**मुख्य कारण**: **Gateway auth scheme** provider से मेल नहीं खाता।
+Claude Desktop केवल Claude मॉडल का समर्थन करता है। यह Claude Desktop क्लाइंट की सीमा है।
 
-Claude Desktop Gateway settings में provider के अनुसार auth scheme चुनें:
+जाँचें कि API Key पूरी कॉपी हुई है और समाप्त नहीं हुई है। इस Gateway में `x-api-key` चुनें, सहेजें और Claude Desktop फिर से शुरू करें।
 
-- BetterToken API Key मान्य हो तो **Gateway auth scheme** को `x-api-key` पर सेट करें
-- BetterToken API Key मान्य हो तो **Gateway auth scheme** को `bearer` पर सेट करें
-
-सही scheme चुनने पर Claude Desktop उस group के उपलब्ध मॉडल अपने-आप लेता है। auth scheme गलत हो तो Cowork mode Gateway authentication में विफल हो सकता है।
-
-<Steps>
-  <Step title="third-party inference settings खोलें">
-    macOS menu bar में **Developer** → **Configure Third-Party Inference...** चुनें।
-  </Step>
-
-  <Step title="auth scheme बदलें">
-    provider के अनुसार **Gateway auth scheme** चुनें: **Claude provider** के लिए `x-api-key` और **GPT provider** के लिए `bearer` उपयोग करें।
-  </Step>
-
-  <Step title="config सहेजें">
-    local Gateway config सहेजने के लिए **Apply locally** क्लिक करें।
-  </Step>
-</Steps>
-
-इस बदलाव के बाद Cowork mode सामान्यतः फिर काम करता है।
+[Claude Desktop गाइड](/hi/faq/claude-desktop-bettertoken-api) के अनुसार **Gateway**, Base URL `{{anthropic-base-url}}`, अपनी BetterToken API Key और **Gateway auth scheme** `x-api-key` सेट करें। **Apply locally** दबाएँ और Claude Desktop पूरी तरह फिर से शुरू करें।
 
 ## फिर Code mode exit त्रुटियां ठीक करें
 
@@ -71,5 +50,5 @@ Cowork काम करे लेकिन Code mode का `</>` tab अब भ
 
 | लक्षण | सामान्य मुख्य कारण | समाधान |
 |---------|-------------------|-----|
-| Cowork mode काम नहीं करता | **Gateway auth scheme** provider से मेल नहीं खाता | **Claude provider** के लिए `x-api-key` या **GPT provider** के लिए `bearer` उपयोग करें, फिर **Apply locally** क्लिक करें |
+| Cowork | Gateway auth scheme | जाँचें कि API Key पूरी कॉपी हुई है और समाप्त नहीं हुई है। इस Gateway में `x-api-key` चुनें, सहेजें और Claude Desktop फिर से शुरू करें। |
 | Code mode में `Claude Code process exited with code 1` दिखता है | Claude Desktop पुराने Claude Code संस्करण पर fallback करता है | नया संस्करण डाउनलोड होने की प्रतीक्षा करें, **Cmd+Q** से पूरी तरह बंद करें, फिर खोलें |

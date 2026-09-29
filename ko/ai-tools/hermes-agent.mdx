@@ -1,7 +1,7 @@
 ---
 title: "Hermes Agent 설정: 설치, API Key, Base URL 및 사용자 지정 모델"
 sidebarTitle: "Hermes Agent"
-description: "Hermes Agent를 설치하고 BetterToken Base URL 및 API Key를 설정한 다음 호환되는 provider model을 선택하고 일반적인 오류를 해결하세요."
+description: "Hermes Agent를 설치하고 BetterToken Base URL 및 API Key를 설정한 다음 모델을 선택하고 일반적인 오류를 해결하세요."
 icon: "user-astronaut"
 ---
 
@@ -23,7 +23,7 @@ Hermes Agent를 BetterToken에 연결하려면 API Key를 준비하고 아래 Ba
 
 ### 추가 요구 사항
 
-- 선택한 Model ID가 **지원되는 provider**에서 옴
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 정확한 Model ID를 복사하세요.
 - macOS, Linux, Windows 10/11 또는 WSL2
 - 도구 사용을 위한 최소 64K context window의 모델
 
@@ -103,7 +103,7 @@ Interactive Hermes Agent model setup을 기본 경로로 사용하세요. Manual
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: BetterToken API Key
-        - **Model**: <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 복사한 **지원되는 provider의 model ID**
+        - <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 정확한 Model ID를 복사하세요.
 
         Hermes가 API mode를 묻는다면 **Chat Completions**를 선택하세요. Agent tool use에는 context가 64K 이상인 model을 선택하세요.
       </Step>
@@ -134,7 +134,7 @@ Interactive Hermes Agent model setup을 기본 경로로 사용하세요. Manual
     OPENAI_API_KEY=YOUR_API_KEY
     ```
 
-    `YOUR_MODEL_ID`를 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 supported provider model ID로, `YOUR_API_KEY`를 BetterToken API Key로 바꾸세요. Native Windows에서는 이 files가 `%LOCALAPPDATA%\hermes\`에 있습니다.
+    `YOUR_MODEL_ID`를 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 Model ID로, `YOUR_API_KEY`를 BetterToken API Key로 바꾸세요. Native Windows에서는 이 files가 `%LOCALAPPDATA%\hermes\`에 있습니다.
   </Tab>
 </Tabs>
 
@@ -152,7 +152,7 @@ output을 확인한 후 migration을 실행하세요.
 hermes claw migrate
 ```
 
-migration 후에도 Hermes Agent **Base URL**, API Key 및 model ID를 검토하세요. 이는 `{{openai-base-url}}`, BetterToken API Key 및 지원되는 provider의 model ID와 일치해야 합니다.
+migration 후에도 Hermes Agent **Base URL**, API Key 및 model ID를 검토하세요. 이는 `{{openai-base-url}}`, BetterToken API Key 및 model ID와 일치해야 합니다.
 
 ## 연결 확인
 
@@ -175,8 +175,8 @@ Session 밖에서는 `hermes model`을 실행하세요. Active chat에서 이미
 ### 문제 해결
 
 - requests가 실패하거나 response를 반환하지 않으면 **Base URL**이 정확히 `{{openai-base-url}}`인지 확인하세요. 이 field에 `/chat/completions`를 추가하지 마세요.
-- Hermes가 model이 존재하지 않는다고 보고하면 **Model**이 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 지원되는 provider model ID인지 확인하세요.
-- authentication이 실패하면 복사된 spaces를 확인하고 선택한 Model ID가 **지원되는 provider**에서 왔는지 확인하세요.
+- Hermes가 model이 존재하지 않는다고 보고하면 **Model**이 <a href={"{{model-plaza-url}}"}>모델 광장</a>의 모델 ID인지 확인하세요.
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 정확한 Model ID를 복사하세요.
 - 변경 후에도 Hermes가 이전 model을 사용하면 현재 Hermes Agent session을 종료하고 `hermes`를 다시 실행하세요.
 - BetterToken에는 보통 extra `User-Agent` 또는 custom headers가 필요하지 않습니다. custom gateway, tenant routing, observability 또는 caching layer가 명시적으로 요구할 때만 headers를 추가하세요.
 
@@ -190,26 +190,6 @@ Session 밖에서는 `hermes model`을 실행하세요. Active chat에서 이미
 - [model_provider, base_url 및 wire_api란 무엇인가요?](/ko/faq/codex/model-provider-base-url-wire-api)
 - [Cline에서 OpenAI-compatible API 구성](/ko/faq/cline/openai-compatible-api)
 - [OpenClaw BetterToken 설정 가이드](/ko/ai-tools/openclaw)
-
-## Advanced setup
-
-{/* tool-provider-support:start */}
-## 지원 Provider
-
-| Provider | 상태 |
-| --- | --- |
-| Claude | 지원되지 않음 |
-| GPT | 수동 설정 |
-| Kimi | 수동 설정 |
-| GLM | 수동 설정 |
-
-<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
-
-<Accordion title="설정 방식 설명">
-  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
-  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ## 기술 세부 정보
 

@@ -8,7 +8,7 @@ keywords:
 icon: "paw"
 ---
 
-Установите OpenClaw, затем подключите BetterToken через `~/.openclaw/openclaw.json`. Модели провайдера GPT используют `openai-responses`, другие поддерживаемые провайдеры — `openai-completions`.
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## OpenClaw: скачать и установить CLI
 
@@ -66,10 +66,10 @@ icon: "paw"
 
 ### Настройка OpenClaw
 
-Отредактируйте `~/.openclaw/openclaw.json`. Используйте вариант, соответствующий провайдеру выбранного Model ID.
+Скопируйте точный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 <Tabs>
-  <Tab title="GPT: openai-responses">
+  <Tab title="Responses API">
     ```json
     {
       "models": {
@@ -98,7 +98,7 @@ icon: "paw"
     }
     ```
   </Tab>
-  <Tab title="Не GPT: openai-completions">
+  <Tab title="Chat Completions">
     ```json
     {
       "models": {
@@ -129,7 +129,7 @@ icon: "paw"
   </Tab>
 </Tabs>
 
-Не определяйте `api` только по названию модели. GPT использует `openai-responses`. Для другого провайдера применяйте `openai-completions` только после подтверждения в model plaza или окне Setup.
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## Проверка подключения
 
@@ -154,30 +154,11 @@ openclaw models status
 | --- | --- |
 | Ошибка `config validate` | Проверьте запятые, кавычки и скобки JSON. |
 | `401` | Скопируйте `apiKey` заново и удалите пробелы. |
-| `404` или ошибка протокола | Для GPT нужен `openai-responses`, для не-GPT — `openai-completions`. Не добавляйте endpoint к Base URL. |
+| `404` | `openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`. |
 | Модель не отображается | Проверьте список моделей provider и `agents.defaults.model.primary`. |
 | Старая сессия использует прежнюю модель | Выполните `openclaw gateway restart` и создайте новую сессию. |
 
 ## Расширенная настройка
-
-{/* tool-provider-support:start */}
-### Поддерживаемые провайдеры
-
-| Провайдер | Статус |
-| --- | --- |
-| Claude | Не поддерживается |
-| GPT | Настройка командой + вручную |
-| Kimi | Ручная настройка |
-| GLM | Ручная настройка |
-
-<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
-
-<Accordion title="Что означают способы настройки">
-  - **Настройка командой + вручную**: доступна готовая команда и полная ручная настройка.
-  - **Ручная настройка**: укажите API Key, Base URL и Model.
-  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Связанные FAQ
 
@@ -193,5 +174,5 @@ openclaw models status
 ## Технические детали
 
 <Accordion title="Responses и Chat Completions">
-  `openai-responses` вызывает `/v1/responses` для провайдера GPT. `openai-completions` вызывает `/v1/chat/completions` для подтверждённых совместимых не-GPT провайдеров. В обоих случаях `baseUrl` равен `{{openai-base-url}}`.
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 </Accordion>

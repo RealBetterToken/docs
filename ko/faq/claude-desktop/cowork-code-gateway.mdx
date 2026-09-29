@@ -10,36 +10,15 @@ Claude Desktop에서 BetterToken Gateway를 구성한 후 다음 symptoms는 보
 - Code mode에 `Claude Code process exited with code 1`이 표시됨
 - 같은 API Key가 terminal의 Claude Code CLI에서는 작동함
 
-이 issues는 보통 두 가지 별도 causes에서 발생합니다. desktop Gateway auth scheme가 provider와 일치하지 않거나 Claude Desktop의 bundled Claude Code version update가 아직 완료되지 않았습니다.
-
 아직 Gateway를 구성하지 않았다면 [Claude Desktop에서 BetterToken API 사용](/ko/faq/claude-desktop-bettertoken-api)부터 시작하세요.
 
 ## 먼저 Cowork mode 해결
 
-**Root cause**: **Gateway auth scheme**가 provider와 일치하지 않습니다.
+Claude Desktop은 Claude 모델만 지원합니다. 이는 Claude Desktop 클라이언트의 제한입니다.
 
-Claude Desktop Gateway settings에서 provider에 따라 auth scheme를 선택하세요.
+API Key가 정확히 복사되었고 만료되지 않았는지 확인하세요. 이 Gateway 설정에는 `x-api-key`를 사용하고 저장한 뒤 Claude Desktop을 다시 시작하세요.
 
-- BetterToken API Key가 valid하면 **Gateway auth scheme**를 `x-api-key`로 설정
-- BetterToken API Key가 valid하면 **Gateway auth scheme**를 `bearer`로 설정
-
-올바른 scheme를 선택하면 Claude Desktop이 해당 group의 available models를 자동으로 fetch합니다. auth scheme가 잘못되면 Cowork mode의 Gateway authentication이 실패할 수 있습니다.
-
-<Steps>
-  <Step title="third-party inference settings 열기">
-    macOS menu bar에서 **Developer** → **Configure Third-Party Inference...**를 선택하세요.
-  </Step>
-
-  <Step title="auth scheme 변경">
-    provider에 따라 **Gateway auth scheme**를 선택하세요. **Claude provider**에는 `x-api-key`를, **GPT provider**에는 `bearer`를 사용하세요.
-  </Step>
-
-  <Step title="config 저장">
-    **Apply locally**를 클릭하여 local Gateway config를 저장하세요.
-  </Step>
-</Steps>
-
-이 변경 후 Cowork mode는 보통 다시 작동합니다.
+[Claude Desktop 가이드](/ko/faq/claude-desktop-bettertoken-api)에 따라 **Gateway**, Base URL `{{anthropic-base-url}}`, BetterToken API Key, **Gateway auth scheme** `x-api-key`를 설정하세요. **Apply locally**로 저장하고 Claude Desktop을 완전히 다시 시작하세요.
 
 ## 다음으로 Code mode exit errors 해결
 
@@ -71,5 +50,5 @@ Cowork는 작동하지만 Code mode의 `</>` tab에 여전히 `Claude Code proce
 
 | 증상 | 일반적인 root cause | 해결 방법 |
 |---------|-------------------|-----|
-| Cowork mode가 작동하지 않음 | **Gateway auth scheme**가 provider와 일치하지 않음 | **Claude provider**에는 `x-api-key`, **GPT provider**에는 `bearer`를 사용한 다음 **Apply locally**를 클릭 |
+| Cowork | Gateway auth scheme | API Key가 정확히 복사되었고 만료되지 않았는지 확인하세요. 이 Gateway 설정에는 `x-api-key`를 사용하고 저장한 뒤 Claude Desktop을 다시 시작하세요. |
 | Code mode에 `Claude Code process exited with code 1`이 표시됨 | Claude Desktop이 이전 Claude Code version으로 fall back함 | 새로운 version의 download가 끝날 때까지 기다리고 **Cmd+Q**로 완전 종료한 다음 다시 열기 |

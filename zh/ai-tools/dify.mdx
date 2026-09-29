@@ -1,7 +1,7 @@
 ---
 title: "Dify 接入 BetterToken：API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Dify"
-description: "在 Dify 中配置 BetterToken Base URL、API Key 和兼容的提供商模型，验证连接并排查常见错误。"
+description: "在 Dify 中配置 BetterToken Base URL、API Key 和模型，验证连接并排查常见错误。"
 icon: "layer-group"
 ---
 
@@ -67,7 +67,7 @@ icon: "layer-group"
 | Dify 字段 | 推荐值 |
 |---|---|
 | Model Type | `LLM` |
-| Model Name | 从模型广场复制的 受支持提供商的模型 ID |
+| Model Name | 从模型广场复制的模型 ID |
 | Model display name | 可填写与 Model Name 相同的值 |
 | API Key | 你的 BetterToken API Key |
 | API Base URL | `{{openai-base-url}}` |
@@ -124,14 +124,14 @@ icon: "layer-group"
 
 打开模型选择器，或修改配置中的 `Model` 字段。请填写<a href={"{{model-plaza-url}}"}>模型广场</a>中的完整 Model ID，然后重新启动当前会话。
 
-Dify 的自定义模型按模型 ID 单独配置。需要另一个 受支持提供商的模型时，在同一个 provider 下再次点击 **Add Model**，使用新的 **Model Name** 和 **model name for API endpoint**，Base URL 与 API Key 可以继续复用。
+Dify 的自定义模型按模型 ID 单独配置。需要另一个模型时，在同一个 provider 下再次点击 **Add Model**，使用新的 **Model Name** 和 **model name for API endpoint**，Base URL 与 API Key 可以继续复用。
 
 ## 常见错误
 
 ### 保存时返回 401
 
 - 检查 API Key 是否完整
-- 确认Model ID 来自 **受支持提供商**
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 - 检查 BetterToken Dashboard 中的密钥状态和余额
 
 ### 保存时返回 404
@@ -142,7 +142,7 @@ Dify 的自定义模型按模型 ID 单独配置。需要另一个 受支持提�
 
 ### 显示 model not found
 
-**Model Name** 可以影响 Dify 中的显示和选择，而实际请求使用的模型名称由 **model name for API endpoint** 决定。建议两个字段都填写同一个 受支持提供商的模型 ID。
+**Model Name** 可以影响 Dify 中的显示和选择，而实际请求使用的模型名称由 **model name for API endpoint** 决定。建议两个字段都填写同一个模型 ID。
 
 ### 普通对话成功，但 Agent 工具失败
 
@@ -153,24 +153,6 @@ Dify 的自定义模型按模型 ID 单独配置。需要另一个 受支持提�
 这是正常的。聊天 LLM 不能替代 embedding 模型。本指南没有确认 BetterToken 提供 Dify 所需的 embedding 或 rerank 接口，请为 Knowledge 单独配置受支持的 embedding provider。
 
 ## 进阶配置
-
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 暂不支持 |
-| GPT | 手动配置 |
-| Kimi | 手动配置 |
-| GLM | 手动配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-  - **不支持**：当前没有经过验证的直接配置方式。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 相关指南
 

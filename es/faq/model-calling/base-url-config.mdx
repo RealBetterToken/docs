@@ -16,7 +16,7 @@ En BetterToken:
 | Codex CLI / compatible con OpenAI | `{{openai-base-url}}` |
 | Cursor, Cline, OpenCode, OpenClaw | `{{openai-base-url}}` |
 
-No adivines la ruta. La API Key, el Base URL y el Model ID deben proceder del mismo proveedor o gateway.
+Usa `{{anthropic-base-url}}` para Claude Code y `{{openai-base-url}}` para Codex CLI y herramientas OpenAI-compatible. Elige la dirección según el protocolo del cliente.
 
 ## Por qué hay distintos Base URL
 
@@ -28,7 +28,7 @@ Cada SDK añade las rutas de una manera distinta.
 | SDK compatible con Anthropic | Suele añadir por sí mismo las rutas del endpoint de mensajes, por lo que no debes volver a añadir `/v1` |
 | Proveedor integrado en la herramienta | Puede añadir rutas automáticamente o solicitar un Base URL completo |
 
-Que el modelo tenga el mismo nombre no significa que el mismo Base URL funcione en todas partes. Deben coincidir el protocolo de la herramienta, el Base URL, la API Key, el proveedor y el Model ID.
+Usa `{{anthropic-base-url}}` para Claude Code y `{{openai-base-url}}` para Codex CLI y herramientas OpenAI-compatible. Elige la dirección según el protocolo del cliente.
 
 ## Referencia rápida
 
@@ -46,9 +46,9 @@ Que el modelo tenga el mismo nombre no significa que el mismo Base URL funcione 
 | Error o síntoma | Causa posible |
 | --- | --- |
 | `404 Not Found` | La ruta del Base URL no coincide con la que espera el SDK |
-| `model not found` | El Model ID no pertenece al proveedor actual |
+| `model not found` | Comprueba el Model ID exacto en la model plaza e introdúcelo en los ajustes del modelo del cliente. |
 | `invalid_api_key` | La API Key y el Base URL proceden de servicios distintos |
-| La autenticación funciona, pero el modelo no está disponible | El proveedor y el Model ID no coinciden |
+| La autenticación funciona, pero el modelo no está disponible | Comprueba el Model ID exacto en la model plaza e introdúcelo en los ajustes del modelo del cliente. |
 | Las solicitudes siguen fallando | Se usó una dirección compatible con Anthropic en una herramienta compatible con OpenAI, o al contrario |
 
 ## Orden recomendado para resolver problemas
@@ -56,7 +56,7 @@ Que el modelo tenga el mismo nombre no significa que el mismo Base URL funcione 
 1. Confirma si la herramienta espera una API compatible con OpenAI o con Anthropic.
 2. Comprueba si el Base URL corresponde a ese protocolo.
 3. Comprueba si la API Key procede del mismo servicio.
-4. Comprueba si el Model ID procede del <a href={"{{model-plaza-url}}"}>model plaza</a> y pertenece al proveedor actual.
+4. Copia el Model ID exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a>.
 5. Envía una solicitud de prueba mínima, como `hello`.
 
 ## Ejemplos de código
@@ -88,7 +88,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="your-claude-model-id",
+    model="your-model-id",
     max_tokens=1024,
     messages=[{"role": "user", "content": "hello"}]
 )

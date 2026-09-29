@@ -17,7 +17,7 @@ description: "查找 BetterToken 账号、充值计费、余额用量、API Key�
 - [Claude Code 权限和 hooks 是什么？](/zh/faq/claude-code/permissions-and-hooks)
 - [Claude Code token 为什么消耗很多？如何降低成本？](/zh/faq/token-cost/claude-code-token-usage)
 - [Claude Desktop 如何配置 MCP？](/zh/faq/claude-desktop/mcp)
-- [Claude Desktop 如何接入第三方模型？](/zh/faq/claude-desktop/third-party-models)
+- [Claude Desktop 自定义接入](/zh/faq/claude-desktop/third-party-models)
 - [Claude Desktop Cowork 和 Code Gateway 有什么区别？](/zh/faq/claude-desktop/cowork-code-gateway)
 - [Codex CLI 是什么？](/zh/faq/codex/what-is-codex-cli)
 - [Codex CLI、Codex App 和 Codex Web 有什么区别？](/zh/faq/codex/codex-cli-vs-app-vs-web)
@@ -73,25 +73,15 @@ description: "查找 BetterToken 账号、充值计费、余额用量、API Key�
   </Accordion>
 
   <Accordion title="接入 Claude Code 时需要指定模型吗？">
-    取决于你的 提供商。
-
-    如果你使用 **Claude 提供商**，只需配置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_AUTH_TOKEN`，**不需要**设置模型变量。
-
-    如果你使用 **GPT 提供商**，则需要通过 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL` 为 Claude Code 配置模型映射。模型 ID 请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 **GPT 提供商**模型 ID。
+  使用 BetterToken API Key、Base URL `{{anthropic-base-url}}` 和你选择的 Model ID 接入 Claude Code。 把 `YOUR_MODEL_ID` 替换为复制的模型 ID。`ANTHROPIC_MODEL` 设置主模型，三个 `ANTHROPIC_DEFAULT_*_MODEL` 变量分别设置 Haiku、Sonnet 和 Opus 别名。可以使用同一个模型，也可以为各角色选择不同模型。 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
   </Accordion>
 
   <Accordion title="接入 Codex 时需要指定模型吗？">
-    需要在配置里填一个模型 ID，但这个模型 ID 应该从<a href={"{{model-plaza-url}}"}>模型广场</a>复制 **GPT 提供商**下当前可用的模型。
-
-    详细配置参考[Codex 接入文档](/zh/ai-tools/codex)。
+  从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
   </Accordion>
 
   <Accordion title="接入 Cursor 等其他工具时需要指定模型吗？">
-    需要。Cursor、Cline、Zed、OpenClaw 等外部工具统一走 **GPT 提供商**，模型名称请从<a href={"{{model-plaza-url}}"}>模型广场</a>复制当前可用的 GPT 提供商模型 ID。
-
-    这些工具当前不应继续按 Anthropic / Claude 直连方式填写 Claude 系列固定模型名。
-
-    详细配置参考 [Cursor 接入文档](/zh/ai-tools/cursor)。
+  从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
   </Accordion>
 
   <Accordion title="OpenClaw 和其他外部工具需要额外 headers 吗？">

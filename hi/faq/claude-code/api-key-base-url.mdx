@@ -1,7 +1,7 @@
 ---
 title: "Claude Code में API Key और Base URL कैसे सेट करें"
 sidebarTitle: "API Key और Base URL"
-description: "Claude Code सेट करते समय API Key, Base URL, Anthropic-compatible Endpoint और Claude/GPT प्रदाताओं का संबंध समझें। सेटअप, उदाहरण और सामान्य त्रुटि समाधान सहित।"
+description: "अपनी BetterToken API Key, Base URL BetterToken और चुनी हुई Model ID से Claude Code कनेक्ट करें।"
 ---
 
 ## त्वरित उत्तर
@@ -12,7 +12,7 @@ Claude Code में third-party API सेट करते समय पहल
 
 API Key Request को authenticate करता है। Base URL बताता है कि Claude Code मॉडल Request कहां भेजे। दोनों एक ही प्रदाता और protocol के होने चाहिए।
 
-**Claude प्रदाता** के साथ Claude Code को आमतौर पर `ANTHROPIC_BASE_URL` और `ANTHROPIC_AUTH_TOKEN` चाहिए। **GPT प्रदाता** के साथ सेटअप गाइड वाली Claude Code मॉडल mapping भी चाहिए।
+अपनी BetterToken API Key, Base URL `{{anthropic-base-url}}` और चुनी हुई Model ID से Claude Code कनेक्ट करें। <a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 
 ## यह सेटअप कब आवश्यक है?
 
@@ -20,7 +20,7 @@ API Key Request को authenticate करता है। Base URL बतात
 - API Key हो, लेकिन सही Base URL पता न हो
 - Claude Code authentication या Endpoint त्रुटि दिखाए
 - `{{anthropic-base-url}}` और `{{openai-base-url}}` में से चुनना हो
-- Claude और GPT प्रदाता का अंतर समझना हो
+
 
 ## मुख्य अवधारणाएं
 
@@ -34,28 +34,34 @@ API Key Request को authenticate करता है। Base URL बतात
 
 ## अनुशंसित सेटअप
 
-प्रदाता के अनुसार सेटअप चुनें।
+अपनी BetterToken API Key, Base URL `{{anthropic-base-url}}` और चुनी हुई Model ID से Claude Code कनेक्ट करें।
 
-Claude प्रदाता:
+<a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
   }
 }
 ```
 
-GPT प्रदाता में अतिरिक्त Claude Code मॉडल mapping चाहिए। केवल यह छोटा उदाहरण कॉपी करने के बजाय पूरी [Claude Code सेटअप गाइड](/hi/ai-tools/claude-code) उपयोग करें।
+`YOUR_MODEL_ID` को कॉपी की गई ID से बदलें। मुख्य मॉडल के लिए `ANTHROPIC_MODEL` और Haiku, Sonnet तथा Opus के लिए तीन `ANTHROPIC_DEFAULT_*_MODEL` वेरिएबल सेट करें। सभी भूमिकाओं के लिए एक मॉडल या अलग-अलग मॉडल चुन सकते हैं।
 
-Config संपादित करने के बाद Claude Code restart करें और छोटा test message भेजें। विफल होने पर पहले जांचें कि Base URL गलती से `{{openai-base-url}}` तो सेट नहीं हुआ।
+कॉन्फ़िगरेशन में Model ID बदलकर Claude Code को फिर से शुरू करें। सत्र के दौरान बदलने के लिए `/model YOUR_MODEL_ID` इस्तेमाल करें।
 
 ## सामान्य गलतियां
 
 - Claude Code Base URL में `/v1` जोड़ना
 - API Key बदलकर भी Request को default Endpoint पर भेजना
-- GPT प्रदाता के मॉडल ID को Claude प्रदाता मॉडल मानना
+
 - Claude Code के Anthropic-compatible Field में OpenAI-compatible Endpoint डालना
 - Shell profile के पुराने environment variable से नए Config को override करना
 

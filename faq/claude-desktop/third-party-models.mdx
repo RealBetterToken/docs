@@ -1,127 +1,23 @@
 ---
-title: "Third-party модели в Claude Desktop: custom API и Codex"
-sidebarTitle: "Third-party модели в Claude Desktop"
-description: "Подключите GPT и Codex к Claude Desktop: добавьте custom API Key BetterToken в CC Switch, настройте model mapping, включите Gateway и устраните ошибки 401."
+title: "Свой API endpoint в Claude Desktop и поддерживаемые модели"
+sidebarTitle: "Свой endpoint в Claude Desktop"
+description: "Подключите Claude Desktop к BetterToken через свой Gateway endpoint, API Key и модель Claude. Проверьте авторизацию, выбор модели и перезапуск приложения."
 ---
 
-Claude Desktop может использовать third-party модели GPT и Codex через Gateway в CC Switch. В CC Switch `v3.16.5` или новее добавьте API Key BetterToken, выберите формат OpenAI Responses API, настройте model mapping, включите proxy и перезапустите Claude Desktop.
+Claude Desktop поддерживает только модели Claude. Это ограничение клиента Claude Desktop.
 
-<Info>
-  Используйте актуальные версии Claude Desktop и CC Switch. Для настройки нужен API Key BetterToken.
-</Info>
+## Настройка
 
-## Шаги настройки
+Следуйте [инструкции Claude Desktop](/faq/claude-desktop-bettertoken-api): выберите **Gateway**, укажите Base URL `{{anthropic-base-url}}`, BetterToken API Key и **Gateway auth scheme** `x-api-key`. Нажмите **Apply locally** и полностью перезапустите Claude Desktop.
 
-<Steps>
-  <Step title="Обновите Claude Desktop и CC Switch">
-    Обновите Claude Desktop до актуальной версии, а CC Switch - до `v3.16.5` или новее.
+Скопируйте точный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-    - [Скачать Claude Desktop](https://claude.ai/download)
-    - [Скачать CC Switch](https://github.com/farion1231/cc-switch/releases)
-  </Step>
+## Устранение ошибок
 
-  <Step title="Переключитесь на Claude Desktop и добавьте provider">
-    Откройте CC Switch. Выберите значок **Claude Desktop** в верхней панели, затем нажмите **+** в правом верхнем углу, чтобы добавить provider.
+### 401 / Unauthorized
 
-    <Frame>
-      <img
-        src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
-        alt="В CC Switch выбран Claude Desktop; кнопка плюс в правом верхнем углу добавляет provider."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
+Проверьте, что API Key скопирован полностью и не истёк. Для этой настройки Gateway используйте `x-api-key`, сохраните изменения и перезапустите Claude Desktop.
 
-  <Step title="Заполните базовые поля">
-    Укажите следующие значения:
+### Модель
 
-    - **Provider Name**: `BetterToken-codex`
-    - **API Key**: ваш API Key BetterToken
-    - **API Endpoint**: `{{anthropic-base-url}}`
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
-        alt="Редактор provider в CC Switch с полями BetterToken-codex, API Key и API Endpoint."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Настройте model mappings">
-    Установите **API Format** в **OpenAI Responses API (Requires routing)**, затем нажмите **Fetch Models**.
-
-    Используйте указанные ниже mappings и оставьте включенным **Declare 1M**:
-
-    | Model role | Requested model |
-    | --- | --- |
-    | Sonnet | `gpt-5.6-terra` |
-    | Opus | `gpt-5.6-sol` |
-    | Fable | `gpt-5.6-sol` |
-    | Haiku | `gpt-5.6-luna` |
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
-        alt="В CC Switch выбран OpenAI Responses API и настроены mappings для Sonnet, Opus, Fable и Haiku."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-
-    Используйте model IDs, которые сейчас доступны в провайдер GPT на <a href={"{{model-plaza-url}}"}>model plaza</a>.
-  </Step>
-
-  <Step title="Сохраните, переключитесь и включите proxy">
-    После сохранения provider вернитесь к списку providers для Claude Desktop:
-
-    1. Выберите новый provider **BetterToken-codex**, чтобы он отображался как **In use**.
-    2. Включите proxy switch в левом верхнем углу.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
-        alt="BetterToken-codex активен в CC Switch, а proxy switch в левом верхнем углу включен."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-
-  <Step title="Перезапустите Claude Desktop и выберите модель">
-    Полностью закройте Claude Desktop и откройте его снова. Надпись **Gateway** в левом нижнем углу означает, что конфигурация активна.
-
-    Выберите нужную модель в model menu возле поля ввода и начните работу.
-
-    <Frame>
-      <img
-        src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
-        alt="Claude Desktop после перезапуска: в левом нижнем углу отображается Gateway, а в меню доступен выбор модели."
-        style={{ borderRadius: '0.5rem' }}
-      />
-    </Frame>
-  </Step>
-</Steps>
-
-## Диагностика
-
-### Gateway не отображается в Claude Desktop
-
-Проверьте, что **BetterToken-codex** установлен как **In use** в CC Switch и proxy switch включен. Полностью закройте Claude Desktop и откройте его заново.
-
-### Список моделей пуст
-
-Откройте редактор provider, нажмите **Fetch Models** и проверьте, что model mappings сохранены. Используйте ID модели у провайдера GPT на <a href={"{{model-plaza-url}}"}>model plaza</a>, затем перезапустите Claude Desktop.
-
-### Ошибка `401` или `Unauthorized`
-
-Проверьте, что вы указали API Key BetterToken. После замены ключа сохраните provider, включите proxy снова и перезапустите Claude Desktop.
-
-### Запросы не отправляются через BetterToken
-
-Убедитесь, что активен **BetterToken-codex**, а не Claude Desktop Official, и proxy switch в левом верхнем углу остается включенным.
-
-## Связанные инструкции
-
-- [Настройка BetterToken в CC Switch](/ai-tools/cc-switch)
-- [Настройка custom provider в Codex CLI](/ai-tools/codex)
-- [Настройка OpenAI-compatible API в Cline](/ai-tools/cline)
-- [OpenAI-compatible API и Anthropic-compatible API](/faq/concepts/openai-compatible-vs-anthropic-compatible)
+Скопируйте доступный Model ID Claude из model plaza, сохраните настройки и перезапустите Claude Desktop.

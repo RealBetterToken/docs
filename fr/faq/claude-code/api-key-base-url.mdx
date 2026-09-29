@@ -1,7 +1,7 @@
 ---
 title: "Configurer l’API Key et la Base URL dans Claude Code"
 sidebarTitle: "API Key et Base URL"
-description: "Comprenez comment l’API Key, la Base URL, les endpoints compatibles avec Anthropic et les fournisseurs Claude et GPT s’articulent dans Claude Code. Plus."
+description: "Connectez Claude Code avec votre BetterToken API Key, la Base URL BetterToken et le Model ID souhaité."
 ---
 
 ## Réponse rapide
@@ -12,7 +12,7 @@ L’API Key authentifie la requête. La Base URL indique à Claude Code où envo
 
 Pour un accès général à Claude API, consultez la [page Claude API de BetterToken](https://bettertoken.ai/ru/claude-api/). Cette landing page répond au besoin d’accès à l’API ; cette FAQ traite uniquement de l’API Key et de la Base URL dans Claude Code.
 
-Avec le **fournisseur Claude**, Claude Code nécessite généralement `ANTHROPIC_BASE_URL` et `ANTHROPIC_AUTH_TOKEN`. Avec le **fournisseur GPT**, vous devez également ajouter les associations de modèles Claude Code présentées dans le guide de configuration.
+Connectez Claude Code avec votre BetterToken API Key, la Base URL `{{anthropic-base-url}}` et le Model ID souhaité. Copiez le Model ID exact depuis la <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 ## Quand cette configuration est importante
 
@@ -20,7 +20,7 @@ Avec le **fournisseur Claude**, Claude Code nécessite généralement `ANTHROPIC
 - Vous avez une API Key, mais vous ne savez pas quelle Base URL utiliser
 - Claude Code signale une erreur d’authentification ou d’endpoint
 - Vous hésitez entre `{{anthropic-base-url}}` et `{{openai-base-url}}`
-- Vous souhaitez comprendre les fournisseurs Claude et GPT
+
 
 ## Concepts principaux
 
@@ -34,28 +34,34 @@ Avec le **fournisseur Claude**, Claude Code nécessite généralement `ANTHROPIC
 
 ## Configuration recommandée
 
-Choisissez la procédure selon le fournisseur.
+Connectez Claude Code avec votre BetterToken API Key, la Base URL `{{anthropic-base-url}}` et le Model ID souhaité.
 
-Fournisseur Claude :
+Copiez le Model ID exact depuis la <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
   }
 }
 ```
 
-Le fournisseur GPT nécessite des associations de modèles Claude Code supplémentaires. Suivez le [guide complet de configuration de Claude Code](/fr/ai-tools/claude-code) au lieu de copier uniquement ce court exemple.
+Remplacez `YOUR_MODEL_ID` par l’ID copié. `ANTHROPIC_MODEL` définit le modèle principal et les trois variables `ANTHROPIC_DEFAULT_*_MODEL` définissent les alias Haiku, Sonnet et Opus. Vous pouvez utiliser un même modèle ou un modèle différent pour chaque rôle.
 
-Après avoir modifié la configuration, redémarrez Claude Code et envoyez un court message de test. En cas d’échec, vérifiez d’abord si la Base URL a été définie par erreur sur `{{openai-base-url}}`.
+Modifiez le Model ID dans la configuration et redémarrez Claude Code. Pour changer en cours de session, utilisez `/model YOUR_MODEL_ID`.
 
 ## Erreurs fréquentes
 
 - Ajouter `/v1` à la Base URL de Claude Code.
 - Modifier l’API Key tout en conservant l’endpoint par défaut comme destination des requêtes.
-- Traiter le Model ID d’un fournisseur GPT comme un modèle du fournisseur Claude.
+
 - Saisir un endpoint compatible avec OpenAI dans les champs compatibles avec Anthropic de Claude Code.
 - Définir dans un profil shell d’anciennes variables d’environnement qui remplacent la nouvelle configuration.
 

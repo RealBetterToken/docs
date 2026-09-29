@@ -1,7 +1,7 @@
 ---
 title: "Hermes Agent のセットアップ：インストール、API Key、Base URL、カスタムモデル"
 sidebarTitle: "Hermes Agent"
-description: "Hermes Agent をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+description: "Hermes Agent をインストールし、BetterToken の Base URL と API Key を設定して、モデルを選び、よくあるエラーを解決します。"
 icon: "user-astronaut"
 ---
 
@@ -23,7 +23,7 @@ Hermes Agent を BetterToken に接続するには、API Key を用意し、以�
 
 ### 追加要件
 
-- 選択した Model ID が**対応プロバイダー**のものである
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 - macOS、Linux、Windows 10/11、または WSL2
 - ツールを使うモデルには 64K 以上のコンテキストウィンドウが必要
 
@@ -105,7 +105,7 @@ Hermes Agent の対話型モデル設定を主な方法として使用します�
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**：BetterToken API Key
-        - **Model**：<a href={"{{model-plaza-url}}"}>モデル広場</a>からコピーした、**対応プロバイダーのモデル ID**
+        - **Model**：<a href={"{{model-plaza-url}}"}>モデル広場</a>からコピーした、**モデル ID**
 
         API mode を聞かれた場合は OpenAI-compatible Chat Completions を選択します。context length はモデルの公開値を使い、64K 以上であることを確認します。
       </Step>
@@ -154,7 +154,7 @@ hermes claw migrate --dry-run
 hermes claw migrate
 ```
 
-移行後も、Hermes Agent の **Base URL**、API Key、モデル ID を確認してください。これらは `{{openai-base-url}}`、BetterToken API Key、対応プロバイダーのモデル ID と一致している必要があります。
+移行後も、Hermes Agent の **Base URL**、API Key、モデル ID を確認してください。これらは `{{openai-base-url}}`、BetterToken API Key、モデル ID と一致している必要があります。
 
 ## 接続を確認する
 
@@ -177,8 +177,8 @@ hermes claw migrate
 ### トラブルシューティング
 
 - リクエストが失敗する、またはレスポンスが返らない場合は、**Base URL** が正確に `{{openai-base-url}}` であることを確認します。このフィールドに `/chat/completions` を追加しないでください。
-- Hermes がモデルが存在しないと報告する場合は、**Model** が<a href={"{{model-plaza-url}}"}>モデル広場</a>にある対応プロバイダーのモデル ID であることを確認します。
-- 認証に失敗する場合は、コピーした空白を確認し、選択した Model ID が**対応プロバイダー**のものであることを確認します。
+- Hermes がモデルが存在しないと報告する場合は、**Model** が<a href={"{{model-plaza-url}}"}>モデル広場</a>にあるモデル ID であることを確認します。
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 - 変更後も Hermes が古いモデルを使用する場合は、現在の Hermes Agent セッションを終了して `hermes` を再度実行します。
 - BetterToken では通常、追加の `User-Agent` やカスタムヘッダーは必要ありません。カスタムゲートウェイ、テナントルーティング、可観測性、キャッシュレイヤーで明示的に要求される場合にのみヘッダーを追加してください。
 
@@ -192,26 +192,6 @@ hermes claw migrate
 - [model_provider、base_url、wire_api とは何ですか？](/ja/faq/codex/model-provider-base-url-wire-api)
 - [Cline で OpenAI 互換 API を設定する方法](/ja/faq/cline/openai-compatible-api)
 - [OpenClaw の BetterToken セットアップガイド](/ja/ai-tools/openclaw)
-
-## 詳細設定
-
-{/* tool-provider-support:start */}
-## 対応プロバイダー
-
-| プロバイダー | 対応状況 |
-| --- | --- |
-| Claude | 未対応 |
-| GPT | 手動設定 |
-| Kimi | 手動設定 |
-| GLM | 手動設定 |
-
-<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
-
-<Accordion title="設定方法の説明">
-  - **手動設定**：API Key、Base URL、Model を入力します。
-  - **未対応**：検証済みの直接接続方法はまだありません。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ## 技術詳細
 

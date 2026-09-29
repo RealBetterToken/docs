@@ -1,11 +1,13 @@
 ---
 title: "Claude Desktop 接入 BetterToken Claude 模型"
 sidebarTitle: "Claude Desktop"
-description: "在 Claude Desktop 中通过 Gateway 配置 BetterToken Claude 提供商的 Base URL 和 API Key。"
+description: "使用自定义 Gateway 地址、BetterToken API Key 和 Claude 模型接入 Claude Desktop，了解认证方式、模型选择、重启步骤与常见错误。"
 icon: "terminal"
 ---
 
-本页只介绍将 BetterToken 的 **Claude 提供商**直接接入 Claude Desktop。你需要填写 BetterToken API Key、`{{anthropic-base-url}}` 和 `x-api-key`，然后重启 Claude Desktop。
+Claude Desktop 仅支持 Claude 模型，这是 Claude Desktop 客户端的限制。
+
+从模型广场复制当前可用的 Claude 模型 ID，保存配置并重启 Claude Desktop。
 
 ## 重点信息
 
@@ -13,12 +15,12 @@ icon: "terminal"
 | --- | --- |
 | API Key | BetterToken API Key |
 | Base URL | `{{anthropic-base-url}}` |
-| Model | Claude 提供商模型 |
+| Model | Claude |
 
 ## 准备工作
 
 - <a href={"{{register-url}}"}>创建并复制 BetterToken API Key</a>
-- 确认该 API Key 可以使用 Claude 提供商模型
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 
 ## 区分订阅与 API 计费
 
@@ -116,34 +118,17 @@ Gateway 请求使用你的 BetterToken API Key 和 BetterToken 余额，不会�
 | --- | --- |
 | 无法连接 Gateway | 确认 **Gateway base URL** 正好是 `{{anthropic-base-url}}`，不要添加 `/v1`。 |
 | 返回 `401` | 重新复制 BetterToken API Key，并确认认证方式为 `x-api-key`。 |
-| 没有 Claude 模型 | 确认 API Key 可以使用 Claude 提供商模型，然后重新打开配置窗口。 |
+| 没有 Claude 模型 | 从模型广场复制当前可用的 Claude 模型 ID，保存配置并重启 Claude Desktop。 |
 | 配置未生效 | 完全退出 Claude Desktop，再重新打开并选择 **Continue with Gateway**。 |
 
 ## 进阶配置
 
-需要在 Claude Desktop 中使用 GPT、Kimi、GLM 或其他非 Claude 提供商时，请通过 [CC Switch 配置 Claude Desktop](/zh/ai-tools/cc-switch#claude-desktop)。CC Switch 负责 API Format、模型映射、代理和重启生效流程。
+需要统一管理多个工具的配置时，可使用 [CC Switch](/zh/ai-tools/cc-switch)。
 
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 手动配置 |
-| GPT | 进阶配置 |
-| Kimi | 进阶配置 |
-| GLM | 进阶配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **进阶配置**：安装 CC Switch，并使用本地代理、协议转换或模型映射。
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 相关指南
 
-- [Claude Desktop 使用第三方模型](/zh/faq/claude-desktop/third-party-models)
+- [Claude Desktop 自定义接入](/zh/faq/claude-desktop/third-party-models)
 - [CC Switch 配置 BetterToken](/zh/ai-tools/cc-switch)
 - [Codex CLI 自定义 provider 配置](/zh/ai-tools/codex)
 - [下载最新版 CC Switch](https://github.com/farion1231/cc-switch/releases)

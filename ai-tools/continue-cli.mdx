@@ -119,7 +119,7 @@ cn --version
         useResponsesApi: false
     ```
 
-    `YOUR_MODEL_ID` приведён только как пример. Замените его на актуальный ID модели у провайдера **GPT** в model plaza.
+    `YOUR_MODEL_ID` приведён только как пример. Замените его на актуальный ID модели из model plaza.
   </Step>
 
   <Step title="Запустите Continue CLI">
@@ -161,10 +161,10 @@ cn --config ./continue-bettertoken.yaml
 
 | Симптом | Что делать |
 | --- | --- |
-| `401`, `Unauthorized` или ошибка API Key | Убедитесь, что `BETTERTOKEN_API_KEY` задан в текущем терминале и относится к поддерживаемому провайдеру. |
+| `401`, `Unauthorized` или ошибка API Key | Проверьте BetterToken API Key в переменной `BETTERTOKEN_API_KEY` текущего терминала. |
 | `403` | Проверьте доступ API Key к выбранному Model ID. |
 | `timeout` или `connection error` | Проверьте `apiBase`, сетевой доступ и отсутствие конфликтующего прокси, затем перезапустите Continue CLI. |
-| `model not found` или модель недоступна | Скопируйте актуальный ID у провайдера **GPT** в model plaza. Не используйте модель провайдера Claude. |
+| `model not found` | Сверьте точный Model ID с model plaza и укажите его в настройках модели клиента. |
 | Continue использует старую конфигурацию | Запускайте `cn --config` с явным путём к файлу. Проверьте имя файла `config.yaml`. |
 | Неверный URL запроса или `404` | Проверьте, что `apiBase` равен `{{openai-base-url}}`. Не добавляйте `/chat/completions` или имя модели. |
 | Переменная API Key не подставляется | Задайте `BETTERTOKEN_API_KEY` в том же терминале, где запускаете `cn`, затем запустите команду снова. |
@@ -175,33 +175,15 @@ cn --config ./continue-bettertoken.yaml
 
 Используйте `{{openai-base-url}}`. Это OpenAI-compatible Base URL BetterToken.
 
-**Можно использовать модель provider Claude?**
+**Как выбрать модель?**
 
-Нет. В этой конфигурации Continue CLI используется OpenAI-compatible API, поэтому нужен API Key BetterToken и модель, совместимую с настроенным endpoint.
+Скопируйте точный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 **Как посмотреть или сменить сохранённую конфигурацию?**
 
 Введите `/config` в сессии Continue CLI, чтобы посмотреть и выбрать локальную конфигурацию.
 
 ## Расширенная настройка
-
-{/* tool-provider-support:start */}
-### Поддерживаемые провайдеры
-
-| Провайдер | Статус |
-| --- | --- |
-| Claude | Не поддерживается |
-| GPT | Ручная настройка |
-| Kimi | Ручная настройка |
-| GLM | Ручная настройка |
-
-<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
-
-<Accordion title="Что означают способы настройки">
-  - **Ручная настройка**: укажите API Key, Base URL и Model.
-  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Связанные материалы
 

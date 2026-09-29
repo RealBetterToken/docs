@@ -1,7 +1,7 @@
 ---
 title: "Hermes Agent setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Hermes Agent"
-description: "Install Hermes Agent, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors. Practical guidance."
+description: "Install Hermes Agent, configure the BetterToken Base URL and API key, choose an available model, and troubleshoot common errors. Practical guidance."
 icon: "user-astronaut"
 ---
 
@@ -23,7 +23,7 @@ To connect Hermes Agent to BetterToken, prepare an API key, enter the Base URL s
 
 ### Additional requirements
 
-- The selected Model ID comes from the **supported provider**
+- Copy the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - macOS, Linux, Windows 10/11, or WSL2
 - A model with at least a 64K context window for Hermes Agent tool use
 
@@ -109,7 +109,7 @@ Use the interactive Hermes Agent model setup as the primary path. Edit the confi
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: your BetterToken API Key
-        - **Model**: a **model ID from a supported provider** copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
+        - **Model**: a **model ID** copied from the <a href={"{{model-plaza-url}}"}>model plaza</a>
 
         If Hermes asks for an API mode, choose the OpenAI-compatible Chat Completions option. If it asks for context length, use the value published for that model and make sure it is at least 64K.
       </Step>
@@ -158,7 +158,7 @@ After you confirm the output, run the migration:
 hermes claw migrate
 ```
 
-After migration, still review the Hermes Agent **Base URL**, API Key, and model ID. They should match `{{openai-base-url}}`, your BetterToken API Key, and a model ID from a supported provider.
+After migration, still review the Hermes Agent **Base URL**, API Key, and model ID. They should match `{{openai-base-url}}`, your BetterToken API Key, and a model ID.
 
 ## Verify the connection
 
@@ -188,8 +188,8 @@ Run `hermes model` outside a chat to add or reconfigure a provider. Inside an ac
 ### Troubleshooting
 
 - If requests fail or return no response, confirm that **Base URL** is exactly `{{openai-base-url}}`. Do not append `/chat/completions` in this field.
-- If Hermes reports that the model does not exist, confirm that **Model** is a model ID from a supported provider from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
-- If authentication fails, check for copied spaces and confirm that the selected Model ID comes from the **supported provider**.
+- If Hermes reports that the model does not exist, confirm that **Model** is a model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Copy the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - If Hermes still uses the old model, exit the chat, run `hermes model`, save the custom endpoint again, and start a new chat.
 - BetterToken usually does not require an extra `User-Agent` or custom headers. Only add headers when your custom gateway, tenant routing, observability, or caching layer explicitly requires them.
 
@@ -203,26 +203,6 @@ Run `hermes model` outside a chat to add or reconfigure a provider. Inside an ac
 - [What are model_provider, base_url, and wire_api?](/en/faq/codex/model-provider-base-url-wire-api)
 - [How to configure an OpenAI-compatible API in Cline](/en/faq/cline/openai-compatible-api)
 - [OpenClaw BetterToken setup guide](/en/ai-tools/openclaw)
-
-## Advanced setup
-
-{/* tool-provider-support:start */}
-### Supported providers
-
-| Provider | Status |
-| --- | --- |
-| Claude | Not supported |
-| GPT | Manual setup |
-| Kimi | Manual setup |
-| GLM | Manual setup |
-
-<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
-
-<Accordion title="What the setup methods mean">
-  - **Manual setup**: enter the API Key, Base URL, and Model.
-  - **Not supported**: no verified direct setup is currently available.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ## Technical details
 

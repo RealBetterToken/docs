@@ -1,11 +1,13 @@
 ---
 title: "BetterToken で Claude モデルを Claude Desktop に接続する"
 sidebarTitle: "Claude Desktop"
-description: "Base URL と API Key を使って、Claude Desktop Gateway で BetterToken の Claude プロバイダーを設定します。"
+description: "Gateway 接続先、BetterToken API Key、Claude モデルを使って Claude Desktop を設定します。認証、モデル選択、再起動の手順を確認できます。"
 icon: "terminal"
 ---
 
-このページでは、BetterToken の **Claude プロバイダー**向け Claude Desktop 直接設定のみを説明します。BetterToken API Key、`{{anthropic-base-url}}`、`x-api-key` を入力してから Claude Desktop を再起動してください。GPT、Codex、その他の非 Claude プロバイダーには、[Claude Desktop カスタム API Endpoint ガイド](/ja/faq/claude-desktop/third-party-models)を使用してください。
+Claude Desktop で使用できるのは Claude モデルのみです。これは Claude Desktop クライアントの制限です。
+
+モデル広場から利用可能な Claude Model ID をコピーし、保存して Claude Desktop を再起動します。
 
 ## 主要設定
 
@@ -13,12 +15,12 @@ icon: "terminal"
 | --- | --- |
 | API Key | BetterToken API Key |
 | Base URL | `{{anthropic-base-url}}` |
-| Model | Claude プロバイダーのモデル |
+| Model | Claude |
 
 ## 事前準備
 
 - <a href={"{{register-url}}"}>BetterToken API Key を作成してコピー</a>
-- API Key で Claude プロバイダーのモデルを利用できることを確認
+- <a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 
 ## サブスクリプションと API 課金を分ける
 
@@ -116,34 +118,17 @@ Gateway リクエストは BetterToken API Key と BetterToken 残高を使用�
 | --- | --- |
 | Gateway に接続できない | **Gateway base URL** には正確に `{{anthropic-base-url}}` を使用します。`/v1` は追加しません。 |
 | リクエストが `401` を返す | BetterToken API Key をもう一度コピーし、認証方式が `x-api-key` であることを確認します。 |
-| Claude モデルが表示されない | API Key で Claude プロバイダーのモデルを利用できることを確認し、設定ウィンドウを開き直します。 |
+| Claude モデルが表示されない | モデル広場から利用可能な Claude Model ID をコピーし、保存して Claude Desktop を再起動します。 |
 | 設定が適用されない | Claude Desktop を完全に終了して開き直し、**Continue with Gateway** を選択します。 |
 
 ## 高度な設定
 
-Claude Desktop で GPT、Kimi、GLM、または他の Claude 以外のプロバイダーを使うには、[CC Switch の Claude Desktop タブ](/ja/ai-tools/cc-switch#claude-desktop)を参照してください。CC Switch が API Format、モデルマッピング、プロキシ、再起動の手順を処理します。
+複数ツールの設定をまとめて管理する場合は [CC Switch](/ja/ai-tools/cc-switch) を参照してください。
 
-{/* tool-provider-support:start */}
-### 対応プロバイダー
-
-| プロバイダー | 対応状況 |
-| --- | --- |
-| Claude | 手動設定 |
-| GPT | 高度な設定 |
-| Kimi | 高度な設定 |
-| GLM | 高度な設定 |
-
-<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
-
-<Accordion title="設定方法の説明">
-  - **高度な設定**：CC Switch をインストールし、ローカルプロキシ、プロトコル変換、またはモデルマッピングを使用します。
-  - **手動設定**：API Key、Base URL、Model を入力します。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 関連ガイド
 
-- [Claude Desktop で外部モデルを使う](/ja/faq/claude-desktop/third-party-models)
+- [Claude Desktop のカスタム接続](/ja/faq/claude-desktop/third-party-models)
 - [CC Switch で BetterToken を設定する](/ja/ai-tools/cc-switch)
 - [Codex CLI でカスタムプロバイダーを設定する](/ja/ai-tools/codex)
 - [最新の CC Switch リリースをダウンロードする](https://github.com/farion1231/cc-switch/releases)

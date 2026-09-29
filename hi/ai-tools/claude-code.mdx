@@ -1,11 +1,11 @@
 ---
-title: "Claude Code सेटअप: Claude मॉडल, API Key और Base URL"
+title: "Claude Code इंस्टॉलेशन, API Key, Base URL और मॉडल"
 sidebarTitle: "Claude Code"
-description: "Claude Code इंस्टॉल करें, command line या settings file से BetterToken API Key और Base URL सेट करें तथा Kimi या GLM मॉडल map करें। सेटअप, उदाहरण और समाधान।"
+description: "अपनी BetterToken API Key, Base URL BetterToken और चुनी हुई Model ID से Claude Code कनेक्ट करें। कॉन्फ़िगरेशन में Model ID बदलकर Claude Code को फिर से शुरू करें। सत्र के दौरान बदलने के लिए /model YOUR_MODEL_ID इस्तेमाल करें।"
 icon: "terminal"
 ---
 
-Claude मॉडल terminal variable या settings file से सीधे कनेक्ट होते हैं। Kimi और GLM समान Base URL के साथ स्पष्ट मॉडल mapping उपयोग करते हैं। शुरुआत के लिए [Claude Code custom API endpoint, API Key और Base URL guide](/hi/faq/claude-code/api-key-base-url) देखें। GPT के लिए [उन्नत सेटअप](#advanced-setup) आवश्यक है।
+अपनी BetterToken API Key, Base URL `{{anthropic-base-url}}` और चुनी हुई Model ID से Claude Code कनेक्ट करें। <a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 
 ## मुख्य सेटिंग
 
@@ -13,7 +13,7 @@ Claude मॉडल terminal variable या settings file से सीधे �
 | --- | --- |
 | API Key | BetterToken API Key |
 | Base URL | `{{anthropic-base-url}}` |
-| Model | Claude Code द्वारा प्रबंधित |
+| Model | `YOUR_MODEL_ID` |
 
 ## आवश्यकताएं
 
@@ -48,33 +48,12 @@ BetterToken automatic setup script Claude Code प्रदाता configurati
 
 ## मैन्युअल सेटअप
 
-### Claude प्रदाता सेट करें
-
-Claude Code CLI ये file पढ़ता है:
-
 | System | File |
 | --- | --- |
 | macOS / Linux | `~/.claude/settings.json` |
 | Windows | `%USERPROFILE%\.claude\settings.json` |
 
-यह जोड़ें:
-
-```json
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "API_TIMEOUT_MS": "3000000"
-  }
-}
-```
-
-Claude प्रदाता को केवल ये चार variable चाहिए। `ANTHROPIC_MODEL` या `ANTHROPIC_DEFAULT_*_MODEL` न जोड़ें।
-
-### Kimi या GLM प्रदाता सेट करें
-
-Kimi और GLM को उसी `settings.json` में मॉडल mapping चाहिए। हर `YOUR_MODEL_ID` को Setup dialog या मॉडल प्लाज़ा के Model ID से बदलें:
+<a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 
 ```json
 {
@@ -83,6 +62,7 @@ Kimi और GLM को उसी `settings.json` में मॉडल mapping 
     "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "YOUR_MODEL_ID",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
@@ -90,9 +70,9 @@ Kimi और GLM को उसी `settings.json` में मॉडल mapping 
 }
 ```
 
-तीनों mapping में एक Model ID या समान प्रदाता के अलग मॉडल उपयोग किए जा सकते हैं। यहां GPT Model ID न डालें; पेज के अंत में उन्नत सेटअप उपयोग करें।
+`YOUR_MODEL_ID` को कॉपी की गई ID से बदलें। मुख्य मॉडल के लिए `ANTHROPIC_MODEL` और Haiku, Sonnet तथा Opus के लिए तीन `ANTHROPIC_DEFAULT_*_MODEL` वेरिएबल सेट करें। सभी भूमिकाओं के लिए एक मॉडल या अलग-अलग मॉडल चुन सकते हैं।
 
-### Claude Code VS Code extension सेट करें
+### VS Code एक्सटेंशन
 
 Extension VS Code `settings.json` उपयोग करता है। अलग `claudeCode.environmentVariables` configuration जोड़ें:
 
@@ -114,12 +94,26 @@ Extension VS Code `settings.json` उपयोग करता है। अल�
     {
       "name": "API_TIMEOUT_MS",
       "value": "3000000"
+    },
+    {
+      "name": "ANTHROPIC_MODEL",
+      "value": "YOUR_MODEL_ID"
+    },
+    {
+      "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+      "value": "YOUR_MODEL_ID"
+    },
+    {
+      "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
+      "value": "YOUR_MODEL_ID"
+    },
+    {
+      "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
+      "value": "YOUR_MODEL_ID"
     }
   ]
 }
 ```
-
-**Developer: Reload Window** चलाएं या VS Code को पूरी तरह restart करें।
 
 ## कनेक्शन सत्यापित करें
 
@@ -133,9 +127,7 @@ claude
 
 ## मॉडल बदलें
 
-- Claude प्रदाता: Claude Code को मॉडल चयन प्रबंधित करने दें। `ANTHROPIC_MODEL` या `ANTHROPIC_DEFAULT_*_MODEL` न जोड़ें।
-- Kimi या GLM प्रदाता: `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` और `ANTHROPIC_DEFAULT_OPUS_MODEL` बदलें, फिर Claude Code को पूरी तरह restart करें।
-- GPT प्रदाता: मॉडल बदलने के लिए नीचे [उन्नत सेटअप](#advanced-setup) का पालन करें।
+कॉन्फ़िगरेशन में Model ID बदलकर Claude Code को फिर से शुरू करें। सत्र के दौरान बदलने के लिए `/model YOUR_MODEL_ID` इस्तेमाल करें।
 
 ## सामान्य त्रुटियां
 
@@ -143,31 +135,12 @@ claude
 | --- | --- |
 | `401` या authentication विफल | `ANTHROPIC_AUTH_TOKEN` जांचें और API Key के आसपास के space हटाएं। |
 | `ConnectionRefused` | ठीक `{{anthropic-base-url}}` उपयोग करें; `/v1` न जोड़ें। |
-| मॉडल नहीं मिला | Claude के लिए मॉडल manually सेट न करें। Kimi या GLM में जांचें कि तीनों `ANTHROPIC_DEFAULT_*_MODEL` मान मौजूदा Model ID उपयोग करते हैं। |
+| Model ID | model plaza में सही Model ID जाँचें और उसे क्लाइंट की मॉडल सेटिंग में दर्ज करें। |
 | Configuration लागू नहीं | File path जांचें, टकराने वाले environment variable हटाएं और Claude Code को पूरी तरह restart करें। |
 
 ## उन्नत सेटअप
 
-{/* tool-provider-support:start */}
-### समर्थित provider
-
-| Provider | स्थिति |
-| --- | --- |
-| Claude | कमांड लाइन + मैन्युअल सेटअप |
-| GPT | उन्नत सेटअप |
-| Kimi | मैन्युअल सेटअप |
-| GLM | मैन्युअल सेटअप |
-
-<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
-
-<Accordion title="सेटअप के तरीकों का अर्थ">
-  - **उन्नत सेटअप**: CC Switch इंस्टॉल करें और local proxy, protocol conversion या model mapping का उपयोग करें।
-  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
-  - **कमांड लाइन + मैन्युअल सेटअप**: तैयार कमांड का उपयोग करें या पूरे मैन्युअल चरणों का पालन करें।
-</Accordion>
-{/* tool-provider-support:end */}
-
-Claude Code में GPT उपयोग करने के लिए [BetterToken के साथ CC Switch](/hi/ai-tools/cc-switch#claude-code) से सेट करें। Claude Code tab में API Key, Base URL और Model Mapping दर्ज करें, फिर proxy चालू करें।
+कई टूल की सेटिंग एक जगह प्रबंधित करने के लिए [CC Switch](/hi/ai-tools/cc-switch) देखें।
 
 ### संबंधित FAQ
 

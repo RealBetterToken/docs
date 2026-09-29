@@ -1,7 +1,7 @@
 ---
 title: "Configurar BetterToken en Dify: API Key, Base URL y modelos personalizados"
 sidebarTitle: "Dify"
-description: "Conecta Dify con BetterToken mediante una Base URL, una API Key y un modelo de un proveedor compatible; después, verifica la conexión y corrige los errores habituales."
+description: "Conecta Dify con BetterToken mediante una Base URL, una API Key y un modelo disponible; después, verifica la conexión y corrige los errores habituales."
 icon: "layer-group"
 ---
 
@@ -67,7 +67,7 @@ Usa estos valores para el primer modelo:
 | Campo de Dify | Valor recomendado |
 |---|---|
 | Model Type | `LLM` |
-| Model Name | Un ID de modelo de un proveedor compatible de la model plaza |
+| Model Name | Un ID de modelo disponible de la model plaza |
 | Model display name | Puedes usar el mismo valor que en Model Name |
 | API Key | Tu BetterToken API Key |
 | API Base URL | `{{openai-base-url}}` |
@@ -124,14 +124,14 @@ Envía un prompt de prueba breve. Si la herramienta responde sin errores de aute
 
 Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa el ID de modelo exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a> y reinicia la sesión actual.
 
-Dify guarda una configuración personalizada para cada ID de modelo. Para añadir otro modelo de un proveedor compatible, vuelve a hacer clic en **Add Model** bajo el mismo proveedor. Usa el ID nuevo tanto en **Model Name** como en **model name for API endpoint**. Puedes reutilizar la Base URL y la API Key.
+Dify guarda una configuración personalizada para cada ID de modelo. Para añadir otro modelo disponible, vuelve a hacer clic en **Add Model** bajo el mismo proveedor. Usa el ID nuevo tanto en **Model Name** como en **model name for API endpoint**. Puedes reutilizar la Base URL y la API Key.
 
 ## Errores habituales
 
 ### Guardar devuelve 401
 
 - Comprueba que la API Key esté completa
-- Confirma que el ID del modelo proceda del **proveedor compatible**
+- Copia el Model ID exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - Comprueba el estado de la Key y el saldo en el Dashboard de BetterToken
 
 ### Guardar devuelve 404
@@ -142,7 +142,7 @@ Dify guarda una configuración personalizada para cada ID de modelo. Para añadi
 
 ### Dify indica que no encuentra el modelo
 
-**Model Name** puede afectar a cómo Dify muestra y selecciona el modelo. **model name for API endpoint** controla el modelo real de la solicitud. Usa el mismo ID de modelo de un proveedor compatible en ambos campos.
+**Model Name** puede afectar a cómo Dify muestra y selecciona el modelo. **model name for API endpoint** controla el modelo real de la solicitud. Usa el mismo ID de modelo disponible en ambos campos.
 
 ### El chat funciona, pero fallan las herramientas del Agent
 
@@ -153,24 +153,6 @@ Vuelve a establecer **Function Call Type** en `Not Support` y verifica un nodo L
 Es el comportamiento esperado. Un LLM de chat no puede sustituir un modelo de embedding. Esta guía no confirma endpoints de embedding ni rerank de BetterToken para Dify; configura por separado un proveedor de embedding compatible para Knowledge.
 
 ## Configuración avanzada
-
-{/* tool-provider-support:start */}
-### Proveedores compatibles
-
-| Proveedor | Estado |
-| --- | --- |
-| Claude | No compatible |
-| GPT | Configuración manual |
-| Kimi | Configuración manual |
-| GLM | Configuración manual |
-
-<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
-
-<Accordion title="Qué significa cada método de configuración">
-  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
-  - **No compatible**: todavía no hay un método de conexión directa verificado.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Guías relacionadas
 

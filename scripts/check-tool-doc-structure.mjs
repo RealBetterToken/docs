@@ -4,10 +4,9 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { syncToolProviderSupport } from './sync-tool-provider-support.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const data = JSON.parse(await readFile(path.join(rootDir, 'data', 'tool-provider-support.json'), 'utf8'));
+const data = JSON.parse(await readFile(path.join(rootDir, 'data', 'tool-doc-structure.json'), 'utf8'));
 const oldTerms = [
   /GPT 分组/i,
   /Claude 分组/i,
@@ -120,7 +119,7 @@ async function collectMdx(directory) {
 for (const tool of Object.keys(data.tools)) {
   for (const [locale, headings] of Object.entries(required)) {
     const directory = locale === 'ru' ? '' : locale;
-    const relativePagePath = data.pagePaths?.[tool] ?? path.join('ai-tools', tool);
+    const relativePagePath = data.tools[tool].pagePath;
     const pagePath = path.join(rootDir, directory, `${relativePagePath}.mdx`);
     const source = await readFile(pagePath, 'utf8');
 
@@ -145,23 +144,23 @@ for (const tool of Object.keys(data.tools)) {
         `^## (?:${acceptedHeadings.map(escapeRegex).join('|')})$`,
         'm',
       ));
+      if (heading === headings[7] && !headingMatch) continue;
       assert(headingMatch, `${pagePath} is missing "${heading}"`);
       const currentIndex = headingMatch.index;
       assert.ok(currentIndex > previousIndex, `${pagePath} has "${heading}" out of order`);
       previousIndex = currentIndex;
     }
-    assert.match(source, /\{\/\* tool-provider-support:start \*\/\}/, `${pagePath} is missing provider support markers`);
-    assert.match(source, /\{\/\* tool-provider-support:end \*\/\}/, `${pagePath} is missing provider support markers`);
+    assert.doesNotMatch(source, /tool-provider-support:(?:start|end)/, `${pagePath} still contains a provider support table`);
     for (const term of oldTerms) {
       assert.doesNotMatch(source, term, `${pagePath} still uses an old key-group term`);
     }
-    if (Object.values(data.tools[tool]).includes('cli_manual')) {
+    if (data.tools[tool].commandLineSetup) {
       const acceptedCommandHeadings = commandHeadingAliases[locale] ?? [commandHeading[locale]];
       const commandMatch = source.match(new RegExp(
         `^## (?:${acceptedCommandHeadings.map(escapeRegex).join('|')})$`,
         'm',
       ));
-      assert(commandMatch, `${pagePath} is missing the command-line setup required by the provider matrix`);
+      assert(commandMatch, `${pagePath} is missing command-line setup`);
       const installHeadings = headingAliases[locale]?.[headings[2]] ?? [headings[2]];
       const manualHeadings = headingAliases[locale]?.[headings[3]] ?? [headings[3]];
       const installMatch = source.match(new RegExp(`^## (?:${installHeadings.map(escapeRegex).join('|')})$`, 'm'));
@@ -177,7 +176,7 @@ for (const tool of Object.keys(data.tools)) {
       assert.doesNotMatch(
         source,
         new RegExp(`^## ${commandHeading[locale]}$`, 'm'),
-        `${pagePath} documents command-line setup that is not supported by the provider matrix`
+        `${pagePath} documents command-line setup not listed in the tool registry`
       );
     }
     assert.doesNotMatch(
@@ -187,35 +186,15 @@ for (const tool of Object.keys(data.tools)) {
     );
     const advancedHeadings = headingAliases[locale]?.[headings[7]] ?? [headings[7]];
     const advancedMatch = source.match(new RegExp(`^## (?:${advancedHeadings.map(escapeRegex).join('|')})$`, 'm'));
-    const advancedIndex = advancedMatch.index;
-    const providerStartIndex = source.indexOf('{/* tool-provider-support:start */}');
-    const technicalHeadings = headingAliases[locale]?.[headings.at(-1)] ?? [headings.at(-1)];
-    const technicalMatch = source.match(new RegExp(`^## (?:${technicalHeadings.map(escapeRegex).join('|')})$`, 'm'));
-    const technicalIndex = technicalMatch.index;
-    assert.ok(
-      advancedIndex < providerStartIndex && providerStartIndex < technicalIndex,
-      `${pagePath} must place provider support inside Advanced setup`
-    );
-    const sourceWithoutProviderTable = source.replace(
-      /\{\/\* tool-provider-support:start \*\/\}[\s\S]*?\{\/\* tool-provider-support:end \*\/\}/,
-      ''
-    );
-    const ccSwitchIndex = sourceWithoutProviderTable.indexOf('CC Switch');
+    const ccSwitchIndex = source.indexOf('CC Switch');
     if (ccSwitchIndex >= 0) {
-      const advancedIndexWithoutProviderTable = sourceWithoutProviderTable.search(new RegExp(
-        `^## (?:${advancedHeadings.map(escapeRegex).join('|')})$`,
-        'm',
-      ));
       assert.ok(
-        advancedIndexWithoutProviderTable >= 0
-          && ccSwitchIndex > advancedIndexWithoutProviderTable,
+        advancedMatch && ccSwitchIndex > advancedMatch.index,
         `${pagePath} mentions CC Switch outside the advanced section`
       );
     }
   }
 }
-
-await syncToolProviderSupport({check: true});
 
 for (const pagePath of await collectMdx(rootDir)) {
   const source = await readFile(pagePath, 'utf8');
@@ -225,4 +204,4 @@ for (const pagePath of await collectMdx(rootDir)) {
   assert.doesNotMatch(source, /Key group|key group|Группа ключа|группа ключа/i);
 }
 
-console.log('Tool documentation structure and provider support tables are valid.');
+console.log('Tool documentation structure is valid.');

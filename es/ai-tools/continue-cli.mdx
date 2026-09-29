@@ -1,7 +1,7 @@
 ---
 title: "Configurar Continue CLI: instalación, API Key, Base URL y modelos personalizados"
 sidebarTitle: "Continue CLI"
-description: "Instala Continue CLI, configura la Base URL y la API Key de BetterToken, elige un modelo de un proveedor compatible y corrige los errores habituales. Más."
+description: "Instala Continue CLI, configura la Base URL y la API Key de BetterToken, elige un modelo disponible y corrige los errores habituales. Más."
 icon: "terminal"
 ---
 
@@ -110,7 +110,7 @@ cn --version
         useResponsesApi: false
     ```
 
-    `YOUR_MODEL_ID` es solo un ejemplo. Sustitúyelo por un **ID de modelo de un proveedor compatible** vigente en la model plaza.
+    `YOUR_MODEL_ID` es solo un ejemplo. Sustitúyelo por un **ID de modelo disponible** vigente en la model plaza.
   </Step>
 
   <Step title="Inicia Continue CLI">
@@ -155,7 +155,7 @@ Abre el selector de modelos o cambia el campo `Model` de la configuración. Usa 
 | Síntoma | Qué hacer |
 | --- | --- |
 | `401`, `Unauthorized` o error de API Key | Confirma que `BETTERTOKEN_API_KEY` esté definida en la terminal actual y sea una BetterToken API Key. |
-| `model not found` o modelo no disponible | Copia un **ID de modelo de un proveedor compatible** vigente desde la model plaza. No uses un modelo del proveedor Claude. |
+| `model not found` | Comprueba el Model ID exacto en la model plaza e introdúcelo en los ajustes del modelo del cliente. |
 | Continue sigue usando una configuración antigua | Inicia con `cn --config` y la ruta explícita del archivo. Comprueba que el nombre sea `config.yaml`. |
 | URL de solicitud incorrecta o `404` | Confirma que `apiBase` sea `{{openai-base-url}}`. No añadas `/chat/completions` ni un nombre de modelo. |
 | La variable de la API Key no se resuelve | Define `BETTERTOKEN_API_KEY` en la misma terminal que inicia `cn` y vuelve a ejecutarlo. |
@@ -175,24 +175,6 @@ Sí. `provider: openai` con `useResponsesApi: false` usa Chat Completions compat
 Introduce `/config` en una sesión de Continue CLI para consultar y seleccionar configuraciones locales.
 
 ## Configuración avanzada
-
-{/* tool-provider-support:start */}
-### Proveedores compatibles
-
-| Proveedor | Estado |
-| --- | --- |
-| Claude | No compatible |
-| GPT | Configuración manual |
-| Kimi | Configuración manual |
-| GLM | Configuración manual |
-
-<Note>Los estados se aplican al método de configuración de BetterToken descrito en esta página.</Note>
-
-<Accordion title="Qué significa cada método de configuración">
-  - **Configuración manual**: introduce la API Key, la Base URL y el Model.
-  - **No compatible**: todavía no hay un método de conexión directa verificado.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Guías relacionadas
 

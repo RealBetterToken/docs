@@ -19,8 +19,9 @@
 
 - Use `Claude Code` and `Codex CLI` as product names. Do not invent shortened names.
 - Use `external tools` / `外部工具` for tools such as Cursor, Cline, Zed, Roo Code, OpenClaw, and similar clients.
-- Treat `GPT`, `Kimi`, `GLM`, and `Claude` as model providers, not API Key groups. Use `提供商` in Chinese, `provider` in English, and `провайдер` in Russian.
-- Call the credential a `BetterToken API Key`; do not use `GPT group`, `Claude group`, `Key group`, or their Chinese/Russian equivalents.
+- Call the credential a `BetterToken API Key`. It works with all available models; do not describe BetterToken groups, provider selection, or model-specific Key permissions.
+- Keep client configuration fields and UI labels such as `provider`, `model_provider`, and **Add Provider** when required by the external tool.
+- Claude Code can call models such as GPT directly through BetterToken's Anthropic Messages endpoint. Claude Desktop supports only Claude models because of a client limitation, not a Key restriction.
 - Use `model plaza` / `模型广场` when referring users to the model selection page.
 - Use `Base URL` exactly in both Chinese and English pages when describing endpoints.
 - Distinguish the two access modes clearly:
@@ -36,8 +37,8 @@
 - Bold UI labels and important on-page actions.
 - Use code formatting for commands, environment variables, file paths, endpoints, and model IDs.
 - Prefer concrete setup guidance over marketing language.
-- When documenting external-tool setup, tell readers which endpoint, auth field, and model group to use.
-- Keep Chinese, English, and Russian pages aligned in meaning. Any user-facing documentation change should be synchronized across all three languages unless the user explicitly asks for one language only.
+- When documenting external-tool setup, tell readers which endpoint, auth field, and Model ID to use.
+- Keep all ten language versions aligned in meaning. Synchronize user-facing documentation changes across all locales unless the user explicitly limits the language scope.
 
 ## User-facing documentation standard
 
@@ -84,7 +85,7 @@
 - For behavior changes in docs, update nearby examples, troubleshooting notes, and FAQ entries if needed.
 - Use linear, monochrome sidebar icons for custom product pages. Custom SVG icons should use `currentColor` strokes and avoid filled brand colors so they match the rest of the navigation.
 - Every page listed in the Coding Agent setup navigation group must include a frontmatter `icon`. Configuration-tool pages under Getting started, such as CC Switch, are not part of this requirement.
-- Provider compatibility tables are maintained in `data/tool-provider-support.json`. Run `node scripts/sync-tool-provider-support.mjs` after changing the matrix and `node scripts/check-tool-doc-structure.mjs` before publishing.
+- Tool documentation paths and command-line setup capabilities are maintained in `data/tool-doc-structure.json`. Run `node scripts/check-tool-doc-structure.mjs` before publishing. Do not generate provider compatibility tables.
 - Wrap screenshots in MDX with `<Frame>` and an inner `<img>` tag, including descriptive `alt` text and `style={{ borderRadius: '0.5rem' }}`. Follow the same pattern as `faq/claude-desktop-bettertoken-api.mdx`.
 - Store screenshots and other page-specific images under a dedicated folder in `images/<page-slug>/`. Follow the same pattern as `images/quickstart/`.
 - Use `images/temp/` only as a temporary holding area while collecting assets. Before finishing a docs change, move any referenced image into its final page-specific folder and update the MDX path.

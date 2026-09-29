@@ -1,10 +1,10 @@
 ---
-title: "BetterToken プロバイダー向け CC Switch 高度な設定"
+title: "CC Switch で BetterToken を設定する"
 sidebarTitle: "CC Switch"
-description: "CC Switch で Claude Code、Claude Desktop、Codex CLI、OpenCode、OpenClaw 用の BetterToken プロバイダー、モデルマッピング、プロキシ設定を管理します。"
+description: "CC Switch で Claude Code、Claude Desktop、Codex CLI、OpenCode、OpenClaw の BetterToken API Key、接続先、モデルを管理します。"
 ---
 
-CC Switch は Claude Code、Claude Desktop、Codex、OpenCode、OpenClaw のプロバイダーを管理するクロスプラットフォームのデスクトップアプリです。このページでは高度な設定をまとめます。まず各ツールの直接設定ページを確認し、プロバイダーの切り替えやネイティブではないモデルの実行が必要な場合にのみ CC Switch を使用してください。
+CC Switch は Claude Code、Claude Desktop、Codex CLI、OpenCode、OpenClaw の API Key、接続先、モデル設定を管理する任意のデスクトップアプリです。
 
 ## CC Switch をインストールする
 
@@ -29,9 +29,8 @@ CC Switch は Claude Code、Claude Desktop、Codex、OpenCode、OpenClaw のプ�
 
 - BetterToken API Key（<a href={"{{register-url}}"}>登録して取得</a>）
 - Claude Code は Anthropic プロトコルを使用するため、`Base URL` は `{{anthropic-base-url}}` です
-- Claude プロバイダー以外で Claude Desktop を使用するには、最新の Claude Desktop と CC Switch `v3.16.5` 以降が必要です
 - Codex、OpenCode、OpenClaw は OpenAI 互換プロトコルを使用するため、`Base URL` は `{{openai-base-url}}` です
-- Codex、OpenCode、OpenClaw 用に現在の **GPT プロバイダー**のモデル ID を 1 つ用意します。<a href={"{{model-plaza-url}}"}>BetterToken モデル広場</a>からコピーするか、CC Switch に `/v1/models` から取得させます
+- Codex、OpenCode、OpenClaw 用に現在のモデル ID を 1 つ用意します。<a href={"{{model-plaza-url}}"}>BetterToken モデル広場</a>からコピーするか、CC Switch に `/v1/models` から取得させます
 
 <Info>
   初回起動時に、CC Switch はマシン上ですでに見つかった設定を自動的にインポートします。公式プロバイダーをフォールバックとして残し、BetterToken を並行して追加できます。
@@ -45,168 +44,25 @@ CC Switch は Claude Code、Claude Desktop、Codex、OpenCode、OpenClaw のプ�
 
 <Tabs>
   <Tab title="Claude Code" id="claude-code">
-    <Steps>
-      <Step title="CC Switch で Claude Code を開き、プロバイダーを追加する">
-        CC Switch を開き、**Claude Code** に切り替えて **Add Provider** をクリックします。
+    CC Switch で **Claude Code** を選び、**Add Provider** をクリックしてください。
 
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-add-provider.png"
-            alt="CC Switch の Claude Code ページ。右上の追加ボタンで新しいプロバイダーを作成します。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
+    BetterToken API Key、Base URL `{{anthropic-base-url}}`、使用する Model ID を設定して Claude Code に接続します。
 
-      <Step title="基本項目を入力する">
-        - **Provider Name**: `BetterToken-claude`（プロバイダーを識別しやすい別の名前でも可）
-        - **Base URL**: `{{anthropic-base-url}}`
-        - **API Key**: BetterToken API Key
-        - **API Format**: `OpenAI Responses API`
+    - **Provider Name**: `BetterToken`
+    - **API Key**: `YOUR_API_KEY`
+    - **API Endpoint**: `{{anthropic-base-url}}`
 
-        スクリーンショットの番号はこれらの項目に対応します。
+    Anthropic Messages API 形式を使用します。**Model Mapping** に選択した Model ID を入力して保存します。
 
-        1. **Provider Name**
-        2. **API Key**
-        3. **Base URL**
+    <a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-basic-fields.png"
-            alt="CC Switch の Claude Code プロバイダー編集ページ。Provider Name、API Key、API Endpoint の入力場所を示しています。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="プロバイダーに応じてモデルマッピングを設定する">
-        - **Claude プロバイダー**を使用する場合、通常は Advanced Options やモデルマッピングを変更する必要はありません
-        - **GPT プロバイダー**を使用する場合は、以下の追加設定を行います。
-
-        1. **Advanced Options** を開きます
-        2. **API Format** を **OpenAI Responses API** に設定します
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-api-format.png"
-            alt="CC Switch の Advanced Options セクション。API Format は OpenAI Responses API に設定されています。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        3. **Model Mapping** で **Fetch Model List** をクリックします
-        4. **Primary Model**、**Thinking Model**、**Haiku Default Model**、**Sonnet Default Model**、**Opus Default Model** の各ドロップダウンから値を明示的に選択します
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-model-mapping.png"
-            alt="CC Switch のモデルマッピングセクション。Fetch Model List と Primary、Thinking、Haiku、Sonnet、Opus モデルのマッピングを示しています。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        これらすべてのモデルには、<a href={"{{model-plaza-url}}"}>BetterToken モデル広場</a>にある現在の **GPT プロバイダー**のモデル ID を使用します。
-      </Step>
-
-      <Step title="保存、切り替え、プロキシを有効にするか決める">
-        保存後、プロバイダーリストに戻ります。
-
-        1. BetterToken プロバイダーをアクティブにします
-        2. **Claude プロバイダー**を使用する場合、左上の **CC Switch proxy** を有効にする必要はありません
-        3. **GPT プロバイダー**を使用する場合、**CC Switch proxy** を有効にします
-
-        以下のスクリーンショットでは、プロバイダーリストで BetterToken-claude が有効になっています。左上の **CC Switch proxy** を有効にするのは、**GPT プロバイダー**を使用する場合だけです。
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-enable-proxy.png"
-            alt="BetterToken-claude が選択され、In Use と表示された CC Switch のプロバイダーリスト。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-    </Steps>
+    設定を保存して BetterToken を有効にし、クライアントを完全に再起動します。
   </Tab>
 
   <Tab title="Claude Desktop" id="claude-desktop">
-    <Info>
-      このタブは GPT、Kimi、GLM など、Claude プロバイダー以外のプロバイダー用です。Claude プロバイダーには [Claude Desktop の直接設定](/ja/faq/claude-desktop-bettertoken-api) を使用してください。
-    </Info>
+    Claude Desktop で使用できるのは Claude モデルのみです。これは Claude Desktop クライアントの制限です。
 
-    <Steps>
-      <Step title="Claude Desktop に切り替え、プロバイダーを追加する">
-        CC Switch を開き、上部ツールバーの **Claude Desktop** アイコンを選択してから、右上の **+** をクリックします。
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
-            alt="CC Switch で Claude Desktop に切り替え、プラスボタンをクリックしてプロバイダーを追加します。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="基本項目を入力する">
-        - **Provider Name**: `BetterToken-GPT` など、識別しやすい名前
-        - **API Key**: BetterToken API Key
-        - **API Endpoint**: `{{anthropic-base-url}}`
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
-            alt="CC Switch で Claude Desktop 用の Provider Name、API Key、API Endpoint を入力します。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="API Format とモデルマッピングを設定する">
-        **API Format** で **OpenAI Responses API (Requires routing)** を選択し、**Fetch Models** をクリックします。
-
-        Sonnet、Opus、Fable、Haiku を使用したいモデル ID にマッピングします。
-
-| モデルの役割 | 指定するモデル |
-        | --- | --- |
-        | Sonnet | `YOUR_MODEL_ID` |
-        | Opus | `YOUR_MODEL_ID` |
-        | Fable | `YOUR_MODEL_ID` |
-        | Haiku | `YOUR_MODEL_ID` |
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
-            alt="OpenAI Responses API を選択し、CC Switch で Claude Desktop のモデルマッピングを設定します。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        <a href={"{{model-plaza-url}}"}>モデル広場</a>または API Key の **Setup** ダイアログから現在のモデル ID をコピーします。モデル広場でそのモデルが 1M コンテキストウィンドウに対応すると示されている場合にのみ **Declare 1M** を有効にします。
-      </Step>
-
-      <Step title="保存、切り替え、プロキシを有効にする">
-        プロバイダーを保存し、**In use** に設定してから、左上のプロキシスイッチをオンにします。
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
-            alt="Claude Desktop 用の BetterToken プロバイダーがアクティブで、CC Switch proxy が有効になっています。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="Claude Desktop を再起動する">
-        Claude Desktop を完全に終了してから開き直します。左下の **Gateway** が設定の有効化を示します。メッセージボックスのモデルメニューから、マッピング済みのモデルを選択します。
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
-            alt="Claude Desktop は再起動後に Gateway を表示し、CC Switch 経由でマッピングされたモデルを提供します。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-    </Steps>
+    [Claude Desktop ガイド](/ja/faq/claude-desktop-bettertoken-api)に従い、**Gateway**、Base URL `{{anthropic-base-url}}`、BetterToken API Key、**Gateway auth scheme** `x-api-key` を設定します。**Apply locally** で保存し、Claude Desktop を完全に再起動してください。
   </Tab>
 
   <Tab title="Codex" id="codex-cli">
@@ -285,7 +141,7 @@ CC Switch は Claude Code、Claude Desktop、Codex、OpenCode、OpenClaw のプ�
       </Step>
 
       <Step title="デフォルトモデルを選択する">
-        可能な場合は **Fetch Models** を使用します。モデルを手動で入力する必要がある場合は、<a href={"{{model-plaza-url}}"}>BetterToken モデル広場</a>にある現在の **GPT プロバイダー**のモデル ID を使用します。
+        可能な場合は **Fetch Models** を使用します。モデルを手動で入力する必要がある場合は、<a href={"{{model-plaza-url}}"}>BetterToken モデル広場</a>にある現在のモデル ID を使用します。
 
         OpenCode は保存されたプロバイダー設定を直接読み込むため、CC Switch proxy は不要です。
       </Step>
@@ -312,7 +168,7 @@ CC Switch は Claude Code、Claude Desktop、Codex、OpenCode、OpenClaw のプ�
       </Step>
 
       <Step title="デフォルトモデルを選択する">
-        可能な場合は **Fetch Models** を使用します。モデルを手動で入力する必要がある場合は、現在の **GPT プロバイダー**のモデル ID を使用します。
+        可能な場合は **Fetch Models** を使用します。モデルを手動で入力する必要がある場合は、現在のモデル ID を使用します。
 
         OpenClaw は保存されたプロバイダー設定を直接使用するため、CC Switch proxy は不要です。
       </Step>
@@ -341,11 +197,10 @@ CC Switch は、サードパーティプロバイダーに切り替えても公�
 ## よくある問題
 
 - Claude Code では、`/v1` を `Base URL` に追加しないでください
-- Claude Code で **GPT プロバイダー**を使用する場合、**Advanced Options** で **API Format** を **OpenAI Responses API** に設定します
-- Claude Code で **Claude プロバイダー**を使用する場合、**CC Switch proxy** を有効にする必要はありません
+
 - Claude Desktop で Claude プロバイダー以外を使用する場合、**CC Switch proxy** を有効にし、アプリを完全に再起動します
 - Codex、OpenCode、OpenClaw は `{{openai-base-url}}` を使用します
-- Codex、OpenCode、OpenClaw でモデルを求められた場合は、**GPT プロバイダー**のモデル ID を使用します
+- Codex、OpenCode、OpenClaw でモデルを求められた場合は、モデル ID を使用します
 - **Fetch Models** が失敗する場合は、API Key と `Base URL` を確認してからモデル ID を手動で貼り付けます
 - 切り替えが反映されない場合は、CC Switch で BetterToken がアクティブなプロバイダーであることを確認し、上記の説明どおりに対象のクライアントまたは Gateway を再起動します
 
@@ -359,7 +214,7 @@ CC Switch は、サードパーティプロバイダーに切り替えても公�
 
 ## 関連 FAQ
 
-- [Claude Desktop でサードパーティモデルと Codex を使用する](/ja/faq/claude-desktop/third-party-models)
+- [Claude Desktop のカスタム接続](/ja/faq/claude-desktop/third-party-models)
 - [OpenAI 互換 API と Anthropic 互換 API の違い](/ja/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP と API Key、Base URL の違い](/ja/faq/concepts/mcp-vs-api-key-base-url)
 - [model_provider、base_url、wire_api とは何ですか？](/ja/faq/codex/model-provider-base-url-wire-api)

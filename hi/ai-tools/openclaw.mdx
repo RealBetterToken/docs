@@ -5,7 +5,7 @@ description: "OpenClaw models.providers, BetterToken API Key, Base URL, OpenAI R
 icon: "paw"
 ---
 
-OpenClaw `~/.openclaw/openclaw.json` से BetterToken को कनेक्ट करता है। GPT प्रदाता मॉडल `openai-responses` और अन्य समर्थित प्रदाता `openai-completions` उपयोग करते हैं।
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## मुख्य सेटिंग
 
@@ -59,10 +59,10 @@ BetterToken automatic setup script OpenClaw configuration लिखता है
 
 ### OpenClaw सेट करें
 
-`~/.openclaw/openclaw.json` संपादित करें। केवल अपने Model ID के प्रदाता से मेल खाने वाला उदाहरण उपयोग करें।
+<a href={"{{model-plaza-url}}"}>model plaza</a> से सही Model ID कॉपी करें।
 
 <Tabs>
-  <Tab title="GPT: openai-responses">
+  <Tab title="Responses API">
     ```json
     {
       "models": {
@@ -91,7 +91,7 @@ BetterToken automatic setup script OpenClaw configuration लिखता है
     }
     ```
   </Tab>
-  <Tab title="Non-GPT: openai-completions">
+  <Tab title="Chat Completions">
     ```json
     {
       "models": {
@@ -122,7 +122,7 @@ BetterToken automatic setup script OpenClaw configuration लिखता है
   </Tab>
 </Tabs>
 
-मॉडल नाम से `api` का अनुमान न लगाएं। GPT `openai-responses` उपयोग करता है। GPT के अलावा किसी प्रदाता के लिए `openai-completions` तभी उपयोग करें जब मॉडल प्लाज़ा या Setup dialog compatibility की पुष्टि करे।
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## कनेक्शन सत्यापित करें
 
@@ -147,30 +147,11 @@ Validation pass हो, Gateway restart हो और मॉडल सूची 
 | --- | --- |
 | `config validate` विफल | JSON comma, quote और bracket जांचें। |
 | `401` | `apiKey` फिर कॉपी करें और space हटाएं। |
-| `404` या protocol त्रुटि | GPT को `openai-responses` और non-GPT को `openai-completions` उपयोग करना चाहिए। Base URL में Endpoint न जोड़ें। |
+| `404` | `openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`. |
 | मॉडल नहीं दिखता | पुष्टि करें कि वह प्रदाता मॉडल सूची और `agents.defaults.model.primary` दोनों में है। |
 | मौजूदा session पुराना मॉडल उपयोग करता है | `openclaw gateway restart` चलाएं और नया session बनाएं। |
 
 ## उन्नत सेटअप
-
-{/* tool-provider-support:start */}
-### समर्थित provider
-
-| Provider | स्थिति |
-| --- | --- |
-| Claude | समर्थित नहीं |
-| GPT | कमांड लाइन + मैन्युअल सेटअप |
-| Kimi | मैन्युअल सेटअप |
-| GLM | मैन्युअल सेटअप |
-
-<Note>ये स्थितियां केवल इस पेज पर बताए गए BetterToken सेटअप पर लागू होती हैं।</Note>
-
-<Accordion title="सेटअप के तरीकों का अर्थ">
-  - **कमांड लाइन + मैन्युअल सेटअप**: तैयार कमांड का उपयोग करें या पूरे मैन्युअल चरणों का पालन करें।
-  - **मैन्युअल सेटअप**: API Key, Base URL और Model दर्ज करें।
-  - **समर्थित नहीं**: सीधे सेटअप का कोई सत्यापित तरीका अभी उपलब्ध नहीं है।
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### संबंधित FAQ
 
@@ -186,5 +167,5 @@ Validation pass हो, Gateway restart हो और मॉडल सूची 
 ## तकनीकी विवरण
 
 <Accordion title="Responses और Chat Completions">
-  `openai-responses` से OpenClaw GPT प्रदाता मॉडल के लिए `/v1/responses` call करता है। `openai-completions` पुष्टि किए गए compatible non-GPT प्रदाता के लिए `/v1/chat/completions` call करता है। दोनों `{{openai-base-url}}` को `baseUrl` के रूप में उपयोग करते हैं।
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 </Accordion>

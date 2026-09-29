@@ -1,10 +1,10 @@
 ---
-title: "CC Switch 高级配置：管理 BetterToken provider"
+title: "CC Switch 配置 BetterToken"
 sidebarTitle: "CC Switch"
-description: "在 CC Switch 中集中管理 Claude Code、Claude Desktop、Codex CLI、OpenCode 和 OpenClaw 的 BetterToken provider、模型映射与代理设置。"
+description: "在 CC Switch 中管理 Claude Code、Claude Desktop、Codex CLI、OpenCode 和 OpenClaw 的 BetterToken API Key、接入地址和模型设置。"
 ---
 
-CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Claude Desktop、Codex、OpenCode 和 OpenClaw 的 provider 配置。这篇文档集中介绍这些工具的进阶接入方式。普通用户应先使用各工具页面中的直接配置；只有需要切换 provider 或使用非原生模型时，再使用 CC Switch。
+CC Switch 是可选的桌面配置管理工具，用来管理 Claude Code、Claude Desktop、Codex CLI、OpenCode 和 OpenClaw 的 API Key、接入地址与模型设置。
 
 ## 安装 CC Switch
 
@@ -29,9 +29,8 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Clau
 
 - BetterToken API Key（<a href={"{{register-url}}"}>注册并获取</a>）
 - Claude Code 使用 Anthropic 协议：`Base URL` 填 `{{anthropic-base-url}}`
-- Claude Desktop 使用非 Claude provider 时，需要最新版 Claude Desktop 和 CC Switch `v3.16.5` 或更新版本
 - Codex、OpenCode、OpenClaw 使用 OpenAI-compatible 协议：`Base URL` 填 `{{openai-base-url}}`
-- 给 Codex、OpenCode、OpenClaw 准备一个当前可用的 **GPT 提供商**模型 ID。你可以从 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
+- 给 Codex、OpenCode、OpenClaw 准备一个当前可用的模型 ID。你可以从 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 复制，或在 CC Switch 里用 **获取模型** 直接从 `/v1/models` 拉取
 
 <Info>
   CC Switch 首次启动时会自动导入本机已有的配置。你可以保留官方 provider 作为回退，再新增 BetterToken。
@@ -45,167 +44,25 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Clau
 
 <Tabs>
   <Tab title="Claude Code" id="claude-code">
-    <Steps>
-      <Step title="切到 Claude Code 并添加 provider">
-        打开 CC Switch，切到 **Claude Code**，点击 **Add Provider**。
+    在 CC Switch 中选择 **Claude Code**，点击 **Add Provider**。
 
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-add-provider.png"
-            alt="CC Switch 的 Claude Code 页面，右上角加号按钮用于新增 provider。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
+    使用 BetterToken API Key、Base URL `{{anthropic-base-url}}` 和你选择的 Model ID 接入 Claude Code。
 
-      <Step title="填写基础字段">
-        - **Provider Name**：`BetterToken-claude`（也可使用便于区分的名称）
-        - **Base URL**：`{{anthropic-base-url}}`
-        - **API Key**：你的 BetterToken API Key
+    - **Provider Name**: `BetterToken`
+    - **API Key**: `YOUR_API_KEY`
+    - **API Endpoint**: `{{anthropic-base-url}}`
 
-        下图中的标注对应：
+    使用 Anthropic Messages API 格式，在 **Model Mapping** 中填写你选择的模型 ID，然后保存配置。
 
-        1. **Provider Name**
-        2. **API Key**
-        3. **Base URL**
+    从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-basic-fields.png"
-            alt="CC Switch 的 Claude Code provider 编辑页面，标出了 Provider Name、API Key 和 API Endpoint 的填写位置。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="按所选 provider 设置 API Format 和模型映射">
-        - 如果你使用 **Claude 提供商**，通常不需要再调整高级选项或模型映射
-        - 如果你使用 **GPT 提供商**，请额外完成下面这些设置：
-
-        1. 打开 **高级选项**
-        2. 在 **API 格式** 中选择 **OpenAI Responses API**
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-api-format.png"
-            alt="CC Switch 的高级选项区域，API 格式被设置为 OpenAI Responses API。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        3. 在 **模型映射** 里点击 **获取模型列表**
-        4. 将 **主模型**、**推理模型（Thinking）**、**Haiku 默认模型**、**Sonnet 默认模型**、**Opus 默认模型** 都从下拉列表中显式选中
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-model-mapping.png"
-            alt="CC Switch 的模型映射区域，展示了获取模型列表以及主模型、Thinking、Haiku、Sonnet、Opus 的映射位置。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        这里使用的模型都应来自 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 当前可用的 **GPT 提供商**模型 ID。
-      </Step>
-
-      <Step title="保存、切换，并按接口格式决定是否开启代理">
-        保存后，回到渠道列表页：
-
-        1. 将刚保存的 BetterToken provider 设为 **使用中**
-        2. 如果你使用 **Claude 提供商**，不需要打开左上角的 **CC Switch 代理功能**
-        3. 如果你使用 **GPT 提供商**，再打开左上角的 **CC Switch 代理功能**
-
-        下图展示保存后在 provider 列表中确认 BetterToken-claude 已启用。只有使用 **GPT 提供商**时，才需要额外打开左上角的 **CC Switch 代理功能**。
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-enable-proxy.png"
-            alt="CC Switch provider 列表中，BetterToken-claude 已被选中并显示为 In Use。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-    </Steps>
+    保存配置，将 BetterToken 设为当前配置，然后完全重启客户端。
   </Tab>
 
   <Tab title="Claude Desktop" id="claude-desktop">
-    <Info>
-      这里仅介绍 GPT、Kimi、GLM 或其他非 Claude provider 的进阶配置。Claude provider 请使用 [Claude Desktop 直接接入教程](/zh/faq/claude-desktop-bettertoken-api)。
-    </Info>
+    Claude Desktop 仅支持 Claude 模型，这是 Claude Desktop 客户端的限制。
 
-    <Steps>
-      <Step title="切到 Claude Desktop 并添加 provider">
-        打开 CC Switch，点击顶部的 **Claude Desktop** 图标，然后点击右上角的 **+** 添加 provider。
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
-            alt="在 CC Switch 中切到 Claude Desktop，并点击右上角加号添加 provider。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="填写基础字段">
-        - **Provider Name**：使用便于识别的名称，例如 `BetterToken-GPT`
-        - **API Key**：你的 BetterToken API Key
-        - **API Endpoint**：`{{anthropic-base-url}}`
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
-            alt="CC Switch 的 Claude Desktop provider 编辑页，填写 Provider Name、API Key 和 API Endpoint。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="设置 API Format 和模型映射">
-        在 **API Format** 中选择 **OpenAI Responses API (Requires routing)**，然后点击 **Fetch Models**。
-
-        将 Sonnet、Opus、Fable 和 Haiku 映射到你要使用的模型 ID：
-
-        | Model role | Requested model |
-        | --- | --- |
-        | Sonnet | `YOUR_MODEL_ID` |
-        | Opus | `YOUR_MODEL_ID` |
-        | Fable | `YOUR_MODEL_ID` |
-        | Haiku | `YOUR_MODEL_ID` |
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
-            alt="CC Switch 中选择 OpenAI Responses API，并为 Claude Desktop 配置模型映射。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        从 <a href={"{{model-plaza-url}}"}>模型广场</a> 或该 API Key 的 **Setup** 弹窗复制当前可用的模型 ID。只有模型广场标记为 1M 上下文时，才勾选 **Declare 1M**。
-      </Step>
-
-      <Step title="保存、切换并开启代理">
-        保存 provider，将它设为 **In use**，然后打开左上角的代理开关。
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
-            alt="CC Switch 中 Claude Desktop 的 BetterToken provider 已启用，并打开左上角代理开关。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="重启 Claude Desktop">
-        完全退出 Claude Desktop 后重新打开。左下角显示 **Gateway** 即表示配置生效。你可以在输入框的模型菜单中选择映射后的模型。
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
-            alt="Claude Desktop 重启后左下角显示 Gateway，并可选择通过 CC Switch 映射的模型。"
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-    </Steps>
+    按照 [Claude Desktop 接入文档](/zh/faq/claude-desktop-bettertoken-api)配置 **Gateway**，Base URL 填写 `{{anthropic-base-url}}`，填入 BetterToken API Key，**Gateway auth scheme** 选择 `x-api-key`。点击 **Apply locally** 保存，然后完全重启 Claude Desktop。
   </Tab>
 
   <Tab title="Codex" id="codex-cli">
@@ -285,7 +142,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Clau
       </Step>
 
       <Step title="选择默认模型">
-        优先点击 **获取模型**。如果需要手动填写，请直接使用 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 中当前可用的 **GPT 提供商**模型 ID。
+        优先点击 **获取模型**。如果需要手动填写，请直接使用 <a href={"{{model-plaza-url}}"}>BetterToken 模型广场</a> 中当前可用的模型 ID。
 
         OpenCode 直接读取保存后的 provider 配置，不需要开启 CC Switch 代理。
       </Step>
@@ -312,7 +169,7 @@ CC Switch 是一款跨平台桌面工具，用来统一管理 Claude Code、Clau
       </Step>
 
       <Step title="选择默认模型">
-        优先点击 **获取模型**。如果需要手动填写，请使用当前可用的 **GPT 提供商**模型 ID。
+        优先点击 **获取模型**。如果需要手动填写，请使用当前可用的模型 ID。
 
         OpenClaw 直接使用保存后的 provider 配置，不需要开启 CC Switch 代理。
       </Step>
@@ -341,25 +198,23 @@ CC Switch 还可以在切换第三方 provider 时保留 Codex 官方登录，�
 ## 常见问题
 
 - Claude Code 的 `Base URL` 不要加 `/v1`
-- Claude Code 使用 **GPT 提供商**时，要在 **高级选项** 里把 **API 格式** 切到 **OpenAI Responses API**
-- Claude Code 使用 **Claude 提供商**时，不需要打开 **CC Switch 代理功能**
-- Claude Desktop 使用非 Claude provider 时，需要启用 **CC Switch 代理功能**并完全重启应用
+
 - Codex、OpenCode、OpenClaw 的 `Base URL` 要写 `{{openai-base-url}}`
-- Codex、OpenCode、OpenClaw 在工具要求填写模型时，请使用 **GPT 提供商**模型 ID，不要沿用 Claude 风格模型名
+- Codex、OpenCode、OpenClaw 在工具要求填写模型时，请使用 模型 ID，不要沿用 Claude 风格模型名
 - 如果 **获取模型** 失败，先检查 API Key 和 `Base URL`，再改为手动粘贴模型 ID
 - 如果切换后没有生效，先确认 BetterToken provider 已被设为当前 provider，再按上面的方式重启对应客户端或网关
 
 ## 相关页面
 
 - Claude Code 细节配置：[Claude Code](/zh/ai-tools/claude-code)
-- Claude Desktop 的 Claude provider 直接配置：[Claude Desktop](/zh/faq/claude-desktop-bettertoken-api)
+- Claude Desktop 的 Claude 直接配置：[Claude Desktop](/zh/faq/claude-desktop-bettertoken-api)
 - Codex 细节配置：[Codex](/zh/ai-tools/codex)
 - OpenCode 细节配置：[OpenCode](/zh/ai-tools/opencode)
 - OpenClaw 细节配置：[OpenClaw](/zh/ai-tools/openclaw)
 
 ## 相关 FAQ
 
-- [在 Claude Desktop 使用第三方模型与 Codex](/zh/faq/claude-desktop/third-party-models)
+- [Claude Desktop 自定义接入](/zh/faq/claude-desktop/third-party-models)
 - [OpenAI-compatible API 和 Anthropic-compatible API 有什么区别？](/zh/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP 和 API Key / Base URL 有什么区别？](/zh/faq/concepts/mcp-vs-api-key-base-url)
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)

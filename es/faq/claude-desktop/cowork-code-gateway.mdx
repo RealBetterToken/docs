@@ -10,36 +10,15 @@ Después de configurar BetterToken Gateway en Claude Desktop, los siguientes sí
 - El modo Code muestra `Claude Code process exited with code 1`
 - La misma API Key funciona en Claude Code CLI desde una terminal
 
-Estos problemas suelen tener dos causas distintas: el esquema de autenticación del Gateway de escritorio no coincide con el proveedor o la versión de Claude Code incluida en Claude Desktop aún no ha terminado de actualizarse.
-
 Si aún no has configurado el Gateway, empieza por [usar la API de BetterToken en Claude Desktop](/es/faq/claude-desktop-bettertoken-api).
 
 ## Corrige primero el modo Cowork
 
-**Causa principal**: **Gateway auth scheme** no coincide con el proveedor.
+Claude Desktop solo admite modelos Claude. Es una limitación del cliente Claude Desktop.
 
-En la configuración de Claude Desktop Gateway, elige el esquema de autenticación según el proveedor:
+Comprueba que la API Key esté completa y no haya vencido. Usa `x-api-key` en esta configuración Gateway, guarda y reinicia Claude Desktop.
 
-- Para un proveedor Claude, establece **Gateway auth scheme** en `x-api-key`
-- Para un proveedor GPT, establece **Gateway auth scheme** en `bearer`
-
-Después de seleccionar el esquema correcto, Claude Desktop obtiene automáticamente los modelos disponibles para ese grupo. Si el esquema no es correcto, el modo Cowork puede fallar al autenticarse con el Gateway.
-
-<Steps>
-  <Step title="Abre la configuración de inferencia de terceros">
-    En la barra de menús de macOS, elige **Developer** → **Configure Third-Party Inference...**.
-  </Step>
-
-  <Step title="Cambia el esquema de autenticación">
-    Elige **Gateway auth scheme** según el proveedor: usa `x-api-key` para un **proveedor Claude** y `bearer` para un **proveedor GPT**.
-  </Step>
-
-  <Step title="Guarda la configuración">
-    Haz clic en **Apply locally** para guardar la configuración local del Gateway.
-  </Step>
-</Steps>
-
-El modo Cowork suele volver a funcionar después de este cambio.
+Sigue la [guía de Claude Desktop](/es/faq/claude-desktop-bettertoken-api): selecciona **Gateway**, usa la Base URL `{{anthropic-base-url}}`, tu BetterToken API Key y **Gateway auth scheme** `x-api-key`. Pulsa **Apply locally** y reinicia Claude Desktop por completo.
 
 ## Corrige después los errores de cierre del modo Code
 
@@ -71,5 +50,5 @@ Si Cowork funciona, pero el modo Code —la pestaña `</>`— sigue mostrando `C
 
 | Síntoma | Causa habitual | Solución |
 |---------|-------------------|-----|
-| El modo Cowork no funciona | **Gateway auth scheme** no coincide con el proveedor | Usa `x-api-key` para un **proveedor Claude** o `bearer` para un **proveedor GPT** y, después, haz clic en **Apply locally** |
+| Cowork | Gateway auth scheme | Comprueba que la API Key esté completa y no haya vencido. Usa `x-api-key` en esta configuración Gateway, guarda y reinicia Claude Desktop. |
 | El modo Code muestra `Claude Code process exited with code 1` | Claude Desktop recurre a una versión anterior de Claude Code | Espera a que termine la descarga de la versión nueva, cierra por completo con **Cmd+Q** y vuelve a abrir la aplicación |

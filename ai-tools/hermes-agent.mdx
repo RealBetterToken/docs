@@ -30,7 +30,7 @@ icon: "user-astronaut"
 
 ### Дополнительные требования
 
-- выбранный Model ID доступен у провайдера **GPT**
+- выбранный Model ID указан в model plaza
 - macOS, Linux, Windows 10/11 или WSL2
 - модель с контекстом не менее 64K для работы Hermes Agent с инструментами
 
@@ -105,7 +105,7 @@ hermes doctor
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: ваш API Key BetterToken
-        - **Model**: Model ID провайдера **GPT** из <a href={"{{model-plaza-url}}"}>model plaza</a>
+        - **Model**: Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>
 
         Если Hermes запрашивает API mode, выберите вариант OpenAI-compatible Chat Completions. Если нужно указать context length, используйте опубликованное значение модели не ниже 64K.
       </Step>
@@ -154,8 +154,8 @@ hermes doctor
 ### Troubleshooting
 
 - Если запросы не отвечают или завершаются ошибкой, проверьте, что **Base URL** равен `{{openai-base-url}}`. Обычно здесь не нужно добавлять `/chat/completions`.
-- Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это Model ID поддерживаемого провайдера из <a href={"{{model-plaza-url}}"}>model plaza</a>.
-- Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что Model ID доступен у провайдера **GPT**.
+- Если Hermes сообщает, что модель не существует, проверьте, что **Model** — это Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Если возникает ошибка авторизации, проверьте лишние пробелы в API Key и убедитесь, что Model ID указан в model plaza.
 - Если Hermes все еще использует старую модель, завершите чат, снова сохраните custom endpoint через `hermes model` и начните новый чат.
 - BetterToken обычно не требует дополнительного `User-Agent` или custom headers. Добавляйте headers только если этого явно требует ваш custom gateway, tenant routing, observability или caching layer.
 
@@ -193,26 +193,6 @@ Reply with HERMES_OK only. Do not use tools.
 - [Как настроить OpenAI-compatible API в Cline](/faq/cline/openai-compatible-api)
 - [Настройка OpenClaw с BetterToken](/ai-tools/openclaw)
 
-## Расширенная настройка
-
-{/* tool-provider-support:start */}
-### Поддерживаемые провайдеры
-
-| Провайдер | Статус |
-| --- | --- |
-| Claude | Не поддерживается |
-| GPT | Ручная настройка |
-| Kimi | Ручная настройка |
-| GLM | Ручная настройка |
-
-<Note>Статусы относятся к способу подключения BetterToken, описанному на этой странице.</Note>
-
-<Accordion title="Что означают способы настройки">
-  - **Ручная настройка**: укажите API Key, Base URL и Model.
-  - **Не поддерживается**: проверенный способ прямого подключения пока отсутствует.
-</Accordion>
-{/* tool-provider-support:end */}
-
 ## Технические детали
 
 <Accordion title="Протокол, endpoint и внутренние параметры provider">
@@ -232,7 +212,7 @@ hermes claw migrate --dry-run
 hermes claw migrate
 ```
 
-После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `{{openai-base-url}}`, вашему API Key BetterToken и Model ID поддерживаемого провайдера.
+После миграции все равно проверьте **Base URL**, API Key и model ID в Hermes Agent. Они должны соответствовать `{{openai-base-url}}`, вашему API Key BetterToken и Model ID из model plaza.
 </Accordion>
 
 ## Официальная документация Hermes

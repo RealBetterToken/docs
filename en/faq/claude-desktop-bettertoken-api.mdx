@@ -1,11 +1,13 @@
 ---
 title: "BetterToken API for Claude Desktop: Claude Gateway Setup"
 sidebarTitle: "Claude Desktop"
-description: "Connect Claude Desktop to the BetterToken API with a BetterToken API Key, Anthropic-compatible Base URL, x-api-key authentication, Claude models, and setup."
+description: "Connect Claude Desktop to BetterToken with a custom Gateway endpoint, an API Key, and a Claude model. Check authentication, model selection, and restart steps."
 icon: "terminal"
 ---
 
-To connect Claude Desktop to the BetterToken API, enable Developer Mode, open **Configure Third-Party Inference**, select **Gateway**, enter your BetterToken API Key and `{{anthropic-base-url}}`, choose `x-api-key`, then restart Claude Desktop. This direct setup is for the **Claude provider** only. For GPT, Codex, or another non-Claude provider, use the [Claude Desktop custom API endpoint guide](/en/faq/claude-desktop/third-party-models).
+Claude Desktop supports only Claude models. This is a Claude Desktop client limitation.
+
+Copy an available Claude Model ID from the model plaza, save the configuration, and restart Claude Desktop.
 
 ## Key settings
 
@@ -13,12 +15,12 @@ To connect Claude Desktop to the BetterToken API, enable Developer Mode, open **
 | --- | --- |
 | API Key | BetterToken API Key |
 | Base URL | `{{anthropic-base-url}}` |
-| Model | Claude provider model |
+| Model | Claude |
 
 ## Prerequisites
 
 - <a href={"{{register-url}}"}>Create and copy a BetterToken API Key</a>
-- Confirm that the API Key can use Claude provider models
+- Copy the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 ## Separate subscription from API billing
 
@@ -116,34 +118,17 @@ Open the model selector and choose another Claude model returned by the Gateway.
 | --- | --- |
 | Gateway cannot connect | Use exactly `{{anthropic-base-url}}` for **Gateway base URL**. Do not append `/v1`. |
 | Request returns `401` | Copy the BetterToken API Key again and confirm that the auth scheme is `x-api-key`. |
-| No Claude models appear | Confirm that the API Key can use Claude provider models, then reopen the settings window. |
+| No Claude models appear | Copy an available Claude Model ID from the model plaza, save the configuration, and restart Claude Desktop. |
 | Configuration is not applied | Quit Claude Desktop completely, reopen it, and choose **Continue with Gateway**. |
 
 ## Advanced setup
 
-To use GPT, Kimi, GLM, or another non-Claude provider in Claude Desktop, follow the [Claude Desktop tab in CC Switch](/en/ai-tools/cc-switch#claude-desktop). CC Switch handles the API Format, model mapping, proxy, and restart flow.
+To manage several tool configurations in one app, see [CC Switch](/en/ai-tools/cc-switch).
 
-{/* tool-provider-support:start */}
-### Supported providers
-
-| Provider | Status |
-| --- | --- |
-| Claude | Manual setup |
-| GPT | Advanced setup |
-| Kimi | Advanced setup |
-| GLM | Advanced setup |
-
-<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
-
-<Accordion title="What the setup methods mean">
-  - **Advanced setup**: install CC Switch and use a local proxy, protocol conversion, or model mapping.
-  - **Manual setup**: enter the API Key, Base URL, and Model.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Related guides
 
-- [Use a custom API endpoint and third-party models in Claude Desktop](/en/faq/claude-desktop/third-party-models)
+- [Claude Desktop custom endpoint](/en/faq/claude-desktop/third-party-models)
 - [Configure BetterToken in CC Switch](/en/ai-tools/cc-switch)
 - [Configure a custom provider in Codex CLI](/en/ai-tools/codex)
 - [Download the latest CC Switch release](https://github.com/farion1231/cc-switch/releases)

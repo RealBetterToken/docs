@@ -16,7 +16,7 @@ Base URL 要跟工具协议匹配。Claude Code 通常使用 Anthropic-compatibl
 | Codex / OpenAI-compatible | `{{openai-base-url}}` |
 | Cursor、Cline、OpenCode、OpenClaw | `{{openai-base-url}}` |
 
-不要自己猜路径。API Key、Base URL 和 Model ID 必须来自同一个 provider / gateway。
+Claude Code 使用 `{{anthropic-base-url}}`，Codex CLI 和 OpenAI-compatible 工具使用 `{{openai-base-url}}`。按客户端使用的协议填写对应地址。
 
 ## 为什么会有不同 Base URL
 
@@ -28,7 +28,7 @@ Base URL 要跟工具协议匹配。Claude Code 通常使用 Anthropic-compatibl
 | Anthropic-compatible SDK | 通常由 SDK 拼接消息接口路径，不应重复添加 `/v1` |
 | 工具内置 provider | 可能自动补路径，也可能要求你填写完整 Base URL |
 
-同一个模型名不代表可以使用同一个 Base URL。真正需要匹配的是：工具协议、Base URL、API Key、提供商 和 Model ID。
+Claude Code 使用 `{{anthropic-base-url}}`，Codex CLI 和 OpenAI-compatible 工具使用 `{{openai-base-url}}`。按客户端使用的协议填写对应地址。
 
 ## 推荐速查
 
@@ -46,9 +46,9 @@ Base URL 要跟工具协议匹配。Claude Code 通常使用 Anthropic-compatibl
 | 报错或现象 | 可能原因 |
 | --- | --- |
 | `404 Not Found` | Base URL 路径和 SDK 期望不一致 |
-| `model not found` | Model ID 不属于当前 提供商 或 provider |
+| `model not found` | 核对模型广场中的准确 Model ID，并填入客户端的模型设置。 |
 | `invalid_api_key` | API Key 和 Base URL 不属于同一服务 |
-| 认证通过但模型不可用 | 提供商 和 Model ID 不匹配 |
+| 认证通过但模型不可用 | 核对模型广场中的准确 Model ID，并填入客户端的模型设置。 |
 | 请求一直失败 | 把 Anthropic-compatible 地址填进 OpenAI-compatible 工具，或反过来 |
 
 ## 推荐排查顺序
@@ -56,7 +56,7 @@ Base URL 要跟工具协议匹配。Claude Code 通常使用 Anthropic-compatibl
 1. 先确认工具要求 OpenAI-compatible 还是 Anthropic-compatible。
 2. 检查 Base URL 是否和工具协议匹配。
 3. 检查 API Key 是否来自同一个服务。
-4. 检查 Model ID 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>，并属于当前 提供商。
+4. 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 5. 发送一个最小请求测试，例如只问一句 `hello`。
 
 ## 代码示例
@@ -88,7 +88,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="your-claude-model-id",
+    model="your-model-id",
     max_tokens=1024,
     messages=[{"role": "user", "content": "hello"}]
 )

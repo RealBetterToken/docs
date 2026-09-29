@@ -5,7 +5,7 @@ description: "配置 OpenClaw 的 models.providers、BetterToken API Key、Base 
 icon: "paw"
 ---
 
-OpenClaw 通过 `~/.openclaw/openclaw.json` 接入 BetterToken。GPT 提供商使用 `openai-responses`；其他支持的提供商使用 `openai-completions`。
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## 重点信息
 
@@ -59,10 +59,10 @@ BetterToken Automatic setup 脚本会写入 OpenClaw 配置。脚本需要 Node.
 
 ### 配置 OpenClaw
 
-编辑 `~/.openclaw/openclaw.json`。只选择与你的 Model ID 所属提供商匹配的示例。
+从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 
 <Tabs>
-  <Tab title="GPT：openai-responses">
+  <Tab title="Responses API">
     ```json
     {
       "models": {
@@ -91,7 +91,7 @@ BetterToken Automatic setup 脚本会写入 OpenClaw 配置。脚本需要 Node.
     }
     ```
   </Tab>
-  <Tab title="非 GPT：openai-completions">
+  <Tab title="Chat Completions">
     ```json
     {
       "models": {
@@ -122,7 +122,7 @@ BetterToken Automatic setup 脚本会写入 OpenClaw 配置。脚本需要 Node.
   </Tab>
 </Tabs>
 
-不要根据模型名称猜测 `api`。GPT 使用 `openai-responses`；非 GPT 提供商只有在模型广场或 Setup 弹窗确认支持后才使用 `openai-completions`。
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## 验证连接
 
@@ -147,30 +147,11 @@ openclaw models status
 | --- | --- |
 | `config validate` 失败 | 检查 JSON 逗号、引号和括号。 |
 | `401` | 重新复制 `apiKey`，确认没有空格。 |
-| `404` 或协议错误 | GPT 检查 `openai-responses`；非 GPT 检查 `openai-completions`。Base URL 不要附加 endpoint。 |
+| `404` | `openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`. |
 | 模型未显示 | 检查模型是否同时存在于 provider 列表和 `agents.defaults.model.primary`。 |
 | 旧会话仍用旧模型 | 执行 `openclaw gateway restart` 并新建会话。 |
 
 ## 进阶配置
-
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 暂不支持 |
-| GPT | 命令行配置 + 手动配置 |
-| Kimi | 手动配置 |
-| GLM | 手动配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **命令行配置 + 手动配置**：可以使用生成的一键命令，也可以按照完整步骤手动配置。
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-  - **不支持**：当前没有经过验证的直接配置方式。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 相关 FAQ
 
@@ -186,5 +167,5 @@ openclaw models status
 ## 技术说明
 
 <Accordion title="Responses 与 Chat Completions">
-  `openai-responses` 让 OpenClaw 请求 `/v1/responses`，用于 GPT 提供商。`openai-completions` 让 OpenClaw 请求 `/v1/chat/completions`，用于已确认支持的非 GPT 提供商。两者的 `baseUrl` 都填写 `{{openai-base-url}}`。
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 </Accordion>

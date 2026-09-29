@@ -5,7 +5,7 @@ description: "OpenClaw の models.providers、BetterToken API Key、Base URL、O
 icon: "paw"
 ---
 
-OpenClaw は `~/.openclaw/openclaw.json` を通じて BetterToken に接続します。GPT プロバイダーのモデルでは `openai-responses`、その他の対応プロバイダーでは `openai-completions` を使います。
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## 主な設定
 
@@ -59,10 +59,10 @@ BetterToken の自動設定スクリプトが OpenClaw の設定を書き込み�
 
 ### OpenClaw を設定する
 
-`~/.openclaw/openclaw.json` を編集します。使用する Model ID のプロバイダーに合う例だけを使ってください。
+<a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 
 <Tabs>
-  <Tab title="GPT: openai-responses">
+  <Tab title="Responses API">
     ```json
     {
       "models": {
@@ -91,7 +91,7 @@ BetterToken の自動設定スクリプトが OpenClaw の設定を書き込み�
     }
     ```
   </Tab>
-  <Tab title="Non-GPT: openai-completions">
+  <Tab title="Chat Completions">
     ```json
     {
       "models": {
@@ -122,7 +122,7 @@ BetterToken の自動設定スクリプトが OpenClaw の設定を書き込み�
   </Tab>
 </Tabs>
 
-モデル名から `api` を推測しないでください。GPT では `openai-responses` を使います。GPT 以外のプロバイダーで `openai-completions` を使うのは、model plaza または Setup ダイアログで互換性を確認できた場合だけです。
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 
 ## 接続を確認する
 
@@ -147,30 +147,11 @@ openclaw models status
 | --- | --- |
 | `config validate` が失敗する | JSON のカンマ、引用符、波括弧を確認します。 |
 | `401` | `apiKey` をもう一度コピーし、余分な空白を削除します。 |
-| `404` またはプロトコルエラー | GPT では `openai-responses`、GPT 以外では `openai-completions` を使います。Base URL の末尾にエンドポイントを追加しないでください。 |
+| `404` | `openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`. |
 | モデルが表示されない | プロバイダーのモデル一覧と `agents.defaults.model.primary` の両方にモデルがあることを確認します。 |
 | 既存のセッションで古いモデルが使われる | `openclaw gateway restart` を実行し、新しいセッションを作成します。 |
 
 ## 詳細設定
-
-{/* tool-provider-support:start */}
-## 対応プロバイダー
-
-| プロバイダー | 対応状況 |
-| --- | --- |
-| Claude | 未対応 |
-| GPT | コマンドライン + 手動設定 |
-| Kimi | 手動設定 |
-| GLM | 手動設定 |
-
-<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
-
-<Accordion title="設定方法の説明">
-  - **コマンドライン + 手動設定**：生成されたコマンドを使うか、すべての手順を手動で設定します。
-  - **手動設定**：API Key、Base URL、Model を入力します。
-  - **未対応**：検証済みの直接接続方法はまだありません。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 関連するよくある質問
 
@@ -186,5 +167,5 @@ openclaw models status
 ## 技術的な詳細
 
 <Accordion title="Responses と Chat Completions">
-  `openai-responses` を使うと、OpenClaw は GPT プロバイダーのモデルに対して `/v1/responses` を呼び出します。`openai-completions` は、互換性が確認済みの GPT 以外のプロバイダーに対して `/v1/chat/completions` を呼び出します。どちらも `{{openai-base-url}}` を `baseUrl` として使います。
+`openai-responses`: `/v1/responses`; `openai-completions`: `/v1/chat/completions`. Base URL: `{{openai-base-url}}`.
 </Accordion>

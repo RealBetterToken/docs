@@ -1,11 +1,11 @@
 ---
-title: "Claude Code 安装、Claude 模型 API Key 与 Base URL 配置"
+title: "Claude Code 安装、API Key、Base URL 与模型配置"
 sidebarTitle: "Claude Code"
-description: "安装 Claude Code，使用命令行或配置文件填写 BetterToken API Key、Base URL，并为 Kimi、GLM 配置模型映射。"
+description: "使用 BetterToken API Key、Base URL BetterToken 和你选择的 Model ID 接入 Claude Code。 修改配置中的 Model ID 后重启 Claude Code。需要在会话中切换时，使用 /model YOUR_MODEL_ID。"
 icon: "terminal"
 ---
 
-Claude 提供商可以通过命令行或配置文件直接接入 Claude Code。Kimi、GLM 使用相同 Base URL，并在配置文件中填写模型映射。请先查看 [Claude Code 自定义 API Endpoint、API Key 与 Base URL 指南](/zh/faq/claude-code/api-key-base-url)。GPT 需要通过[进阶配置](#进阶配置)接入。
+使用 BetterToken API Key、Base URL `{{anthropic-base-url}}` 和你选择的 Model ID 接入 Claude Code。 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 
 ## 重点信息
 
@@ -13,7 +13,7 @@ Claude 提供商可以通过命令行或配置文件直接接入 Claude Code。K
 | --- | --- |
 | API Key | BetterToken API Key |
 | Base URL | `{{anthropic-base-url}}` |
-| Model | 由 Claude Code 选择 |
+| Model | `YOUR_MODEL_ID` |
 
 ## 准备工作
 
@@ -29,7 +29,7 @@ npm install -g @anthropic-ai/claude-code
 
 ## 命令行配置
 
-BetterToken Automatic setup 脚本会写入 Claude Code provider 配置。脚本需要 Node.js；如果没有通过参数提供 API Key，运行时会交互式提示输入。
+BetterToken Automatic setup 脚本会写入 Claude Code 配置。脚本需要 Node.js；如果没有通过参数提供 API Key，运行时会交互式提示输入。
 
 <Tabs>
   <Tab title="macOS / Linux">
@@ -48,33 +48,12 @@ BetterToken Automatic setup 脚本会写入 Claude Code provider 配置。脚本
 
 ## 手动配置
 
-### 配置 Claude 提供商
-
-Claude Code CLI 的配置文件位置：
-
 | 系统 | 文件 |
 | --- | --- |
 | macOS / Linux | `~/.claude/settings.json` |
 | Windows | `%USERPROFILE%\.claude\settings.json` |
 
-写入以下配置：
-
-```json
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "API_TIMEOUT_MS": "3000000"
-  }
-}
-```
-
-Claude 提供商只需要上面四个变量。不要额外设置 `ANTHROPIC_MODEL` 或 `ANTHROPIC_DEFAULT_*_MODEL`。
-
-### 配置 Kimi 或 GLM 提供商
-
-Kimi 和 GLM 需要在同一个 `settings.json` 中增加模型映射。把每个 `YOUR_MODEL_ID` 替换为 Setup 弹窗或模型广场中的实际 Model ID：
+从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 
 ```json
 {
@@ -83,6 +62,7 @@ Kimi 和 GLM 需要在同一个 `settings.json` 中增加模型映射。把每�
     "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "YOUR_MODEL_ID",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
@@ -90,9 +70,9 @@ Kimi 和 GLM 需要在同一个 `settings.json` 中增加模型映射。把每�
 }
 ```
 
-三个映射可以使用同一个 Model ID，也可以分别使用同一提供商下的不同模型。不要把 GPT Model ID 填入这里；GPT 使用页面末尾的进阶配置。
+把 `YOUR_MODEL_ID` 替换为复制的模型 ID。`ANTHROPIC_MODEL` 设置主模型，三个 `ANTHROPIC_DEFAULT_*_MODEL` 变量分别设置 Haiku、Sonnet 和 Opus 别名。可以使用同一个模型，也可以为各角色选择不同模型。
 
-### 在 VS Code Claude Code 扩展中配置
+### VS Code 扩展
 
 扩展使用 VS Code 的 `settings.json`。添加独立的 `claudeCode.environmentVariables` 配置：
 
@@ -114,12 +94,26 @@ Kimi 和 GLM 需要在同一个 `settings.json` 中增加模型映射。把每�
     {
       "name": "API_TIMEOUT_MS",
       "value": "3000000"
+    },
+    {
+      "name": "ANTHROPIC_MODEL",
+      "value": "YOUR_MODEL_ID"
+    },
+    {
+      "name": "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+      "value": "YOUR_MODEL_ID"
+    },
+    {
+      "name": "ANTHROPIC_DEFAULT_SONNET_MODEL",
+      "value": "YOUR_MODEL_ID"
+    },
+    {
+      "name": "ANTHROPIC_DEFAULT_OPUS_MODEL",
+      "value": "YOUR_MODEL_ID"
     }
   ]
 }
 ```
-
-保存后执行 **Developer: Reload Window**，或完全退出并重启 VS Code。
 
 ## 验证连接
 
@@ -133,9 +127,7 @@ claude
 
 ## 切换模型
 
-- Claude 提供商：由 Claude Code 管理模型选择，不要添加 `ANTHROPIC_MODEL` 或 `ANTHROPIC_DEFAULT_*_MODEL`。
-- Kimi 或 GLM 提供商：修改 `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 和 `ANTHROPIC_DEFAULT_OPUS_MODEL`，保存后完全重启 Claude Code。
-- GPT 提供商：按照下面的[进阶配置](#进阶配置)切换模型。
+修改配置中的 Model ID 后重启 Claude Code。需要在会话中切换时，使用 `/model YOUR_MODEL_ID`。
 
 ## 常见错误
 
@@ -143,31 +135,12 @@ claude
 | --- | --- |
 | `401` 或认证失败 | 检查 `ANTHROPIC_AUTH_TOKEN`，确认没有空格或过期 Key。 |
 | `ConnectionRefused` | 确认 `ANTHROPIC_BASE_URL` 正好是 `{{anthropic-base-url}}`，不要添加 `/v1`。 |
-| 模型不存在 | Claude 提供商不要手动填写模型；Kimi 或 GLM 请检查三个 `ANTHROPIC_DEFAULT_*_MODEL` 是否使用了当前有效的 Model ID。 |
+| Model ID | 核对模型广场中的准确 Model ID，并填入客户端的模型设置。 |
 | 配置未生效 | 检查文件路径，清除冲突的环境变量，然后完全重启 Claude Code。 |
 
 ## 进阶配置
 
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 命令行配置 + 手动配置 |
-| GPT | 进阶配置 |
-| Kimi | 手动配置 |
-| GLM | 手动配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **进阶配置**：安装 CC Switch，并使用本地代理、协议转换或模型映射。
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-  - **命令行配置 + 手动配置**：可以使用生成的一键命令，也可以按照完整步骤手动配置。
-</Accordion>
-{/* tool-provider-support:end */}
-
-需要在 Claude Code 中使用 GPT 时，请通过 [CC Switch 配置 BetterToken](/zh/ai-tools/cc-switch#claude-code)。在 Claude Code Tab 中填写 API Key、Base URL 和 Model Mapping，并按说明开启代理。
+需要统一管理多个工具的配置时，可使用 [CC Switch](/zh/ai-tools/cc-switch)。
 
 ### 相关 FAQ
 

@@ -1,7 +1,7 @@
 ---
 title: "Configuração do Hermes Agent: instalação, API Key, Base URL e modelos personalizados"
 sidebarTitle: "Hermes Agent"
-description: "Instale o Hermes Agent, configure a Base URL e a API Key da BetterToken, escolha um modelo de provedor compatível e corrija erros comuns. Para seu projeto."
+description: "Instale o Hermes Agent, configure a Base URL e a API Key da BetterToken, escolha um modelo disponível e corrija erros comuns. Para seu projeto."
 icon: "user-astronaut"
 ---
 
@@ -23,7 +23,7 @@ Para conectar o Hermes Agent à BetterToken, prepare uma API Key, informe a Base
 
 ### Requisitos adicionais
 
-- O ID de modelo selecionado vem de um **provedor compatível**
+- Copie o Model ID exato da <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - macOS, Linux, Windows 10/11 ou WSL2
 - Um modelo com janela de contexto mínima de 64K para uso de ferramentas
 
@@ -105,7 +105,7 @@ Use a configuração interativa de modelo do Hermes Agent como caminho principal
 
         - **Base URL**: `{{openai-base-url}}`
         - **API Key**: sua BetterToken API Key
-        - **Model**: um **ID de modelo de um provedor compatível** copiado da <a href={"{{model-plaza-url}}"}>model plaza</a>
+        - **Model**: um **ID de modelo disponível** copiado da <a href={"{{model-plaza-url}}"}>model plaza</a>
 
         Se o Hermes pedir o API mode, escolha OpenAI-compatible Chat Completions. Use o context length publicado para o modelo e confirme pelo menos 64K.
       </Step>
@@ -154,7 +154,7 @@ Depois de confirmar a saída, execute a migração:
 hermes claw migrate
 ```
 
-Após a migração, revise a **Base URL**, a API Key e o ID de modelo do Hermes Agent. Eles devem corresponder a `{{openai-base-url}}`, à sua BetterToken API Key e a um ID de modelo de um provedor compatível.
+Após a migração, revise a **Base URL**, a API Key e o ID de modelo do Hermes Agent. Eles devem corresponder a `{{openai-base-url}}`, à sua BetterToken API Key e a um ID de modelo disponível.
 
 ## Verifique a conexão
 
@@ -177,8 +177,8 @@ Execute `hermes model` fora do chat para adicionar ou reconfigurar um provedor. 
 ### Solução de problemas
 
 - Se as solicitações falharem ou não retornarem resposta, confirme que **Base URL** é exatamente `{{openai-base-url}}`. Não acrescente `/chat/completions` nesse campo.
-- Se o Hermes informar que o modelo não existe, confirme que **Model** é um ID de modelo de um provedor compatível da <a href={"{{model-plaza-url}}"}>model plaza</a>.
-- Se a autenticação falhar, verifique espaços copiados e confirme que o ID de modelo selecionado vem do **provedor compatível**.
+- Se o Hermes informar que o modelo não existe, confirme que **Model** é um ID de modelo disponível da <a href={"{{model-plaza-url}}"}>model plaza</a>.
+- Copie o Model ID exato da <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - Se o Hermes continuar usando o modelo antigo após uma alteração, encerre a sessão atual do Hermes Agent e execute `hermes` novamente.
 - A BetterToken geralmente não exige `User-Agent` adicional nem cabeçalhos personalizados. Adicione cabeçalhos somente quando o gateway personalizado, roteamento de tenant, observabilidade ou camada de cache exigir explicitamente.
 
@@ -192,26 +192,6 @@ Execute `hermes model` fora do chat para adicionar ou reconfigurar um provedor. 
 - [O que são model_provider, base_url e wire_api?](/pt-br/faq/codex/model-provider-base-url-wire-api)
 - [Como configurar uma API compatível com OpenAI no Cline](/pt-br/faq/cline/openai-compatible-api)
 - [Guia de configuração da BetterToken no OpenClaw](/pt-br/ai-tools/openclaw)
-
-## Advanced setup
-
-{/* tool-provider-support:start */}
-## Provedores compatíveis
-
-| Provedor | Status |
-| --- | --- |
-| Claude | Sem suporte |
-| GPT | Configuração manual |
-| Kimi | Configuração manual |
-| GLM | Configuração manual |
-
-<Note>Os status se aplicam ao método de configuração do BetterToken descrito nesta página.</Note>
-
-<Accordion title="O que significa cada método de configuração">
-  - **Configuração manual**: informe a API Key, a Base URL e o Model.
-  - **Sem suporte**: ainda não há um método verificado de conexão direta.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ## Detalhes técnicos
 

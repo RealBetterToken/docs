@@ -1,7 +1,7 @@
 ---
 title: "Aider のセットアップ：インストール、API Key、Base URL、カスタムモデル"
 sidebarTitle: "Aider"
-description: "Aider をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+description: "Aider をインストールし、BetterToken の Base URL と API Key を設定して、モデルを選び、よくあるエラーを解決します。"
 icon: "wrench"
 ---
 
@@ -77,7 +77,7 @@ aider --help
   </Tab>
 </Tabs>
 
-`YOUR_API_KEY` を BetterToken API Key に置き換えます。`YOUR_MODEL_ID` は例です。モデル広場にある現在の**対応プロバイダーの Model ID**に置き換え、`openai/` プレフィックスはそのままにします。
+`YOUR_API_KEY` を BetterToken API Key に置き換えます。`YOUR_MODEL_ID` は例です。モデル広場にある現在の** Model ID**に置き換え、`openai/` プレフィックスはそのままにします。
 
 ### .env で設定を保存する
 
@@ -114,7 +114,7 @@ API Key は共有 YAML ファイルではなく、`OPENAI_API_KEY` 環境変数�
 
 ### モデルを変更する
 
-起動コマンドのモデルを、現在の**対応プロバイダーの Model ID**に置き換えます。
+起動コマンドのモデルを、現在の** Model ID**に置き換えます。
 
 ```bash
 aider --model openai/YOUR_MODEL_ID
@@ -135,7 +135,7 @@ aider --model openai/YOUR_MODEL_ID
 | 症状 | 対処方法 |
 | --- | --- |
 | `401`、`Unauthorized`、`Invalid API key` | `OPENAI_API_KEY` を確認し、BetterToken API Key であることと余分な空白がないことを確かめます。 |
-| `model not found` またはモデルが利用できない | モデル広場から現在の**対応プロバイダーの Model ID**をコピーし、`openai/model-id` として Aider に渡します。 |
+| `model not found` またはモデルが利用できない | <a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。 |
 | Request URL が正しくない、または `404` | `OPENAI_API_BASE` が `{{openai-base-url}}` であることを確認します。`/chat/completions` は追加しません。 |
 | Windows が新しい変数を読み取らない | `setx` は新しく開いたターミナルにのみ反映されます。現在の PowerShell ウィンドウを閉じ、新しいウィンドウを開きます。 |
 | Aider が不明なモデルを報告する | まず Model ID と API プロバイダーを確認します。Aider は新しいモデルに警告を表示することがありますが、モデル広場の現在の ID を使用する必要があります。 |
@@ -155,24 +155,6 @@ Aider はこのプレフィックスで OpenAI 互換モデルを識別します
 推奨しません。プロジェクトファイルで API Key が公開されるリスクを減らすため、環境変数または Git で無視する `.env` ファイルを使用してください。
 
 ## 高度な設定
-
-{/* tool-provider-support:start */}
-### 対応プロバイダー
-
-| プロバイダー | 対応状況 |
-| --- | --- |
-| Claude | 未対応 |
-| GPT | 手動設定 |
-| Kimi | 手動設定 |
-| GLM | 手動設定 |
-
-<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
-
-<Accordion title="設定方法の説明">
-  - **手動設定**：API Key、Base URL、Model を入力します。
-  - **未対応**：検証済みの直接接続方法はまだありません。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 関連ガイド
 

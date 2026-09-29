@@ -1,7 +1,7 @@
 ---
 title: "Claude Code で API Key と Base URL を設定する方法"
 sidebarTitle: "API Key と Base URL"
-description: "Claude Code の設定で、API Key、Base URL、Anthropic 互換エンドポイント、Claude と GPT の各プロバイダーがどのように関係するかを説明します。"
+description: "BetterToken API Key、Base URL BetterToken、使用する Model ID を設定して Claude Code に接続します。"
 ---
 
 ## 要点
@@ -12,7 +12,7 @@ API Key はリクエストの認証に使います。Base URL は、モデルへ
 
 Claude API 全般へのアクセスを探している場合は、[BetterToken の Claude API ページ](https://bettertoken.ai/ru/claude-api/)をご覧ください。ランディングページは API アクセスの検討向けで、この FAQ は Claude Code での API Key と Base URL の設定に特化しています。
 
-**Claude プロバイダー**では、Claude Code に通常 `ANTHROPIC_BASE_URL` と `ANTHROPIC_AUTH_TOKEN` が必要です。**GPT プロバイダー**では、設定ガイドに記載された Claude Code のモデルマッピングも必要です。
+BetterToken API Key、Base URL `{{anthropic-base-url}}`、使用する Model ID を設定して Claude Code に接続します。 <a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 
 ## この設定が重要になる場合
 
@@ -20,7 +20,7 @@ Claude API 全般へのアクセスを探している場合は、[BetterToken �
 - API Key はあるが、どの Base URL を使うべきか分からない
 - Claude Code で認証またはエンドポイントのエラーが表示される
 - `{{anthropic-base-url}}` と `{{openai-base-url}}` のどちらを使うか判断したい
-- Claude と GPT のプロバイダーの違いを理解したい
+
 
 ## 主な概念
 
@@ -34,28 +34,34 @@ Claude API 全般へのアクセスを探している場合は、[BetterToken �
 
 ## 推奨設定
 
-プロバイダーに応じて設定方法を選びます。
+BetterToken API Key、Base URL `{{anthropic-base-url}}`、使用する Model ID を設定して Claude Code に接続します。
 
-Claude プロバイダー：
+<a href={"{{model-plaza-url}}"}>モデル広場</a>から正確な Model ID をコピーしてください。
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
   }
 }
 ```
 
-GPT プロバイダーには、Claude Code の追加モデルマッピングが必要です。この短い例だけをコピーせず、[Claude Code の完全な設定ガイド](/ja/ai-tools/claude-code)に従ってください。
+`YOUR_MODEL_ID` をコピーした ID に置き換えます。`ANTHROPIC_MODEL` で主モデルを、3 つの `ANTHROPIC_DEFAULT_*_MODEL` 変数で Haiku、Sonnet、Opus のエイリアスを設定します。同じモデルでも、役割ごとに別のモデルでも指定できます。
 
-設定を編集したら Claude Code を再起動し、短いテストメッセージを送信します。失敗した場合は、まず Base URL が誤って `{{openai-base-url}}` に設定されていないか確認してください。
+設定の Model ID を変更し、Claude Code を再起動します。セッション中は `/model YOUR_MODEL_ID` で切り替えられます。
 
 ## よくある間違い
 
 - Claude Code の Base URL に `/v1` を追加する。
 - API Key を変更しても、リクエストの送信先をデフォルトエンドポイントのままにする。
-- GPT プロバイダーの Model ID を Claude プロバイダーのモデルとして扱う。
+
 - Claude Code の Anthropic 互換フィールドに OpenAI 互換エンドポイントを設定する。
 - シェルプロファイルに古い環境変数を定義し、新しい設定を上書きする。
 

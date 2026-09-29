@@ -10,36 +10,15 @@ description: "Устраните сбои Cowork и Code mode после под�
 - Code mode показывает `Claude Code process exited with code 1`
 - Тот же API Key работает в Claude Code CLI из терминала
 
-Обычно у этих проблем две разные причины: desktop Gateway auth scheme не соответствует провайдеру, или bundled Claude Code version внутри Claude Desktop еще не завершила обновление.
-
 Если Gateway еще не настроен, начните с [использования BetterToken API в Claude Desktop](/faq/claude-desktop-bettertoken-api).
 
 ## Сначала исправьте Cowork mode
 
-**Причина**: **Gateway auth scheme** не соответствует провайдеру.
+Claude Desktop поддерживает только модели Claude. Это ограничение клиента Claude Desktop.
 
-В настройках Claude Desktop Gateway выберите auth scheme по provider:
+Проверьте, что API Key скопирован полностью и не истёк. Для этой настройки Gateway используйте `x-api-key`, сохраните изменения и перезапустите Claude Desktop.
 
-- Для provider **Claude** установите **Gateway auth scheme** в `x-api-key`
-- Для provider **GPT** установите **Gateway auth scheme** в `bearer`
-
-После выбора правильной scheme Claude Desktop автоматически получает доступные модели provider. Если auth scheme неверная, Cowork mode может не пройти Gateway authentication.
-
-<Steps>
-  <Step title="Откройте настройки third-party inference">
-    В macOS menu bar выберите **Developer** → **Configure Third-Party Inference...**.
-  </Step>
-
-  <Step title="Измените auth scheme">
-    Выберите **Gateway auth scheme** по provider: `x-api-key` для **Claude** и `bearer` для **GPT**.
-  </Step>
-
-  <Step title="Сохраните config">
-    Нажмите **Apply locally**, чтобы сохранить local Gateway config.
-  </Step>
-</Steps>
-
-После этого Cowork mode обычно снова работает.
+Следуйте [инструкции Claude Desktop](/faq/claude-desktop-bettertoken-api): выберите **Gateway**, укажите Base URL `{{anthropic-base-url}}`, BetterToken API Key и **Gateway auth scheme** `x-api-key`. Нажмите **Apply locally** и полностью перезапустите Claude Desktop.
 
 ## Затем исправьте ошибки выхода Code mode
 
@@ -71,5 +50,5 @@ description: "Устраните сбои Cowork и Code mode после под�
 
 | Симптом | Частая причина | Исправление |
 |---------|----------------|-------------|
-| Cowork mode не работает | **Gateway auth scheme** не соответствует провайдеру | Используйте `x-api-key` для провайдера **Claude** или `bearer` для провайдера **GPT**, затем нажмите **Apply locally** |
+| Cowork | Gateway auth scheme | Проверьте, что API Key скопирован полностью и не истёк. Для этой настройки Gateway используйте `x-api-key`, сохраните изменения и перезапустите Claude Desktop. |
 | Code mode показывает `Claude Code process exited with code 1` | Claude Desktop fallback на старую Claude Code version | Дождитесь скачивания новой версии, полностью закройте через **Cmd+Q**, затем откройте снова |

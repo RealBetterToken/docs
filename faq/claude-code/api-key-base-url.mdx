@@ -1,10 +1,8 @@
 ---
 title: "Claude Code custom API endpoint: API Key и Base URL"
 sidebarTitle: "API Key и Base URL"
-description: "Настройте Claude Code custom API endpoint: API Key, Base URL и Anthropic-compatible endpoint для провайдеров Claude и GPT. С примерами и частыми ошибками."
 keywords:
-  - "claude code custom api endpoint"
-  - "claude code api key base url"
+description: "Подключите Claude Code с помощью BetterToken API Key, Base URL BetterToken и выбранного Model ID."
 ---
 
 ## Claude Code custom API endpoint: короткий ответ
@@ -15,7 +13,7 @@ Claude Code custom API endpoint должен быть Anthropic-compatible. В �
 
 API Key подтверждает запрос. Base URL говорит Claude Code, куда отправлять model requests. Оба значения должны относиться к одному provider и одному protocol.
 
-С провайдером **Claude** обычно нужны `ANTHROPIC_BASE_URL` и `ANTHROPIC_AUTH_TOKEN`. С провайдером **GPT** дополнительно нужны model mappings Claude Code из инструкции по настройке.
+Подключите Claude Code с помощью BetterToken API Key, Base URL `{{anthropic-base-url}}` и выбранного Model ID. Скопируйте точный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 ## Когда это важно
 
@@ -23,7 +21,7 @@ API Key подтверждает запрос. Base URL говорит Claude Co
 - У вас есть API Key, но непонятно, какой Base URL указать
 - Claude Code показывает auth или endpoint error
 - Вы выбираете между `{{anthropic-base-url}}` и `{{openai-base-url}}`
-- Нужно понять различия provider Claude и GPT
+
 
 ## Ключевые понятия
 
@@ -37,28 +35,34 @@ API Key подтверждает запрос. Base URL говорит Claude Co
 
 ## Рекомендуемая настройка
 
-Выберите путь по провайдеру.
+Подключите Claude Code с помощью BetterToken API Key, Base URL `{{anthropic-base-url}}` и выбранного Model ID.
 
-провайдер Claude:
+Скопируйте точный Model ID из <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "{{anthropic-base-url}}",
-    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>"
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_API_KEY",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "YOUR_MODEL_ID",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "YOUR_MODEL_ID"
   }
 }
 ```
 
-провайдер GPT требует дополнительных Claude Code model mappings. Используйте полную [инструкцию Claude Code](/ai-tools/claude-code), а не только короткий пример с этой страницы.
+Замените `YOUR_MODEL_ID` скопированным ID модели. `ANTHROPIC_MODEL` задаёт основную модель, а три переменные `ANTHROPIC_DEFAULT_*_MODEL` задают псевдонимы Haiku, Sonnet и Opus. Можно указать одну модель для всех ролей или разные модели.
 
-После редактирования config перезапустите Claude Code и отправьте короткое тестовое сообщение. Если оно не проходит, сначала проверьте, не был ли Base URL случайно заменен на `{{openai-base-url}}`.
+Измените Model ID в настройках и перезапустите Claude Code. Для переключения в текущей сессии используйте `/model YOUR_MODEL_ID`.
 
 ## Частые ошибки
 
 - Добавлять `/v1` к Base URL Claude Code.
 - Менять API Key, но оставлять requests на default endpoint.
-- Использовать Model ID провайдера GPT как модель провайдера Claude.
+
 - Вставлять OpenAI-compatible endpoint в Anthropic-compatible поля Claude Code.
 - Оставлять старые environment variables в shell profile, которые перекрывают новую config.
 

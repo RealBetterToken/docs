@@ -1,10 +1,10 @@
 ---
-title: "Configuración avanzada de proveedores BetterToken en CC Switch"
+title: "Configura BetterToken en CC Switch"
 sidebarTitle: "CC Switch"
-description: "Gestiona en CC Switch los proveedores BetterToken, el mapeo de modelos y los ajustes de proxy para Claude Code, Claude Desktop, Codex CLI, OpenCode y OpenClaw."
+description: "Administra API Keys, endpoints y modelos de BetterToken para Claude Code, Claude Desktop, Codex CLI, OpenCode y OpenClaw desde CC Switch."
 ---
 
-CC Switch es una aplicación de escritorio multiplataforma para gestionar proveedores en Claude Code, Claude Desktop, Codex, OpenCode y OpenClaw. Esta página reúne la configuración avanzada. Empieza por la página de configuración directa de cada herramienta y usa CC Switch cuando necesites cambiar de proveedor o ejecutar un modelo no nativo.
+CC Switch es una aplicación de escritorio opcional para administrar API Keys, direcciones y modelos de Claude Code, Claude Desktop, Codex CLI, OpenCode y OpenClaw.
 
 ## Instala CC Switch
 
@@ -29,9 +29,8 @@ CC Switch es una aplicación de escritorio multiplataforma para gestionar provee
 
 - Una BetterToken API Key (<a href={"{{register-url}}"}>regístrate aquí</a>)
 - Claude Code usa el protocolo Anthropic, por lo que su `Base URL` es `{{anthropic-base-url}}`
-- Claude Desktop con un proveedor distinto de Claude requiere la versión más reciente de Claude Desktop y CC Switch `v3.16.5` o posterior
 - Codex, OpenCode y OpenClaw usan el protocolo compatible con OpenAI, por lo que su `Base URL` es `{{openai-base-url}}`
-- Un ID de modelo vigente del **proveedor GPT** para Codex, OpenCode y OpenClaw. Cópialo desde la <a href={"{{model-plaza-url}}"}>model plaza de BetterToken</a> o deja que CC Switch lo obtenga desde `/v1/models`
+- Un ID de modelo vigente para Codex, OpenCode y OpenClaw. Cópialo desde la <a href={"{{model-plaza-url}}"}>model plaza de BetterToken</a> o deja que CC Switch lo obtenga desde `/v1/models`
 
 <Info>
   En el primer inicio, CC Switch importa automáticamente las configuraciones que encuentra en tu equipo. Puedes conservar tu proveedor oficial como alternativa y añadir BetterToken junto a él.
@@ -45,168 +44,25 @@ CC Switch es una aplicación de escritorio multiplataforma para gestionar provee
 
 <Tabs>
   <Tab title="Claude Code" id="claude-code">
-    <Steps>
-      <Step title="Abre Claude Code en CC Switch y añade un proveedor">
-        Abre CC Switch, cambia a **Claude Code** y haz clic en **Add Provider**.
+    En CC Switch, selecciona **Claude Code** y haz clic en **Add Provider**.
 
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-add-provider.png"
-            alt="Página de Claude Code en CC Switch con el botón para crear un proveedor en la esquina superior derecha."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
+    Conecta Claude Code con tu BetterToken API Key, la Base URL `{{anthropic-base-url}}` y el Model ID que quieras usar.
 
-      <Step title="Completa los campos básicos">
-        - **Provider Name**: `BetterToken-claude` (u otro nombre fácil de identificar)
-        - **Base URL**: `{{anthropic-base-url}}`
-        - **API Key**: tu BetterToken API Key
-        - **API Format**: `OpenAI Responses API`
+    - **Provider Name**: `BetterToken`
+    - **API Key**: `YOUR_API_KEY`
+    - **API Endpoint**: `{{anthropic-base-url}}`
 
-        Los marcadores numerados de la captura corresponden a estos campos:
+    Usa el formato Anthropic Messages API. Introduce los Model ID elegidos en **Model Mapping** y guarda la configuración.
 
-        1. **Provider Name**
-        2. **API Key**
-        3. **Base URL**
+    Copia el Model ID exacto de la <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-basic-fields.png"
-            alt="Página de edición del proveedor Claude Code en CC Switch con los campos Provider Name, API Key y API Endpoint."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="Configura el mapeo según el proveedor">
-        - Si usas el **proveedor Claude**, normalmente no necesitas cambiar las opciones avanzadas ni el mapeo de modelos
-        - Si usas el **proveedor GPT**, completa esta configuración adicional:
-
-        1. Abre **Advanced Options**
-        2. Establece **API Format** en **OpenAI Responses API**
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-api-format.png"
-            alt="Opciones avanzadas de CC Switch con API Format establecido en OpenAI Responses API."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        3. En **Model Mapping**, haz clic en **Fetch Model List**
-        4. Elige valores explícitos en los menús de **Primary Model**, **Thinking Model**, **Haiku Default Model**, **Sonnet Default Model** y **Opus Default Model**
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-model-mapping.png"
-            alt="Sección Model Mapping de CC Switch con Fetch Model List y las asignaciones de Primary, Thinking, Haiku, Sonnet y Opus."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        Todos estos modelos deben usar ID vigentes del **proveedor GPT** obtenidos en la <a href={"{{model-plaza-url}}"}>model plaza de BetterToken</a>.
-      </Step>
-
-      <Step title="Guarda, cambia de proveedor y decide si activar el proxy">
-        Después de guardar, vuelve a la lista de proveedores:
-
-        1. Marca el proveedor BetterToken como activo
-        2. Si usas el **proveedor Claude**, no necesitas activar el **proxy de CC Switch** de la esquina superior izquierda
-        3. Si usas el **proveedor GPT**, activa el **proxy de CC Switch**
-
-        La captura siguiente muestra BetterToken-claude activo en la lista. Activa el **proxy de CC Switch** de la esquina superior izquierda solo si usas el **proveedor GPT**.
-
-        <Frame>
-          <img
-            src="/images/cc-switch/claude-code-enable-proxy.png"
-            alt="Lista de proveedores de CC Switch con BetterToken-claude seleccionado y marcado como In Use."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-    </Steps>
+    Guarda la configuración, activa BetterToken y reinicia completamente el cliente.
   </Tab>
 
   <Tab title="Claude Desktop" id="claude-desktop">
-    <Info>
-      Esta pestaña corresponde a GPT, Kimi, GLM y otros proveedores distintos de Claude. Para el proveedor Claude, usa la [configuración directa de Claude Desktop](/es/faq/claude-desktop-bettertoken-api).
-    </Info>
+    Claude Desktop solo admite modelos Claude. Es una limitación del cliente Claude Desktop.
 
-    <Steps>
-      <Step title="Cambia a Claude Desktop y añade un proveedor">
-        Abre CC Switch, selecciona el icono **Claude Desktop** en la barra superior y haz clic en **+** en la esquina superior derecha.
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/cc-switch-claude-desktop-add-provider.png"
-            alt="Selecciona Claude Desktop en CC Switch y haz clic en el botón más para añadir un proveedor."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="Introduce los campos básicos">
-        - **Provider Name**: usa un nombre reconocible, como `BetterToken-GPT`
-        - **API Key**: tu BetterToken API Key
-        - **API Endpoint**: `{{anthropic-base-url}}`
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-basic-fields.png"
-            alt="Introduce Provider Name, API Key y API Endpoint para Claude Desktop en CC Switch."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="Configura API Format y el mapeo de modelos">
-        Selecciona **OpenAI Responses API (Requires routing)** en **API Format** y haz clic en **Fetch Models**.
-
-        Asigna Sonnet, Opus, Fable y Haiku al ID de modelo que quieras usar:
-
-        | Función del modelo | Modelo solicitado |
-        | --- | --- |
-        | Sonnet | `YOUR_MODEL_ID` |
-        | Opus | `YOUR_MODEL_ID` |
-        | Fable | `YOUR_MODEL_ID` |
-        | Haiku | `YOUR_MODEL_ID` |
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-model-mapping.png"
-            alt="Selecciona OpenAI Responses API y configura el mapeo de modelos de Claude Desktop en CC Switch."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-
-        Copia un ID de modelo vigente desde la <a href={"{{model-plaza-url}}"}>model plaza</a> o el cuadro **Setup** de la API Key. Activa **Declare 1M** solo cuando la model plaza indique que el modelo admite una ventana de contexto de 1M.
-      </Step>
-
-      <Step title="Guarda, cambia de proveedor y activa el proxy">
-        Guarda el proveedor, establécelo como **In use** y activa el interruptor del proxy en la esquina superior izquierda.
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/provider-enable-proxy.png"
-            alt="El proveedor BetterToken para Claude Desktop está activo y el proxy de CC Switch está habilitado."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-
-      <Step title="Reinicia Claude Desktop">
-        Cierra Claude Desktop por completo y vuelve a abrirlo. **Gateway** en la esquina inferior izquierda confirma que la configuración está activa. Elige un modelo asignado en el menú del cuadro de mensajes.
-
-        <Frame>
-          <img
-            src="/images/claude-desktop-third-party-models/claude-desktop-gateway-ready.png"
-            alt="Claude Desktop muestra Gateway después de reiniciarse y ofrece los modelos asignados mediante CC Switch."
-            style={{ borderRadius: '0.5rem' }}
-          />
-        </Frame>
-      </Step>
-    </Steps>
+    Sigue la [guía de Claude Desktop](/es/faq/claude-desktop-bettertoken-api): selecciona **Gateway**, usa la Base URL `{{anthropic-base-url}}`, tu BetterToken API Key y **Gateway auth scheme** `x-api-key`. Pulsa **Apply locally** y reinicia Claude Desktop por completo.
   </Tab>
 
   <Tab title="Codex" id="codex-cli">
@@ -285,7 +141,7 @@ CC Switch es una aplicación de escritorio multiplataforma para gestionar provee
       </Step>
 
       <Step title="Elige el modelo predeterminado">
-        Usa **Fetch Models** cuando sea posible. Si necesitas introducir el modelo manualmente, usa un ID vigente del **proveedor GPT** de la <a href={"{{model-plaza-url}}"}>model plaza de BetterToken</a>.
+        Usa **Fetch Models** cuando sea posible. Si necesitas introducir el modelo manualmente, usa un ID vigente de la <a href={"{{model-plaza-url}}"}>model plaza de BetterToken</a>.
 
         OpenCode lee directamente la configuración guardada del proveedor y no necesita el proxy de CC Switch.
       </Step>
@@ -312,7 +168,7 @@ CC Switch es una aplicación de escritorio multiplataforma para gestionar provee
       </Step>
 
       <Step title="Elige el modelo predeterminado">
-        Usa **Fetch Models** cuando sea posible. Si necesitas introducir el modelo manualmente, usa un ID vigente del **proveedor GPT**.
+        Usa **Fetch Models** cuando sea posible. Si necesitas introducir el modelo manualmente, usa un ID vigente.
 
         OpenClaw usa directamente la configuración guardada del proveedor y no necesita el proxy de CC Switch.
       </Step>
@@ -341,11 +197,10 @@ CC Switch puede conservar el inicio de sesión oficial de Codex al cambiar a un 
 ## Problemas habituales
 
 - No añadas `/v1` a la `Base URL` de Claude Code
-- Si Claude Code usa el **proveedor GPT**, establece **API Format** en **OpenAI Responses API** dentro de **Advanced Options**
-- Si Claude Code usa el **proveedor Claude**, no necesitas activar el **proxy de CC Switch**
+
 - Si Claude Desktop usa un proveedor distinto de Claude, activa el **proxy de CC Switch** y reinicia la aplicación por completo
 - Codex, OpenCode y OpenClaw deben usar `{{openai-base-url}}`
-- Cuando Codex, OpenCode u OpenClaw soliciten un modelo, usa un ID del **proveedor GPT**
+- Cuando Codex, OpenCode u OpenClaw soliciten un modelo, usa un ID
 - Si falla **Fetch Models**, comprueba la API Key y la `Base URL` e introduce manualmente el ID del modelo
 - Si el cambio no se aplica, confirma que BetterToken sea el proveedor activo en CC Switch y reinicia el cliente o gateway afectado como se describe arriba
 
@@ -359,7 +214,7 @@ CC Switch puede conservar el inicio de sesión oficial de Codex al cambiar a un 
 
 ## Preguntas relacionadas
 
-- [Usar modelos de terceros y Codex en Claude Desktop](/es/faq/claude-desktop/third-party-models)
+- [Endpoint de Claude Desktop](/es/faq/claude-desktop/third-party-models)
 - [API compatible con OpenAI frente a API compatible con Anthropic](/es/faq/concepts/openai-compatible-vs-anthropic-compatible)
 - [MCP frente a API Key y Base URL](/es/faq/concepts/mcp-vs-api-key-base-url)
 - [¿Qué son model_provider, base_url y wire_api?](/es/faq/codex/model-provider-base-url-wire-api)

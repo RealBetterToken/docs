@@ -1,7 +1,7 @@
 ---
 title: "Continue CLI のセットアップ：インストール、API Key、Base URL、カスタムモデル"
 sidebarTitle: "Continue CLI"
-description: "Continue CLI をインストールし、BetterToken の Base URL と API Key を設定して、対応プロバイダーのモデルを選び、よくあるエラーを解決します。"
+description: "Continue CLI をインストールし、BetterToken の Base URL と API Key を設定して、モデルを選び、よくあるエラーを解決します。"
 icon: "terminal"
 ---
 
@@ -110,7 +110,7 @@ cn --version
         useResponsesApi: false
     ```
 
-    `YOUR_MODEL_ID` は例です。モデル広場にある現在の**対応プロバイダーの Model ID**に置き換えます。
+    `YOUR_MODEL_ID` は例です。モデル広場にある現在の** Model ID**に置き換えます。
   </Step>
 
   <Step title="Continue CLI を起動する">
@@ -155,7 +155,7 @@ cn --config ./continue-bettertoken.yaml
 | 症状 | 対処方法 |
 | --- | --- |
 | `401`、`Unauthorized`、または API Key エラー | 現在のターミナルに `BETTERTOKEN_API_KEY` が設定され、BetterToken API Key であることを確認します。 |
-| `model not found` またはモデルが利用できない | モデル広場から現在の**対応プロバイダーの Model ID**をコピーします。Claude プロバイダーのモデルは使用しないでください。 |
+| `model not found` | モデル広場で正確な Model ID を確認し、クライアントのモデル設定に入力してください。 |
 | Continue が古い設定を使用し続ける | `cn --config` と明示的なファイルパスで起動します。ファイル名が `config.yaml` であることを確認します。 |
 | Request URL が正しくない、または `404` | `apiBase` が `{{openai-base-url}}` であることを確認します。`/chat/completions` やモデル名は追加しません。 |
 | API Key 変数を解決できない | `BETTERTOKEN_API_KEY` を `cn` を起動する同じターミナルで設定してから、もう一度起動します。 |
@@ -175,24 +175,6 @@ cn --config ./continue-bettertoken.yaml
 Continue CLI セッション内で `/config` を入力すると、ローカル設定を表示して選択できます。
 
 ## 高度な設定
-
-{/* tool-provider-support:start */}
-### 対応プロバイダー
-
-| プロバイダー | 対応状況 |
-| --- | --- |
-| Claude | 未対応 |
-| GPT | 手動設定 |
-| Kimi | 手動設定 |
-| GLM | 手動設定 |
-
-<Note>ここに示す対応状況は、このページで説明する BetterToken の設定方法に適用されます。</Note>
-
-<Accordion title="設定方法の説明">
-  - **手動設定**：API Key、Base URL、Model を入力します。
-  - **未対応**：検証済みの直接接続方法はまだありません。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 関連ガイド
 

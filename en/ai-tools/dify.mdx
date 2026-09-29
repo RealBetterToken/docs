@@ -1,7 +1,7 @@
 ---
 title: "Dify BetterToken setup: API key, Base URL, and custom models"
 sidebarTitle: "Dify"
-description: "Connect Dify to BetterToken with a Base URL, API key, and compatible provider model, then verify the connection and fix common errors. Practical guidance."
+description: "Connect Dify to BetterToken with a Base URL, API key, and available model, then verify the connection and fix common errors. Practical guidance."
 icon: "layer-group"
 ---
 
@@ -67,7 +67,7 @@ Use these values for the first model:
 | Dify field | Recommended value |
 |---|---|
 | Model Type | `LLM` |
-| Model Name | a model ID from a supported provider from the model plaza |
+| Model Name | a model ID from the model plaza |
 | Model display name | the same value as Model Name is fine |
 | API Key | your BetterToken API key |
 | API Base URL | `{{openai-base-url}}` |
@@ -124,14 +124,14 @@ Send a short test prompt. If the tool returns a response without an authenticati
 
 Open the model selector or change the `Model` field in the configuration. Use the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>, then restart the current session.
 
-Dify stores custom configuration per model ID. To add another model from a supported provider, click **Add Model** again under the same provider. Use the new ID for both **Model Name** and **model name for API endpoint**. You can reuse the Base URL and API Key.
+Dify stores custom configuration per model ID. To add another model, click **Add Model** again under the same provider. Use the new ID for both **Model Name** and **model name for API endpoint**. You can reuse the Base URL and API Key.
 
 ## Common errors
 
 ### Saving returns 401
 
 - Check that the API Key is complete
-- confirm that the Model ID comes from the **supported provider**
+- Copy the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 - Check the key status and balance in the BetterToken Dashboard
 
 ### Saving returns 404
@@ -142,7 +142,7 @@ Dify stores custom configuration per model ID. To add another model from a suppo
 
 ### Dify reports model not found
 
-**Model Name** can affect how Dify displays and selects the model. The actual request model is controlled by **model name for API endpoint**. Use the same model ID from a supported provider in both fields.
+**Model Name** can affect how Dify displays and selects the model. The actual request model is controlled by **model name for API endpoint**. Use the same model ID in both fields.
 
 ### Plain chat works, but Agent tools fail
 
@@ -153,24 +153,6 @@ Set **Function Call Type** back to `Not Support` and verify a basic LLM node. Ch
 This is expected. A chat LLM cannot replace an embedding model. This guide does not confirm BetterToken embedding or rerank endpoints for Dify; configure a supported embedding provider separately for Knowledge.
 
 ## Advanced setup
-
-{/* tool-provider-support:start */}
-### Supported providers
-
-| Provider | Status |
-| --- | --- |
-| Claude | Not supported |
-| GPT | Manual setup |
-| Kimi | Manual setup |
-| GLM | Manual setup |
-
-<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
-
-<Accordion title="What the setup methods mean">
-  - **Manual setup**: enter the API Key, Base URL, and Model.
-  - **Not supported**: no verified direct setup is currently available.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Related guides
 

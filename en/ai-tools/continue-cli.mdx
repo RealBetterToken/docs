@@ -1,7 +1,7 @@
 ---
 title: "Continue CLI setup: installation, API key, Base URL, and custom models"
 sidebarTitle: "Continue CLI"
-description: "Install Continue CLI, configure the BetterToken Base URL and API key, choose a compatible provider model, and troubleshoot common errors. Practical guidance."
+description: "Install Continue CLI, configure the BetterToken Base URL and API key, choose an available model, and troubleshoot common errors. Practical guidance."
 icon: "terminal"
 ---
 
@@ -110,7 +110,7 @@ cn --version
         useResponsesApi: false
     ```
 
-    `YOUR_MODEL_ID` is only an example. Replace it with a current **model ID from a supported provider** from the model plaza.
+    `YOUR_MODEL_ID` is only an example. Replace it with a current **model ID** from the model plaza.
   </Step>
 
   <Step title="Start Continue CLI">
@@ -155,7 +155,7 @@ Open the model selector or change the `Model` field in the configuration. Use th
 | Symptom | What to do |
 | --- | --- |
 | `401`, `Unauthorized`, or an API Key error | Confirm `BETTERTOKEN_API_KEY` is set in the current terminal and is a BetterToken API Key. |
-| `model not found` or model unavailable | Copy a current **model ID from a supported provider** from the model plaza. Do not use a Claude provider model. |
+| `model not found` | Check the exact Model ID in the model plaza and enter it in the client model settings. |
 | Continue still uses an old configuration | Start with `cn --config` and the explicit file path. Check that the filename is `config.yaml`. |
 | Wrong request URL or `404` | Confirm `apiBase` is `{{openai-base-url}}`. Do not append `/chat/completions` or a model name. |
 | The API Key variable is not resolved | Set `BETTERTOKEN_API_KEY` in the same terminal that starts `cn`, then launch it again. |
@@ -175,24 +175,6 @@ Yes. `provider: openai` with `useResponsesApi: false` uses OpenAI-compatible Cha
 Enter `/config` inside a Continue CLI session to view and choose local configurations.
 
 ## Advanced setup
-
-{/* tool-provider-support:start */}
-### Supported providers
-
-| Provider | Status |
-| --- | --- |
-| Claude | Not supported |
-| GPT | Manual setup |
-| Kimi | Manual setup |
-| GLM | Manual setup |
-
-<Note>Statuses apply to the BetterToken setup documented on this page.</Note>
-
-<Accordion title="What the setup methods mean">
-  - **Manual setup**: enter the API Key, Base URL, and Model.
-  - **Not supported**: no verified direct setup is currently available.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### Related guides
 

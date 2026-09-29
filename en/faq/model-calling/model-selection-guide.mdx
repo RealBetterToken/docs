@@ -1,18 +1,17 @@
 ---
 title: "How do I choose the right AI model?"
 sidebarTitle: "Choose a model"
-description: "Learn how to choose an AI model by protocol, provider, task type, quality, speed, context length, and cost. Includes setup steps, examples, and common fixes."
+description: "Learn how to choose an AI model by protocol, task type, quality, speed, context length, and cost. Includes setup steps, examples, and common fixes."
 ---
 
 ## Short answer
 
-Do not choose only by model name. First confirm which protocol and provider your tool needs. Then choose by task type, quality, speed, context length, and cost.
+Copy the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
-If you use BetterToken, Claude Code should usually use the **Claude provider**. Codex CLI, Cursor, Cline, OpenCode, OpenClaw, and other external tools should usually use the **GPT provider**. Copy the Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+Use `{{anthropic-base-url}}` for Claude Code and `{{openai-base-url}}` for Codex CLI and OpenAI-compatible tools. Choose the endpoint for the protocol your client uses.
 
 ## When you need this
 
-- You are not sure whether to use the **Claude provider** or the **GPT provider**
 - You switch between Claude Code, Codex CLI, Cursor, Cline, or similar tools
 - A model works, but it is too expensive, too slow, or has too little context
 - You want a cheaper model for batch tasks
@@ -20,18 +19,15 @@ If you use BetterToken, Claude Code should usually use the **Claude provider**. 
 
 ## Start with the tool, then choose the model
 
-The first step is not comparing model rankings. The first step is checking which protocol the client expects.
+Use `{{anthropic-base-url}}` for Claude Code and `{{openai-base-url}}` for Codex CLI and OpenAI-compatible tools. Choose the endpoint for the protocol your client uses.
 
-| Use case | Recommended provider | Common Base URL |
-| --- | --- | --- |
-| Claude Code | Claude provider | `{{anthropic-base-url}}` |
-| Claude Desktop Gateway | Claude provider, or the group required by the local gateway | Follow the gateway configuration |
-| Codex CLI | GPT provider | `{{openai-base-url}}` |
-| Cursor | GPT provider | `{{openai-base-url}}` |
-| Cline | GPT provider | `{{openai-base-url}}` |
-| OpenCode / OpenClaw | GPT provider | `{{openai-base-url}}` |
+Claude Desktop supports only Claude models. This is a Claude Desktop client limitation.
 
-If the protocol or provider is wrong, the model can still exist but the request may fail with `model not found`, authentication errors, or an invalid request format.
+| Tool | Base URL |
+| --- | --- |
+| Claude Code | `{{anthropic-base-url}}` |
+| Claude Desktop | `{{anthropic-base-url}}` |
+| Codex CLI / External tools | `{{openai-base-url}}` |
 
 ## Choose by task type
 
@@ -48,29 +44,23 @@ Do not send every task to the most expensive model by default. Many batch tasks 
 ## Recommended workflow
 
 1. Confirm whether the tool supports an OpenAI-compatible or Anthropic-compatible API.
-2. Choose the **Claude provider** or **GPT provider** based on the tool.
-3. Copy the current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
-4. Test quality, speed, and cost with a small task.
-5. Check usage in the dashboard before using that model long term.
-6. Keep a stronger backup model for complex tasks instead of configuring only one model.
+2. Copy the current Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
+3. Test quality, speed, and cost with a small task.
+4. Check usage in the dashboard before using that model long term.
+5. Keep a stronger backup model for complex tasks instead of configuring only one model.
 
 ## Common mistakes
 
 - Looking only at the display name and not confirming the Model ID.
-- Using a **Claude provider** model in a GPT / OpenAI-compatible tool.
-- Using a **GPT provider** model in an Anthropic-compatible Claude Code setup.
 - Assuming the newest model is always best for every task.
 - Comparing only output quality while ignoring context length, speed, and cost.
 - Moving production traffic to a new model without a small test first.
 
 ## About BetterToken
 
-BetterToken gives you one place to manage API Keys, balance, and usage records. You can manage model calls from the same dashboard, but each tool still needs the protocol and provider it supports.
+Use `{{anthropic-base-url}}` for Claude Code and `{{openai-base-url}}` for Codex CLI and OpenAI-compatible tools. Choose the endpoint for the protocol your client uses.
 
-Quick rule:
-
-- Claude Code uses the **Claude provider** and `{{anthropic-base-url}}`
-- Codex CLI, Cursor, Cline, OpenCode, and OpenClaw use the **GPT provider** and `{{openai-base-url}}`
+Copy the exact Model ID from the <a href={"{{model-plaza-url}}"}>model plaza</a>.
 
 ## Related docs
 

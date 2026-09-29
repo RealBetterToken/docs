@@ -10,36 +10,15 @@ Claude Desktop で BetterToken Gateway を設定した後、次の症状は通�
 - Code モードに `Claude Code process exited with code 1` と表示される
 - 同じ API Key がターミナルの Claude Code CLI では動作する
 
-これらの問題は通常、2 つの別の原因によって発生します。デスクトップの Gateway 認証方式がプロバイダーと一致しない、または Claude Desktop にバンドルされた Claude Code バージョンの更新が完了していないことです。
-
 Gateway をまだ設定していない場合は、[Claude Desktop で BetterToken API を使用する](/ja/faq/claude-desktop-bettertoken-api)から始めてください。
 
 ## まず Cowork モードを解決する
 
-**原因**：**Gateway auth scheme** がプロバイダーと一致していません。
+Claude Desktop で使用できるのは Claude モデルのみです。これは Claude Desktop クライアントの制限です。
 
-Claude Desktop の Gateway 設定で、プロバイダーに応じた認証方式を選択します。
+API Key が正しくコピーされ、有効期限内であることを確認します。この Gateway 設定には `x-api-key` を使用し、保存して Claude Desktop を再起動してください。
 
-- BetterToken API Key が有効な場合は、**Gateway auth scheme** を `x-api-key` に設定する
-- BetterToken API Key が有効な場合は、**Gateway auth scheme** を `bearer` に設定する
-
-正しい方式を選択すると、Claude Desktop はそのグループで利用可能なモデルを自動取得します。認証方式が誤っていると、Cowork モードの Gateway 認証に失敗する場合があります。
-
-<Steps>
-  <Step title="サードパーティ推論設定を開く">
-    macOS のメニューバーで **Developer** → **Configure Third-Party Inference...** を選択します。
-  </Step>
-
-  <Step title="認証方式を変更する">
-    プロバイダーに応じて **Gateway auth scheme** を選択します。**Claude プロバイダー**には `x-api-key`、**GPT プロバイダー**には `bearer` を使用します。
-  </Step>
-
-  <Step title="設定を保存する">
-    **Apply locally** をクリックしてローカル Gateway 設定を保存します。
-  </Step>
-</Steps>
-
-この変更後、Cowork モードは通常再び動作します。
+[Claude Desktop ガイド](/ja/faq/claude-desktop-bettertoken-api)に従い、**Gateway**、Base URL `{{anthropic-base-url}}`、BetterToken API Key、**Gateway auth scheme** `x-api-key` を設定します。**Apply locally** で保存し、Claude Desktop を完全に再起動してください。
 
 ## 次に Code モードの終了エラーを解決する
 
@@ -71,5 +50,5 @@ Cowork は動作する一方で Code モードの `</>` タブに `Claude Code p
 
 | 症状 | よくある原因 | 解決方法 |
 |---------|-------------------|-----|
-| Cowork モードが動作しない | **Gateway auth scheme** がプロバイダーと一致しない | **Claude プロバイダー**には `x-api-key`、**GPT プロバイダー**には `bearer` を使用し、**Apply locally** をクリックする |
+| Cowork | Gateway auth scheme | API Key が正しくコピーされ、有効期限内であることを確認します。この Gateway 設定には `x-api-key` を使用し、保存して Claude Desktop を再起動してください。 |
 | Code モードに `Claude Code process exited with code 1` と表示される | Claude Desktop が古い Claude Code バージョンへフォールバックしている | 新しいバージョンのダウンロード完了を待ち、**Cmd+Q** で完全に終了してから再度開く |

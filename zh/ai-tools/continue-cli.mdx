@@ -1,7 +1,7 @@
 ---
 title: "Continue CLI 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Continue CLI"
-description: "安装 Continue CLI，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
+description: "安装 Continue CLI，配置 BetterToken Base URL 和 API Key，选择模型并排查常见错误。"
 icon: "terminal"
 ---
 
@@ -110,7 +110,7 @@ cn --version
         useResponsesApi: false
     ```
 
-    `YOUR_MODEL_ID` 只是示例。请改为模型广场中当前可用的 **受支持提供商的模型 ID**。
+    `YOUR_MODEL_ID` 只是示例。请改为模型广场中当前可用的 **模型 ID**。
   </Step>
 
   <Step title="启动 Continue CLI">
@@ -153,7 +153,7 @@ cn --config ./continue-bettertoken.yaml
 | 现象 | 处理方式 |
 | --- | --- |
 | `401`、`Unauthorized` 或 API Key 错误 | 确认 `BETTERTOKEN_API_KEY` 已在当前终端设置，并且使用的是 BetterToken API Key。 |
-| `model not found` 或模型不可用 | 从模型广场重新复制当前可用的 **受支持提供商的模型 ID**，不要填写 Claude 提供商模型。 |
+| `model not found` 或模型不可用 | 从模型广场重新复制当前可用的 **模型 ID**， |
 | 仍使用旧配置 | 使用 `cn --config` 明确指定文件路径；检查文件名为 `config.yaml`。 |
 | 请求地址错误或 `404` | 确认 `apiBase` 是 `{{openai-base-url}}`，不要填入 `/chat/completions` 或模型名称。 |
 | 配置中的密钥变量未解析 | 在启动 `cn` 的同一个终端中设置 `BETTERTOKEN_API_KEY`，然后重新运行启动命令。 |
@@ -173,24 +173,6 @@ cn --config ./continue-bettertoken.yaml
 在 Continue CLI 会话中输入 `/config`，即可查看并选择本地配置。
 
 ## 进阶配置
-
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 暂不支持 |
-| GPT | 手动配置 |
-| Kimi | 手动配置 |
-| GLM | 手动配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-  - **不支持**：当前没有经过验证的直接配置方式。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 相关指南
 

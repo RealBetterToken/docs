@@ -1,7 +1,7 @@
 ---
 title: "Dify BetterToken 설정: API Key, Base URL 및 사용자 지정 모델"
 sidebarTitle: "Dify"
-description: "Base URL, API Key 및 호환되는 provider model로 Dify를 BetterToken에 연결한 다음 연결을 확인하고 일반적인 오류를 해결하세요."
+description: "Base URL, API Key 및 모델로 Dify를 BetterToken에 연결한 다음 연결을 확인하고 일반적인 오류를 해결하세요."
 icon: "layer-group"
 ---
 
@@ -67,7 +67,7 @@ Dify model-provider UI에서 이 설정을 완료하세요. configuration file�
 | Dify field | 권장 value |
 |---|---|
 | Model Type | `LLM` |
-| Model Name | 모델 광장의 지원되는 provider의 model ID |
+| Model Name | <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 정확한 Model ID를 복사하세요. |
 | Model display name | Model Name과 같은 value 사용 가능 |
 | API Key | BetterToken API Key |
 | API Base URL | `{{openai-base-url}}` |
@@ -124,14 +124,14 @@ Dify model-provider UI에서 이 설정을 완료하세요. configuration file�
 
 model selector를 열거나 configuration의 `Model` field를 변경하세요. <a href={"{{model-plaza-url}}"}>모델 광장</a>의 정확한 Model ID를 사용한 다음 현재 session을 다시 시작하세요.
 
-Dify는 model ID별로 custom configuration을 저장합니다. 지원되는 provider의 다른 model을 추가하려면 같은 provider에서 **Add Model**을 다시 클릭하세요. 새 ID를 **Model Name** 및 **model name for API endpoint** 모두에 사용합니다. Base URL과 API Key는 재사용할 수 있습니다.
+Dify는 model ID별로 custom configuration을 저장합니다. 다른 model을 추가하려면 같은 provider에서 **Add Model**을 다시 클릭하세요. 새 ID를 **Model Name** 및 **model name for API endpoint** 모두에 사용합니다. Base URL과 API Key는 재사용할 수 있습니다.
 
 ## 일반적인 오류
 
 ### 저장 시 401 반환
 
 - API Key가 완전한지 확인
-- Model ID가 **지원되는 provider**에서 왔는지 확인
+- <a href={"{{model-plaza-url}}"}>모델 광장</a>에서 정확한 Model ID를 복사하세요.
 - BetterToken Dashboard에서 key status와 balance 확인
 
 ### 저장 시 404 반환
@@ -142,7 +142,7 @@ Dify는 model ID별로 custom configuration을 저장합니다. 지원되는 pro
 
 ### Dify가 model not found 보고
 
-**Model Name**은 Dify가 model을 표시하고 선택하는 방식에 영향을 줄 수 있습니다. 실제 request model은 **model name for API endpoint**가 제어합니다. 두 필드 모두 지원되는 provider의 동일한 model ID를 사용하세요.
+**Model Name**은 Dify가 model을 표시하고 선택하는 방식에 영향을 줄 수 있습니다. 실제 request model은 **model name for API endpoint**가 제어합니다. 두 필드 모두 동일한 model ID를 사용하세요.
 
 ### Plain chat은 작동하지만 Agent tools가 실패함
 
@@ -153,24 +153,6 @@ Dify는 model ID별로 custom configuration을 저장합니다. 지원되는 pro
 이는 예상된 동작입니다. chat LLM은 embedding model을 대체할 수 없습니다. 이 가이드는 Dify용 BetterToken embedding 또는 rerank endpoints를 확인하지 않으므로 Knowledge용 지원되는 embedding provider를 별도로 구성하세요.
 
 ## Advanced setup
-
-{/* tool-provider-support:start */}
-## 지원 Provider
-
-| Provider | 상태 |
-| --- | --- |
-| Claude | 지원되지 않음 |
-| GPT | 수동 설정 |
-| Kimi | 수동 설정 |
-| GLM | 수동 설정 |
-
-<Note>표시된 상태는 이 페이지에서 설명하는 BetterToken 설정 방식에 적용됩니다.</Note>
-
-<Accordion title="설정 방식 설명">
-  - **수동 설정**: API Key, Base URL, Model을 입력하세요.
-  - **지원되지 않음**: 검증된 직접 연결 방식이 아직 없습니다.
-</Accordion>
-{/* tool-provider-support:end */}
 
 ### 관련 가이드
 

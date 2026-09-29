@@ -1,7 +1,7 @@
 ---
 title: "Hermes Agent 安装、API Key、Base URL 与自定义模型配置"
 sidebarTitle: "Hermes Agent"
-description: "安装 Hermes Agent，配置 BetterToken Base URL 和 API Key，选择兼容的提供商模型并排查常见错误。"
+description: "安装 Hermes Agent，配置 BetterToken Base URL 和 API Key，选择模型并排查常见错误。"
 icon: "user-astronaut"
 ---
 
@@ -23,7 +23,7 @@ icon: "user-astronaut"
 
 ### 工具特定要求
 
-- 所选 Model ID 来自 **受支持提供商**
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
 - macOS、Linux、Windows 10/11 或 WSL2 环境
 - 用于 Hermes Agent 工具调用的模型至少具备 64K 上下文窗口
 
@@ -98,7 +98,7 @@ hermes doctor
 
         - **Base URL**：`{{openai-base-url}}`
         - **API Key**：你的 BetterToken API Key
-        - **Model**：从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **受支持提供商的模型 ID**
+        - **Model**：从<a href={"{{model-plaza-url}}"}>模型广场</a>复制的 **模型 ID**
 
         如果 Hermes 询问 API mode，请选择 OpenAI-compatible Chat Completions 选项。如果需要填写 context length，请使用该模型公布的值，并确保至少为 64K。
       </Step>
@@ -161,8 +161,8 @@ Reply with HERMES_OK only. Do not use tools.
 ### 排障提示
 
 - 无响应或请求失败时，先确认 **Base URL** 是否正好是 `{{openai-base-url}}`。这里通常不要再拼接 `/chat/completions`。
-- 报模型不存在时，确认 **Model** 是否来自<a href={"{{model-plaza-url}}"}>模型广场</a>中的 受支持提供商。
-- 报鉴权失败时，确认 API Key 没有复制空格，并检查 Model ID 来自 **受支持提供商**。
+- 从<a href={"{{model-plaza-url}}"}>模型广场</a>复制准确的 Model ID。
+- 报鉴权失败时，确认 API Key 没有复制空格，确认 Key 未过期。
 - 仍在使用旧模型时，退出聊天，运行 `hermes model` 重新保存 custom endpoint，再开始新聊天。
 - 接入 BetterToken 时通常不需要额外设置 `User-Agent` 或其他 headers。只有当你还接了自定义网关、租户路由、审计或缓存服务时，再按对应上游服务的官方文档补充。
 
@@ -176,26 +176,6 @@ Reply with HERMES_OK only. Do not use tools.
 - [Codex CLI 中 model_provider、base_url 和 wire_api 是什么？](/zh/faq/codex/model-provider-base-url-wire-api)
 - [Cline 如何配置 OpenAI-compatible API？](/zh/faq/cline/openai-compatible-api)
 - [OpenClaw 接入 BetterToken 指南](/zh/ai-tools/openclaw)
-
-## 进阶配置
-
-{/* tool-provider-support:start */}
-### 支持的提供商
-
-| 提供商 | 状态 |
-| --- | --- |
-| Claude | 暂不支持 |
-| GPT | 手动配置 |
-| Kimi | 手动配置 |
-| GLM | 手动配置 |
-
-<Note>状态仅针对本页介绍的 BetterToken 接入方式。</Note>
-
-<Accordion title="配置方式说明">
-  - **手动配置**：填写 API Key、Base URL 和 Model。
-  - **不支持**：当前没有经过验证的直接配置方式。
-</Accordion>
-{/* tool-provider-support:end */}
 
 ## 技术说明
 
@@ -227,7 +207,7 @@ hermes claw migrate --dry-run
 hermes claw migrate
 ```
 
-迁移后仍建议检查 Hermes Agent 中的 **Base URL**、API Key 和模型 ID，确保它们分别对应 `{{openai-base-url}}`、你的 BetterToken API Key，以及 受支持提供商的模型 ID。
+迁移后仍建议检查 Hermes Agent 中的 **Base URL**、API Key 和模型 ID，确保它们分别对应 `{{openai-base-url}}`、你的 BetterToken API Key，以及准确的模型 ID。
 </Accordion>
 
 ## Hermes 官方参考
